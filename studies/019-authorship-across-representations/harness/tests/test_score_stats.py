@@ -171,10 +171,15 @@ def test_a_small_gap_at_the_registered_n_is_indeterminate():
     assert stats.excludes_zero(26, 25, 50)["excludesZero"] is False
 
 
-def test_the_pilot_anchor_decides():
-    """The pilot's high-kill fractions on the paired subset were A 1/5, C 5/5.
-    At the registered N = 50 the same proportions are decisively apart, which is
-    the operating point section 5's OC table calls power 1.00."""
+def test_a_wide_gap_at_the_registered_n_decides():
+    """ROUND-4 FINDING R4-4. This case used to be called "the pilot anchor" and cited
+    A 1/5, C 5/5 as the pilot's fractions. Those figures are three pilot issues out of
+    date — the current issue is arm A 1/5 and arm C 0/5, the opposite sign — and a
+    statistics test has no business anchoring itself to a pilot at all: the arithmetic
+    it exercises is 0.20 against 1.00 at N = 50, which holds whatever any pilot says.
+    Recast as the arithmetic boundary case it always was. The pilot's own fractions are
+    asserted where they belong, against the pilot artifact, in
+    `test_prereg_currency.py`."""
     result = stats.excludes_zero(10, 50, 50)
     assert result["excludesZero"] and result["decision"] == stats.DECIDED_RIGHT
 

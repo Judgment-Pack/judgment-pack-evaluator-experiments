@@ -48,11 +48,14 @@ THE STIMULUS IS REGISTERED (SCAFFOLD item S6, closed)
 -----------------------------------------------------
 `registered_stimulus()` was a refusing stub for as long as section 5 named no
 census grid. Section 5 names one now — "Registered census stimulus: the gold-row
-input set (the frozen gold suite's inputs — 109 at the current revision, and the
-freeze pins the count in `harness/PINS.json`'s `goldSuite.rows`; disagreement
-profiles are computed over exactly these cells, closing the section 9
-joint-reading concern about unstated stimuli)" — so the stimulus is READ from
-the frozen gold suite, as ids and order only. Section 9 is unchanged and still governs: E4's stimulus is the mutant set
+input set (the frozen gold suite's inputs, and the freeze pins the count in
+`harness/PINS.json`'s `goldSuite.rows`; disagreement profiles are computed over
+exactly these cells, closing the section 9 joint-reading concern about unstated
+stimuli)" — so the stimulus is READ from the frozen gold suite, as ids and order
+only. The quotation deliberately elides section 5's row COUNT (round-4 finding
+R4-6: this docstring still said 109 after the suite grew to 117). The count is
+never restated here; `registered_stimulus()` computes it from the rows it is
+handed, and the currency suite recomputes section 5's from the committed suite. Section 9 is unchanged and still governs: E4's stimulus is the mutant set
 against each run's own authored suite, the census's is these cells, and no
 tradeoff statement combining the two is licensed. The label travels inside every
 record this module emits so that a reader of one table cannot lose it.
@@ -237,11 +240,12 @@ def registered_stimulus(gold_rows: list, gold_sha256: str = None) -> dict:
 
     This was a refusing stub (`E5-STIMULUS-UNREGISTERED`, SCAFFOLD item S6) for
     as long as section 5 named no grid. It names one now — "Registered census
-    stimulus: the gold-row input set (the frozen gold suite's inputs — 109 at
-    the current revision, and the freeze pins the count in `harness/PINS.json`'s
-    `goldSuite.rows`; disagreement profiles are computed over exactly these
-    cells, closing the section 9 joint-reading concern about unstated
-    stimuli)" — so the stimulus is READ from the frozen
+    stimulus: the gold-row input set (the frozen gold suite's inputs, and the
+    freeze pins the count in `harness/PINS.json`'s `goldSuite.rows`;
+    disagreement profiles are computed over exactly these cells, closing the
+    section 9 joint-reading concern about unstated
+    stimuli)" — the row COUNT elided from the quotation, because a count
+    restated here goes stale and did (R4-6) — so the stimulus is READ from the frozen
     gold suite rather than refused, and it is read as a stimulus and not as an
     oracle: only the row IDS and their ORDER are taken, and no expectation of
     theirs reaches any census number. What each arm's artifacts ANSWER on these

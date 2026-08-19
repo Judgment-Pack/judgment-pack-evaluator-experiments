@@ -68,7 +68,7 @@
   "note": "The freeze commit is the squash-merge commit of the freeze PR on main - named by reference because a squash hash cannot exist before the merge. At the freeze every pin above is filled, results/primary-attempt-001 must not exist, and the scorer refuses if it does."
  },
  "goldSuite": {
-  "note": "76 rows at design time; 109 at this revision, after the round-1 arm-A reference repair added coverage of the former X1 region. The pre-freeze adequacy gate may add more, and any added row re-runs the full agreement chain (both engines, the clean-room oracle). The count is recomputed from the committed suite by harness/tests/test_prereg_currency.py rather than read from this note.",
+  "note": "76 rows at design time; 117 at this revision - the round-1 arm-A reference repair added coverage of the former X1 region (76 -> 109) and the round-3 adequacy re-closure added eight prose-derived rows (109 -> 117). The pre-freeze adequacy gate may add more, and any added row re-runs the full agreement chain (both engines, the clean-room oracle). The count is recomputed from the committed suite by harness/tests/test_prereg_currency.py rather than read from this note.",
   "path": "gold/GOLD.json",
   "rows": null,
   "sha256": null
@@ -98,7 +98,7 @@
   "rego": null,
   "sha256": null
  },
- "note": "Pin registry, 011/012/014 convention. It is a pin, not an attestation - but every non-null member here is ENFORCED before anything is spent, not merely declared: harness/integrity.py verifies the port chain and the exact-set study manifest, harness/authoring_call.sh verifies the codex binary digest, the CLI version, the interpreter, the per-arm prompt digest and the registered timeout ceiling before any call, and the scorer (harness/score.py, not yet assembled - see harness/SCAFFOLD.md) will verify the rest before it adjudicates anything. EVERY freeze pin below is null: this study is pre-freeze, nothing citable has run, and registeredLabelRule makes that visible in every output rather than in a banner.",
+ "note": "Pin registry, 011/012/014 convention. It is a pin, not an attestation - but every non-null member here is ENFORCED before anything is spent, not merely declared: harness/integrity.py verifies the port chain and the exact-set study manifest, harness/authoring_call.sh verifies the codex binary digest, the CLI version, the interpreter, the per-arm prompt digest and the registered timeout ceiling before any call, and the scorer (harness/score.py, assembled and under test since the round-1 response) verifies the rest before it adjudicates anything. EVERY freeze pin below is null: this study is pre-freeze, nothing citable has run, and registeredLabelRule makes that visible in every output rather than in a banner.",
  "offGoldCertificate": {
   "note": "The pre-freeze off-gold equivalence check: the two references' agreement re-established over the full derived input space. The REGISTERED EXCLUSION SET IS EMPTY - X1 was retired by round-1 finding R1-2 and the arm-A reference was repaired - so the check now requires ZERO divergence points anywhere in the 236,196-cell space rather than requiring every divergence to fall inside a registered class. This is what makes the E4 identity control safe, so it is a freeze pin and not a report.",
   "path": "controls/off-gold-equivalence.json",
@@ -117,7 +117,7 @@
  },
  "ownPorts": {
   "path": "harness/PORTS.md",
-  "sha256": "sha256:528b958b895a99d9ecf4347828ddede47b4f0023a28ed2de05b743b1bd61bdd0"
+  "sha256": "sha256:62eb3d4c550555e75256f0eeab6461fd6905eca3c961ac5e1767492fb1f2199d"
  },
  "pinnedFrom": {
   "alsoTakenFrom": {

@@ -1,17 +1,22 @@
 # Preregistration — Study 019: authorship across representations
 
-**Status: DRAFT, fifth major revision (post-round-3). Not frozen. Nothing citable has
-run. Three cross-vendor review rounds have read this study and all three returned
-DO NOT FREEZE; this revision is the response to round 3, whose ten findings are recorded
-verbatim in [`reviews/round-3/`](reviews/round-3/) and are **open** until the maintainer's
-written disposition per finding lands in [`PREREG-REVIEW.md`](PREREG-REVIEW.md). Every
+**Status: DRAFT, sixth major revision (post-round-4). Not frozen. Nothing citable has
+run. Four cross-vendor review rounds have read this study: rounds 1–3 returned
+DO NOT FREEZE, and round 4 returned FREEZABLE AFTER LISTED FIXES. Round 3's ten findings
+are dispositioned and closed. This revision is the response to round 4, whose findings
+are recorded verbatim in [`reviews/round-4/`](reviews/round-4/) and dispositioned in
+[`PREREG-REVIEW.md`](PREREG-REVIEW.md) — which is where the per-round detail lives, so
+this covered header restates as little of it as the record allows; a round's findings are **open** only until the
+maintainer's written disposition per finding lands there. Every
 freeze pin is null; every execution before
 the freeze is a PILOT and supports no claim. Items marked `GATE(pre-freeze)` are work that
-must land before any review round can return `freezable as written`. (The revision ordinal is stated honestly rather than
-continuously: the fourth revision — the round-2 response — left this header naming the
-third revision and the first review round, which is the drift round-3 finding R3-10 caught,
-and both front doors are now under a test that reads the latest round out of the review
-record.)**
+must land before any review round can return `freezable as written` — which no round has
+returned, so this header does not describe a freezable study. (The revision ordinal is
+stated honestly rather than continuously: the fourth revision — the round-2 response — left
+this header naming the third revision and the first review round, which is the drift
+round-3 finding R3-10 caught; round 4 then found the repaired headers stale again in a way
+R3-10's tests could not see, so both front doors are now under tests that read the latest
+round, its state and every verdict on record out of the review record itself.)**
 
 ## Design provenance (disclosed, because it shaped the registered claims)
 
@@ -82,8 +87,12 @@ supplementary stratum is the reason it is closed); three of the four additionall
 `with input as` term with no `vendor` member at all. Arms A and B have none. Two quantities move in opposite directions and both are published:
 **the high-kill denominator does not move** — §1a/§5 register admitted runs, an
 identity-failing run stays in the denominator carrying `highKill: null`, so arm C is 0/5
-and not 0/1 — while **arm C's descriptive mean paired kill rate rests on the single
-admitted run that passed** and is a one-run number wearing a mean's clothes. Against the
+and not 0/1 — while **arm C's descriptive mean paired kill rate rests on the one
+identity-PASSING run of the five admitted** and is a one-run number wearing a mean's
+clothes. (Admitted and identity-passing are different cohorts and round-4 finding R4-4
+found several sentences of this package treating them as one: five arm-C runs are
+admitted, one of them passed. Every identity count is over the five; every kill rate is
+over the one.) Against the
 superseded issue, the arms read A 0.888 → 0.878, B 0.902 → 0.897, C 0.855 → 0.806, with
 C's move driven by the domain check and all three also carrying the round-3 adequacy
 repair's larger gold suite and re-witnessed corpora. No high-kill fraction changed. The
@@ -419,12 +428,16 @@ Resolved values below were verified empirically on 2026-08-14/15
   anything is stamped, so an unregistered empty-witness mutant and a stale registry entry
   are each blocking. Re-closing the gate moved gold, the pairing and both integer cuts, and
   every artifact that quotes them (`design/mutants/OC-TABLE.md` §7, the current pilot, and
-  this section) was regenerated with it. (Recorded as the repair's price rather than as a
-  thin spot in gold: nine of the 26 JPS drops are the new `subsumed-region-lemma` class —
-  `r-o1-review`'s region is a strict subset of `r-o1-wide-low`'s, both name `review`, and
-  D5 suppresses them together, so no gold suite can see an edit to its boundaries. The
-  reference is **not** changed for it; a second repair would re-open this gate, the off-gold
-  certificate and the corpus.)
+  this section) was regenerated with it. (Recorded with its attribution kept separate from
+  its size, round-4 finding R4-2: **nine** of the 26 JPS drops are the new
+  `subsumed-region-lemma` class — `r-o1-review`'s region is a strict subset of
+  `r-o1-wide-low`'s, both name `review`, and D5 suppresses them together, so a gold suite
+  cannot see an edit that moves cells *within* the containing region — but only **six** of
+  the nine are the repair's marginal price; the other three were already unkillable in the
+  pre-repair corpus. The one boundary edit that leaves the containing region, `m-a-076`, is
+  killed. The split is derived in `design/mutants/adequacy_region_lemma_price.json`, not
+  asserted. The reference is **not** changed for it; a second repair would re-open this
+  gate, the off-gold certificate and the corpus.)
 - **Review flag A1: CONFIRMED, not live.** At risk exactly 40 in a LOW country the
   permitted spend ceiling drops twentyfold across one point; the text is unambiguous, four
   gold rows depend on it, and the drafter's intent was put and confirmed on 2026-08-15
@@ -686,8 +699,11 @@ defect rates in production, and (for the 27 JPS mutants the manifest marks
 reported both ways. **The mutant space also inherits the arm-A reference's shape, and the
 round-3 adequacy re-closure measured one instance of it**: `r-o1-review`'s region is a
 strict subset of `r-o1-wide-low`'s, both say `review`, and D5 suppresses them together, so
-nine mutants of that rule's boundaries change no cell and no test suite in any arm can
-detect them (§4; `design/mutants/ADEQUACY.md`, `subsumed-region-lemma`). They are registered
+nine mutants of that rule change no cell's answer and no test suite in any arm can detect
+them — six of the nine marginally because of the repair, three of them already before it,
+and its one edit that widens *out* of the containing region is killed (§4;
+`design/mutants/ADEQUACY.md`, `subsumed-region-lemma`;
+`design/mutants/adequacy_region_lemma_price.json`). They are registered
 drops rather than a thin spot in gold, and the general statement is the one that
 generalises: a kill rate is bounded by what the reference makes observable, not by what a
 suite could in principle notice. The two arms' kill denominators are different sizes and

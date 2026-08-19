@@ -21,8 +21,9 @@ WHAT IS AND IS NOT IN THE CHAIN
 -------------------------------
 In:  mutant payload generation, the dense `engineSuppliedKill` classification (R1-11), and
      — since round 3 — the ADEQUACY TAIL: witness sets over the current gold, the adequacy
-     disposition stamp into both MANIFESTs, arm A's REGISTRY aggregates, and the pairing /
-     per-language cut recomputation.
+     disposition stamp into both MANIFESTs, arm A's REGISTRY aggregates, the pairing /
+     per-language cut recomputation, and — since round 4 (R4-2) — the region lemma's
+     marginal-price derivation.
 Out: nothing that writes a committed artifact. The drop MECHANISM PROSE is still not
      generated here — it is hand-written data in `adequacy_search.py`'s `DROPS` table, a
      committed source file this command only ever *reads*.
@@ -100,14 +101,16 @@ overwrites it)
   stamp inside the scratch tree from the committed `DROPS` table, and the drop registry
   covers the corpus's empty-witness census exactly in both directions (60 empty-witness
   mutants, 60 registered drops, 0 unregistered, 0 stale). Gold 0.2-draft, 117 rows.
-* **One wording carried over deliberately.** `build_report`'s `note` still says the
-  adequacy stamp is something "this command may not invent". That is still true in the
-  sense it was written — the command derives the stamp from a committed, hand-written
-  table and invents no prose — but it reads as "the stamp is not produced here", which the
-  tail has made false. The sentence was NOT edited after the run above, because editing it
-  would have made the committed record differ from what this code produces, and a record
-  that cannot be reproduced by its own generator is worse than a note that has to be read
-  beside this docstring. It should be rewritten at the next full `--check`.
+* **The carried-over wording is now rewritten, at the run round 3 said would rewrite it.**
+  `build_report`'s `note` used to say the adequacy stamp is something "this command may not
+  invent", which read as "the stamp is not produced here" — false since the tail landed. It
+  was left alone in round 3 because editing it would have made the committed record
+  unreproducible by its own generator. The round-4 response re-runs the full `--check`, so
+  the note is corrected in the same run that rewrites the record: the stamp IS produced
+  here, out of a committed drop registry this command may not invent.
+* **2026-08-19, `--arm both --check` (round-4 response).** Result recorded in
+  `REGENERATION-CHECK.json`; the tail grew a step (`--region-lemma-price`, R4-2) and
+  `filesCompared` grows with it.
 """
 import argparse
 import hashlib
@@ -166,12 +169,14 @@ TAIL = [
      [PY, "adequacy_search.py", "--registry"], "mutants"),
     ("pairing groups and the per-language integer cuts",
      [PY, "adequacy_search.py", "--pairing"], "mutants"),
+    ("region-lemma marginal price: gross class vs the repair's own cost (R4-2)",
+     [PY, "adequacy_search.py", "--region-lemma-price"], "mutants"),
 ]
 
 # Committed artifacts the TAIL must reproduce byte-for-byte, over and above each arm's
 # own outputs (both MANIFESTs are already in `outputs()`).
 TAIL_OUTPUTS = ["adequacy_witnesses.json", "adequacy_drop_registry.json",
-                "adequacy_pairing.json"]
+                "adequacy_pairing.json", "adequacy_region_lemma_price.json"]
 
 # committed artifacts each arm's chain must reproduce byte-for-byte
 def outputs(arm, root):
@@ -266,8 +271,11 @@ def build_report(arms, rows, undisp):
         "pass": complete and (not bad)
         and all(not undisp[arm] for arm in arms),
         "note": "byteIdentical is the reproducibility claim; `pass` additionally "
-                "requires BOTH arms and the adequacy disposition stamp, which this "
-                "command may not invent (see the module docstring). The "
+                "requires BOTH arms and the adequacy disposition stamp. The tail "
+                "PRODUCES that stamp here, out of a committed hand-written drop "
+                "registry this command may not invent and which must cover the "
+                "regenerated corpus's empty-witness census exactly, in both "
+                "directions, before anything is written (R3-2). The "
                 "undispositioned census is read from the regenerated tree, never "
                 "from the committed one (R2-11).",
     }

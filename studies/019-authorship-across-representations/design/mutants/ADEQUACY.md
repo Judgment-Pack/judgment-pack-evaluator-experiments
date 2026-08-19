@@ -603,21 +603,45 @@ tree it is stamping.
 **Measured, and recorded rather than repaired: `r-o1-review` is behaviourally redundant in
 the repaired reference.** Its region is a strict subset of `r-o1-wide-low`'s, both name
 `review`, and the D5 family suppresses them together — so **deleting the whole rule changes
-nothing anywhere** (`m-a-183`: 0 live-edit cells of 419,904, and the corpus's own
-cascade-deletion probe for it is a drop). Twelve mutants in the corpus touch this rule and
-**nine of them are unkillable**: every edit that moves its *boundaries* is invisible, because
-`r-o1-wide-low` answers the same cells with the same outcome. The three that gold does kill
-change what the rule *says* rather than what it contributes — its outcome (`m-a-169`, review
-→ approve, which conflicts with `r-o1-wide-low`'s review), its `onUnknown` (`m-a-142`), and
-the one widening that reaches down into D6a's approval region (`m-a-076`, risk 40 → 39).
-That distinction is the honest one: a redundant rule contributes nothing while it is correct
-and can still do damage when it is wrong.
+no cell's answer**. What that sentence is entitled to say is exactly what was measured, and
+the measurement is not "nothing changed" (round-4 finding **R4-1**). Deleting a rule removes
+its entry from the condition-vector trace, so `m-a-183`'s edit is **live at all 419,904
+cells** — every cell of the dense space (`adequacy_drops.json`, `liveCells: 419904`) — and
+the **scored surface is identical at every one of them**: 0 differences from the primary
+transcription, 0 from the second independently written transcription
+(`adequacy_crosscheck.json`), and 0 across the **120 pinned-jpack samples** drawn from the
+live set and evaluated on both packs (`engineCheckedCells: 120`, `engineDifferences: []`).
+Three distinct metrics, all three published, and the third is the only engine-borne one.
+
+Twelve edits of this rule are in the corpus and **nine of them are unkillable**. The
+boundary claim has to be narrower than the blanket one this section used to make — it is
+**not** the case that a boundary edit of this rule is always invisible. An edit is
+invisible exactly when the cells it moves stay inside a region another rule already answers
+`review` — `r-o1-wide-low` for the narrowings, `r-d8` for the two widenings past the band. The three that gold does kill leave that region: the outcome swap
+(`m-a-169`, review → approve, which conflicts with `r-o1-wide-low`'s review), the `onUnknown`
+flip (`m-a-142`), and **one boundary edit** — `m-a-076`, risk 40 → 39, which widens *down*
+into D6a's approval region, where no rule reviews. So of the six boundary edits of this
+rule, five are invisible and one is killed, and the derived list is in
+`adequacy_region_lemma_price.json` (`boundaryEditsOnTheRuleKilled: ["m-a-076"]`). That
+distinction is the honest one: a redundant rule contributes nothing while it is correct and
+can still do damage when it is wrong.
 
 This is a property of the repair, not of gold — no gold suite can see through a rule another
 rule subsumes. It belongs in the asymmetry ledger (V8) beside the region-lemma cost row, and
 the reference is **not** being changed for it: changing the reference again would re-open
-this gate, the off-gold certificate and the corpus. Recorded here so the freeze reader knows
-the nine drops are the repair's price and not a thin spot in gold.
+this gate, the off-gold certificate and the corpus.
+
+**Nine is the class, six is the repair's price** (round-4 finding **R4-2**). Three of the
+nine name edits the **pre-repair** corpus had already dropped as `same-outcome-overlap`:
+current `m-a-017` (was `m-a-017`), `m-a-077` (was `m-a-067`) and `m-a-079` (was `m-a-069`).
+They were unkillable before `r-o1-wide-low` existed, so the repair did not buy them. The
+repair's **marginal** cost is the other six — `m-a-016`, `m-a-018`, `m-a-075`, `m-a-078`,
+`m-a-080` (all five killed by gold in the pre-repair corpus) and `m-a-183` (which the
+pre-repair corpus did not contain). None of those numbers is asserted here:
+`adequacy_search.py --region-lemma-price` derives them from the stamped manifest and the
+committed 2026-08-15 table below, matched by **edit** rather than by id, and writes
+`adequacy_region_lemma_price.json` inside the regeneration chain — so a drift in either
+input fails `regenerate.py --check` rather than waiting for a reviewer.
 
 ## Method
 
@@ -792,6 +816,12 @@ policy, never in terms of what gold happens to contain. Per-mutant text is in
 Members: `m-a-016`, `m-a-017`, `m-a-018`, `m-a-075`, `m-a-077`, `m-a-078`, `m-a-079`,
 `m-a-080`, `m-a-183`
 
+**Gross class size 9; marginal to the X1 repair 6; already unkillable before it 3**
+(`m-a-017`, `m-a-077`, `m-a-079` — the pre-repair `m-a-017`, `m-a-067`, `m-a-069`, dropped
+then as `same-outcome-overlap`). Derived, not asserted:
+`adequacy_region_lemma_price.json`, written by `adequacy_search.py --region-lemma-price`
+inside the regeneration chain (round-4 finding R4-2).
+
 `r-o1-review`'s region (CLEAR, LOW, 40 ≤ risk < 70, spend ≤ $100,000.00, newVendor=yes) is a
 **strict subset** of `r-o1-wide-low`'s (the same without the spend conjunct), which the X1
 repair added; both name `review`, both carry `onUnknown: ignore`, and the D5 family
@@ -800,10 +830,16 @@ rule already answers `review`: narrowings drop cells `r-o1-wide-low` still admit
 two widenings past the band (risk exactly 70) land where `r-d8` already fires — its D6c
 cascade disjunct needs risk < 70 and is false, `x-o1-suppress-d8-low` needs risk < 70 and
 does not suppress it, and no approval or rejection rule reaches a LOW country at risk 70
-below 90. `m-a-183` deletes the rule outright, with 0 live-edit cells.
+below 90. `m-a-183` deletes the rule outright: its edit is live at **all 419,904** cells (a
+deleted rule leaves the trace everywhere) and the scored surface is identical at every one
+of them — 0 differences from both transcriptions and from the 120 pinned-engine samples
+(R4-1). The one boundary edit of this rule that gold **does** kill, `m-a-076` (risk 40 → 39),
+widens *outside* `r-o1-wide-low`'s band into D6a's approval region and is not a member here.
 
-**This class exists only because of the repair**, and it is the sharpest measurement of the
-repair's redundancy the corpus can make.
+**Six of the nine exist only because of the repair**, and they are the sharpest measurement
+of the repair's redundancy the corpus can make; the other three were already unkillable in
+the pre-repair corpus and are not the repair's price (R4-2, derived in
+`adequacy_region_lemma_price.json`).
 
 ### `same-outcome-overlap` — 6 mutants (arm A)
 
@@ -946,13 +982,17 @@ gold rather than argued.
 
 ## Scope caveats added this round
 
-**C6 — nine arm-A drops are a property of the reference's shape, not of the fragment.** The
-`subsumed-region-lemma` class would disappear if `r-o1-review` were deleted from the
-reference (it is behaviourally inert). It is deliberately **not** deleted: the reference is
-frozen for this study's purposes and a second repair would re-open the corpus, the
-certificate, the pairing and this gate. The consequence for the E4 endpoint is stated
-plainly: arm A carries nine mutants no suite in any arm can kill, and they are in the
-denominator only if they pair, which they do not (an empty witness set never pairs).
+**C6 — nine arm-A drops are a property of the reference's shape, not of the fragment; six
+of them are the repair's marginal price.** The `subsumed-region-lemma` class would disappear
+if `r-o1-review` were deleted from the reference (it is behaviourally inert). It is
+deliberately **not** deleted: the reference is frozen for this study's purposes and a second
+repair would re-open the corpus, the certificate, the pairing and this gate. Attribution,
+kept separate from size (R4-2): the class is **9** mutants; **6** became unkillable *because
+of* the repair; **3** (`m-a-017`, `m-a-077`, `m-a-079`) were already unkillable in the
+pre-repair corpus, where they were dropped as `same-outcome-overlap`. The consequence for
+the E4 endpoint is stated plainly and it reads on the gross number: arm A carries nine
+mutants no suite in any arm can kill, and they are in the denominator only if they pair,
+which they do not (an empty witness set never pairs).
 
 ## Reproduction
 

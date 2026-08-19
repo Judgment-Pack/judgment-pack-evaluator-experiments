@@ -256,6 +256,52 @@ jobs:
         working-directory: studies/018-transition-rules
         run: python -m pytest harness/tests -q
 
+  study-019-harness:
+    name: Study 019 · deterministic harness
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          # The exact pinned interpreter: harness/PINS.json records 3.12.11 and
+          # the scorer refuses to adjudicate under anything else.
+          python-version: "3.12.11"
+      - name: Install pytest
+        # Fully offline apparatus: the harness, the design generators and the
+        # controls are stdlib-only, so pytest is the whole install. No evaluator
+        # binary, no external clone.
+        run: python -m pip install --disable-pip-version-check pytest
+      - name: Verify the port chain, the pins and the study manifest
+        # `integrity.py` refuses to run without PYTHONSAFEPATH=1: invoking a
+        # script by path puts that script's own directory first on `sys.path`
+        # before any byte of the file runs, so the operator applies -P and this
+        # step establishes that they did.
+        working-directory: studies/019-authorship-across-representations
+        env:
+          PYTHONSAFEPATH: "1"
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: python harness/integrity.py
+      - name: Run the harness, design and control suite
+        # Deterministic and offline: the registered partition and its per-code
+        # reachability, the transcript binding, the leak-token screen, the
+        # scorer's population and publication rules, the ports chain, the
+        # manifest's currency with the tree, and the currency assertions that
+        # recompute every count the preregistration states from the artifact it
+        # states it about. THE MATRIX ADJUDICATION NEVER RUNS HERE: it is an
+        # ATTEMPT, not a test (§7), and neither it nor anything that invokes
+        # `codex`, `jpack` or `opa` is part of this job. The engine-backed
+        # pipeline module skips itself unless the pinned binaries are present
+        # and hash to their pins, which in CI they are not.
+        # `PYTHONDONTWRITEBYTECODE` is not decoration: `integrity.verify()`
+        # refuses any `.pyc` the running interpreter did not produce, so a test
+        # run that writes bytecode would break the step above on the next run.
+        working-directory: studies/019-authorship-across-representations
+        env:
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: python -m pytest harness/tests -q
+
   python:
     name: ${{ matrix.os }} · Python ${{ matrix.python }}
     strategy:

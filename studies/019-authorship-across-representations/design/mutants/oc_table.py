@@ -192,6 +192,56 @@ DEC_A = 0      # decided: arm A high-kill rate above arm C
 DEC_C = 1      # decided: arm C above arm A
 DEC_I = 2      # INDETERMINATE
 
+# ---------------------------------------------------------------------------
+# The gate's own defect register (Sec. 9)
+# ---------------------------------------------------------------------------
+# ROUND-4 FINDING R4-5. The document's opening paragraph said "two are closed, one is
+# still open" while Sec. 9's own heading said all three were closed, and the currency
+# test excluded two exact phrasings of that contradiction rather than the state itself.
+# One register now, read by BOTH surfaces, so the two cannot disagree: the summary
+# sentence, the Sec. 9 heading and each defect's lead-in are all rendered from here.
+# `open` is a real value, not a hypothetical: if a future defect is reopened, the
+# opening paragraph says so without anybody remembering to edit it.
+DEFECTS = (
+    ('D1', 'CLOSED', 'alpha was never registered'),
+    ('D2', 'CLOSED, on Reading 1', '"excludes zero at delta" is not a rule'),
+    ('D3', 'CLOSED, denominator-in',
+     'the E4 denominator does not say what happens to a run with no artifact'),
+)
+_WORDS = {0: 'no', 1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five'}
+
+
+def _count_word(n):
+    return _WORDS.get(n, str(n))
+
+
+def defect_states():
+    """`{id: (status, closed?)}` — the one place the closure state is decided."""
+    return {did: (status, status.upper().startswith('CLOSED'))
+            for did, status, _ in DEFECTS}
+
+
+def _defect_lead(did):
+    """`D2 -- "excludes zero at delta" is not a rule. CLOSED, on Reading 1` — the bold
+    lead-in of one Sec. 9 entry, rendered from the register rather than typed."""
+    for candidate, status, title in DEFECTS:
+        if candidate == did:
+            return '%s -- %s. %s' % (candidate, title, status)
+    raise KeyError(did)
+
+
+def _defect_state_sentence():
+    states = defect_states()
+    closed = [did for did, (_, ok) in states.items() if ok]
+    if len(closed) == len(states):
+        return 'all %s are closed' % _count_word(len(states))
+    if not closed:
+        return 'none is closed'
+    return ('%s are closed, %s still open (%s)'
+            % (_count_word(len(closed)),
+               _count_word(len(states) - len(closed)),
+               ', '.join(did for did, (_, ok) in states.items() if not ok)))
+
 
 # ---------------------------------------------------------------------------
 # Ordering statistic
@@ -423,9 +473,12 @@ def pilot_anchor(path):
     identity control on X1-region cases and the number was therefore what a
     THEN-PROPOSED X1-exclusion amendment would have made the protocol figure.
     X1 has since been RETIRED at the cause (round-1 R1-2): the arm-A reference
-    was repaired, the registered exclusion registry is empty, and the current
-    pilot records `identityFail: 0` in all three arms. The off-protocol
-    diagnostic is no longer a source of anchor numbers.
+    was repaired, the registered exclusion registry is empty, and the pilot issue
+    current WHEN THAT WAS WRITTEN (v3) recorded `identityFail: 0` in all three
+    arms. It is no longer true of any arm — see the next paragraph, and read the
+    live counts off `perArm.<arm>.identityFail` rather than out of this
+    docstring (round-4 finding R4-4). The off-protocol diagnostic is in any case
+    no longer a source of anchor numbers.
 
     The special case is not deleted but INVERTED into a guard: if a future pilot
     records an identity failure, the arm's registered E4 denominator is smaller
@@ -451,6 +504,17 @@ def pilot_anchor(path):
     `identityFailedRuns` keeps the runs that are in `n` without having been
     asked, so the table can print every admitted run and the fraction still
     reconstructs.
+
+    ROUND-4 FINDING R4-4 — the vocabulary, since the prose around this function
+    kept collapsing two cohorts into one. ADMITTED is `n`: every attempted run
+    whose apparatus succeeded, identity failures included. IDENTITY-PASSING is
+    `len(vals)`: the admitted runs that were actually asked to kill anything.
+    They are equal only for an arm no run of which fails the identity control,
+    which was every arm of every issue before v4 and is not every arm now.
+    Anything
+    that says "the admitted run" in the singular about an arm with one PASSING
+    run is naming the wrong cohort; the counts are `highKill.admittedRuns` and
+    `len(perRun) - identityFail`, and neither is ever spelled in prose.
     """
     with open(path) as fh:
         d = json.load(fh)
@@ -571,8 +635,9 @@ def main(argv):
       'Regenerate with `python3 oc_table.py`; output is byte-deterministic.')
     w('')
     w('**This document does not change the registered design. It reports what the '
-      'registered design can and cannot decide.** Sec. 9 tracks the three defects this '
-      'gate found in the preregistration: two are closed, one is still open.')
+      'registered design can and cannot decide.** Sec. 9 tracks the %s defects this '
+      'gate found in the preregistration: %s.'
+      % (_count_word(len(DEFECTS)), _defect_state_sentence()))
     w('')
 
     # ---- 1. the pinned construction
@@ -1034,9 +1099,10 @@ def main(argv):
     w('')
 
     # ---- 9. defects for review
-    w('## 9. Three defects this gate found in the preregistration (all three closed)')
+    w('## 9. %s defects this gate found in the preregistration (%s)'
+      % (_count_word(len(DEFECTS)).capitalize(), _defect_state_sentence()))
     w('')
-    w('**D1 -- alpha was never registered. CLOSED.** Prereg §5 registered exact '
+    w('**' + _defect_lead('D1') + '.** Prereg §5 registered exact '
       'Clopper-Pearson intervals and "exact two-proportion difference intervals" without '
       'stating a confidence level; this OC assumed two-sided `alpha = 0.05`. §5 now states '
       '`α = 0.05` with the decision clause, and states that the A-C / A-B hierarchy is '
@@ -1044,7 +1110,7 @@ def main(argv):
       'without adjustment -- which is why no Bonferroni appears anywhere. '
       '`harness/tests/test_prereg_currency.py` asserts exactly one alpha is stated.')
     w('')
-    w('**D2 -- "excludes zero at delta" is not a rule. CLOSED, on Reading 1.** Prereg §5 '
+    w('**' + _defect_lead('D2') + '.** Prereg §5 '
       'said the contrasts were evaluated "each at `delta = 0.20`" and its decision table '
       'said "A-C interval excludes zero at delta -> R1 decided". Those describe two '
       'different procedures:')
@@ -1066,8 +1132,7 @@ def main(argv):
       'asserts that no decision statement anywhere qualifies zero-exclusion by delta. '
       'This OC table is valid for Reading 1, which is the registered one.')
     w('')
-    w('**D3 -- the E4 denominator does not say what happens to a run with no artifact. '
-      'CLOSED, denominator-in.** The gate raised it, round-2 finding R2-2 found the '
+    w('**' + _defect_lead('D3') + '.** The gate raised it, round-2 finding R2-2 found the '
       'adjacent defect live in code (the primary scorer and the pilot scorer disagreed '
       'about whether an identity-failing run stays in the E4 denominator), and round-3 '
       'finding R3-6 found this section still reporting the question open after the '
@@ -1091,50 +1156,58 @@ def main(argv):
     w('**What the closure does NOT settle**, stated so the next reader does not have to '
       'rediscover it: denominator-in fixes what a failing run does to `N`, not how often '
       'runs fail. A rate of %d in 15 pilot calls does not bound the rate in 150, and the '
-      'power cost of identity failures falls on the numerator (Sec. 8). What follows is '
-      'the gate\'s original statement of the question, kept because the reasoning is the '
-      'reason for the answer.' % total_identity_failures)
+      'power cost of identity failures falls on the numerator (Sec. 8).'
+      % total_identity_failures)
     w('')
-    w('Prereg §5 scopes E4 to "admitted runs" -- runs that clear the identity control -- '
-      'while prereg §1a says every author-attributable failure, including "no extractable '
-      'marker block", is "valid, counted, and scoring zero on every endpoint it reaches". '
-      'A `no-marker` run reaches E4 in the §1a sense but has no suite to run against '
-      'the mutants. Two readings, and they move `N`, which is what this table is about:')
+    w('### D3 as the gate originally put it -- ARCHIVED, superseded by the closure above')
     w('')
-    w('- **Denominator-in (REGISTERED, and the answer above):** a `no-marker` run pinned '
-      'nothing, hence is not high-kill; it enters the E4 denominator and scores 0. `N` '
-      'stays 50 and the endpoint measures authorship end to end. The same rule governs an '
-      'identity failure, which is likewise in the denominator and likewise not high-kill.')
-    w('- **Denominator-out (NOT registered):** it is excluded; `N` shrinks by the drop '
-      'count, and the endpoint measures "testing skill given a parseable artifact". This '
-      'reading is rejected, not merely unchosen: it is the reading an arm can game by '
+    w('**Nothing in this subsection is open.** It is the question as it stood before it '
+      'was decided, kept because the reasoning is the reason for the answer, and it is '
+      'written in the past tense throughout so that no sentence of it can be read as a '
+      'live one (round-4 finding R4-5).')
+    w('')
+    w('Prereg §5 scoped E4 to "admitted runs" -- runs that clear the identity control -- '
+      'while prereg §1a said every author-attributable failure, including "no extractable '
+      'marker block", was "valid, counted, and scoring zero on every endpoint it reaches". '
+      'A `no-marker` run reached E4 in the §1a sense but had no suite to run against '
+      'the mutants. There were two readings, and they moved `N`, which is what this table '
+      'is about:')
+    w('')
+    w('- **Denominator-in (the one that was REGISTERED, and the answer above):** a '
+      '`no-marker` run pinned nothing, hence was not high-kill; it entered the E4 '
+      'denominator and scored 0. `N` stayed 50 and the endpoint measured authorship end '
+      'to end. The same rule governed an identity failure, which was likewise in the '
+      'denominator and likewise not high-kill.')
+    w('- **Denominator-out (NOT registered):** it was excluded; `N` shrank by the drop '
+      'count, and the endpoint measured "testing skill given a parseable artifact". That '
+      'reading was rejected, not merely unchosen: it is the reading an arm can game by '
       'failing loudly.')
     w('')
-    w('**The pilot supplies no evidence either way, and this gate initially misread it.** '
-      'The pilot scorer files %d arm-A, %d arm-B and %d arm-C runs as `no-marker`, which '
-      'reads like a large arm-A authoring-validity problem. It is not one. Re-reading the '
-      'raw call records (Sec. 7, exit codes above) shows every one of those drops is '
+    w('**The pilot supplied no evidence either way, and this gate initially misread it.** '
+      'The pilot scorer filed %d arm-A, %d arm-B and %d arm-C runs as `no-marker`, which '
+      'read like a large arm-A authoring-validity problem. It was not one. Re-reading the '
+      'raw call records (Sec. 7, exit codes above) showed every one of those drops to be '
       'exit 124 with a zero-byte completion -- a timeout at the pilot driver\'s 900 s '
-      'ceiling, mis-filed as an authoring code. That is exactly the driver defect prereg §1a '
-      'already records, and it is why the registered ceiling is 2700 s. Every pilot call '
-      'that returned a completion at all produced an extractable artifact: the observed '
-      '`no-marker` rate among returned completions is **0 of %d**.'
+      'ceiling, mis-filed as an authoring code. That was exactly the driver defect prereg '
+      '§1a already records, and it is why the registered ceiling is 2700 s. Every pilot '
+      'call that returned a completion at all produced an extractable artifact: the '
+      'observed `no-marker` rate among returned completions was **0 of %d**.'
       % (len(anchor['A']['dropped']), len(anchor['B']['dropped']),
          len(anchor['C']['dropped']),
          sum(anchor[k]['n'] for k in ('A', 'B', 'C'))))
     w('')
-    w('So authoring validity is not the threat to `N`. **The gate\'s recommendation was '
-      'denominator-in**, because prereg §1a commits to it in general terms and because it '
-      'is the reading that cannot be gamed by an arm that fails loudly, and '
-      'denominator-in is what is registered and implemented. The gate\'s closing condition '
+    w('So authoring validity was not the threat to `N`. **The gate\'s recommendation was '
+      'denominator-in**, because prereg §1a committed to it in general terms and because '
+      'it is the reading that cannot be gamed by an arm that fails loudly; denominator-in '
+      'is what was then registered and implemented. The gate\'s closing condition '
       '-- "one rule must be registered and made to hold in the primary scorer, the pilot '
-      'scorer and this table together, before the freeze" -- is the condition that has '
-      'been met, and the three-place statement above is what meeting it looks like. The '
+      'scorer and this table together, before the freeze" -- was met, and the three-place '
+      'statement above is what meeting it looked like. The '
       'gate\'s other sentence, "the identity control is (5/5 arm-A suites in the pilot)", '
-      'is historical twice over: X1 is retired, the exclusion registry is empty, and arm A '
-      'now passes identity on every admitted run. The identity failures the current pilot '
-      'does record are arm C\'s, from §4\'s domain check (Sec. 7), and denominator-in is '
-      'exactly why they do not move `N`.')
+      'was historical twice over even then: X1 had been retired, the exclusion registry '
+      'was empty, and arm A passed identity on every admitted run. The identity failures '
+      'the current pilot records are arm C\'s, from §4\'s domain check (Sec. 7), and '
+      'denominator-in is exactly why they do not move `N`.')
     w('')
 
     # ---- 10. reproduction

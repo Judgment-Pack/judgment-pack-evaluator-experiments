@@ -694,10 +694,14 @@ DROPS = {
  # was re-derived from the current payload against the current reference.
  #
  # Twelve of the twenty-six sit in machinery the repair itself introduced or made redundant
- # (nine in r-o1-review alone, which r-o1-wide-low now subsumes). That is the measured cost
- # of the region lemma, and it is an asymmetry-ledger observation, not a defect of gold: an
- # encoding that answers the prose by deriving a region carries rules no single-edit
- # mutation of them can be seen through.
+ # (nine in r-o1-review alone, which r-o1-wide-low now subsumes). Nine is the class's GROSS
+ # size, not the repair's marginal price: three of the nine name edits the 2026-08-15 corpus
+ # had already dropped as `same-outcome-overlap`, so the repair's MARGINAL cost is six
+ # (round-4 finding R4-2). `--region-lemma-price` derives that split mechanically from the
+ # stamped manifest and the committed 2026-08-15 table; nothing here states it by hand.
+ # It is an asymmetry-ledger observation, not a defect of gold: an encoding that answers the
+ # prose by deriving a region carries rules no single-edit mutation of them can be seen
+ # through.
 
  # --- subsumed-region-lemma: r-o1-review is redundant after the repair -------------------
  "m-a-016": ("subsumed-region-lemma",
@@ -737,7 +741,13 @@ DROPS = {
    "The rule is DELETED outright, together with the now-dangling x-d5-suppress-o1-review. "
    "Because r-o1-review's region is a strict subset of r-o1-wide-low's and they name one "
    "outcome, and because D5 still suppresses r-o1-wide-low through its own exception, the "
-   "deletion removes no cell's answer: 0 live-edit cells over the whole space. The rule "
+   "deletion removes no cell's ANSWER — which is not the same thing as changing nothing. "
+   "Measured rather than asserted (adequacy_drops.json, round-4 finding R4-1): deleting a "
+   "rule removes its entry from the condition-vector trace, so the edit is LIVE at "
+   "419,904 of 419,904 cells — every cell of the dense space — and the scored surface is "
+   "identical at all of them: 0 differences by this transcription, 0 by the second "
+   "independently written transcription (adequacy_crosscheck.json), and 0 over the 120 "
+   "cells of the live set handed to the pinned jpack on both packs. The rule "
    "the repair made redundant cannot be missed by any single-edit probe — which is the "
    "sharpest statement of the redundancy this corpus can make."),
 
@@ -938,6 +948,125 @@ def check_drop_registry():
     json.dump(st, open(os.path.join(HERE, "adequacy_drop_registry.json"), "w"),
               indent=1, sort_keys=True)
     return 1 if st["unregisteredEmptyWitness"] or st["staleRegistryEntries"] else 0
+
+
+# --------------------------------------------------------------------------------------
+# The region lemma's MARGINAL price (round-4 finding R4-2)
+# --------------------------------------------------------------------------------------
+# Nine mutants carry `subsumed-region-lemma`. Nine was published as "the X1 repair's price",
+# and that over-attributes: three of the nine name edits the PRE-REPAIR corpus had already
+# dropped as `same-outcome-overlap` — they were unkillable before the repair existed, so the
+# repair did not buy them. The marginal price is six. Nothing below states 9, 6 or 3: the
+# split is derived from the stamped manifest (the current edits) and the committed
+# 2026-08-15 disposition table in ADEQUACY.md (what those same edits did before the repair),
+# matched by EDIT because ids do not carry across the repair. Drift in either input changes
+# the derived numbers and `regenerate.py --check` fails on the committed record.
+HIST_HEADING = "## Disposition table — arm A (JPS), the 47 work-list mutants"
+HIST_ROW = re.compile(r"^\|\s*`(m-a-\d+)`\s*\|([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\|")
+REGION_LEMMA_CLASS = "subsumed-region-lemma"
+REGION_LEMMA_RULE = "r-o1-review"
+
+
+def norm_edit(text):
+    """One spelling for an arm-A edit, so the 2026-08-15 record and the current MANIFEST can
+    be compared by the edit itself rather than by id."""
+    s = re.sub(r"^rules\[\d+\]\(([^)]+)\)", r"\1", text.strip())
+    s = re.sub(r"^exceptions\[\d+\]\(([^)]+)\)", r"\1", s)
+    s = s.replace(".when.conditions[", ".cond[")
+    s = re.sub(r"\.cond\[(\d+)\]\.conditions\[(\d+)\]", r".cond[\1][\2]", s)
+    s = re.sub(r"\.conditions\[(\d+)\]", r".cond[\1]", s)
+    s = s.replace(".op:", ".operator:")
+    s = s.replace(" (+1 at scale)", " (+1)").replace(" (-1 at scale)", " (-1)")
+    return re.sub(r"\s+", " ", s).strip()
+
+
+def historical_dispositions():
+    """The 2026-08-15 (pre-repair) arm-A disposition table, keyed by normalised edit."""
+    with open(os.path.join(HERE, "ADEQUACY.md")) as fh:
+        text = fh.read()
+    if HIST_HEADING not in text:
+        raise SystemExit("ADEQUACY.md no longer carries the 2026-08-15 arm-A table; the "
+                         "marginal-price derivation has no pre-repair record to read")
+    body = text.split(HIST_HEADING, 1)[1].split("\n## ", 1)[0]
+    out = {}
+    for line in body.splitlines():
+        m = HIST_ROW.match(line)
+        if not m:
+            continue
+        mid, cls, edit, disp, mech = (g.strip() for g in m.groups())
+        out[norm_edit(edit)] = {"preRepairId": mid, "preRepairMutationClass": cls,
+                                "preRepairDisposition": "dropped" if "dropped" in
+                                                        disp.lower() else "killed",
+                                "preRepairDropMechanism": mech if "dropped" in disp.lower()
+                                                          else None}
+    if not out:
+        raise SystemExit("the 2026-08-15 arm-A table parsed to zero rows")
+    return out
+
+
+def region_lemma_price():
+    """Gross class size, the repair's marginal price, and the pre-existing drops — derived.
+
+    Also derives the boundary claim the class supports. "Every edit that moves this rule's
+    boundaries is invisible" is FALSE (round-4 finding R4-2): of the twelve edits of
+    `r-o1-review` in this corpus, `m-a-076` moves a boundary OUTSIDE `r-o1-wide-low`'s band
+    (risk 40 -> 39, into D6a's approval region) and gold kills it. The true statement is
+    narrower and is computed here: the invisible edits are exactly those whose moved cells
+    stay inside a region another rule already answers `review`.
+    """
+    hist = historical_dispositions()
+    mana = json.load(open(os.path.join(HERE, "refA", "MANIFEST.json")))
+    by_id = {m["id"]: m for m in mana}
+    gross = sorted(mid for mid, (cls, _) in DROPS.items() if cls == REGION_LEMMA_CLASS)
+    missing = [mid for mid in gross if mid not in by_id]
+    if missing:
+        raise SystemExit("registry names %s, absent from the stamped manifest" % missing)
+    pre, marginal = [], []
+    for mid in gross:
+        edit = norm_edit(by_id[mid]["edit"])
+        h = hist.get(edit)
+        if h and h["preRepairDisposition"] == "dropped":
+            pre.append(dict(h, current=mid, edit=edit))
+        else:
+            marginal.append({"current": mid, "edit": edit,
+                             "preRepairId": h["preRepairId"] if h else None,
+                             "preRepairDisposition": (h["preRepairDisposition"] if h
+                                                      else "not in the pre-repair corpus")})
+    onrule = [m for m in mana
+              if re.match(r"rules\[\d+\]\(%s\)" % REGION_LEMMA_RULE, m["edit"])]
+    killed = sorted(m["id"] for m in onrule if m.get("witnessSet"))
+    out = {
+        "finding": "round-4 R4-2 — gross class size is not the repair's marginal price",
+        "class": REGION_LEMMA_CLASS,
+        "grossClassSize": len(gross),
+        "members": gross,
+        "marginalToRepairCount": len(marginal),
+        "marginalToRepair": sorted(r["current"] for r in marginal),
+        "marginalToRepairDetail": sorted(marginal, key=lambda r: r["current"]),
+        "preExistingDropCount": len(pre),
+        "preExistingDrops": sorted(pre, key=lambda r: r["current"]),
+        "ruleUnderSubsumption": REGION_LEMMA_RULE,
+        "editsOnTheRule": sorted(m["id"] for m in onrule),
+        "editsOnTheRuleKilled": killed,
+        "boundaryEditsOnTheRuleKilled": sorted(
+            m["id"] for m in onrule
+            if m.get("witnessSet") and m.get("class") == "boundary-shift"),
+        "derivation": ("gross = members of the class in adequacy_search.py's DROPS; "
+                       "pre-existing = those whose edit (normalised) appears in "
+                       "ADEQUACY.md's committed 2026-08-15 arm-A table as **dropped**; "
+                       "marginal = gross - pre-existing. Matched by edit, never by id: "
+                       "ids do not carry across the arm-A reference repair."),
+    }
+    json.dump(out, open(os.path.join(HERE, "adequacy_region_lemma_price.json"), "w"),
+              indent=1, sort_keys=True)
+    print("region lemma: gross %d, marginal to the repair %d, pre-existing drops %d (%s); "
+          "edits on %s killed by gold: %s"
+          % (out["grossClassSize"], out["marginalToRepairCount"],
+             out["preExistingDropCount"],
+             ", ".join("%s was %s" % (r["current"], r["preRepairId"]) for r in
+                       out["preExistingDrops"]),
+             REGION_LEMMA_RULE, ", ".join(killed)))
+    return 0
 
 
 def update_manifests():
@@ -1419,6 +1548,11 @@ def main():
                     dest="check_drop_registry",
                     help="R3-2: does the DROPS registry exactly cover this corpus's "
                          "empty-witness census? Reports unregistered and stale both ways.")
+    ap.add_argument("--region-lemma-price", action="store_true",
+                    dest="region_lemma_price",
+                    help="R4-2: derive the subsumed-region-lemma class's gross size, the "
+                         "repair's marginal price and the pre-existing drops from the "
+                         "stamped manifest and the committed pre-repair table.")
     a = ap.parse_args()
     rc = 0
     if a.validate:
@@ -1461,6 +1595,10 @@ def main():
         update_manifests()
     if a.registry:
         update_registry()
+    # AFTER --manifests: the split is derived from the STAMPED manifest's edits, so running
+    # it against an unstamped or previous-corpus manifest would attribute the wrong ids.
+    if a.region_lemma_price:
+        rc |= region_lemma_price()
     if a.pairing:
         rc |= pairing_report()
     if a.killcensus:

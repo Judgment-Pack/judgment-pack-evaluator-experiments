@@ -1052,10 +1052,17 @@ def main():
             "score at all if the harness or the pinned toolchain does not resolve -- two "
             "implementations of one registered rule is what produced R2-2's denominator "
             "split and R3-4's domain omission, and the tie-break both times was that the "
-            "PRIMARY path is the registered one and the pilot moves to it. Every identity "
-            "count, identity-failing run list and kill rate below is therefore over runs "
-            "that passed BOTH the domain check and the arm's own identity control, and "
-            "`outOfDomainCases` names the offending cases per run. The denominator does "
+            "PRIMARY path is the registered one and the pilot moves to it. TWO COHORTS, "
+            "and round-4 finding R4-4 corrected this paragraph for confusing them: the "
+            "identity counts and the identity-failing run lists below are over the arm's "
+            "ADMITTED runs -- every attempted run whose apparatus succeeded, which for "
+            "arm C is %(admitted)d runs, of which %(identityPass)d passed -- while the "
+            "KILL RATES are over the "
+            "admitted runs that then passed the identity control, because a run that "
+            "failed it was never asked. For arms B and C that control now includes Sec "
+            "4's per-case domain check, and `outOfDomainCases` names the offending cases "
+            "per run. 'Admitted' and 'identity-passing' are not synonyms here and this "
+            "issue is the first in which they differ. The denominator does "
             "NOT move with them: Sec 1a/Sec 5 register admitted runs, so an "
             "identity-failing run stays in it carrying `highKill: null` -- read "
             "`perArm.<arm>.highKill.admittedRuns`, never the length of the scored-run "
@@ -1080,8 +1087,8 @@ def main():
             "`harness/score.py` has always used the registered one. On v3's inputs that "
             "rule change moved nothing because v3 had no identity failure anywhere; on "
             "THIS issue's inputs it is load-bearing, and it is why arm C's high-kill "
-            "fraction below is over five admitted runs and not over the one that passed "
-            "the domain check.",
+            "fraction below is over %(admitted)d admitted runs and not over the "
+            "%(identityPass)d that passed the domain check.",
         "study": "019-authorship-across-representations",
         "analysis": "E4 (mutation kill rate) applied to the calibration pilot",
         "warning": "NON-CITABLE PILOT: pilot suites from pilot_run.py, gold 0-draft; "
@@ -1109,6 +1116,15 @@ def main():
         "diagnostics": diagnostics,
     }
     doc["highKillCuts"] = high_kill_layer(doc, args.tau)
+    # R4-4: the banner's cohort sizes are READ off the arm they describe, never spelled,
+    # and AFTER `high_kill_layer` — which is what publishes the admitted-run denominator
+    # the banner is about. The sentence this replaces said "one admitted run" of an arm
+    # with five admitted runs and one identity-passing one; a spelled number cannot be
+    # checked, and that one was wrong for a whole review round.
+    doc["supersedingBanner"] = doc["supersedingBanner"] % {
+        "admitted": doc["perArm"]["C"]["highKill"]["admittedRuns"],
+        "identityPass": doc["perArm"]["C"]["identityPass"],
+    }
     with open(OUT, "w") as fh:
         json.dump(doc, fh, indent=2, sort_keys=True)
         fh.write("\n")

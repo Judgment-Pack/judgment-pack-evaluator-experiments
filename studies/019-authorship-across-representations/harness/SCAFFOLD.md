@@ -15,8 +15,12 @@ tested, and the twelve-slot PILOT smoke has been driven through all of them
 twice against the real pinned engines with the authoring CLI stood in
 (`harness/tests/E2E-SMOKE.md`). **Every scorer item below — S6, S7, S8, S9, S10,
 S11 — and G3's residual has LANDED**; the scorer publishes no refusal at all on
-the smoke batch. What remains owed in this file is **T3 alone**, which is a
-commit and belongs to the maintainer. The state today, said plainly: every
+the smoke batch. **T3 and section C have since landed too** (round-4 finding
+R4-6, which found this sentence still claiming T3 was owed): the design sources
+are committed, no `__pycache__` survives, and the `study-019-harness` job is in
+`.github/workflows/ci.yml`. **Nothing in this file is owed any more**; what
+remains is section F's freeze-fill, which is the ceremony's and not the
+harness's. The state today, said plainly: every
 freeze pin in `harness/PINS.json` is null, `integrity.study_label()` returns
 `PILOT`, and **no authoring call has been made** — no model has been asked
 anything by this study.
@@ -523,39 +527,50 @@ the admissibility drops, both power demonstrations, the negative corpus, and —
 since G3's residual landed — that `transcript_check.LEAK_TOKENS` IS
 `leak_tokens.SCREEN_TOKENS` and no second tuple survives in that file.
 
-**T3 — the tree must be clean before `integrity.verify()` can pass. THIS IS THE
-ONLY ITEM LEFT IN THIS FILE, and it is a commit rather than a build: it belongs
-to whoever commits, not to the harness.**
+**T3 — the tree must be clean before `integrity.verify()` can pass. LANDED.**
 `verify_bytecode()` scans the WHOLE study tree and refuses (a) any untracked
 `.py` source and (b) any `.pyc` that the running interpreter did not produce
-from the source beside it. Today `design/` holds several untracked Python
+from the source beside it. `design/` used to hold several untracked Python
 sources (`design/mutants/adequacy_search.py`, `design/mutants/oc_table.py`,
 `design/reference/cert_offgold.py`, `design/reference/refA/*.py`) and several
-`__pycache__` trees from a 3.8 interpreter. **Commit the design sources and
-delete every `__pycache__`** — and run the harness under the pinned 3.12 with
-`PYTHONSAFEPATH=1`, which is also what `_refuse_unsafe_import_path()` requires.
+`__pycache__` trees from a 3.8 interpreter. All of them are committed, every
+`__pycache__` is gone, and `harness/integrity.py` passes under the pinned
+CPython 3.12.11 with `PYTHONSAFEPATH=1` — which is what
+`_refuse_unsafe_import_path()` requires and what the CI job below exports.
+Keep running the harness that way; the item is closed, not the requirement.
 
 **T4 — pytest writes bytecode.** Run the suite with `PYTHONDONTWRITEBYTECODE=1`
 (or `-p no:cacheprovider`), or T3's refusal returns after every test run.
 
-## C — CI
+## C — CI — LANDED
 
-Add one job to `.github/workflows/ci.yml`, modelled on `study-012-harness`
-(the file's own idiom: pinned action SHAs, `python-version: "3.12"`, pip-install
-pytest, `working-directory: studies/019-authorship-across-representations`):
+`study-019-harness` is in `.github/workflows/ci.yml`, after `study-018-harness`
+and before the general `python` matrix, in the file's own idiom: pinned action
+SHAs copied from the sibling study jobs (`actions/checkout@3d3c42e5…`,
+`actions/setup-python@5fda3b95…`), the exact pinned interpreter
+`python-version: "3.12.11"` — not `"3.12"`; `harness/PINS.json` records the
+patch level and the scorer refuses anything else — pip-installs only pytest
+(the harness, the design generators and the controls are stdlib-only), and runs
+with `working-directory: studies/019-authorship-across-representations`:
 
 ```
-  study-019-harness:
-    name: Study 019 · deterministic harness
-    ...
       - run: python harness/integrity.py     # the port chain and the manifest
       - run: python -m pytest harness/tests -q
 ```
 
+`integrity.py` runs with `PYTHONSAFEPATH: "1"` (it refuses without it) and both
+steps with `PYTHONDONTWRITEBYTECODE: "1"` (T4 — a test run that writes bytecode
+would break the integrity step on the next run).
+
 **The batch never runs in CI** (§7), and neither does anything that invokes
-`codex`, `jpack` or `opa`: the CI job runs the deterministic controls only. Do
-not add the job until T3 is done, or the integrity step fails on the untracked
-design sources.
+`codex`, `jpack` or `opa`: the CI job runs the deterministic controls only, and
+the matrix adjudication is an ATTEMPT, not a test. `tests/test_score_pipeline.py`
+skips itself there by design, because the pinned binaries are absent and it
+refuses to run against unpinned ones. The job was added only after T3, whose
+untracked design sources would have failed the integrity step.
+`harness/tests/test_prereg_currency.py` asserts the job exists and keeps its
+shape, so deleting this scaffold at freeze does not take the requirement with
+it.
 
 ## F — the freeze-fill procedure, in order
 
@@ -576,8 +591,11 @@ Each step fills exactly one link, and every link is checkable before the next.
    registered census stimulus, S7 the Δ₀ sweep, S8 the general unequal-N
    inversion, S9 the `engineSuppliedKill` manifest member, S10 the floor gate
    actually running, G3's residual the single leak list — and the scorer
-   publishes no refusal on the smoke batch. **T3 remains**, and it is a commit:
-   see below.
+   publishes no refusal on the smoke batch. **T3 and section C are also DONE**
+   (round-4 finding R4-6): the design sources are committed, no `__pycache__`
+   survives, `integrity.py` passes under the pinned 3.12.11, and the
+   `study-019-harness` CI job is in the workflow. What remains under this step
+   is the gate work itself, not the tree.
 2. **Land the registered documents**: `policy/POLICY.md` (the frozen copy of
    the design draft), `gold/GOLD.json`, `mutants/MANIFEST-*.json`,
    `reference/REFERENCE-*.md`, `controls/off-gold-equivalence.json`,

@@ -281,8 +281,13 @@ counterfactual test (v0's "needed by" admitted two readings — three findings).
   adequacy repair measured: the region lemma `r-o1-wide-low` strictly contains the O1
   companion rule `r-o1-review`, both say `review` and D5 suppresses them together, so
   `r-o1-review` is behaviourally inert in the repaired reference — deleting it changes no
-  cell — and nine mutants of its boundaries are unkillable by any gold suite as a result
-  (`mutants/ADEQUACY.md`, `subsumed-region-lemma`). A redundant rule contributes nothing
+  cell's answer, though the deletion is live on the trace at all 419,904 cells — and nine
+  mutants of it are unkillable by any gold suite as a result, of which **six** are the
+  repair's marginal price and three were already unkillable before it
+  (`mutants/ADEQUACY.md`, `subsumed-region-lemma`; derived in
+  `mutants/adequacy_region_lemma_price.json`). Not every boundary edit of the rule is
+  invisible: the one that widens outside the containing region, `m-a-076`, is killed. A
+  redundant rule contributes nothing
   while it is correct and can still do damage when it is wrong; the panel re-signed two of
   v0's rows).
 - Gold rows are authored as reason sets, cite governing clauses under the earliest-clause

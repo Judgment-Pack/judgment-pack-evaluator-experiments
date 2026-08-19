@@ -141,10 +141,13 @@ def _refuse_untracked_python_sources():
     this tripwire lives in the entry file the ceremony names by path, before any
     harness import. Import resolution cannot shadow a script invoked as a file.
 
-    Carried from Study 012 (round 8 finding 2, round 9 finding 1). It fires
-    today, correctly: `harness/SCAFFOLD.md` item T3 records that `design/` still
-    holds untracked Python sources, and the batch may not run until they are
-    committed."""
+    Carried from Study 012 (round 8 finding 2, round 9 finding 1). It used to
+    fire on the study's own tree, correctly: `design/` held untracked Python
+    sources and the batch was refused until they were committed. That is
+    SCAFFOLD item T3, and T3 landed — the design generators are tracked and no
+    `__pycache__` survives — so the tripwire is now a guard rather than an open
+    condition (round-4 finding R4-6, which found this note still describing the
+    tree as dirty)."""
     import subprocess as _subprocess
     study = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     tracked = set(_subprocess.run(
