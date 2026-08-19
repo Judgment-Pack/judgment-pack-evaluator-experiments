@@ -1,73 +1,106 @@
-{
- "SUPERSEDED": "SUPERSEDED 2026-08-18: computed against the pre-repair arm-A reference (956ceebb...) and the 105-row gold suite. The arm-A mutant corpus was regenerated from the repaired pack (reference/refA/PACK-CHANGE-001.md, round-1 R1-2) and the ids in this file DO NOT correspond to the current m-a-NNN files. Kept as the record of the 2026-08-15 adequacy run; not current data.",
- "records": [
-  {
-   "differingCellsSecondTranscription": 0,
-   "id": "m-a-006"
-  },
-  {
-   "differingCellsSecondTranscription": 0,
-   "id": "m-a-017"
-  },
-  {
-   "differingCellsSecondTranscription": 0,
-   "id": "m-a-024"
-  },
-  {
-   "differingCellsSecondTranscription": 0,
-   "id": "m-a-027"
-  },
-  {
-   "differingCellsSecondTranscription": 0,
-   "id": "m-a-046"
-  },
-  {
-   "differingCellsSecondTranscription": 0,
-   "id": "m-a-056"
-  },
-  {
-   "differingCellsSecondTranscription": 0,
-   "id": "m-a-067"
-  },
-  {
-   "differingCellsSecondTranscription": 0,
-   "id": "m-a-069"
-  },
-  {
-   "differingCellsSecondTranscription": 0,
-   "id": "m-a-082"
-  },
-  {
-   "differingCellsSecondTranscription": 0,
-   "id": "m-a-088"
-  },
-  {
-   "differingCellsSecondTranscription": 0,
-   "id": "m-a-092"
-  },
-  {
-   "differingCellsSecondTranscription": 0,
-   "id": "m-a-103"
-  },
-  {
-   "differingCellsSecondTranscription": 0,
-   "id": "m-a-107"
-  },
-  {
-   "differingCellsSecondTranscription": 0,
-   "id": "m-a-108"
-  },
-  {
-   "differingCellsSecondTranscription": 0,
-   "id": "m-a-109"
-  },
-  {
-   "differingCellsSecondTranscription": 0,
-   "id": "m-a-110"
-  },
-  {
-   "differingCellsSecondTranscription": 0,
-   "id": "m-a-111"
-  }
- ]
-}
+[
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-006"
+ },
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-016"
+ },
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-017"
+ },
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-018"
+ },
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-020"
+ },
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-029"
+ },
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-032"
+ },
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-056"
+ },
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-066"
+ },
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-075"
+ },
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-077"
+ },
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-078"
+ },
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-079"
+ },
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-080"
+ },
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-083"
+ },
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-089"
+ },
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-102"
+ },
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-108"
+ },
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-112"
+ },
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-133"
+ },
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-137"
+ },
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-138"
+ },
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-139"
+ },
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-140"
+ },
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-141"
+ },
+ {
+  "differingCellsSecondTranscription": 0,
+  "id": "m-a-183"
+ }
+]

@@ -370,7 +370,12 @@ def opa_run(mutant_path, rows_path, query, extra_ref=True):
         p = subprocess.run(cmd, capture_output=True, text=True,
                            env=dict(os.environ, TZ="UTC"), cwd=td)
         if p.returncode != 0 and not p.stdout.strip():
-            raise RuntimeError("opa: " + p.stderr.strip()[:300])
+            # exit status is part of the diagnostic: a KILLED process (negative status,
+            # empty stderr) is the OOM signature this sweep can hit when too many dense
+            # OPA evaluations run at once, and it must not read as "OPA said nothing".
+            raise RuntimeError("opa exit %d on %s: %s"
+                               % (p.returncode, os.path.basename(mutant_path),
+                                  p.stderr.strip()[:300] or "(no stderr; killed?)"))
         return json.loads(p.stdout)["result"][0]["expressions"][0]["value"]
 
 
@@ -679,66 +684,134 @@ def _witness_b(mid, rows_path, gold, want):
 # change the scored surface; it is stated in terms of the pack/policy, not of gold.
 # --------------------------------------------------------------------------------------
 DROPS = {
- # ---- arm A -------------------------------------------------------------------------
+ # ---- arm A ---------------------------------------------------------------------------
+ # ROUND-3 RE-DERIVATION (2026-08-18), and the ids are NOT the 2026-08-15 ids. The arm-A
+ # reference repair regenerated this corpus, so `m-a-NNN` here and `m-a-NNN` in
+ # ADEQUACY.md's 2026-08-15 table name different edits — `m-a-056` was r-d6c's lower risk
+ # edge and is now r-d6b-insured's lower spend edge; `m-a-088` was a shadowed cascade
+ # branch and is now r-o1-wide-spend's upper risk edge, which gold KILLS. Re-keying the old
+ # table would have registered a drop for a mutant a gold row can kill. Every entry below
+ # was re-derived from the current payload against the current reference.
+ #
+ # Twelve of the twenty-six sit in machinery the repair itself introduced or made redundant
+ # (nine in r-o1-review alone, which r-o1-wide-low now subsumes). That is the measured cost
+ # of the region lemma, and it is an asymmetry-ledger observation, not a defect of gold: an
+ # encoding that answers the prose by deriving a region carries rules no single-edit
+ # mutation of them can be seen through.
+
+ # --- subsumed-region-lemma: r-o1-review is redundant after the repair -------------------
+ "m-a-016": ("subsumed-region-lemma",
+   "r-o1-review's region (CLEAR, LOW, 40 <= risk < 70, spend <= $100,000.00, newVendor=yes) "
+   "is a STRICT SUBSET of r-o1-wide-low's (the same without the spend conjunct), which the "
+   "X1 repair added (reference/refA/PACK-CHANGE-001.md); both name `review`, both carry "
+   "`onUnknown: ignore`, and the D5 family suppresses them together "
+   "(x-d5-suppress-o1-review beside x-d5-suppress-o1-wide-low). Raising this rule's lower "
+   "risk edge off 40 therefore stops admitting cells r-o1-wide-low still admits with the "
+   "same outcome: the candidate set is unchanged on all 419,904 cells."),
+ "m-a-075": ("subsumed-region-lemma",
+   "Threshold form of m-a-016 (40 -> 41): the cells the rule stops admitting are "
+   "r-o1-wide-low's, and it names the same outcome."),
+ "m-a-078": ("subsumed-region-lemma",
+   "As m-a-016 at the band's upper edge (risk < 70 -> risk < 69): the cells at risk exactly "
+   "69 stay r-o1-wide-low's `review`."),
+ "m-a-018": ("subsumed-region-lemma",
+   "As m-a-016 on the spend conjunct (spend <= $100,000.00 -> spend < $100,000.00): "
+   "r-o1-wide-low carries NO spend conjunct, so every cell this edit drops is still its."),
+ "m-a-080": ("subsumed-region-lemma",
+   "Threshold form of m-a-018 ($100,000.00 -> $99,999.99): the dropped cells are "
+   "r-o1-wide-low's."),
+ "m-a-017": ("subsumed-region-lemma",
+   "The widening direction of the same subsumption. r-o1-review is relaxed onto risk "
+   "exactly 70, which is OUTSIDE r-o1-wide-low's band — but there r-d8 already fires and "
+   "also names `review`: r-d8's cascade reads its D6c disjunct, which needs risk < 70 and "
+   "is false, so the negation is true; x-o1-suppress-d8-low needs risk < 70 too and does "
+   "not suppress it; and no approval or rejection rule reaches a LOW country at risk 70 "
+   "below 90. Same-outcome overlap, same candidate set (SS8 step 9)."),
+ "m-a-077": ("subsumed-region-lemma",
+   "Threshold form of m-a-017 (70 -> 71): the widened cells are r-d8's `review`."),
+ "m-a-079": ("subsumed-region-lemma",
+   "r-o1-review is relaxed onto spend exactly $100,000.01. That cell is still inside "
+   "r-o1-wide-low (LOW, 40 <= risk < 70, newVendor=yes, any spend), which already names "
+   "`review`, and no approval clause reaches risk >= 40 above D6c's ceiling."),
+ "m-a-183": ("subsumed-region-lemma",
+   "The rule is DELETED outright, together with the now-dangling x-d5-suppress-o1-review. "
+   "Because r-o1-review's region is a strict subset of r-o1-wide-low's and they name one "
+   "outcome, and because D5 still suppresses r-o1-wide-low through its own exception, the "
+   "deletion removes no cell's answer: 0 live-edit cells over the whole space. The rule "
+   "the repair made redundant cannot be missed by any single-edit probe — which is the "
+   "sharpest statement of the redundancy this corpus can make."),
+
+ # --- same-outcome-overlap ---------------------------------------------------------------
  "m-a-006": ("same-outcome-overlap",
    "r-d6b-insured's lower spend edge is relaxed onto $500,000.00. The only cells it newly "
    "admits (CLEAR, LOW, risk<40, spend exactly $500,000.00) are already r-d6a's, and both "
    "rules name `approve`, so the candidate set is unchanged (SS8 step 9: multiple true rules "
    "naming one outcome are compatible). The one exception that suppresses r-d6a (D5) "
    "suppresses r-d6b-insured too, so no cell suppresses one without the other."),
- "m-a-046": ("same-outcome-overlap",
-   "Same cells as m-a-006 by the threshold form of the edit (500000.00 -> 499999.99): the "
-   "newly admitted cell is r-d6a's and both rules name `approve`."),
- "m-a-017": ("same-outcome-overlap",
-   "r-o1-review is widened to risk exactly 70. There r-d8 already fires, and r-o1-review "
-   "also names `review`: same-outcome overlap, no conflict, same candidate set."),
- "m-a-067": ("same-outcome-overlap",
-   "Threshold form of m-a-017 (70 -> 71): the widened cells are r-d8's and both name "
-   "`review`."),
- "m-a-069": ("same-outcome-overlap",
-   "r-o1-review is widened to spend exactly $100,000.01, where r-d8 fires and also names "
-   "`review`."),
  "m-a-056": ("same-outcome-overlap",
-   "r-d6c is widened to risk exactly 39, where r-d6a already approves (D6c's spend ceiling "
-   "$100,000.00 lies inside D6a's $500,000.00). Where O1 suppresses r-d6c the widened rule "
-   "is suppressed with it; where D5 suppresses r-d6a it suppresses r-d6c too."),
- "m-a-024": ("shadowed-cascade-branch",
+   "Threshold form of m-a-006 ($500,000.00 -> $499,999.99): the newly admitted cell is "
+   "r-d6a's and both rules name `approve`."),
+ "m-a-066": ("same-outcome-overlap",
+   "r-d6c's lower risk edge is relaxed onto 39. The cells it newly admits (CLEAR, LOW, "
+   "risk 39, spend <= $100,000.00) are already r-d6a's, whose band is risk < 40 with spend "
+   "<= $500,000.00, and both name `approve`. Where O1 bites (newVendor=yes) it suppresses "
+   "r-d6c alone, so the widened rule is removed and r-d6a still approves; where D5 bites it "
+   "suppresses both."),
+ "m-a-020": ("same-outcome-overlap",
+   "r-o1-wide-low is relaxed onto risk exactly 70. There r-d8 already fires and names "
+   "`review` (its D6c cascade disjunct needs risk < 70 and is false; x-o1-suppress-d8-low is "
+   "unedited and needs risk < 70, so it does not suppress r-d8), and nothing else is true in "
+   "a LOW country at risk 70 below 90."),
+ "m-a-083": ("same-outcome-overlap",
+   "Threshold form of m-a-020 (70 -> 71): the widened cells are r-d8's `review`."),
+ "m-a-089": ("same-outcome-overlap",
+   "r-o1-wide-spend is relaxed onto spend exactly $100,000.01. Its companion suppression "
+   "x-o1-suppress-d8-spend is UNEDITED and still reads $100,000.00, so r-d8 is live at those "
+   "cells and already reviews them; in a LOW country r-o1-wide-low reviews them as well. No "
+   "approval clause reaches risk >= 40 above D6c's ceiling, so no cell gains a competing "
+   "outcome."),
+
+ # --- shadowed-cascade-branch --------------------------------------------------------------
+ "m-a-029": ("shadowed-cascade-branch",
    "The edit relaxes the D6b-insured COPY inside r-d8's `not(any ...)` onto spend exactly "
    "$500,000.00. At every such cell the D6a copy in the same `any` is already true, so the "
    "disjunction is true either way (SS7.2), the negation is false either way, and r-d8's "
    "condition value is unchanged on all 419,904 cells (live-edit cells: 0)."),
- "m-a-027": ("shadowed-cascade-branch",
-   "As m-a-024 for the D6b-uninsured copy; the D6a copy dominates the same cells "
-   "(live-edit cells: 0)."),
- "m-a-082": ("shadowed-cascade-branch",
-   "As m-a-024 by the threshold form (500000.00 -> 499999.99); dominated by the D6a copy "
-   "(live-edit cells: 0)."),
- "m-a-088": ("shadowed-cascade-branch",
-   "As m-a-027 by the threshold form; dominated by the D6a copy (live-edit cells: 0)."),
- "m-a-092": ("shadowed-cascade-branch",
-   "The D6c copy inside the cascade is widened to risk exactly 39, where the D6a copy is "
-   "already true (D6c's spend ceiling lies inside D6a's) (live-edit cells: 0). The REGION is "
-   "reachable and gold visits it (d6a-39-50k, d6a-500k*); what is unreachable is any effect "
-   "of the edit."),
- "m-a-103": ("never-unknown-rule",
+ "m-a-032": ("shadowed-cascade-branch",
+   "As m-a-029 for the D6b-uninsured copy in the same cascade."),
+ "m-a-102": ("shadowed-cascade-branch",
+   "Threshold form of m-a-029 ($500,000.00 -> $499,999.99) on the D6b-insured copy."),
+ "m-a-108": ("shadowed-cascade-branch",
+   "Threshold form of m-a-029 ($500,000.00 -> $499,999.99) on the D6b-uninsured copy."),
+ "m-a-112": ("shadowed-cascade-branch",
+   "The edit relaxes the D6c copy inside r-d8's cascade onto risk 39. D6c's ceiling is "
+   "$100,000.00, so every cell it newly admits satisfies the D6a copy (risk < 40, spend <= "
+   "$500,000.00) in the same `any`, which is therefore true either way."),
+
+ # --- onUnknown flips, re-measured against the REPAIRED pack -------------------------------
+ # The repair gave r-d8 two region-scoped suppressions, and the reason-set-idempotence
+ # argument leans on r-d8 being unknown AND UNSUPPRESSED wherever the flipped rule is
+ # unknown. `--mechanisms` tests exactly that conjunction and was re-run on the repaired
+ # pack (adequacy_mechanisms.json, 2026-08-18): 0 uncovered cells for all five.
+ "m-a-133": ("never-unknown-rule",
    "Kleene-monotone onUnknown flip. r-d1's condition reads only /vendor/sanctionsStatus, "
    "which the registered projection always supplies as a present string (UNKNOWN is a value, "
    "not an omission), so the condition is never `unknown` and `onUnknown` is never consulted: "
    "0 unknown cells of 419,904 (adequacy_mechanisms.json)."),
- "m-a-107": ("reason-set-idempotence",
+ "m-a-137": ("reason-set-idempotence",
    "onUnknown flip on r-d6a. Wherever r-d6a's condition is unknown AND the rule stage is "
    "reached at all (no evidence/exception block, no forced outcome, not suppressed), r-d8 is "
    "unknown and unsuppressed too, because its negation cascade carries a copy of the same "
    "conjuncts: 972 such cells, 0 uncovered. r-d8 already carries `onUnknown: escalate`, and "
    "SS8 keeps reasons as a de-duplicated set, so the flip can only re-record `unknown`."),
- "m-a-108": ("reason-set-idempotence",
-   "As m-a-107 for r-d6b-insured: 432 unknown-and-evaluated cells, 0 uncovered by r-d8."),
- "m-a-109": ("reason-set-idempotence",
-   "As m-a-107 for r-d6b-uninsured: 432 unknown-and-evaluated cells, 0 uncovered by r-d8."),
- "m-a-110": ("reason-set-idempotence",
-   "As m-a-107 for r-d6c: 456 unknown-and-evaluated cells, 0 uncovered by r-d8."),
- "m-a-111": ("reason-set-idempotence",
-   "As m-a-107 for r-d7: 540 unknown-and-evaluated cells, 0 uncovered by r-d8."),
+ "m-a-138": ("reason-set-idempotence",
+   "As m-a-137 for r-d6b-insured: 432 unknown-and-evaluated cells, 0 uncovered by r-d8."),
+ "m-a-139": ("reason-set-idempotence",
+   "As m-a-137 for r-d6b-uninsured: 432 unknown-and-evaluated cells, 0 uncovered by r-d8."),
+ "m-a-140": ("reason-set-idempotence",
+   "As m-a-137 for r-d6c: 456 unknown-and-evaluated cells, 0 uncovered by r-d8."),
+ "m-a-141": ("reason-set-idempotence",
+   "As m-a-137 for r-d7: 540 unknown-and-evaluated cells, 0 uncovered by r-d8."),
  # ---- arm B -------------------------------------------------------------------------
  "m-b-007": ("ladder-order-masked",
    "D6b's lower spend edge is relaxed onto $500,000.00, but the D6a rung above it consumes "
@@ -819,15 +892,77 @@ DROPS = {
 }
 
 
+def drop_registry_state(w=None):
+    """The registry beside the census it must cover, in BOTH directions.
+
+    ROUND-3 FINDING R3-2. The `DROPS` table above is DATA about one corpus, and a corpus is
+    a function of its reference. When the arm-A reference was repaired the corpus was
+    regenerated, 37 arm-A + 34 arm-B mutants came out empty-witness, and this table still
+    carried the pre-repair arm-A ids. The stamp step failed closed only by accident — a
+    `KeyError` deep inside `_stamp` — and nothing named the condition, so the round-2
+    response was able to report the gate closed while 71 mutants sat undispositioned. This
+    function is that condition, named, computed from the witness sets ABOUT TO BE STAMPED
+    (never from the manifest's stale copy), and reported in both directions:
+
+      unregisteredEmptyWitness — a mutant gold does not kill and the registry does not
+                                 explain. The gate is open; the run must refuse.
+      staleRegistryEntries     — a registry entry for a mutant that no longer exists or is
+                                 now killed by gold. Pre-repair data surviving a
+                                 regeneration; it must be deleted, not re-keyed.
+    """
+    if w is None:
+        w = json.load(open(os.path.join(HERE, "adequacy_witnesses.json")))
+    mana, manb = load_manifests()
+    empty = [m["id"] for m in mana if not w["armA"].get(m["id"])]
+    empty += [m["id"] for m in manb["mutants"]
+              if m.get("status") == "valid" and not w["armB"].get(m["id"])]
+    empty = sorted(empty)
+    registered = sorted(DROPS)
+    return {"emptyWitnessMutants": empty,
+            "registeredDrops": registered,
+            "unregisteredEmptyWitness": sorted(set(empty) - set(registered)),
+            "staleRegistryEntries": sorted(set(registered) - set(empty))}
+
+
+def check_drop_registry():
+    """Fail-closed gate: `--check-drop-registry`, and the head of `--manifests`."""
+    st = drop_registry_state()
+    print("drop registry: %d empty-witness mutants, %d registered drops; "
+          "unregistered %d, stale %d"
+          % (len(st["emptyWitnessMutants"]), len(st["registeredDrops"]),
+             len(st["unregisteredEmptyWitness"]), len(st["staleRegistryEntries"])))
+    for mid in st["unregisteredEmptyWitness"]:
+        print("  UNREGISTERED (empty witness, no drop mechanism):", mid)
+    for mid in st["staleRegistryEntries"]:
+        print("  STALE (registered drop, not empty-witness in this corpus):", mid)
+    json.dump(st, open(os.path.join(HERE, "adequacy_drop_registry.json"), "w"),
+              indent=1, sort_keys=True)
+    return 1 if st["unregisteredEmptyWitness"] or st["staleRegistryEntries"] else 0
+
+
 def update_manifests():
     """Write the adequacy disposition into both MANIFESTs (shapes unchanged: refA is a list,
-    refB is an object with a `mutants` list)."""
+    refB is an object with a `mutants` list).
+
+    R3-2: refuses before writing anything if the drop registry does not exactly cover the
+    empty-witness census of the corpus being stamped (`drop_registry_state`)."""
     w = json.load(open(os.path.join(HERE, "adequacy_witnesses.json")))
+    st = drop_registry_state(w)
+    if st["unregisteredEmptyWitness"] or st["staleRegistryEntries"]:
+        raise SystemExit(
+            "adequacy stamp REFUSED (R3-2): %d empty-witness mutants carry no registered "
+            "drop mechanism (%s) and %d registry entries are stale (%s). The registry is "
+            "re-derived per corpus, never re-keyed."
+            % (len(st["unregisteredEmptyWitness"]),
+               ", ".join(st["unregisteredEmptyWitness"][:8]) or "-",
+               len(st["staleRegistryEntries"]),
+               ", ".join(st["staleRegistryEntries"][:8]) or "-"))
     gold = json.load(open(os.path.join(GOLD, "gold.json")))
     goldids = [r["id"] for r in gold["rows"]]
     goldsha = _sha256(os.path.join(GOLD, "gold.json"))
     added = set(goldids) - set(json.load(open(os.path.join(HERE, "v0_row_ids.json"))))
-    stamp = {"gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+    stamp = {"gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the "
+                     "arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
              "goldVersion": gold["goldVersion"], "goldRows": len(goldids),
              "goldSha256": goldsha,
              "search": "adequacy_search.py --search over 419,904 dense derived cells"}
@@ -884,6 +1019,77 @@ def _stamp(m, ws, added, stamp):
 
 
 
+TAU = "0.95"          # PREREGISTRATION §5, the registered high-kill threshold
+
+
+def pairing_report():
+    """Recompute the pairing groups and both per-language integer cuts from the STAMPED
+    manifests, and write `adequacy_pairing.json`.
+
+    ROUND-3 FINDING R3-2's dependency cascade. Gold moves -> witness sets move -> the
+    pairing key (the sorted witness set) moves -> the paired-adequate denominators move ->
+    both integer cuts move. Those four numbers are quoted in the preregistration, the OC
+    table and the pilot, and until now the only thing that computed them was `e4_score.py`
+    while it scored a pilot. That coupled a design-time census to a pilot run: re-closing
+    the adequacy gate could not restate the cuts without also re-issuing a pilot.
+
+    The pairing rule is NOT reimplemented here. `e4_score.build_pairing` is imported and
+    called, so there is exactly one implementation of the registered rule and this file
+    cannot drift from the scorer. What is added is only the report and the cut arithmetic,
+    which is the same exact-integer ceiling the scorer uses (no floats).
+    """
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("_e4_score",
+                                                  os.path.join(HERE, "e4_score.py"))
+    e4 = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(e4)
+
+    mutants = e4.load_mutants()
+    table, paired_ids = e4.build_pairing(mutants)
+
+    out = {"rule": ("two mutants pair iff their sorted witness sets over the current gold "
+                    "are identical; the empty witness set is a key like any other and its "
+                    "group is degenerate (it pairs on the absence of a discriminating row) "
+                    "and never counted"),
+           "tau": float(TAU),
+           "goldSha256": _sha256(os.path.join(GOLD, "gold.json")),
+           "goldRows": len(json.load(open(os.path.join(GOLD, "gold.json")))["rows"]),
+           "groupsTotal": len(table),
+           "groupsShared": sum(1 for r in table if r["paired"]),
+           "groupsSharedNonDegenerate": sum(1 for r in table if r["countedInPairedSubset"]),
+           "groupsDegenerate": sum(1 for r in table if r["degenerate"]),
+           "perLanguage": {}}
+    for lang in ("jps", "rego"):
+        recs = mutants[lang]
+        adequate = [m for m in recs if not m["notAdequate"]]
+        paired_adequate = [m for m in adequate if m["id"] in paired_ids[lang]]
+        n = len(paired_adequate)
+        # exact ceil(tau * n) in integers, the scorer's arithmetic
+        num, den = int(Decimal(TAU) * 1000000), 1000000
+        cut = -(-num * n // den)
+        assert cut <= n, "cut %d exceeds the paired denominator %d for %s" % (cut, n, lang)
+        out["perLanguage"][lang] = {
+            "validMutants": len(recs),
+            "adequateMutants": len(adequate),
+            "emptyWitnessMutants": len(recs) - len(adequate),
+            "pairedAdequateMutants": n,
+            "unpairableAdequateMutants": len(adequate) - n,
+            "integerCut": cut,
+            "cutAsFraction": round(cut / n, 6) if n else None,
+            "assertionCutReachable": cut <= n,
+        }
+    json.dump(out, open(os.path.join(HERE, "adequacy_pairing.json"), "w"),
+              indent=1, sort_keys=True)
+    print("pairing: %d groups (%d shared, %d shared non-degenerate); "
+          "paired adequate jps %d cut %d, rego %d cut %d"
+          % (out["groupsTotal"], out["groupsShared"], out["groupsSharedNonDegenerate"],
+             out["perLanguage"]["jps"]["pairedAdequateMutants"],
+             out["perLanguage"]["jps"]["integerCut"],
+             out["perLanguage"]["rego"]["pairedAdequateMutants"],
+             out["perLanguage"]["rego"]["integerCut"]))
+    return 0
+
+
 def update_registry():
     """Recompute arm A's REGISTRY.json aggregates from the pinned engine over the new gold:
     per-class empty-witness counts, the witness-cell census (what the mutant says at each
@@ -915,11 +1121,14 @@ def update_registry():
     for cls, blk in reg["classCounts"].items():
         blk["emptyWitness"] = len([m for m in empty if m["class"] == cls])
     reg["adequacyGate"] = {
-        "gate": "adequacy (PREREGISTRATION SS4), 2026-08-15",
+        "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the "
+                "arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
         "goldVersion": json.load(open(os.path.join(GOLD, "gold.json")))["goldVersion"],
         "killed": len(mana) - len(empty), "dropped": len(empty),
         "dropMechanismClasses": sorted({DROPS[m["id"]][0] for m in empty}),
-        "note": ("witness sets recomputed on the pinned engine over gold 0.1-draft; every "
+        "note": ("witness sets recomputed on the pinned engine over gold "
+                 + json.load(open(os.path.join(GOLD, "gold.json")))["goldVersion"]
+                 + "; every "
                  "drop carries its mechanism in MANIFEST.json and mutants/ADEQUACY.md")}
     json.dump(reg, open(os.path.join(HERE, "refA", "REGISTRY.json"), "w"),
               indent=1, sort_keys=True)
@@ -1203,6 +1412,13 @@ def main():
     ap.add_argument("--rego-engine-supplied-stamp", action="store_true",
                     dest="rego_engine_supplied_stamp")
     ap.add_argument("--witnesses", action="store_true")
+    ap.add_argument("--pairing", action="store_true",
+                    help="R3-2: recompute the pairing groups and both per-language "
+                         "integer cuts from the stamped manifests (design-time; no pilot)")
+    ap.add_argument("--check-drop-registry", action="store_true",
+                    dest="check_drop_registry",
+                    help="R3-2: does the DROPS registry exactly cover this corpus's "
+                         "empty-witness census? Reports unregistered and stale both ways.")
     a = ap.parse_args()
     rc = 0
     if a.validate:
@@ -1235,10 +1451,18 @@ def main():
         rc |= mechanisms()
     if a.witnesses:
         witness_sets()
+    # AFTER --witnesses, never before: the registry is checked against the witness sets the
+    # run just computed, not against the ones it is replacing. Run first, a combined
+    # `--witnesses --check-drop-registry` invocation reported the state of the PREVIOUS
+    # gold and read as though it had checked the new one.
+    if a.check_drop_registry:
+        rc |= check_drop_registry()
     if a.manifests:
         update_manifests()
     if a.registry:
         update_registry()
+    if a.pairing:
+        rc |= pairing_report()
     if a.killcensus:
         killcensus()
     if a.crosscheck:

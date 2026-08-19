@@ -19,16 +19,36 @@ committed artifact, so running it can never damage the committed corpus.
 
 WHAT IS AND IS NOT IN THE CHAIN
 -------------------------------
-In:  mutant payload generation, witness sets over the CURRENT gold, manifest + registry
-     formatting, and the dense `engineSuppliedKill` classification (R1-11).
-Out: the ADEQUACY DISPOSITION STAMP (`adequacy_search.py --manifests/--registry`). It is
-     deliberately not in this chain and the chain FAILS CLOSED while it is missing:
-     stamping requires a hand-written drop mechanism for every empty-witness mutant, and
-     hand-written prose is not something a regeneration command may invent. `--check`
-     therefore reports the undispositioned empty-witness mutants as a named, blocking
-     condition rather than letting a reader read "reproduces byte-identical" as "the
-     adequacy gate is satisfied". The two claims are different and this file keeps them
-     apart.
+In:  mutant payload generation, the dense `engineSuppliedKill` classification (R1-11), and
+     — since round 3 — the ADEQUACY TAIL: witness sets over the current gold, the adequacy
+     disposition stamp into both MANIFESTs, arm A's REGISTRY aggregates, and the pairing /
+     per-language cut recomputation.
+Out: nothing that writes a committed artifact. The drop MECHANISM PROSE is still not
+     generated here — it is hand-written data in `adequacy_search.py`'s `DROPS` table, a
+     committed source file this command only ever *reads*.
+
+**ROUND-3 FINDING R3-2, the second half.** The tail used to be outside the chain, on the
+reasoning that "stamping requires hand-written prose and a regeneration command may not
+invent prose". The prose is indeed hand-written — but it is hand-written *in a committed
+source file*, and copying a committed file into the scratch tree and running a
+deterministic transform over it invents nothing. Keeping the tail out had two costs, both
+of which bit:
+
+* `pass` could never become true. `gen_mutants.py` rewrites each MANIFEST from scratch, so
+  a regenerated manifest never carried the stamp, so `undispositioned(scratch)` was never
+  empty, so `adequacyStampPresent` was structurally false. Every committed record in this
+  file's history reads `pass: false`, and the two claims — "reproduces" and "gate closed" —
+  could never be made by one run about one tree.
+* The stamp was therefore never byte-compared. `--manifests` was run by hand, once, and its
+  output was trusted. That is exactly how the pre-repair `DROPS` table survived a corpus
+  regeneration: nothing re-derived the stamp from the tree it was stamped on.
+
+The tail now runs after BOTH arms (it is inherently two-armed: `--witnesses` and
+`--manifests` write both manifests in one pass), and `--manifests` is itself fail-closed —
+it refuses when the registry does not exactly cover the corpus's empty-witness census. So
+"the record says `pass: true`" now means: both corpora regenerate byte-for-byte, the
+adequacy stamp regenerates byte-for-byte from the committed drop table, and the drop table
+covers the census exactly, with no entry left over.
 
 **ROUND-2 FINDING R2-11, two defects, both closed here.** (1) The closure check read the
 COMMITTED tree while the byte-comparison read the scratch one, so a newly generated
@@ -38,11 +58,6 @@ whose closure the run is entitled to assert. (2) A single-arm record was committ
 read as a complete check; `build_report()` now stamps `armsCovered`/`coversBothArms`, ties
 `pass` to both arms, and `--check` REFUSES to write `REGENERATION-CHECK.json` at all
 unless both arms ran. Enforced by `harness/tests/test_design_regeneration.py`.
-
-The adequacy STAMP transition stays a separate, separately auditable command
-(`adequacy_search.py --manifests/--registry`), for the reason in the paragraph above: it
-needs hand-written drop prose per empty-witness mutant. This command only ever REPORTS the
-closure state, and reports it about the tree it built.
 
 Determinism: every step is RNG-free and timestamp-free; ids are assigned in class order
 and, within a class, in reference-file order; JSON is written with a fixed indent and
@@ -77,6 +92,22 @@ overwrites it)
   34 arm-B empty-witness mutants are undispositioned. That is the honest state and not a
   defect of this command; closing adequacy is round-2 finding R2-1's own work, it needs
   hand-written drop prose per mutant, and this command may not invent it.
+* **2026-08-19, `--arm both --check` (round-3 response): 375/375 byte-identical, and the
+  FIRST RUN IN THIS FILE'S HISTORY WITH `pass: true`.** The three extra files against the
+  previous record are the tail's: `adequacy_witnesses.json`,
+  `adequacy_drop_registry.json`, `adequacy_pairing.json`; both MANIFESTs are now compared
+  *stamped*. `adequacyStampPresent` is true for both arms because the tail regenerated the
+  stamp inside the scratch tree from the committed `DROPS` table, and the drop registry
+  covers the corpus's empty-witness census exactly in both directions (60 empty-witness
+  mutants, 60 registered drops, 0 unregistered, 0 stale). Gold 0.2-draft, 117 rows.
+* **One wording carried over deliberately.** `build_report`'s `note` still says the
+  adequacy stamp is something "this command may not invent". That is still true in the
+  sense it was written — the command derives the stamp from a committed, hand-written
+  table and invents no prose — but it reads as "the stamp is not produced here", which the
+  tail has made false. The sentence was NOT edited after the run above, because editing it
+  would have made the committed record differ from what this code produces, and a record
+  that cannot be reproduced by its own generator is worse than a note that has to be read
+  beside this docstring. It should be rewritten at the next full `--check`.
 """
 import argparse
 import hashlib
@@ -95,6 +126,14 @@ PY = sys.executable
 # output. Nothing else is copied for --check.
 COPY_TREES = ["reference", "gold", "mutants", "cleanroom"]
 
+# ...plus the harness, copied READ-ONLY beside the scratch design tree. The pairing step
+# calls `e4_score.build_pairing`, and `e4_score` imports the harness's `e4lib` rather than
+# carrying a second implementation of the registered rules (round-3 R3-4). A scratch tree
+# without it would make the pairing step refuse — correctly, but for a reason that has
+# nothing to do with reproducibility. Nothing in the chain writes here.
+SIBLING_TREES = ["harness"]
+STUDY = os.path.dirname(DESIGN)
+
 # (label, argv, cwd-relative-to-design) per arm, in order.
 CHAIN = {
     "A": [
@@ -110,6 +149,29 @@ CHAIN = {
          [PY, "adequacy_search.py", "--rego-engine-supplied-stamp"], "mutants"),
     ],
 }
+
+# The adequacy tail (R3-2). Two-armed by construction: each step writes about both
+# corpora in one pass, so it runs once, after every arm's chain, and only when both arms
+# were regenerated. `--manifests` refuses if the drop registry does not exactly cover the
+# corpus's empty-witness census, so a stale registry stops the chain here rather than
+# producing a stamped-looking manifest.
+TAIL = [
+    ("witness sets over the current gold, both arms (pinned engines)",
+     [PY, "adequacy_search.py", "--witnesses"], "mutants"),
+    ("drop registry coverage of the corpus's empty-witness census, both directions",
+     [PY, "adequacy_search.py", "--check-drop-registry"], "mutants"),
+    ("adequacy disposition stamp into both MANIFESTs (fail-closed on the drop registry)",
+     [PY, "adequacy_search.py", "--manifests"], "mutants"),
+    ("arm-A REGISTRY aggregates over the stamped manifest",
+     [PY, "adequacy_search.py", "--registry"], "mutants"),
+    ("pairing groups and the per-language integer cuts",
+     [PY, "adequacy_search.py", "--pairing"], "mutants"),
+]
+
+# Committed artifacts the TAIL must reproduce byte-for-byte, over and above each arm's
+# own outputs (both MANIFESTs are already in `outputs()`).
+TAIL_OUTPUTS = ["adequacy_witnesses.json", "adequacy_drop_registry.json",
+                "adequacy_pairing.json"]
 
 # committed artifacts each arm's chain must reproduce byte-for-byte
 def outputs(arm, root):
@@ -131,8 +193,14 @@ def sha256(path):
         return hashlib.sha256(fh.read()).hexdigest()
 
 
-def run_chain(arm, root, jobs, env):
-    for label, argv, cwd in CHAIN[arm]:
+def _readable(path):
+    """A missing artifact is a MISSING digest, never a crash: an artifact the chain is
+    supposed to write but did not must appear in the report as a difference."""
+    return bool(path) and os.path.exists(path)
+
+
+def run_chain(arm, root, jobs, env, steps=None):
+    for label, argv, cwd in (CHAIN[arm] if steps is None else steps):
         argv = [a.format(jobs=str(jobs)) for a in argv]
         print("  [%s] %s" % (arm, label), flush=True)
         proc = subprocess.run(argv, cwd=os.path.join(root, cwd), env=env,
@@ -217,9 +285,16 @@ def main():
     env["ADQ_JOBS"] = str(args.jobs)
     env["TZ"] = "UTC"
 
+    both = sorted(arms) == sorted(BOTH_ARMS)
+
     if not args.check:
         for arm in arms:
             run_chain(arm, DESIGN, args.jobs, env)
+        if both:
+            run_chain("tail", DESIGN, args.jobs, env, steps=TAIL)
+        else:
+            print("single-arm run: the adequacy tail is two-armed and was NOT run; "
+                  "the manifests still carry the previous stamp. Run --arm both.")
         u = undispositioned(DESIGN)
         print("regenerated arms %s" % ", ".join(arms))
         for arm in arms:
@@ -233,15 +308,27 @@ def main():
         os.makedirs(root)
         for tree in COPY_TREES:
             shutil.copytree(os.path.join(DESIGN, tree), os.path.join(root, tree))
+        for tree in SIBLING_TREES:
+            src = os.path.join(STUDY, tree)
+            if os.path.isdir(src):
+                shutil.copytree(src, os.path.join(work, tree),
+                                ignore=shutil.ignore_patterns("__pycache__"))
         for arm in arms:
             run_chain(arm, root, args.jobs, env)
+        if both:
+            run_chain("tail", root, args.jobs, env, steps=TAIL)
         rows, bad = [], []
-        for arm in arms:
-            committed = {os.path.relpath(p, DESIGN): p for p in outputs(arm, DESIGN)}
-            regenerated = {os.path.relpath(p, root): p for p in outputs(arm, root)}
+        compare = [(arm, outputs(arm, DESIGN), outputs(arm, root)) for arm in arms]
+        if both:
+            compare.append(("tail",
+                            [os.path.join(DESIGN, "mutants", f) for f in TAIL_OUTPUTS],
+                            [os.path.join(root, "mutants", f) for f in TAIL_OUTPUTS]))
+        for arm, com, reg in compare:
+            committed = {os.path.relpath(p, DESIGN): p for p in com}
+            regenerated = {os.path.relpath(p, root): p for p in reg}
             for rel in sorted(set(committed) | set(regenerated)):
-                a = sha256(committed[rel]) if rel in committed else None
-                b = sha256(regenerated[rel]) if rel in regenerated else None
+                a = sha256(committed[rel]) if _readable(committed.get(rel)) else None
+                b = sha256(regenerated[rel]) if _readable(regenerated.get(rel)) else None
                 rows.append({"arm": arm, "path": rel, "committed": a, "regenerated": b,
                              "identical": a is not None and a == b})
                 if a != b:

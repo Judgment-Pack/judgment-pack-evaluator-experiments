@@ -1,5 +1,5 @@
 {
- "goldVersion": "0.1-draft",
+ "goldVersion": "0.2-draft",
  "policy": "POLICY-DRAFT.md v0.3",
  "rows": [
   {
@@ -2480,6 +2480,188 @@
     "spend": null
    },
    "note": "country AND spend unreadable for a new vendor in D6c's band: O3 escalates a HIGH country above $2,000,000.00 while a LOW country reviews, so the determinations differ and U1 leaves it unknown"
+  },
+  {
+   "cite": [
+    "D8"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "d8-med-nv-40-100k",
+   "inputs": {
+    "country": "MEDIUM",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "yes",
+    "prior": "no",
+    "risk": "40",
+    "sanctions": "CLEAR",
+    "spend": "100000.00"
+   },
+   "note": "a new vendor in a MEDIUM country at D6c's lower risk edge: D6c and O1 are both LOW-only and D7 needs risk below 40, so D8 reviews"
+  },
+  {
+   "cite": [
+    "D8"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "d8-med-nv-69-100k",
+   "inputs": {
+    "country": "MEDIUM",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "yes",
+    "prior": "no",
+    "risk": "69",
+    "sanctions": "CLEAR",
+    "spend": "100000.00"
+   },
+   "note": "the same at D6c's upper risk edge (69): still no MEDIUM clause reaches it, so D8 reviews"
+  },
+  {
+   "cite": [
+    "D8"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "d8-med-nv-40-100k01",
+   "inputs": {
+    "country": "MEDIUM",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "yes",
+    "prior": "no",
+    "risk": "40",
+    "sanctions": "CLEAR",
+    "spend": "100000.01"
+   },
+   "note": "the same one cent above D6c's spend ceiling: the ceiling is D6c's, D6c is LOW-only, and D8 reviews on either side of it in a MEDIUM country"
+  },
+  {
+   "cite": [
+    "D4"
+   ],
+   "expect": {
+    "disposition": "reject",
+    "reasons": []
+   },
+   "id": "d4-high-nv-70-100k",
+   "inputs": {
+    "country": "HIGH",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "yes",
+    "prior": "no",
+    "risk": "70",
+    "sanctions": "CLEAR",
+    "spend": "100000.00"
+   },
+   "note": "a new vendor in a HIGH country at D4's inclusive edge: D4 rejects, and being a new vendor changes nothing because O1 suspends only D6c"
+  },
+  {
+   "cite": [
+    "D8"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "d8-high-nv-39-100k",
+   "inputs": {
+    "country": "HIGH",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "yes",
+    "prior": "no",
+    "risk": "39",
+    "sanctions": "CLEAR",
+    "spend": "100000.00"
+   },
+   "note": "a new vendor in a HIGH country one point below D6c's band: D4 begins at 70, O3 begins above $2,000,000.00, and no approval clause reaches a HIGH country, so D8 reviews"
+  },
+  {
+   "cite": [
+    "D6b"
+   ],
+   "expect": {
+    "disposition": "unresolved",
+    "reasons": [
+     "unknown"
+    ]
+   },
+   "id": "d6b-nv-39-500k01-unreported",
+   "inputs": {
+    "country": "LOW",
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": null,
+    "newVendor": "yes",
+    "prior": "no",
+    "risk": "39",
+    "sanctions": "CLEAR",
+    "spend": "500000.01"
+   },
+   "note": "D6b's unreported-certificate limb for a NEW vendor: O1 suspends D6c only, so D6b decides this request exactly as it does for any other vendor and the case is unresolved as unknown"
+  },
+  {
+   "cite": [
+    "O1",
+    "D8",
+    "U1"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "x1r-country-unreadable-40",
+   "inputs": {
+    "country": null,
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "yes",
+    "prior": "no",
+    "risk": "40",
+    "sanctions": "CLEAR",
+    "spend": "100000.00"
+   },
+   "note": "new vendor, country unreadable, at D6c's lower risk edge with spend at D6c's inclusive ceiling: every readable country reviews under D8, so U1 issues review"
+  },
+  {
+   "cite": [
+    "O1",
+    "D8",
+    "U1"
+   ],
+   "expect": {
+    "disposition": "review",
+    "reasons": []
+   },
+   "id": "x1r-country-unreadable-69",
+   "inputs": {
+    "country": null,
+    "critical": "no",
+    "finEvidence": "present",
+    "insurance": "present",
+    "newVendor": "yes",
+    "prior": "no",
+    "risk": "69",
+    "sanctions": "CLEAR",
+    "spend": "100000.00"
+   },
+   "note": "the same at D6c's upper risk edge (69)"
   }
  ]
 }

@@ -63,7 +63,7 @@ under CPython 3.12.11 (353 at V1; the six scorer items added 34), and the twelve
 What the pipeline suite established against the pinned binaries, so that it is
 written down rather than remembered: the reference pack admits through the real
 `jpack spec validate`; every gold row reproduces in BOTH languages (the suite reads
-the committed suite, 109 rows at this revision); the arm-A
+the committed suite, 117 rows at this revision); the arm-A
 identity control passes on a matrix drawn from gold; `opa test` passes the
 reference against the reference suite and the same suite kills a real Rego
 mutant; the `time.now_ns` canary is refused with `rego_type_error`; and the
@@ -377,7 +377,7 @@ reproduced every gold row. The gate is shown to have POWER as well as to pass:
 `tests/test_score_pipeline.py` drives it against a real Rego mutant standing in
 for the arm-B reference and requires `held: false` with the failing rows and the
 reference named. The smoke as recorded ran 105 rows, 0 failures, `held: true`; gold has
-since grown to 109 rows and the gate reads whatever the committed suite carries.
+since grown to 117 rows and the gate reads whatever the committed suite carries.
 
 **S11 — the scorer and the driver held two readings of a slot — LANDED.** The
 scorer was assembled while `harness/batch.py` was still the schedule core, so

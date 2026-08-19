@@ -16,12 +16,20 @@
 >   refA/refB disagree on **0 of the 135** authored input points (was 3).
 > * **The pilot read below (A 0.92/0.90 vs B/C 0.98) is stale on both counts**: it was
 >   computed off-protocol and against a mutant corpus that no longer exists. Current, from
->   `E4-PILOT-v2.json`: mean paired kill **A 0.888, B 0.902, C 0.855**; high-kill fractions
->   at per-language cuts **A 1/5, B 0/5, C 0/5**. **"the direction is B/C above A" does not
->   reproduce.**
+>   `E4-PILOT-v4.json` (the end of the supersession chain — v1 → v2 → v3 → v4, each
+>   superseded issue naming its successor): mean paired kill **A 0.878, B 0.897, C 0.806**;
+>   high-kill fractions at per-language cuts **A 1/5, B 0/5, C 0/5**. **"the direction is
+>   B/C above A" does not reproduce.** Read v4 and no earlier issue: it is the first to
+>   apply prereg §4's registered per-case domain check (review finding R3-4), which makes
+>   four of arm C's five admitted runs identity failures — they stay in the high-kill
+>   denominator carrying `highKill: null`, so C is 0/5, while C's descriptive mean rests on
+>   the one admitted run that passed.
 > * The adequacy work-list section is likewise pre-repair: the corpus is now 183 JPS / 184
->   Rego, the gate is **open** (37 + 34 undispositioned), and the engine-supplied-kill count
->   is **27**, measured over the whole domain rather than over gold witnesses (R1-11).
+>   Rego, and the engine-supplied-kill count is measured over the whole domain rather than
+>   over gold witnesses (R1-11). **The gate re-opened with the repair (37 + 34
+>   undispositioned) and was re-closed on 2026-08-18** — see `ADEQUACY.md`'s round-3 section
+>   (review finding R3-2): gold at **117 rows**, JPS **157/183** and Rego **150/184** killed,
+>   26 + 34 registered drops, 0 undispositioned.
 
 ## The identity-control anomaly, and what it actually was
 

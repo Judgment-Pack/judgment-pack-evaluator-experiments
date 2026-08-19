@@ -25,6 +25,13 @@ What it implements (the REGISTERED E4 scoring rules, applied to pilot inputs)
    mutants whose non-empty witness set also occurs in the other language.
 
 2. IDENTITY CONTROL, per suite.
+   FIRST, in all three arms and before anything is evaluated: the REGISTERED PER-CASE
+              DOMAIN CHECK (Sec 4), called in the harness rather than reimplemented here
+              (`registered_domain_failures()` below; round-3 finding R3-4). An
+              out-of-domain case is an identity failure categorised
+              `out-of-domain-case`, so its run is excluded from every kill rate exactly
+              as any other identity failure is, and a suite whose cases cannot be
+              enumerated is the registered authoring code `unparseable-artifact`.
    arm A   -- every matrix case is evaluated against the UNMUTATED refA pack with
               `jpack experimental evaluate`, the case's `facts` as the facts document and
               its `evidenceAvailability` (default {}) as the evidence document, in a temp
@@ -61,7 +68,10 @@ What it implements (the REGISTERED E4 scoring rules, applied to pilot inputs)
    `notAdequate` mutants (empty witness set -- no gold row kills them) are scored but
    reported SEPARATELY: the headline kill rate is over the adequate own-language mutants.
 
-4. OUTPUT E4-PILOT.json + a printed summary, both labelled NON-CITABLE PILOT.
+4. OUTPUT E4-PILOT-v4.json (`OUT` below; the current issue) + a printed summary, both
+   labelled NON-CITABLE PILOT. Every earlier issue stays on disk carrying a
+   `supersededBy` member naming its successor, so the chain from the first issue to the
+   current one is walkable and is walked by a test.
 
 Diagnostics (NOT registered E4 numbers -- read `diagnostics`, never cite it)
 ---------------------------------------------------------------------------
@@ -119,7 +129,44 @@ REF_A = os.path.join(DESIGN, "reference", "refA", "pack.json")
 REF_B = os.path.join(DESIGN, "reference", "refB", "policy.rego")
 MUT_A_DIR = os.path.join(HERE, "refA")
 MUT_B_DIR = os.path.join(HERE, "refB")
-OUT = os.path.join(HERE, "E4-PILOT-v3.json")
+OUT = os.path.join(HERE, "E4-PILOT-v4.json")
+
+# --- ROUND-3 FINDING R3-4: the registered per-case domain check, and it is the
+# HARNESS's, imported rather than reimplemented -----------------------------
+#
+# v3 reported arm C at identity 5/5 and a paired kill mean of 0.855385 while its
+# own banner admitted that this prototype "runs no per-case registered-domain
+# check" and that four of the five arm-C suites contain an out-of-domain case.
+# §4 registers the check as part of the identity control — "each enumerated case
+# is validated against the registered domain BEFORE identity and mutation
+# execution, identically in A, B and C. An out-of-domain case is an identity
+# failure categorised `out-of-domain-case`" — so those four runs are identity
+# failures and the numbers computed over them were computed under a rule the
+# study does not have.
+#
+# The repair is not a second implementation of §4 in this file. Two
+# implementations of one registered rule is what produced the disagreement in
+# the first place (round-2 R2-2, the denominator; round-3 R3-4, the domain), and
+# the tie-break has been the same both times: the PRIMARY path is the registered
+# one and the pilot moves to it. So this prototype consumes
+# `harness/e4lib/{e4,engines}.py` directly — the same functions
+# `harness/score.py` calls, on the same inputs — or it REFUSES to run at all. A
+# pilot that silently scored without the check is exactly what R3-4 found.
+HARNESS = os.path.abspath(os.path.join(DESIGN, os.pardir, "harness"))
+if HARNESS not in sys.path:
+    sys.path.insert(0, HARNESS)
+try:
+    from e4lib import e4 as harness_e4              # noqa: E402
+    from e4lib import engines as harness_engines    # noqa: E402
+except ImportError as _error:                       # pragma: no cover
+    raise SystemExit(
+        "REFUSED: this pilot scorer applies the registered per-case domain "
+        "check by calling the harness (%s), and the harness did not import "
+        "(%s). It does not have a second implementation to fall back on, and "
+        "scoring without the check is the round-3 R3-4 defect."
+        % (HARNESS, _error))
+
+HARNESS_PINS = os.path.join(HARNESS, "PINS.json")
 
 ENGINE_TIMEOUT_S = 60
 WORKERS = int(os.environ.get("E4_WORKERS", str(min(16, (os.cpu_count() or 4)))))
@@ -155,6 +202,62 @@ def worker_dir(root):
 def load_json(path):
     with open(path) as fh:
         return json.load(fh)
+
+
+_harness_tools = None
+
+
+def harness_tools():
+    """The harness `Toolchain`, over THIS script's pinned binaries, or refuse.
+
+    ROUND-3 R3-4. `e4lib.rego_case_signatures()` reaches the pinned parser
+    through a `Toolchain`, so the enumeration the primary path performs is
+    available here only with one built. It is built from the harness registry
+    and from the same three binaries this file already resolves, and a toolchain
+    carrying any problem REFUSES: a domain check that quietly did not run is the
+    finding, and a domain check that quietly ran against an unpinned binary
+    would be its sibling."""
+    global _harness_tools
+    if _harness_tools is None:
+        with open(HARNESS_PINS) as fh:
+            pins = json.load(fh)
+        tools = harness_engines.Toolchain(
+            pins, {"JPACK_BIN": JPACK, "OPA_BIN": OPA, "OPA_CAPS": CAPS})
+        if tools.problems:
+            raise SystemExit(
+                "REFUSED: the registered per-case domain check runs through the "
+                "pinned toolchain and it does not resolve: %s"
+                % "; ".join(tools.problems))
+        _harness_tools = tools
+    return _harness_tools
+
+
+def registered_domain_failures(arm, suite_path, root):
+    """§4's per-case domain validation for one suite — THE PRIMARY PATH'S.
+
+    ROUND-3 R3-4, and every line of the check itself lives in the harness:
+    arm A's cases come from `e4lib.load_matrix()` and are signed by
+    `e4lib.matrix_domain_signature()`; arms B and C are enumerated from the
+    suite's own syntax tree by `e4lib.rego_case_signatures()` through the pinned
+    parser; both are judged by `e4lib.domain_failures()` against the one
+    registered domain, with arm A's wire form `string` and B/C's `number`. This
+    function chooses which of those to call and nothing else.
+
+    A suite that cannot be enumerated is `unparseable-artifact` — the registered
+    authoring code — reported here as the identity failure §4 makes it, never as
+    a pass."""
+    tools = harness_tools()
+    workdir = worker_dir(root)
+    if arm == "A":
+        cases, _note = harness_e4.load_matrix(suite_path)
+        named = [(case[0], harness_e4.matrix_domain_signature(case[1], case[2]))
+                 for case in cases]
+        wire = "string"
+    else:
+        named = harness_e4.rego_case_signatures(tools, suite_path, workdir,
+                                                REF_B)
+        wire = "number"
+    return harness_e4.domain_failures(named, wire)
 
 
 # ------------------------------------------------------------------- mutant sets
@@ -668,6 +771,37 @@ def score_arm(arm, lang, filename, mutants, paired_ids, root, pool):
         entry = {"run": suite["run"],
                  "suiteFile": os.path.relpath(suite["path"], DESIGN),
                  "suiteBytes": suite["bytes"]}
+
+        # ROUND-3 R3-4: the registered domain check runs FIRST, in all three
+        # arms, through the harness — before identity and before any mutant is
+        # touched, which is the order §4 registers. An out-of-domain case is an
+        # identity failure, so the run is excluded from the kill rates exactly
+        # as any other identity failure is.
+        try:
+            failures = registered_domain_failures(arm, suite["path"], root)
+            entry["outOfDomainCases"] = [f["case"] for f in failures]
+        except harness_e4.MatrixError as error:
+            entry["identityPass"] = False
+            entry["excludedFromKillRates"] = True
+            entry["dropCode"] = "unparseable-artifact"
+            entry["identityFailures"] = [
+                {"case": "<suite>", "expected": "<enumerable cases>",
+                 "got": "unparseable-artifact", "problems": [str(error)]}]
+            entry["identityFailureCount"] = 1
+            id_failures.append(entry["run"])
+            per_run.append(entry)
+            continue
+        if failures:
+            entry["identityPass"] = False
+            entry["excludedFromKillRates"] = True
+            entry["identitySource"] = ("harness e4lib.domain_failures — §4's "
+                                       "registered per-case domain check")
+            entry["identityFailures"] = failures[:20]
+            entry["identityFailureCount"] = len(failures)
+            id_failures.append(entry["run"])
+            per_run.append(entry)
+            continue
+
         if arm == "A":
             cases, note = load_matrix(suite["path"])
             entry.update(note)
@@ -859,7 +993,7 @@ def main():
     global OUT
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=OUT,
-                    help="output path (E4-PILOT-v3.json for the current issue)")
+                    help="output path (E4-PILOT-v4.json for the current issue)")
     ap.add_argument("--tau", type=float, default=0.95)
     args = ap.parse_args()
     OUT = args.out
@@ -902,13 +1036,35 @@ def main():
     doc = {
         "label": LABEL,
         "citable": False,
-        "issue": "v3",
-        "supersedes": ["E4-PILOT.json", "E4-PILOT-v2.json"],
+        "issue": "v4",
+        "supersedes": ["E4-PILOT.json", "E4-PILOT-v2.json", "E4-PILOT-v3.json"],
         "supersedingBanner":
-            "THIS ISSUE SUPERSEDES E4-PILOT-v2.json. Two round-2 findings changed HOW "
-            "two numbers are computed, and on this pilot's inputs neither changed WHAT "
-            "they are: every kill vector here is byte-identical to v2's, and the "
-            "published rates are unchanged. R2-3 -- arms B and C counted every nonzero "
+            "THIS ISSUE SUPERSEDES E4-PILOT-v3.json, WHICH SUPERSEDED v2 AND v1. "
+            "ROUND-3 FINDING R3-4 is the reason this issue exists and the reason no "
+            "arm-C figure from any earlier issue survives it: the registered per-case "
+            "DOMAIN CHECK of Sec 4 is APPLIED HERE, and it was applied in no earlier "
+            "issue. v3's own banner said so and published arm C's identity count and "
+            "kill rates anyway, over suites Sec 4 makes identity failures. The check is "
+            "not reimplemented in this prototype: it is CALLED IN THE HARNESS "
+            "(`e4lib.load_matrix`, `e4lib.matrix_domain_signature`, "
+            "`e4lib.rego_case_signatures`, `e4lib.domain_failures`), the same functions "
+            "on the same inputs `harness/score.py` runs, and this script REFUSES to "
+            "score at all if the harness or the pinned toolchain does not resolve -- two "
+            "implementations of one registered rule is what produced R2-2's denominator "
+            "split and R3-4's domain omission, and the tie-break both times was that the "
+            "PRIMARY path is the registered one and the pilot moves to it. Every identity "
+            "count, identity-failing run list and kill rate below is therefore over runs "
+            "that passed BOTH the domain check and the arm's own identity control, and "
+            "`outOfDomainCases` names the offending cases per run. The denominator does "
+            "NOT move with them: Sec 1a/Sec 5 register admitted runs, so an "
+            "identity-failing run stays in it carrying `highKill: null` -- read "
+            "`perArm.<arm>.highKill.admittedRuns`, never the length of the scored-run "
+            "list. This issue also carries the corpus the round-3 adequacy repair "
+            "produced (gold 0.2-draft, both MANIFESTs re-witnessed), so the pairing, the "
+            "paired subsets and both integer cuts differ from v3's as well. v3, v2 and v1 "
+            "are bannered, not deleted, and each names its successor. "
+            "WHAT v3 CARRIED FORWARD, unchanged and still true: R2-3 -- arms B and C "
+            "counted every nonzero "
             "`opa test` exit as a kill, so an invocation that never ran the tests, a "
             "timeout, and an evaluation fault inside a test body would each have killed "
             "every mutant they touched. A kill is now a NAMED TEST THAT FAILED ITS "
@@ -920,17 +1076,12 @@ def main():
             "taxonomy backwards; exit 2 is a failed test, not an error), not "
             "errors-counted-as-kills. R2-2 -- the high-kill denominator here was the "
             "identity-PASSING runs, and Sec 5 registers Sec 1a's admitted runs, which "
-            "RETAIN identity-control exclusions carrying `highKill: null`. This pilot "
-            "has no identity failures in any arm, so the two rules agree here; "
-            "`harness/score.py` has always used the registered one. KNOWN LIMIT, "
-            "measured and not applied: this prototype runs no per-case registered-domain "
-            "check, and the harness's corrected enumeration finds one out-of-domain case "
-            "in 4 of the 5 arm-C suites (three assert `with input as {}`, one an input "
-            "with no `sanctionsStatus`) and none in arm A or arm B. Under Sec 4 those "
-            "four arm-C runs are identity failures, which would leave arm C's identity "
-            "at 1/5 and its descriptive mean paired kill rate resting on run-002 alone "
-            "(0.815) rather than on five suites (0.855). Arm C's high-kill endpoint is "
-            "0/5 either way. v2 and v1 are bannered, not deleted.",
+            "RETAIN identity-control exclusions carrying `highKill: null`; "
+            "`harness/score.py` has always used the registered one. On v3's inputs that "
+            "rule change moved nothing because v3 had no identity failure anywhere; on "
+            "THIS issue's inputs it is load-bearing, and it is why arm C's high-kill "
+            "fraction below is over five admitted runs and not over the one that passed "
+            "the domain check.",
         "study": "019-authorship-across-representations",
         "analysis": "E4 (mutation kill rate) applied to the calibration pilot",
         "warning": "NON-CITABLE PILOT: pilot suites from pilot_run.py, gold 0-draft; "

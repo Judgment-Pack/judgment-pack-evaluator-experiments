@@ -228,7 +228,7 @@ can omit **any** member — including `sanctionsStatus`.
 
 ## 7. What this certificate does not show
 
-- It does **not** decide whether either reference is *right*. Gold (109 rows) and the
+- It does **not** decide whether either reference is *right*. Gold (117 rows) and the
   clean-room oracle carry that burden; this instrument only establishes **agreement** and
   classifies the disagreements — of which there are now none.
 - It is a **design-time gate instrument**. It publishes no study endpoint, adjudicates no

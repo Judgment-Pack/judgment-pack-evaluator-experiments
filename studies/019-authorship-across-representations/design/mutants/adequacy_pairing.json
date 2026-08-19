@@ -1,0 +1,32 @@
+{
+ "goldRows": 117,
+ "goldSha256": "6a41174bc6765781d4eae6eec610994240173fcdf97d442c8aeef6ce63bb9cc3",
+ "groupsDegenerate": 1,
+ "groupsShared": 34,
+ "groupsSharedNonDegenerate": 33,
+ "groupsTotal": 157,
+ "perLanguage": {
+  "jps": {
+   "adequateMutants": 157,
+   "assertionCutReachable": true,
+   "cutAsFraction": 0.956522,
+   "emptyWitnessMutants": 26,
+   "integerCut": 66,
+   "pairedAdequateMutants": 69,
+   "unpairableAdequateMutants": 88,
+   "validMutants": 183
+  },
+  "rego": {
+   "adequateMutants": 150,
+   "assertionCutReachable": true,
+   "cutAsFraction": 0.951613,
+   "emptyWitnessMutants": 34,
+   "integerCut": 59,
+   "pairedAdequateMutants": 62,
+   "unpairableAdequateMutants": 88,
+   "validMutants": 184
+  }
+ },
+ "rule": "two mutants pair iff their sorted witness sets over the current gold are identical; the empty witness set is a key like any other and its group is degenerate (it pairs on the absence of a discriminating row) and never counted",
+ "tau": 0.95
+}

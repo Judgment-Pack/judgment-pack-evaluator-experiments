@@ -367,7 +367,75 @@ row("x1r-adjacent-both-unreadable", "country AND spend unreadable for a new vend
     "reviews, so the determinations differ and U1 leaves it unknown", ["U1", "O3"],
     U, ["unknown"], newVendor="yes", risk="55", country=None, spend=None)
 
+# =========================================================================================
+# ==== gold v0.2 — ROUND-3 ADEQUACY-GATE ADDITIONS (2026-08-18) ===========================
+# =========================================================================================
+# Why these rows exist: the arm-A reference repair (reference/refA/PACK-CHANGE-001.md,
+# round-1 finding R1-2) regenerated the JPS mutant corpus, and 37 of the new mutants came
+# out with an empty witness set. Review round 3 (finding R3-2) named that as the adequacy
+# gate re-opening. `mutants/adequacy_search.py --search` swept the same dense 419,904-cell
+# derived space over those 37 and found 11 of them distinguishable from the repaired
+# reference somewhere. THE SEARCH SAYS ONLY *WHERE* TO LOOK. It never says what the policy
+# requires there, and no expectation below was read off a mutant, a reference or an engine:
+# each is derived by hand from POLICY-DRAFT.md v0.3 with its clause citation, and each
+# row's note names the sentence it was derived from.
+#
+# All eleven live in ONE region, and it is the region the repair created: the two derived
+# "region lemma" rules (`r-o1-wide-low`, `r-o1-wide-spend`) and the two D8 suppressions
+# scoped to them. v0.1's grid probed that region only in a LOW country, because before the
+# repair the arm-A reference could not answer it anywhere else. The rows below are its
+# edges: the risk-band edges (40 and 69) and the D4 edge above it (70) in a MEDIUM, HIGH
+# and unreadable country, the spend edge a cent above $100,000.00, and D6b's unreported
+# limb for a new vendor.
+
+# ---- the region lemma in a MEDIUM country: D6c and O1 are LOW-only, so D8 governs -------
+# "Every request with a CLEAR screening result that is not determined by D3-D7 ... is
+# referred for review." D7 is the only MEDIUM approval clause and it needs a risk score
+# below 40; O1 removes nothing here, because the clause it suspends (D6c) is LOW-only.
+row("d8-med-nv-40-100k", "a new vendor in a MEDIUM country at D6c's lower risk edge: D6c "
+    "and O1 are both LOW-only and D7 needs risk below 40, so D8 reviews", ["D8"], "review",
+    country="MEDIUM", risk="40", spend="100000.00", newVendor="yes")
+row("d8-med-nv-69-100k", "the same at D6c's upper risk edge (69): still no MEDIUM clause "
+    "reaches it, so D8 reviews", ["D8"], "review",
+    country="MEDIUM", risk="69", spend="100000.00", newVendor="yes")
+row("d8-med-nv-40-100k01", "the same one cent above D6c's spend ceiling: the ceiling is "
+    "D6c's, D6c is LOW-only, and D8 reviews on either side of it in a MEDIUM country",
+    ["D8"], "review", country="MEDIUM", risk="40", spend="100000.01", newVendor="yes")
+
+# ---- the region lemma against D4, one point above the band ------------------------------
+# "Where country risk is HIGH and the risk score is 70 or above, the request is rejected."
+# Risk 70 is D4's inclusive edge and is OUTSIDE D6c's band (which ends below 70), so no
+# review clause competes with it.
+row("d4-high-nv-70-100k", "a new vendor in a HIGH country at D4's inclusive edge: D4 "
+    "rejects, and being a new vendor changes nothing because O1 suspends only D6c",
+    ["D4"], "reject", country="HIGH", risk="70", spend="100000.00", newVendor="yes")
+row("d8-high-nv-39-100k", "a new vendor in a HIGH country one point below D6c's band: D4 "
+    "begins at 70, O3 begins above $2,000,000.00, and no approval clause reaches a HIGH "
+    "country, so D8 reviews", ["D8"], "review",
+    country="HIGH", risk="39", spend="100000.00", newVendor="yes")
+
+# ---- D6b's unreported limb for a new vendor ---------------------------------------------
+# "If its availability is unreported, the case is unresolved as unknown." D6b is a D6 limb
+# and D6 is not suspended by O1 — O1 names D6c alone.
+row("d6b-nv-39-500k01-unreported", "D6b's unreported-certificate limb for a NEW vendor: O1 "
+    "suspends D6c only, so D6b decides this request exactly as it does for any other vendor "
+    "and the case is unresolved as unknown", ["D6b"], U, ["unknown"],
+    risk="39", spend="500000.01", insurance=None, newVendor="yes")
+
+# ---- U1 over an unreadable country at the region's two risk edges -----------------------
+# These two are inside the region the retired X1 class used to forbid, and they are its risk
+# edges: gold already carries the region's interior (`x1r-country-unreadable-100k`, risk 55).
+# U1's counterfactual is uniform at both edges: LOW is D6c removed by O1 (D8), MEDIUM is out
+# of D7's reach (D8), HIGH is out of D4's reach below 70 and O3 begins above $2,000,000.00
+# (D8) - every readable country reviews, so U1 issues review.
+row("x1r-country-unreadable-40", "new vendor, country unreadable, at D6c's lower risk edge "
+    "with spend at D6c's inclusive ceiling: every readable country reviews under D8, so U1 "
+    "issues review", ["O1", "D8", "U1"], "review",
+    country=None, risk="40", spend="100000.00", newVendor="yes")
+row("x1r-country-unreadable-69", "the same at D6c's upper risk edge (69)", ["O1", "D8", "U1"],
+    "review", country=None, risk="69", spend="100000.00", newVendor="yes")
+
 with open("gold.json", "w") as f:
-    json.dump({"goldVersion": "0.1-draft", "policy": "POLICY-DRAFT.md v0.3",
+    json.dump({"goldVersion": "0.2-draft", "policy": "POLICY-DRAFT.md v0.3",
                "rows": ROWS}, f, indent=1, sort_keys=True)
 print(f"{len(ROWS)} gold rows written")

@@ -29,13 +29,16 @@ edits the prose again. This module is what makes them stay closed:
 ROUND-2 FINDINGS R2-1 and R2-13 extend the same idea to two artifacts this
 module did not reach, and both were caught by a reviewer doing what a test must:
 
-* **R2-1 — the manifest is a currency property.** The committed manifest covers
-  `PREREG-REVIEW.md`, so writing a disposition after regenerating the manifest
-  leaves the manifest describing a tree that no longer exists. That is precisely
-  what happened between rounds 1 and 2. `tests/test_manifest.py` already fails on
-  it; it now fails HERE too, under a different name, because a single failing
-  test in a 570-test suite is easy to read as one test's problem and a currency
-  failure is not that.
+* **R2-1 — the manifest is a currency property.** The committed manifest went
+  stale because writing a disposition after regenerating it leaves it describing
+  a tree that no longer exists. `tests/test_manifest.py` already fails on it; it
+  fails HERE too, under a different name, because a single failing test in a
+  669-test suite is easy to read as one test's problem and a currency failure is
+  not that. **ROUND-3 R3-1 changes the root cause rather than the property**: the
+  recurrence was not a forgotten step but a covered appendable file, so
+  `PREREG-REVIEW.md` leaves the covered set by named constant (ADR 0004) and this
+  module asserts the EXCLUSION. Manifest currency itself is still asserted, and
+  still twice.
 * **R2-13 — the generated OC artifact is a currency property.** The published
   OC table retained withdrawn exactness claims and stale pilot anchors, and its
   GENERATOR would have re-emitted them. Prose findings closed by hand-editing a
@@ -85,6 +88,27 @@ def _load(relative):
         return json.loads(handle.read().decode("utf-8"))
 
 
+def _sibling_test_module(name):
+    """Another test module in this directory, imported by path.
+
+    There is no `tests` package (deliberately — the suite is run from the
+    harness root with `harness/` on the path), so a sibling is reached the same
+    way `_oc_module()` reaches the OC generator. Used where a property belongs to
+    ONE module and two modules must assert it: re-implementing the AST walk here
+    would make the two assertions independent, which is the opposite of what is
+    wanted."""
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), name + ".py")
+    written = sys.dont_write_bytecode
+    sys.dont_write_bytecode = True
+    try:
+        spec = importlib.util.spec_from_file_location("_s019_" + name, path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+    finally:
+        sys.dont_write_bytecode = written
+
+
 @pytest.fixture(scope="module")
 def artifacts():
     """The committed artifacts the registration makes claims about, loaded once
@@ -117,7 +141,13 @@ def test_the_gold_row_count_and_digest_are_the_committed_suites(flat, artifacts)
     rows = artifacts["goldRows"]
     assert "Gold: %d rows" % rows in flat
     assert "agrees %d/%d on gold" % (rows, rows) in flat
-    assert "109 at this revision" in flat and rows == 109, (
+    # ROUND-3 R3-2. This used to pin the literal 109 as well as the sentence,
+    # which made the pin fail the moment gold legitimately grew — and a literal
+    # in a test is not a second opinion about the gold suite, it is the same
+    # opinion written twice. What the sentence has to do is name THIS suite's
+    # count, so that is what is asserted; §5's census stimulus and §4's suite
+    # still cannot drift apart, and neither can drift from the file.
+    assert "%d at this revision" % rows in flat, (
         "the census stimulus sentence names the gold count; it and the suite "
         "must move together")
     digest = integrity.digest(os.path.join(_study(), "design/gold/gold.json"))
@@ -137,8 +167,24 @@ def test_the_mutant_totals_and_kill_census_are_the_committed_manifests(
                 for language in ("jps", "rego")}
     assert "%d/%d JPS and %d/%d Rego killed by gold" % (
         adequate["jps"], len(jps), adequate["rego"], len(rego)) in flat
-    assert "%d JPS and %d Rego empty-witness mutants undispositioned" % (
+    # ROUND-3 R3-2. The registration used to state the empty-witness remainder as
+    # UNDISPOSITIONED, which was true while §4's gate was open and is the number
+    # the gate closure had to move. The remainder itself did not go away — 26 JPS
+    # and 34 Rego mutants no gold row can kill are registered DROPS with their
+    # mechanisms — so both halves are asserted: the drop count is the remainder,
+    # and the undispositioned count is whatever the drop registry's own two-way
+    # check says it is, which is the number the gate is closed on.
+    registry = _load("design/mutants/adequacy_drop_registry.json")
+    undispositioned = len(registry["unregisteredEmptyWitness"])
+    assert "%d JPS and %d Rego are registered as dropped with their mechanisms" % (
         len(jps) - adequate["jps"], len(rego) - adequate["rego"]) in flat
+    assert "%d JPS and %d Rego empty-witness mutants undispositioned" % (
+        undispositioned, undispositioned) in flat
+    assert undispositioned == 0 and not registry["staleRegistryEntries"], (
+        "the gate is claimed closed; the drop registry must carry neither an "
+        "unregistered empty-witness mutant nor a stale entry")
+    assert len(registry["registeredDrops"]) == (
+        len(jps) - adequate["jps"] + len(rego) - adequate["rego"])
 
 
 def test_the_pairing_counts_are_recomputed_from_the_manifests(flat, artifacts):
@@ -191,12 +237,30 @@ def test_the_off_gold_certificate_numbers_are_the_certificates(flat, artifacts):
 
 def test_the_gates_say_what_they_are(flat):
     """R1-19 again: a satisfied gate and an open one read differently, and the
-    second revision said SATISFIED about a gate the repair had re-opened."""
-    assert "Adequacy gate: GATE(pre-freeze) — OPEN" in flat
+    second revision said SATISFIED about a gate the repair had re-opened.
+
+    ROUND-3 R3-2 makes the gate's STATE a derived claim rather than a spelling.
+    The round-2 response said the adequacy disposition was accepted while the
+    registration said OPEN and the regeneration record said `pass: false` — three
+    surfaces, and the only one under test was the prose. So the sentence the
+    registration is allowed to carry is chosen HERE by reading
+    `REGENERATION-CHECK.json`: claim CLOSED and the record must stamp both arms
+    and pass; claim OPEN and it must not. A prose edit in either direction
+    without the artifact behind it fails."""
+    record = _load("design/mutants/REGENERATION-CHECK.json")
+    closed = (record.get("pass") is True
+              and all(record.get("adequacyStampPresent", {}).values())
+              and not any(record.get("undispositionedEmptyWitnessMutants",
+                                     {}).values()))
+    assert ("Adequacy gate: GATE(pre-freeze) — %s" % ("CLOSED" if closed
+                                                      else "OPEN")) in flat, (
+        "the regeneration record says the gate is %s and the registration must "
+        "say the same" % ("closed" if closed else "open"))
     assert "Off-gold equivalence: SATISFIED" in flat
     assert "Review flag A1: CONFIRMED, not live." in flat
     assert "zero empty witness sets remain" not in flat, (
-        "the phrase is false and was the exact wording the review flagged")
+        "the phrase was asserted while it was false and stays banned; state the "
+        "census instead")
     assert "undispositioned" in flat
 
 
@@ -308,7 +372,12 @@ def test_the_provenance_discloses_the_identity_control_episode(flat):
 
 def test_the_provenance_cites_the_current_anchor_and_withdraws_the_direction(
         flat):
-    pilot = _load("design/mutants/E4-PILOT-v2.json")
+    """ROUND-3 R3-5 changed where the pilot comes from. This test used to name
+    `E4-PILOT-v2.json` in its own source, which meant the registration could be
+    checked against a superseded issue forever and pass. The pilot is now
+    whichever file `oc_table.PILOT_FILE` names — the single constant — and the
+    chain tests below are what stop that constant from naming a stale file."""
+    pilot = _load("design/mutants/%s" % _oc_module().PILOT_FILE)
     means = {arm: pilot["perArm"][arm]["meanKillRatePaired"] for arm in "ABC"}
     assert "A %.3f, B %.3f, C %.3f" % (means["A"], means["B"], means["C"]) in flat
     fractions = {arm: (pilot["perArm"][arm]["highKill"]["highKillRuns"],
@@ -389,20 +458,50 @@ def test_the_committed_manifest_is_current_with_the_tree():
         "LAST, after every other edit:\n  " + "\n  ".join(problems))
 
 
-def test_the_review_record_is_covered_and_current():
-    """R2-1's specific defect, named. `PREREG-REVIEW.md` is a registered document
-    that grows by one disposition table per review round, so it is the file most
-    likely to re-stale the manifest, and the one that did."""
+def test_the_review_record_is_out_of_the_covered_set_by_construction():
+    """ROUND-3 R3-1, and this test is REVERSED from what it asserted.
+
+    R2-1's disposition read the recurrence as a procedure failure and answered
+    it with a procedure ("regenerate the manifest LAST") plus this test, which
+    required `PREREG-REVIEW.md` to be COVERED and CURRENT. Round 3 found it
+    stale again — the third round running — with this very test among the three
+    that were red while the response reported 669/669 green.
+
+    ADR 0004 already decides the case: a file whose purpose is to be appended to
+    after the freeze is not a file that must not change. The review record grows
+    by one disposition table per round, so it is that file, and the safeguard
+    that works is exclusion by named constant rather than a step someone has to
+    remember. What is asserted now is the exclusion; `tests/test_manifest.py`
+    carries the same assertion under its own name, for the same reason two
+    failures were wanted here — a currency failure must not read as one test's
+    problem."""
     entries = make_manifest.manifest_entries()
-    assert "PREREG-REVIEW.md" in entries, (
-        "the review record is a registered document and must be covered")
+    assert "PREREG-REVIEW.md" not in entries, (
+        "the review record is appendable by design (ADR 0004, R3-1) and must "
+        "not be covered: covering it re-stales the manifest on every round")
+    assert "PREREG-REVIEW.md" in make_manifest.EXCLUDED_DOCUMENTS, (
+        "the exclusion must be by NAMED CONSTANT, not by omission")
     committed = dict(
         line.split("  ", 1)[::-1]
         for line in open(os.path.join(_study(), "harness", "STUDY-MANIFEST.sha256"),
                          encoding="utf-8").read().splitlines() if line.strip())
-    with open(os.path.join(_study(), "PREREG-REVIEW.md"), "rb") as handle:
+    assert "PREREG-REVIEW.md" not in committed
+
+
+def test_the_preregistration_itself_is_still_covered_and_current():
+    """The other side of R3-1: excluding the review record must not become an
+    argument for excluding the document that carries the claims. The
+    registration is not appendable — it is the frozen registered text — so it
+    stays covered, and its digest stays current with the tree."""
+    entries = make_manifest.manifest_entries()
+    assert "PREREGISTRATION.md" in entries
+    committed = dict(
+        line.split("  ", 1)[::-1]
+        for line in open(os.path.join(_study(), "harness", "STUDY-MANIFEST.sha256"),
+                         encoding="utf-8").read().splitlines() if line.strip())
+    with open(os.path.join(_study(), "PREREGISTRATION.md"), "rb") as handle:
         actual = hashlib.sha256(handle.read()).hexdigest()
-    assert committed["PREREG-REVIEW.md"] == actual
+    assert committed["PREREGISTRATION.md"] == actual
 
 
 def test_the_sealed_reviewer_set_is_covered_while_it_exists():
@@ -523,12 +622,27 @@ def test_the_oc_tables_pilot_fractions_are_recomputed_from_that_pilot(oc_text):
     module = _oc_module()
     anchor = module.pilot_anchor(
         os.path.join(_study(), "design", "mutants", module.PILOT_FILE))
+    pilot = _load("design/mutants/%s" % module.PILOT_FILE)
     for arm in ("A", "B", "C"):
         assert "**high-kill fraction: %d/%d" % (anchor[arm]["k"],
                                                 anchor[arm]["n"]) in oc_text
-        assert anchor[arm]["identityFail"] == 0, (
-            "arm %s records an identity failure; §7's caveat text and the "
-            "denominator rule both need re-reading before this passes" % arm)
+        # ROUND-3 R3-4/R3-6, and this assertion is REVERSED from what it was.
+        # It used to require every arm to record zero identity failures, with a
+        # message saying §7's caveat and the denominator rule needed re-reading
+        # first. The domain check made the guard fire — arm C records four — so
+        # the re-reading happened, and what is asserted now is the thing that
+        # actually matters: whatever the identity failures are, the published
+        # denominator is §1a/§5's ADMITTED runs, i.e. it does NOT shrink by them.
+        block = pilot["perArm"][arm]["highKill"]
+        assert anchor[arm]["n"] == block["admittedRuns"], (
+            "arm %s: the OC table's denominator must be the pilot's published "
+            "admitted-run count, not its scored-run count" % arm)
+        assert (block["admittedRuns"]
+                == len(anchor[arm]["runs"]) + anchor[arm]["identityFail"]), (
+            "arm %s: identity-failing runs must be IN the denominator" % arm)
+        if anchor[arm]["identityFail"]:
+            assert "identity FAIL -- not asked" in oc_text
+            assert "`highKill: null`, in the denominator" in oc_text
     assert "**Current fractions: A %d/%d" % (anchor["A"]["k"],
                                              anchor["A"]["n"]) in oc_text
 
@@ -554,6 +668,217 @@ def test_the_oc_table_does_not_teach_the_retired_x1_gate(oc_text):
         assert any(word in line for word in
                    ("retired", "historical", "superseded")), (
             "OC-TABLE.md line still treats X1 as live: " + line[:140])
+
+
+# --- ROUND-3 FINDING R3-7: §7's integrity claim, frozen at the honest one ----
+
+def test_the_registration_states_the_integrity_bootstrap_and_not_the_stronger_claim(
+        flat):
+    """R3-7. The immutable registration said integrity "runs before the scorer
+    imports a single study module" while `score.py` imports study-local
+    `integrity` at module scope — a claim its own code comment already
+    contradicted, calling itself a drift gate rather than a root of trust.
+
+    The sentence is withdrawn and the replacement is frozen HERE, because a
+    prose repair that nothing asserts is a prose repair for one round. Each
+    clause below is also a property the code tests separately
+    (`tests/test_score_attempt.py`), so the registration and the harness state
+    one thing between them."""
+    assert "Integrity is a gate against drift, not a root of trust" in flat
+    assert "the only study-local module the scorer imports at module scope" in flat
+    assert "code that must run in order to check itself cannot check itself first" \
+        in flat
+    assert "before the scorer imports a single study module" not in flat, (
+        "the withdrawn claim is back in the registration")
+
+
+def test_the_integrity_clause_the_registration_freezes_is_true_of_the_code(flat):
+    """The other half, and the reason the wording above is worth freezing: the
+    sentence is re-derived from the scorer's own imports rather than trusted.
+    A future `import batch` at module scope in `score.py` makes the registration
+    false, and this fails."""
+    import score
+    attempt = _sibling_test_module("test_score_attempt")
+    local = attempt._study_local_module_names()
+    assert attempt._module_scope_imports(score.__file__) & local == {"integrity"}
+    assert attempt._module_scope_imports(score.integrity.__file__) & local == set()
+
+
+# --- ROUND-3 FINDING R3-8: §10 promises only what §5 permits -----------------
+
+def test_the_publication_commitment_does_not_promise_a_forbidden_interval(flat):
+    """R3-8's prose half. §10 said all intervals are published "whichever way
+    they land" while §5 forbids computing one at or above the gate rows, so the
+    two sections registered incompatible obligations and the stronger-sounding
+    one was the one a reader would hold the study to.
+
+    §10 keeps its commitment and states its scope: what exists is published, and
+    a contrast the registered rule forbids does not exist to be published."""
+    assert "published whichever way they land" in flat
+    assert "an outcome that reaches a gate row has no A−C or A−B interval to " \
+        "publish" in flat
+    assert "A blocked contrast is published as blocked, with its cause" in flat
+    assert "Publishing a number the registered rule says must not be computed " \
+        "is not a stronger publication commitment" in flat
+    # §5's side of the same rule, unchanged and still required.
+    assert "No inferential quantity is computed, let alone published, at or " \
+        "above row 3." in flat
+
+
+# --- ROUND-3 FINDING R3-5: the pilot's supersession CHAIN --------------------
+#
+# The old safeguard was mutual agreement: the registration, `oc_table.PILOT_FILE`
+# and the generated table all had to name the same pilot. Three surfaces agreeing
+# on a stale file is exactly what the reviewer found — all three said v2 while the
+# response's own disposition called v3 current — and no amount of agreement can
+# detect it, because staleness is not a property any of the three carries.
+#
+# It is a property of the FILES. Every superseded issue names its successor, so
+# there is a chain; the current issue is the one at the end of it. These tests
+# walk that chain and require the named constant to be its terminus.
+
+def _pilot_issues():
+    """Every `E4-PILOT*.json` on disk, loaded."""
+    design = os.path.join(_study(), "design", "mutants")
+    return {name: _load("design/mutants/" + name)
+            for name in sorted(os.listdir(design))
+            if name.startswith("E4-PILOT") and name.endswith(".json")}
+
+
+def test_the_pilot_supersession_chain_is_walkable_and_complete():
+    """One chain, no forks, no orphans, every link resolving to a file."""
+    issues = _pilot_issues()
+    assert len(issues) >= 2, sorted(issues)
+    successors = {name: doc.get("supersededBy") for name, doc in issues.items()}
+    for name, successor in successors.items():
+        if successor is None:
+            continue
+        assert successor in issues, (
+            "%s names `%s` as its successor and that file does not exist"
+            % (name, successor))
+        assert issues[name].get("SUPERSEDED") is True, (
+            "%s names a successor without marking itself SUPERSEDED" % name)
+        assert issues[name].get("supersededBecause"), (
+            "%s is superseded and does not say why" % name)
+    terminal = [name for name, successor in successors.items()
+                if successor is None]
+    assert len(terminal) == 1, (
+        "exactly one pilot issue is current; these have no successor: %s"
+        % sorted(terminal))
+    # No two issues may name the same successor, and following the links from
+    # any starting point must reach the terminus without a cycle.
+    named = [s for s in successors.values() if s]
+    assert len(named) == len(set(named)), named
+    for start in issues:
+        seen, node = set(), start
+        while successors[node] is not None:
+            assert node not in seen, "cycle through %s" % node
+            seen.add(node)
+            node = successors[node]
+        assert node == terminal[0]
+
+
+def test_the_named_pilot_is_the_end_of_the_chain_and_not_merely_the_agreed_one(
+        flat, oc_text):
+    """R3-5's load-bearing assertion. The constant, the registration and the
+    generated table must still agree — and the file they agree on must be the
+    one nothing supersedes."""
+    issues = _pilot_issues()
+    current = _oc_module().PILOT_FILE
+    assert current in issues, current
+    assert issues[current].get("supersededBy") is None, (
+        "`oc_table.PILOT_FILE` names %s, which is superseded by %s: three "
+        "surfaces agreeing on a stale pilot is the round-3 R3-5 defect"
+        % (current, issues[current].get("supersededBy")))
+    assert issues[current].get("SUPERSEDED") is not True
+    assert "design/mutants/%s" % current in flat
+    assert "Read from `%s`" % current in oc_text
+    for name, doc in issues.items():
+        if name == current:
+            continue
+        assert doc.get("SUPERSEDED") is True, (
+            "%s is not the current pilot and is not bannered" % name)
+
+
+def test_every_superseded_pilot_is_bannered_reciprocally():
+    """The other direction of R3-5: v3 said "v2 is bannered" while v2 carried no
+    `SUPERSEDED`/`supersededBy` member at all. A claim about another file is
+    checked against that file."""
+    issues = _pilot_issues()
+    current = _oc_module().PILOT_FILE
+    claimed = set(issues[current].get("supersedes") or [])
+    assert claimed, "the current pilot must name what it supersedes"
+    on_disk = {name for name, doc in issues.items()
+               if doc.get("SUPERSEDED") is True}
+    assert claimed == on_disk, (
+        "%s claims to supersede %s and the files bannered SUPERSEDED are %s"
+        % (current, sorted(claimed), sorted(on_disk)))
+
+
+# --- ROUND-3 FINDING R3-6: ONE denominator, stated in three places -----------
+
+def test_the_admitted_run_denominator_is_one_rule_across_scorer_pilot_and_oc(
+        flat, oc_text):
+    """R3-6. The OC table reported D3 — what a run that fails identity does to
+    the E4 denominator — as STILL OPEN after the response had settled it
+    denominator-in, and §7's fractions were computed the other way while it did.
+
+    The rule is asserted SEMANTICALLY here rather than by phrase-matching: the
+    primary scorer's registered denominator rule, the pilot's published
+    `highKill` block and the OC table's fractions must all be the admitted-run
+    reading, and the current pilot is a live witness because the two readings
+    give different answers on it."""
+    import score
+    # (a) THE SCORER. The reviewer's own two-run probe, run here as well as in
+    # `test_score_attempt.py`, because R3-6 is the finding that the three
+    # surfaces can drift apart — so the three are asserted in one place.
+    attempt = _sibling_test_module("test_score_attempt")
+    endpoint = score.e4_endpoint(
+        "A", [attempt.run("run-001", killed=39),
+              attempt.run("run-002", identity=False, killed=39)],
+        {"integerCut": 38})
+    assert (endpoint["highKill"], endpoint["denominator"]) == (1, 2), (
+        "the registered denominator is admitted runs: one identity-passing "
+        "high-kill run and one identity failure is 1/2, not 1/1")
+    assert "admitted runs" in endpoint["denominatorRule"]
+    # (b) THE PILOT and (c) THE OC TABLE.
+    pilot = _load("design/mutants/%s" % _oc_module().PILOT_FILE)
+    witness = False
+    for arm in ("A", "B", "C"):
+        block = pilot["perArm"][arm]
+        high = block["highKill"]
+        assert high["admittedRuns"] == len(block["perRun"]), (
+            "arm %s: the pilot's denominator must be every admitted run" % arm)
+        assert high["identityFailingRunsInDenominator"] == block["identityFail"]
+        for run in block["perRun"]:
+            if not run.get("identityPass"):
+                assert run["highKill"] is None, (
+                    "an identity-failing run is in the denominator and was "
+                    "never asked: `highKill` is null, never false")
+                witness = True
+    assert witness, (
+        "no identity-failing run exists in the current pilot, so this test "
+        "cannot tell the two denominator readings apart; if the pilot is "
+        "re-scored to one with none, keep the primary scorer's mixed-arm probe "
+        "as the discriminating case and say so here")
+    # (c) THE OC TABLE, at its own anchor function rather than only in its prose:
+    # the denominator it publishes must be the pilot's admitted-run count, which
+    # is the surface R3-6 found computing the other reading while §9 called the
+    # question open.
+    module = _oc_module()
+    anchor = module.pilot_anchor(
+        os.path.join(_study(), "design", "mutants", module.PILOT_FILE))
+    for arm in ("A", "B", "C"):
+        assert anchor[arm]["n"] == pilot["perArm"][arm]["highKill"]["admittedRuns"]
+    assert "STILL OPEN" not in oc_text, (
+        "the OC table still reports a settled question as open")
+    assert "CLOSED, denominator-in" in oc_text
+    assert "(two closed, one open)" not in oc_text
+    # And the registration must not have the attrition reading either: an
+    # identity failure does not shrink N.
+    assert "identity-control exclusions are reported, never silently dropped" \
+        in flat
+    assert "the high-kill denominator does not move" in flat
 
 
 # --- R2-14: the reader-facing corpus states the current question ------------
@@ -633,3 +958,153 @@ def test_the_partition_the_registration_names_is_the_one_the_code_enforces():
             continue
         assert code in batch.CODE_PARTITION
         assert batch.CODE_PARTITION[code][0] == "apparatus"
+
+
+# --- ROUND-3 FINDING R3-9: a claim of nonexistence is checkable -------------
+
+_CURRENT_FACING = ("README.md", "PREREGISTRATION.md", "design/POLICY-DRAFT.md",
+                   "harness/PINS.json", "harness/SCAFFOLD.md",
+                   "harness/tests/E2E-SMOKE.md")
+
+# The claim, matched as a PHRASE rather than by paragraph proximity: a name and
+# a statement that it is gone, with at most a clause between them and no
+# sentence boundary. Paragraph proximity cannot tell "`partition_x1()` no longer
+# exists, and `in_x1()` survives" from a claim about both.
+_CLAIMED_GONE = re.compile(
+    r"`e4\.([A-Za-z_][A-Za-z_0-9]*)\(\)`[^.]{0,60}?"
+    r"(no longer exists?|does not exist|do not exist|never exists)")
+
+
+def test_no_document_claims_a_harness_object_is_gone_while_it_is_present():
+    """R3-9, and it is the exact assertion the marker-word sweep could not be.
+
+    The sweep above allows a paragraph mentioning X1 when the paragraph carries
+    a retirement word. That is a test of TONE: it cannot tell a true retirement
+    from a false one, and it passed a smoke record saying "`e4.in_x1()` no
+    longer exist[s]" while `in_x1()` was implemented and exported — beside a
+    scorer that was still publishing `x1Excluded` and `x1ExcludedCases`.
+
+    So every `e4.<name>()` a current-facing paragraph says is GONE is looked up
+    in the module. The rule is symmetric and has no X1 in it: a document may
+    describe a retirement, and it may not describe one that did not happen."""
+    from e4lib import e4
+    offenders = []
+    for relative in _CURRENT_FACING:
+        path = os.path.join(_study(), relative)
+        if not os.path.isfile(path):
+            continue
+        with open(path, "rb") as handle:
+            text = handle.read().decode("utf-8")
+        flat_text = " ".join(text.split())
+        for name, _phrase in _CLAIMED_GONE.findall(flat_text):
+            if hasattr(e4, name):
+                offenders.append("%s: says `e4.%s()` is gone and it is not"
+                                 % (relative, name))
+    assert offenders == [], "\n  ".join([""] + offenders)
+
+
+def test_the_scorer_publishes_no_x1_member_under_any_spelling():
+    """The same finding on the other surface. §4: "There is no exclusion class,
+    no per-case X1 filter and no per-run excluded-case count." Asserted over the
+    scorer's own source rather than over one endpoint, because the members were
+    written in three places — the run, the arm aggregation and the report."""
+    with open(os.path.join(_study(), "harness", "score.py"), "rb") as handle:
+        source = handle.read().decode("utf-8")
+    emitted = re.findall(r'"(x1[A-Za-z0-9]*)"', source)
+    assert emitted == [], (
+        "harness/score.py still publishes %s; §4 registers no per-case filter "
+        "and no per-run excluded-case count" % sorted(set(emitted)))
+    assert "Excluded cases" not in source
+
+
+# --- ROUND-3 FINDING R3-10: the reader-facing status headers ---------------
+
+_ROUND = re.compile(r"^## Round (\d+) — ", re.MULTILINE)
+_ORDINALS = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six"}
+_REVISIONS = ("first", "second", "third", "fourth", "fifth", "sixth")
+
+
+def _review_record():
+    with open(os.path.join(_study(), "PREREG-REVIEW.md"), "rb") as handle:
+        return handle.read().decode("utf-8")
+
+
+def _rounds():
+    """`{round number: dispositioned?}` read from the review record itself.
+
+    A round is DISPOSITIONED when its section carries a disposition table row
+    for its own findings (`| R3-1 |`); the record spells the other state out as
+    "no R3 finding has been dispositioned yet"."""
+    text = _review_record()
+    numbers = [int(match.group(1)) for match in _ROUND.finditer(text)]
+    assert numbers == sorted(numbers) and numbers, numbers
+    sections = _ROUND.split(text)[1:]
+    state = {}
+    for index in range(0, len(sections), 2):
+        number = int(sections[index])
+        body = sections[index + 1]
+        state[number] = bool(re.search(r"\|\s*R%d-\d+\s*\|" % number, body))
+    return state
+
+
+def test_the_readme_status_header_names_the_latest_round_and_its_state():
+    """ROUND-3 FINDING R3-10, and this is the test the README did not have.
+
+    The README said "Round 1's twenty findings are dispositioned and round 2's
+    fourteen are open" after every one of round 2's fourteen had been
+    dispositioned in the record beside it, and counted "Two cross-vendor review
+    rounds" while three had run. The existing README test searches for the words
+    "review rounds" and "DO NOT FREEZE" and passes on both errors, because a
+    marker word cannot carry a number.
+
+    This reads the state out of `PREREG-REVIEW.md` — the record is the
+    authority — and requires the banner to agree with it: the round COUNT, and
+    no claim that a dispositioned round is still open."""
+    rounds = _rounds()
+    latest = max(rounds)
+    with open(os.path.join(_study(), "README.md"), "rb") as handle:
+        readme = flatten(handle.read().decode("utf-8"))
+    assert "%s cross-vendor review rounds" % _ORDINALS[latest] in readme.lower(), (
+        "the record carries %d review rounds and the README's status banner "
+        "must say so: expected the words \"%s cross-vendor review rounds\""
+        % (latest, _ORDINALS[latest]))
+    for number, dispositioned in sorted(rounds.items()):
+        if not dispositioned:
+            continue
+        stale = re.search(r"round %d's [a-z]+ (?:findings )?are open" % number,
+                          readme.lower())
+        assert stale is None, (
+            "round %d's findings are dispositioned in PREREG-REVIEW.md and the "
+            "README still calls them open: %r" % (number, stale.group(0)))
+
+
+def test_the_registration_header_names_the_round_it_responds_to():
+    """The same contradiction in the other header: the preregistration still
+    described itself as "(post-round-1)" with three rounds on the record. The
+    revision a reader is holding is only meaningful against the round it
+    answers."""
+    rounds = _rounds()
+    latest = max(rounds)
+    with open(os.path.join(_study(), "PREREGISTRATION.md"), "rb") as handle:
+        header = flatten(handle.read().decode("utf-8").split("\n## ")[0])
+    found = re.findall(r"post-round-(\d+)", header)
+    assert found, (
+        "the registration's status header must name the round this revision "
+        "responds to, as `post-round-N`")
+    assert [int(number) for number in found] == [latest] * len(found), (
+        "the latest round on the record is %d and the registration header says "
+        "post-round-%s" % (latest, "/".join(found)))
+
+
+def test_the_two_headers_agree_on_the_revision_ordinal():
+    """A cheap cross-check with no external authority: whatever revision the
+    study is on, its two front doors must say the same one."""
+    pattern = re.compile(r"(%s) major revision" % "|".join(_REVISIONS))
+    seen = {}
+    for relative in ("README.md", "PREREGISTRATION.md"):
+        with open(os.path.join(_study(), relative), "rb") as handle:
+            header = flatten(handle.read().decode("utf-8").split("\n## ")[0])
+        found = pattern.findall(header.lower())
+        assert found, "%s's status header states no revision ordinal" % relative
+        seen[relative] = found[0]
+    assert len(set(seen.values())) == 1, seen

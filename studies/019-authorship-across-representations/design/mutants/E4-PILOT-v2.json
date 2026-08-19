@@ -1,4 +1,5 @@
 {
+  "SUPERSEDED": true,
   "adequacy": {
     "A": {
       "goldKills": 146,
@@ -12230,5 +12231,8 @@
   "pilot": "pilots/2026-08-15-calibration-pilot-01",
   "scoredSurface": "alignment scope only: kind + outcomeId + sorted reasons (handoff, handoffTarget and expectedHandoffTarget ignored)",
   "study": "019-authorship-across-representations",
+  "supersededBecause": "SUPERSEDED, twice over, and neither reason is cosmetic. FIRST by E4-PILOT-v3.json (round-2 finding R2-3): arms B and C read a kill off the `opa test` exit status, so an invocation that never ran the tests, a timeout and an evaluation fault inside a test body would each have killed every mutant they touched. Every `killFailureClasses` label in this file is therefore unreliable, even though the kill vectors turned out to be unchanged under the corrected rule. THEN by E4-PILOT-v4.json (round-3 finding R3-4), which additionally applies Sec 4's registered per-case domain check that this issue and v3 both omitted, and which is scored against the round-3 adequacy repair's corpus (gold 0.2-draft, 117 rows; both MANIFESTs re-witnessed; paired subsets 69 JPS / 62 Rego and integer cuts 66 / 59, against this file's 75 / 65 and 72 / 62). No number in this file is current: arm C's identity count and every arm's paired kill rate and pairing quantity have moved. Follow `supersededBy` to the end of the chain and read that issue. Kept, not deleted: it is the pilot the second and third revisions of the preregistration quoted, and the record of what they quoted has to remain checkable.",
+  "supersededBy": "E4-PILOT-v3.json",
+  "supersededOn": "2026-08-18",
   "warning": "NON-CITABLE PILOT: pilot suites from pilot_run.py, gold 0-draft; no number here may be cited except as a labelled pilot rate."
 }

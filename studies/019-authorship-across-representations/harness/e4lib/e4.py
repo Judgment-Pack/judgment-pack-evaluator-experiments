@@ -366,9 +366,16 @@ def partition_excluded(cases: list) -> tuple:
 
     Applied ONCE and in one place, so identity and kill see the same case set by
     construction. The registry is EMPTY since X1's retirement (module head), so
-    this excludes nothing today and the per-run excluded count §4 requires is
-    published as the zero it is — which is a measured fact about the repaired
-    reference rather than a filter nobody applied."""
+    this excludes nothing today.
+
+    ROUND-3 FINDING R3-9. This used to say the empty result was "published as
+    the zero it is", and §4 says the opposite in terms: "There is no exclusion
+    class, no per-case X1 filter and no per-run excluded-case count." The zero
+    is no longer published anywhere — `harness/score.py` refuses outright if
+    this ever returns a non-empty exclusion list, because a class the
+    registration does not carry must not decide which cases are scored. The
+    function survives as the single application point a future registered class
+    would have to go through."""
     scored, excluded = [], []
     for case in cases:
         member = next((name for name, predicate

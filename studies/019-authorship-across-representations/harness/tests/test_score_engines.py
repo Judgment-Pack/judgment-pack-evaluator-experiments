@@ -280,19 +280,105 @@ def test_opa_test_routes_every_non_suite_outcome_away_from_the_suite(monkeypatch
                                            engines.TEST_FAILED)
 
 
-def test_opa_test_names_the_failing_tests_and_counts_them(monkeypatch, tmp_path):
+def test_opa_test_names_every_failing_test_and_counts_them(monkeypatch,
+                                                           tmp_path):
+    """ROUND-3 R3-3, and this test is REVERSED from what it asserted.
+
+    It used to require `failed == ["data.s_test.b"]` and carried the comment
+    "the scan stops at the first failure that SURVIVES adjudication: one real
+    assertion failure is a kill and the rest is diagnosis" — which is the
+    behaviour R3-3 found and is the reason the fault below it was never looked
+    at. Every reported failure is adjudicated now, so every genuine one is
+    named."""
     document = json.dumps([
         {"package": "data.s_test", "name": "a"},
         {"package": "data.s_test", "name": "b", "fail": True},
         {"package": "data.s_test", "name": "c", "fail": True}])
     record = _opa_test(monkeypatch, tmp_path, 2, document)
     assert record["tests"] == 3
-    # The scan stops at the first failure that SURVIVES adjudication: one real
-    # assertion failure is a kill and the rest is diagnosis.
-    assert record["failed"] == ["data.s_test.b"]
+    assert record["failed"] == ["data.s_test.b", "data.s_test.c"]
     assert record["errored"] == []
     assert record["exitCode"] == 2
     assert record["status"] == engines.TEST_FAILED
+
+
+# --- ROUND-3 R3-3: a mixed list, in BOTH lexical orders ---------------------
+
+def _opa_test_mixed(monkeypatch, tmp_path, names, faulting):
+    """`opa test` reporting several failures, with `faulting` naming the tests
+    whose strict-mode adjudication comes back as an evaluation fault.
+
+    The adjudication is routed PER QUERY — `evaluation_fault()` puts the test's
+    own rule path last on the `opa eval` argv — because the whole of R3-3 is
+    that one adjudication's answer must not stand in for another's."""
+    document = json.dumps([{"package": "data.s_test", "name": name,
+                            "fail": True} for name in names])
+
+    def route(argv, cwd, timeout=None):
+        if "eval" in argv:
+            query = argv[-1]
+            if query in faulting:
+                return 2, _FAULT_ADJUDICATION, ""
+            return 0, _CLEAN_ADJUDICATION, ""
+        return 2, document, ""
+
+    monkeypatch.setattr(engines, "_run", route)
+    return engines.opa_test(StubTools(), "p.rego", "s.rego", str(tmp_path))
+
+
+def test_a_fault_after_a_genuine_failure_still_refuses_the_invocation(
+        monkeypatch, tmp_path):
+    """THE REVIEWER'S R3-3 PROBE, in its damaging order.
+
+    "A two-failure probe — lexically first a genuine assertion, later a
+    divide-by-zero fault — returned `status:"failed"`, no evaluation faults, and
+    `kill_arm_rego = killed`." The genuine failure sorted first, the scan
+    stopped there, and the fault the run really suffered was never adjudicated.
+    §2 makes a runtime failure an apparatus refusal, so the invocation refuses:
+    the genuine failure is still NAMED, and it does not decide the status."""
+    record = _opa_test_mixed(monkeypatch, tmp_path,
+                             ["test_aaa_genuine", "test_zzz_fault"],
+                             {"data.s_test.test_zzz_fault"})
+    assert record["failed"] == ["data.s_test.test_aaa_genuine"]
+    assert record["errored"] == ["data.s_test.test_zzz_fault"]
+    assert record["evaluationFaults"] == [
+        {"test": "data.s_test.test_zzz_fault", "fault": "eval_builtin_error"}]
+    assert record["status"] == engines.TEST_ERRORED
+    assert record["status"] not in engines.TEST_SUITE_STATUSES
+
+
+def test_the_same_two_failures_in_the_other_lexical_order_answer_identically(
+        monkeypatch, tmp_path):
+    """The order the old code happened to survive. A rule whose answer depends
+    on which test name sorts first is not a rule, and `opa test --format json`
+    does not order its own list — so the two orders are required to agree
+    member for member, not merely in their status."""
+    damaging = _opa_test_mixed(monkeypatch, tmp_path,
+                               ["test_aaa_genuine", "test_zzz_fault"],
+                               {"data.s_test.test_zzz_fault"})
+    benign = _opa_test_mixed(monkeypatch, tmp_path,
+                             ["test_aaa_fault", "test_zzz_genuine"],
+                             {"data.s_test.test_aaa_fault"})
+    assert benign["status"] == damaging["status"] == engines.TEST_ERRORED
+    assert benign["failed"] == ["data.s_test.test_zzz_genuine"]
+    assert benign["errored"] == ["data.s_test.test_aaa_fault"]
+    assert len(benign["evaluationFaults"]) == len(damaging["evaluationFaults"]) == 1
+
+
+def test_a_reported_error_member_outranks_a_genuine_failure_beside_it(
+        monkeypatch, tmp_path):
+    """The same precedence at the other source of apparatus evidence: a test the
+    result document itself reports as ERRORED refuses the invocation even when a
+    genuine assertion failure sits beside it. `failed` used to be consulted
+    first, so the errored test was recorded and then ignored."""
+    document = json.dumps([
+        {"package": "data.s_test", "name": "test_broken",
+         "error": {"code": "eval_conflict_error"}},
+        {"package": "data.s_test", "name": "test_real", "fail": True}])
+    record = _opa_test(monkeypatch, tmp_path, 2, document)
+    assert record["failed"] == ["data.s_test.test_real"]
+    assert record["errored"] == ["data.s_test.test_broken"]
+    assert record["status"] == engines.TEST_ERRORED
 
 
 def test_opa_test_asks_for_the_machine_readable_format(monkeypatch, tmp_path):
@@ -350,14 +436,17 @@ def test_which_failure_is_recorded_does_not_depend_on_the_report_order(
     `none`), so "the first reported failure" was not a stable choice: two
     scorings of one batch recorded different named tests in `failedTests`, and
     the pilot artifact stopped being byte-identical across reruns. The
-    adjudication order is sorted, so the recorded failure is a function of the
-    data."""
+    adjudication order is sorted, so the recorded failures are a function of the
+    data. ROUND-3 R3-3 makes the property stronger rather than weaker: every
+    reported failure is adjudicated and retained, so the two readings must agree
+    on the WHOLE list and not merely on its first member."""
     entries = [{"package": "data.s_test", "name": name, "fail": True}
                for name in ("test_c", "test_a", "test_b")]
     forward = _opa_test(monkeypatch, tmp_path, 2, json.dumps(entries))
     reversed_ = _opa_test(monkeypatch, tmp_path, 2,
                           json.dumps(list(reversed(entries))))
-    assert forward["failed"] == reversed_["failed"] == ["data.s_test.test_a"]
+    assert forward["failed"] == reversed_["failed"] == [
+        "data.s_test.test_a", "data.s_test.test_b", "data.s_test.test_c"]
 
 
 def test_the_errored_list_is_sorted_whatever_the_report_order(monkeypatch,

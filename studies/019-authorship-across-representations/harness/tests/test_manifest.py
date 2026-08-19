@@ -1,14 +1,25 @@
-"""ADR 0004's two exclusions, asserted so a future widening fails the suite.
+"""ADR 0004's exclusions, asserted so a future widening fails the suite.
 
 ADR 0004 decides that a study's manifest covers what must not change, that a
 file whose purpose is to be appended to after the freeze is not that, and that
-`DEVIATIONS.md` and `README.md` are therefore excluded **by construction, in a
-named constant, with a harness test asserting the exclusion**. This is that
-test. It has real power here rather than being a guard over an absent file:
-both files EXIST in this study today, so an edit that widened the covered set
-would cover them and these assertions would fail.
+such files are excluded **by construction, in a named constant, with a harness
+test asserting the exclusion**. This is that test. It has real power here rather
+than being a guard over an absent file: every named file EXISTS in this study
+today, so an edit that widened the covered set would cover them and these
+assertions would fail.
 
-The third exclusion — `harness/PINS.json` — is Study 014's linear-anchor rule,
+THREE APPENDABLE FILES, not two. `DEVIATIONS.md` and `README.md` are ADR 0004's
+own examples; **`PREREG-REVIEW.md` is round-3 finding R3-1** and is the same
+shape of file — it grows by one disposition table per review round, so covering
+it made every round's own dispositions stale the committed manifest. It did that
+three rounds running, including in a response that reported a green suite while
+three enforcement tests were red. Round 2 answered with a procedure and a second
+failing test; the third recurrence is the evidence that a procedure which must be
+remembered every round is not a safeguard. So it leaves the covered set by named
+constant, like the other two, and `test_the_review_record_cannot_be_re_covered`
+below is what makes re-covering it fail the suite rather than pass quietly.
+
+The fourth exclusion — `harness/PINS.json` — is Study 014's linear-anchor rule,
 and it is asserted with the same idiom: the manifest must not cover the registry
 that pins the manifest, or the anchor cannot be initialized without a SHA-256
 fixed point.
@@ -18,18 +29,53 @@ import pathlib
 
 import make_manifest
 
-
-def test_the_two_adr_0004_exclusions_are_named_constants():
-    assert "DEVIATIONS.md" in make_manifest.EXCLUDED_DOCUMENTS
-    assert "README.md" in make_manifest.EXCLUDED_DOCUMENTS
+# The files ADR 0004 calls appendable in this study, each of which exists today.
+APPENDABLE = ("DEVIATIONS.md", "README.md", "PREREG-REVIEW.md")
 
 
-def test_neither_appendable_file_is_covered_and_both_exist(study):
+def test_the_adr_0004_exclusions_are_named_constants_carrying_their_reason():
+    """A named constant is the decision's requirement; the REASON travelling
+    with the name is what a later reader needs in order not to argue past it."""
+    for name in APPENDABLE:
+        assert name in make_manifest.EXCLUDED_DOCUMENTS, name
+        reason = make_manifest.EXCLUDED_DOCUMENTS[name]
+        assert isinstance(reason, str) and reason.strip(), name
+        assert "ADR 0004" in reason, (
+            "%s is excluded under ADR 0004 and its reason must say so" % name)
+
+
+def test_no_appendable_file_is_covered_and_all_of_them_exist(study):
     """The exclusion is asserted against files that are really there: a guard
     over an absent file passes for the wrong reason."""
-    for name in ("DEVIATIONS.md", "README.md"):
+    entries = make_manifest.manifest_entries()
+    for name in APPENDABLE:
         assert os.path.isfile(os.path.join(study, name)), name
-        assert name not in make_manifest.manifest_entries()
+        assert name not in entries
+
+
+def test_the_review_record_cannot_be_re_covered(study):
+    """ROUND-3 R3-1, as the assertion that bites.
+
+    Covering `PREREG-REVIEW.md` again — by adding it back to
+    `REGISTERED_DOCUMENTS`, by dropping it from `EXCLUDED_DOCUMENTS`, or by a
+    widened glob that sweeps it in — must FAIL HERE, because the alternative is
+    what happened three rounds running: the record is appended to, the committed
+    manifest silently stops describing the tree, and the suite of record is
+    reported green while it is red."""
+    assert "PREREG-REVIEW.md" in make_manifest.EXCLUDED_DOCUMENTS
+    assert "PREREG-REVIEW.md" not in make_manifest.REGISTERED_DOCUMENTS
+    assert "PREREG-REVIEW.md" not in make_manifest.manifest_entries()
+    committed = os.path.join(study, "harness", "STUDY-MANIFEST.sha256")
+    if os.path.isfile(committed):
+        with open(committed, encoding="utf-8") as handle:
+            listed = [line.split("  ", 1)[1] for line in
+                      handle.read().splitlines() if line.strip()]
+        assert "PREREG-REVIEW.md" not in listed, (
+            "the committed manifest still covers the review record; regenerate "
+            "it with harness/make_manifest.py")
+    # …and the exclusion is not a silent drop: `_excluded()` is the one place
+    # that decides, so a path in the constant is out however it was reached.
+    assert make_manifest._excluded("PREREG-REVIEW.md")
 
 
 def test_the_registry_is_not_covered_by_the_manifest_it_pins():
@@ -45,7 +91,8 @@ def test_no_registered_document_is_also_excluded():
     """A path in both constants would make the covered set depend on which
     constant a future reader believed."""
     overlap = set(make_manifest.REGISTERED_DOCUMENTS) & \
-        set(make_manifest.EXCLUDED_DOCUMENTS + make_manifest.EXCLUDED_ARTIFACTS)
+        (set(make_manifest.EXCLUDED_DOCUMENTS)
+         | set(make_manifest.EXCLUDED_ARTIFACTS))
     assert overlap == set()
 
 

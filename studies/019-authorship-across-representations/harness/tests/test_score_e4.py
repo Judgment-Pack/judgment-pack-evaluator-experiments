@@ -13,6 +13,8 @@ import pytest
 
 from e4lib import e4
 
+_STUDY = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 
 # --- X1, the registered exclusion class -------------------------------------
 #
@@ -420,30 +422,44 @@ def test_is_high_kill_reads_the_integer_cut():
 
 def test_the_cut_is_derived_per_language_at_the_real_current_counts():
     """ROUND-1 R1-1's enforcing test, on the counts the repaired corpus actually
-    has (`design/mutants/E4-PILOT-v2.json`: 75 paired adequate JPS mutants and
-    65 paired adequate Rego ones).
+    has — READ FROM THE COMMITTED MANIFESTS rather than written down here.
+
+    ROUND-3 R3-2 is why they are read: the counts were 75 JPS / 65 Rego when
+    this test was written and are 69 / 62 after the adequacy repair, and a
+    literal pair here would have made the repair fail an arithmetic test that
+    has nothing to do with it. What R1-1 is about is that there are TWO cuts,
+    each from its own denominator, and that the other language's cut is
+    unreachable — properties of the rule, not of the numbers.
 
     The blocker was that ONE cut was derived from the JPS count and handed to
-    every arm while each arm's kill denominator stayed language-specific. At
-    these counts the single-cut scorer would have judged a Rego suite against 72
-    out of a possible 65 — so a PERFECT B/C suite could never be high-kill and
-    the primary endpoint was impossible for two of the three arms."""
-    paired = {"jps": set("j%d" % i for i in range(75)),
-              "rego": set("r%d" % i for i in range(65))}
+    every arm while each arm's kill denominator stayed language-specific: the
+    single-cut scorer would have judged a Rego suite against the JPS cut, out of
+    a smaller possible total, so a PERFECT B/C suite could never be high-kill
+    and the primary endpoint was impossible for two of the three arms."""
+    design = os.path.join(_STUDY, "design", "mutants")
+    mutants = e4.load_mutants(os.path.join(design, "refA", "MANIFEST.json"),
+                              os.path.join(design, "refB", "MANIFEST.json"),
+                              os.path.join(design, "refA"),
+                              os.path.join(design, "refB"))
+    _pairing, paired = e4.build_pairing(mutants)
+    n_jps, n_rego = len(paired["jps"]), len(paired["rego"])
+    assert n_jps > n_rego > 0, (n_jps, n_rego)
     cuts = e4.high_kill_cuts(paired)
-    assert cuts["jps"]["pairedAdequateMutants"] == 75
-    assert cuts["jps"]["integerCut"] == 72               # ceil(0.95 * 75)
-    assert cuts["rego"]["pairedAdequateMutants"] == 65
-    assert cuts["rego"]["integerCut"] == 62              # ceil(0.95 * 65)
+    ceil95 = lambda n: -(-19 * n // 20)
+    assert cuts["jps"]["pairedAdequateMutants"] == n_jps
+    assert cuts["jps"]["integerCut"] == ceil95(n_jps)
+    assert cuts["rego"]["pairedAdequateMutants"] == n_rego
+    assert cuts["rego"]["integerCut"] == ceil95(n_rego)
+    assert cuts["jps"]["integerCut"] != cuts["rego"]["integerCut"]
     assert cuts["jps"]["language"] == "jps"
     assert cuts["rego"]["language"] == "rego"
     # Each cut is reachable by a perfect suite of its OWN language...
-    assert e4.is_high_kill(65, 65, cuts["rego"]["integerCut"]) is True
-    assert e4.is_high_kill(75, 75, cuts["jps"]["integerCut"]) is True
+    assert e4.is_high_kill(n_rego, n_rego, cuts["rego"]["integerCut"]) is True
+    assert e4.is_high_kill(n_jps, n_jps, cuts["jps"]["integerCut"]) is True
     # ...and the JPS cut is not reachable at the Rego denominator at all, which
     # is the defect stated as an assertion rather than as a comment.
     with pytest.raises(e4.E4Error) as raised:
-        e4.is_high_kill(65, 65, cuts["jps"]["integerCut"])
+        e4.is_high_kill(n_rego, n_rego, cuts["jps"]["integerCut"])
     assert str(raised.value).startswith("E4-CUT-UNREACHABLE")
 
 

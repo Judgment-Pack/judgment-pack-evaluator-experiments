@@ -14,8 +14,10 @@ reproduces it byte for byte.
 > SECOND-pass run record and their numbers are SUPERSEDED.** They were measured
 > before the arm-A reference repair, against a 145-mutant arm-A corpus, a 105-row
 > gold suite and a single cross-language τ cut. All three are gone: **X1 is
-> retired and `e4.partition_x1()`/`e4.in_x1()` no longer exist** — the registered
-> exclusion registry is empty (round-1 R1-2) — gold is 109 rows, and there are
+> retired, `e4.partition_x1()` no longer exists, and `e4.in_x1()` survives only
+> as an explicitly NON-GATING measurement helper that nothing reads to decide
+> anything** — the registered exclusion registry is empty (round-1 R1-2) — gold
+> is 117 rows, and there are
 > **two** integer cuts, one per language (round-1 R1-1). §9 below is the current
 > pass and governs wherever the two disagree. Sections 1–8 are kept because a run
 > record is evidence of what ran, not a claim about the tree; nothing in them may
@@ -231,8 +233,10 @@ What the run established, mechanically:
   Rego; **the τ cut derived at run time**: 77 of 81, `cutRate` 0.9506…;
 * **the identity control passed on the reference-derived suites in every arm** —
   arm A through `jpack experimental evaluate`, arms B/C through `opa test`; zero
-  identity failures, zero X1-excluded cases *(X1 is retired; the field no longer
-  exists and the exclusion registry is empty)*;
+  identity failures, and no excluded-case member anywhere in the record *(X1 is
+  retired; §4 registers no per-case filter and no per-run excluded-case count,
+  and round-3 finding R3-9 removed the `x1Excluded`/`x1ExcludedCases` members
+  and the report's "Excluded cases" column that were still publishing one)*;
 * **the reference-vs-gold floor gate RAN** (S10): 105 rows against both
   references, `failureCount: 0`, `held: true`. It was `held: false` with the
   code `GATE-FLOOR-NOT-RUN` in the first pass, and it is a real evaluation now —
@@ -304,8 +308,9 @@ directory** rather than against a list.
 `FM_ALPHA = 1/20`, `MESH_DEN = 1000`, `TAU = 19/20`, `DELTA = 1/5` — the mesh and
 the two-sided α the document pins.
 
-**The X1 predicate — ARCHIVED, the predicate no longer exists.** This cross-check
-compared `e4.in_x1()` (what `score.py` then filtered with) against the
+**The X1 predicate — ARCHIVED, and nothing filters on it.** This cross-check
+compared `e4.in_x1()` (what `score.py` then filtered with; it filters with
+nothing now, and the predicate is retained only to measure) against the
 predicate `design/gold/check_gold.py` enforces over the gold suite, on a shared
 vector set of 840 points — the cross product of risk `{None, 0, 39, 40, 41, 55,
 69, 70, 71, 100}`, spend `{None, 0.00, 99999.99, 100000.00, 100000.01,
@@ -313,7 +318,8 @@ vector set of 840 points — the cross product of risk `{None, 0, 39, 40, 41, 55
 `{None, yes, no}`, which straddles all three registered boundaries:
 
 ```
-ARCHIVED transcript — X1 is retired and neither predicate exists any more
+ARCHIVED transcript — X1 is retired; `partition_x1()` is gone and `in_x1()`
+gates nothing
 check_gold.py's four predicate lines are present verbatim
 shared vector set: 840 points; agree 840; disagree 0
 gold rows: 105; rows where the two differ or either says X1: none
@@ -469,8 +475,9 @@ re-run shows them:
   line is `UNRESOLVED-BY-DESIGN - the batch was declared short (PILOT)`, with **no cuts
   printed, no contrast, no direction** — which is also R1-14's no-publication-below-a-gate
   rule doing its work. Section 6's `tau cut: … 77 of the 81` line cannot recur: the single
-  cross-language cut was R1-1's defect, the cut layer is per-language now (JPS 72/75,
-  Rego 62/65 at the current manifests), and it is exercised by the suite
+  cross-language cut was R1-1's defect, the cut layer is per-language now (JPS 66/69,
+  Rego 59/62 at the current manifests, after the round-3 adequacy re-closure moved both
+  paired denominators), and it is exercised by the suite
   (`tests/test_score_e4.py`) rather than by a short-batch smoke, which by design never
   reaches it.
 - **Fail-closed guards visible in this very replay.** The shortfall invocation without

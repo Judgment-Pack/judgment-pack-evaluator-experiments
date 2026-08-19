@@ -1,10 +1,17 @@
 # Preregistration — Study 019: authorship across representations
 
-**Status: DRAFT, third major revision (post-round-1). Not frozen. Nothing citable has
-run. Review round 1 read the second revision and returned DO NOT FREEZE; this revision is
-the response. Every freeze pin is null; every execution before the freeze is a PILOT and
-supports no claim. Items marked `GATE(pre-freeze)` are work that must land before any
-review round can return `freezable as written`.**
+**Status: DRAFT, fifth major revision (post-round-3). Not frozen. Nothing citable has
+run. Three cross-vendor review rounds have read this study and all three returned
+DO NOT FREEZE; this revision is the response to round 3, whose ten findings are recorded
+verbatim in [`reviews/round-3/`](reviews/round-3/) and are **open** until the maintainer's
+written disposition per finding lands in [`PREREG-REVIEW.md`](PREREG-REVIEW.md). Every
+freeze pin is null; every execution before
+the freeze is a PILOT and supports no claim. Items marked `GATE(pre-freeze)` are work that
+must land before any review round can return `freezable as written`. (The revision ordinal is stated honestly rather than
+continuously: the fourth revision — the round-2 response — left this header naming the
+third revision and the first review round, which is the drift round-3 finding R3-10 caught,
+and both front doors are now under a test that reads the latest round out of the review
+record.)**
 
 ## Design provenance (disclosed, because it shaped the registered claims)
 
@@ -15,7 +22,7 @@ registered choices, disclosed here rather than discovered in review:
 1. **The primary endpoint pivoted from policy correctness to test-pinning power.** In the
    pilot, every completed authoring run in every arm produced a policy artifact in perfect
    agreement with every gold row then authored (5/5 per arm, against the 76-row gold suite
-   as it stood on 2026-08-15; the suite is 109 rows now): correctness is at ceiling for
+   as it stood on 2026-08-15; the suite is 117 rows now): correctness is at ceiling for
    well-specified prose at this scale, in all three representations. The dimension with
    variance is what the run-authored test suites catch. R1 is therefore registered
    over E4 (kill rates), with E1 (gold agreement) as a reported control expected at
@@ -43,31 +50,53 @@ inexpressibility class **X1**, the arm-A reference has been repaired
 there, and the same five suites, byte-unchanged, now pass the identity control **5/5** with
 refA and refB divergent on **0 of the 135** authored input points. X1 is retired (§4).
 
-**The current pilot anchor is `design/mutants/E4-PILOT-v2.json`, and it is the only pilot
-read this document cites.** `design/mutants/E4-PILOT.json` and the pilot section of
-`design/mutants/E4-NOTES.md` are bannered SUPERSEDED: they were computed against the
-pre-repair reference, a 145-mutant arm-A corpus and a 105-row gold suite, none of which
-exist now. On current artifacts the pilot means are **A 0.888, B 0.902, C 0.855** on the
-paired subset, and the high-kill fractions at the two registered integer cuts are
-**A 1/5, B 0/5, C 0/5**. Two consequences are registered rather than glossed: the pilot no
-longer places B/C above A at this endpoint, so **R1 registers no expected direction**; and
-**τ = 0.95 is an openly pilot-chosen threshold with no surviving empirical anchor** — the
-OC table's power grid (`design/mutants/OC-TABLE.md`) must be read as covering the whole
-grid rather than a located operating point. The OC table itself now says so in its own
-voice (round-2 finding R2-13): its §7 is titled *pilot fractions*, not *pilot anchor*, it
-reads this file's named pilot and no other, and its §5 tabulates two named regions of the
-grid with neither claimed to be where the study will land. **A further re-score is owed
-and is named rather than left to be discovered:** round-2 finding R2-3 found Rego
-evaluation faults credited as mutant kills on one path, so the kill counts under
-`E4-PILOT-v2.json` — and under every pilot issued before it — are contaminated. When the
-re-scored pilot lands, this sentence, the fractions above and `design/mutants/oc_table.py`'s
-`PILOT_FILE` constant move together; the currency suite fails while they disagree.
+**The current pilot anchor is `design/mutants/E4-PILOT-v4.json`, and it is the only pilot
+read this document cites.** `design/mutants/E4-PILOT.json`, `E4-PILOT-v2.json`,
+`E4-PILOT-v3.json` and the pilot section of `design/mutants/E4-NOTES.md` are bannered
+SUPERSEDED, each naming its successor, so the chain from the first issue to the current one
+can be walked and is walked by a test: `design/mutants/E4-PILOT-v2.json` is the file whose
+numbers the second and third revisions of this document quoted, and it was computed against
+the pre-repair reference, a 145-mutant arm-A corpus and a 105-row gold suite, none of which
+exist now. On current artifacts the pilot means on the paired subset are
+**A 0.878, B 0.897, C 0.806**, and the high-kill fractions at the two registered integer
+cuts are **A 1/5, B 0/5, C 0/5**. Two consequences are registered rather than glossed: the
+pilot no longer places B/C above A at this endpoint, so **R1 registers no expected
+direction**; and **τ = 0.95 is an openly pilot-chosen threshold with no surviving empirical
+anchor** — the OC table's power grid (`design/mutants/OC-TABLE.md`) must be read as
+covering the whole grid rather than a located operating point. The OC table itself now says
+so in its own voice (round-2 finding R2-13): its §7 is titled *pilot fractions*, not *pilot
+anchor*, it reads this file's named pilot and no other, and its §5 tabulates two named
+regions of the grid with neither claimed to be where the study will land.
+
+**What the round-3 re-score changed, stated prominently rather than folded into a mean
+(round-3 findings R3-4 and R3-5).** Two re-scores were owed and both have landed.
+`E4-PILOT-v3.json` corrected round-2 finding R2-3's fault-as-kill path and moved no kill
+vector on these inputs. `E4-PILOT-v4.json` then applied something no pilot issue had ever
+applied: **§4's registered per-case domain check**, called in the harness rather than
+reimplemented, with the prototype refusing to score at all without it. It moved an arm.
+**Arm C's identity control is 1 of 5, not 5 of 5**: four of its five admitted runs carry
+exactly one case outside the registered input domain, which §4 makes an identity failure
+categorised `out-of-domain-case`. All four omit the screening result, which the registered
+domain admits no unreadable state for (§4's input-domain closure, and the certificate's
+supplementary stratum is the reason it is closed); three of the four additionally pass a
+`with input as` term with no `vendor` member at all. Arms A and B have none. Two quantities move in opposite directions and both are published:
+**the high-kill denominator does not move** — §1a/§5 register admitted runs, an
+identity-failing run stays in the denominator carrying `highKill: null`, so arm C is 0/5
+and not 0/1 — while **arm C's descriptive mean paired kill rate rests on the single
+admitted run that passed** and is a one-run number wearing a mean's clothes. Against the
+superseded issue, the arms read A 0.888 → 0.878, B 0.902 → 0.897, C 0.855 → 0.806, with
+C's move driven by the domain check and all three also carrying the round-3 adequacy
+repair's larger gold suite and re-witnessed corpora. No high-kill fraction changed. The
+currency suite fails while this section, `design/mutants/oc_table.py`'s `PILOT_FILE`
+constant and the supersession chain on disk disagree — and, since round-3 finding R3-5,
+agreement on a stale file is itself a failure, because the named file must be the END of
+the chain and not merely the file all three happen to spell.
 
 The design phase also produced, and this preregistration inherits by reference: the contest
 policy (`design/POLICY-DRAFT.md` v0.3 — panel-reviewed, twice engine-verified, clean-room
 checked; frozen copy lands at `policy/POLICY.md` at freeze), two reference implementations
 in cell-for-cell agreement over a 2,540-cell design grid **and over the full 236,196-cell
-derived space**, a 109-row gold suite with clause citations whose expectations both engines
+derived space**, a 117-row gold suite with clause citations whose expectations both engines
 and a clean-room oracle reproduce exactly, two deterministic mutant generators with witness
 sets, prompt materials with full-verbatim language references, and one registered
 inexpressibility result (the census's output-side rows — the second, X1, was tested rather
@@ -306,12 +335,16 @@ Resolved values below were verified empirically on 2026-08-14/15
 
 ## 4. Oracle, references, mutants, and the input domain
 
-- **Gold**: **109 rows** (sha256 `dde57ffe…`), hand-authored from the prose with per-row
+- **Gold**: **117 rows** (sha256 `6a41174b…`), hand-authored from the prose with per-row
   clause citations under the earliest-clause tie-break; structure, boundary witnesses, and
   clause coverage asserted by `check_gold.py`; both engines reproduce every row (floor
   gate); the clean-room oracle (different vendor from the arms' stack; process-isolated;
   six numbered decisions dispositioned in `design/cleanroom/DISPOSITION.md`) agrees
-  **109/109** on gold and **2,540/2,540** on the design grid. `check_gold.py` carries an
+  **117/117** on gold and **2,540/2,540** on the design grid. The suite grew from 109 rows
+  when the round-3 adequacy repair closed §4's gate: eight rows authored by hand from
+  `design/POLICY-DRAFT.md` v0.3 with clause citations, each note naming the deriving
+  sentence, and the mechanical search contributing cell coordinates only. `check_gold.py`
+  carries an
   exclusion registry that is **empty**, and additionally fails if no gold row sits inside
   the former X1 region — an exclusion that once existed must stay falsifiable.
   `GATE(pre-freeze)`: the registered clean-room build re-runs against the frozen prose;
@@ -352,16 +385,17 @@ Resolved values below were verified empirically on 2026-08-14/15
   (`design/reference/refA/PACK-CHANGE-001.md`, digest `956ceebb…` → `db977607…`), and the
   two references now agree on all 236,196 cells. There is no exclusion class, no per-case
   X1 filter and no per-run excluded-case count; the region is instead **covered by gold**
-  (four rows, one of them a narrowness control) and re-measured on every certificate run as
+  (six rows — five inside the region and one adjacency control just outside it, the
+  narrowness check) and re-measured on every certificate run as
   a permanent `retired-x1-regression` validation record. The inexpressibility census keeps
   its output-side rows, which are untouched by this repair.
 - **Mutants**: two deterministic generators (`design/mutants/*/gen_mutants.py`), **183 JPS**
   and **185 generated / 184 valid Rego** single-edit mutants over the registered classes,
   each with its witness set over gold. **Pairing** is observable: identical sorted witness
   sets; the empty witness set is degenerate and never pairs. On the current manifests:
-  **145 witness groups in total, of which 35 are shared and non-degenerate** (1 degenerate
-  group excluded), covering **75 JPS and 65 Rego** paired adequate mutants; **71 adequate
-  JPS and 85 adequate Rego mutants are unpairable**. Both the total and the shared group
+  **157 witness groups in total, of which 33 are shared and non-degenerate** (1 degenerate
+  group excluded), covering **69 JPS and 62 Rego** paired adequate mutants; **88 adequate
+  JPS and 88 adequate Rego mutants are unpairable**. Both the total and the shared group
   counts are published, because they answer different questions and a single "groups"
   number has been read as either. Cross-arm E4 runs over the paired adequate subset only;
   unpairable counts are published as a finding about the defect spaces. Kills achievable
@@ -369,17 +403,28 @@ Resolved values below were verified empirically on 2026-08-14/15
   manifest record and measured over the whole registered domain rather than over gold
   witnesses, against a **registered EMPTY class for Rego** stated with its reason — are
   reported both included and excluded.
-- **Adequacy gate: `GATE(pre-freeze)` — OPEN, and the freeze cannot happen while it is**
-  (`design/mutants/ADEQUACY.md`). The gate was satisfied on 2026-08-15 and was **re-opened
-  by the arm-A reference repair**: a mutant corpus is a function of its reference, so the
-  JPS corpus was regenerated and the Rego corpus re-witnessed against the grown gold suite,
-  and mutant ids do not carry across the repair. Current census: **146/183 JPS and 150/184
-  Rego killed by gold, with 37 JPS and 34 Rego empty-witness mutants undispositioned**. The
-  registered rule is unchanged — every mutant is either killed by gold or registered as
-  dropped with its mechanism — and the pre-repair drop table must be **re-derived, not
-  re-keyed**. Re-closing the gate will move gold, the pairing and both integer cuts, and
-  every artifact that quotes them (`design/mutants/OC-TABLE.md` §7, `E4-PILOT-v2.json`, and
-  this section) is regenerated with it.
+- **Adequacy gate: `GATE(pre-freeze)` — CLOSED, and the artifact says so rather than this
+  sentence** (`design/mutants/ADEQUACY.md`). The gate was satisfied on 2026-08-15, was
+  **re-opened by the arm-A reference repair** — a mutant corpus is a function of its
+  reference, so the JPS corpus was regenerated and the Rego corpus re-witnessed, and mutant
+  ids do not carry across the repair — and round-3 finding R3-2 found it still open with 37
+  JPS and 34 Rego empty-witness mutants undispositioned while the round-2 response reported
+  it accepted. It is now re-closed, by the round-1 discipline and not by re-keying: dense
+  mechanical search for a witnessing input, a gold row authored from the prose with a clause
+  citation wherever a witness exists, a registered drop with its mechanism where none
+  exists. Current census: **157/183 JPS and 150/184 Rego killed by gold**; the remaining
+  **26 JPS and 34 Rego are registered as dropped with their mechanisms**, and **0 JPS and 0
+  Rego empty-witness mutants undispositioned**. Eleven of the 37 JPS mutants were killed by
+  the eight rows gold grew by; the drop registry is checked in **both** directions before
+  anything is stamped, so an unregistered empty-witness mutant and a stale registry entry
+  are each blocking. Re-closing the gate moved gold, the pairing and both integer cuts, and
+  every artifact that quotes them (`design/mutants/OC-TABLE.md` §7, the current pilot, and
+  this section) was regenerated with it. (Recorded as the repair's price rather than as a
+  thin spot in gold: nine of the 26 JPS drops are the new `subsumed-region-lemma` class —
+  `r-o1-review`'s region is a strict subset of `r-o1-wide-low`'s, both name `review`, and
+  D5 suppresses them together, so no gold suite can see an edit to its boundaries. The
+  reference is **not** changed for it; a second repair would re-open this gate, the off-gold
+  certificate and the corpus.)
 - **Review flag A1: CONFIRMED, not live.** At risk exactly 40 in a LOW country the
   permitted spend ceiling drops twentyfold across one point; the text is unambiguous, four
   gold rows depend on it, and the drafter's intent was put and confirmed on 2026-08-15
@@ -411,8 +456,8 @@ forbidden by the appendix and asserted at admission.
   A run is **high-kill** iff it kills at least ⌈τ·N_lang⌉ of **its own language's** paired
   adequate subset, at **τ = 0.95**; each cut is derived at run time from that language's own
   denominator and **asserted reachable** (a cut above its denominator refuses rather than
-  making the endpoint unattainable). At the current manifests those cuts are **72 of 75 for
-  JPS (arm A) and 62 of 65 for Rego (arms B and C)**, and both are published beside every
+  making the endpoint unattainable). At the current manifests those cuts are **66 of 69 for
+  JPS (arm A) and 59 of 62 for Rego (arms B and C)**, and both are published beside every
   rate. (Round-1 lesson, recorded: one cut was derived from the JPS count and applied to
   every arm while each arm's denominator stayed language-specific, so a perfect Rego suite
   could not be high-kill and the primary endpoint was impossible for two of the three
@@ -460,7 +505,12 @@ forbidden by the appendix and asserted at admission.
   position, and a true 0.25 gap can still return INDETERMINATE, stated so no reader mistakes
   δ for a detectability promise. **The OC's pilot anchor is not a located operating point
   any more**: the current pilot high-kill fractions on the paired subset are A 1/5, B 0/5,
-  C 0/5 (Design provenance), so the power grid is to be read whole.
+  C 0/5 (Design provenance), so the power grid is to be read whole. Those three
+  denominators are **admitted** runs and are unaffected by arm C's four identity failures,
+  which is this section's denominator rule with a live witness rather than a hypothetical
+  (round-3 finding R3-6, closing the OC table's D3 denominator-in): the identity-failing
+  runs are in the five, carrying `highKill: null`, and the primary scorer, the pilot scorer
+  and `design/mutants/OC-TABLE.md` §7 all read that one published block.
 - **E1 (control, reported): per-run perfect gold agreement** on the policy artifact, ITT
   denominator. Expected at ceiling in every arm (pilot 15/15); reported with intervals; a
   per-arm E1 rate below the registered floor (0.60) is a **control-gate row** adjudicating
@@ -473,7 +523,7 @@ forbidden by the appendix and asserted at admission.
   the scorer).
 - **E5: interpretive-spread census** — per-arm distinct structural encodings and
   pairwise-disagreement profiles (012's census machinery, ported). **Registered census
-  stimulus: the gold-row input set** (the frozen gold suite's inputs — 109 at this revision,
+  stimulus: the gold-row input set** (the frozen gold suite's inputs — 117 at this revision,
   and the freeze pins the count in `harness/PINS.json`'s `goldSuite.rows`; disagreement
   profiles are computed over exactly these cells, closing the §9 joint-reading concern about
   unstated stimuli).
@@ -528,14 +578,28 @@ the registered input domain with its symmetric per-arm case enumeration, the E4 
 (`design/mutants/e4_score.py` lineage — deterministic, byte-identical reruns), the ordered
 decision table, and the sealed reviewer set's loader/executor.
 
-**Integrity runs before the scorer imports a single study module.** The exact-set manifest
+**Integrity is a gate against drift, not a root of trust, and the bootstrap is stated
+rather than glossed** (round-3 finding R3-7). The honest property, and the one under test,
+is this: `integrity` is **the only study-local module the scorer imports at module scope**,
+it imports no study-local module itself, and `integrity.verify()` is the **first
+study-local call** the scorer makes — so exactly one module of this harness, the one doing
+the verifying, is bound before verification, and a pre-verification failure binds nothing
+else. What that cannot be is a proof that the checker is the checker the manifest
+describes: code that must run in order to check itself cannot check itself first. The
+earlier revisions of this sentence claimed integrity ran before the scorer bound any study
+module at all, which was false of `score.py`'s own import list; that claim is
+withdrawn and replaced by the three assertions above, each of them a test
+(`tests/test_score_attempt.py`, by AST over the source and by measurement in a fresh
+interpreter). The exact-set manifest
 covers every byte the scorer executes and every payload it reads — the scorer's own package,
 both reference implementations, every mutant payload with a per-file hash, the off-gold
 certificate and the sealed reviewer set — and the port chain, the interpreter check, the
 untracked-source and unreviewed-bytecode scan and the manifest verification all run and are
 fatal before any of those modules is bound. The manifest is scoped per ADR 0004:
-`DEVIATIONS.md` and `README.md` excluded by named constant with an asserting test; the
-appendable-files rule is honored from day one. Pins registry: linear anchor order,
+`DEVIATIONS.md`, `README.md` and — since round-3 finding R3-1 — **`PREREG-REVIEW.md`** are
+excluded by named constant (`make_manifest.EXCLUDED_DOCUMENTS`, a mapping of path to
+reason), each with an asserting test; the appendable-files rule is honored from day one and
+now honored for the file that most obviously needed it. Pins registry: linear anchor order,
 REGISTERED-vs-PILOT label rule over the **whole freeze set** — the freeze pins include the
 capabilities digest, the reproducible-build attestation, the model, the probe prompt, the
 golden context, the isolation assent and the reviewer mutant set, so `REGISTERED` is not
@@ -544,30 +608,43 @@ null, while a REGISTERED attempt without it also refuses. CI runs the determinis
 only; the batch never runs in CI, and the tests that invoke the pinned engines skip by name
 there.
 
-**The manifest is regenerated LAST, and a stale one now fails the suite twice**
-(round-2 finding R2-1). The manifest covers `PREREG-REVIEW.md`, so writing a review
-disposition after regenerating it leaves the committed manifest describing a tree that no
-longer exists — which is exactly what happened between rounds 1 and 2, and what round 2
-caught by running the suite rather than by reading a claim. Two tests now fail on it, under
-two different names, so the failure cannot be mistaken for one test's flakiness:
-`tests/test_manifest.py` compares the exact set, and `tests/test_prereg_currency.py`
-carries manifest currency as a currency property alongside the counts. **The order is
-fixed: every artifact and document edit first, `harness/make_manifest.py` last, then the
-full pinned suite from the resulting tree.**
+**The manifest is regenerated LAST, a stale one fails the suite twice, and the file that
+kept staling it is out of the covered set** (round-2 finding R2-1; round-3 finding R3-1).
+The manifest used to cover `PREREG-REVIEW.md`, so writing a review disposition after
+regenerating it left the committed manifest describing a tree that no longer existed. That
+happened three rounds running — between rounds 1 and 2, between 2 and 3, and inside the
+round-2 response, which reported a green suite while three enforcement tests were red.
+Round 2's answer was a procedure and a second failing test; **a procedure that must be
+remembered every round is not a safeguard**, and the third recurrence is the evidence. The
+root fix is ADR 0004's own decision, applied to the file it plainly describes: the review
+record is appendable by design and leaves the covered set by named constant, so appending a
+disposition can no longer stale anything. Two tests still fail on a genuinely stale
+manifest, under two different names, so that failure cannot be mistaken for one test's
+flakiness (`tests/test_manifest.py` compares the exact set; `tests/test_prereg_currency.py`
+carries manifest currency alongside the counts), and two more assert the exclusion itself —
+including that re-covering the review record fails. **The order is still fixed: every
+artifact and document edit first, `harness/make_manifest.py` last, then the full pinned
+suite from the resulting tree.**
 
 **Deterministic regeneration of the mutant corpora** is claimed by
 `design/mutants/regenerate.py --arm both --check`, which regenerates into a scratch copy
-and byte-compares every committed artifact. Two properties are registered: the record it
+and byte-compares every committed artifact. Three properties are registered: the record it
 commits (`design/mutants/REGENERATION-CHECK.json`) must cover **both** arms — a single-arm
-record is not written at all — and the fail-closed adequacy census is evaluated **under the
+record is not written at all — the fail-closed adequacy census is evaluated **under the
 regenerated tree**, never under the committed one, so a newly generated empty-witness
-mutant cannot evade it (round-2 finding R2-11). `byteIdentical` is the reproducibility
-claim; `pass` additionally requires the adequacy stamp and is therefore FALSE while §4's
-gate is open. Enforced by `tests/test_design_regeneration.py`.
+mutant cannot evade it (round-2 finding R2-11), and the **adequacy stamp is inside the
+regeneration chain** rather than beside it (round-3 finding R3-2). The third is the one the
+repair needed: while stamping was a separate hand-run step, regenerating the corpus rewrote
+each MANIFEST without a stamp, so `pass` was structurally unreachable and the stamp was
+never byte-compared — which is how a pre-repair drop table survived a corpus regeneration
+unread. `byteIdentical` is the reproducibility claim; `pass` additionally requires both
+arms and both adequacy stamps. At this revision the check is **375/375 byte-identical with
+`pass: true`**, for the first time in its history. Enforced by
+`tests/test_design_regeneration.py`.
 
 `GATE(pre-freeze)` in this section is now narrow and named: the untracked `design/` sources
-and stale bytecode caches that `integrity.verify_bytecode()` refuses must be committed, and
-the adequacy gate (§4) must be re-closed.
+and stale bytecode caches that `integrity.verify_bytecode()` refuses must be committed.
+§4's adequacy gate, which this sentence used to name beside them, is re-closed.
 
 ## 8. What is enforced, what is recorded, what is not prevented
 
@@ -606,9 +683,16 @@ evidence the representations are interchangeable. Kill rates measure agreement-a
 mutation detection over registered single-edit mutants — not test quality at large, not
 defect rates in production, and (for the 27 JPS mutants the manifest marks
 `engineSuppliedKill`) partly the engine's structural checks rather than authored assertions,
-reported both ways. The two arms' kill denominators are different sizes and their rates are
-quantised on different lattices; the two integer cuts are published side by side and nothing
-reconciles them. The gold suite is two authors
+reported both ways. **The mutant space also inherits the arm-A reference's shape, and the
+round-3 adequacy re-closure measured one instance of it**: `r-o1-review`'s region is a
+strict subset of `r-o1-wide-low`'s, both say `review`, and D5 suppresses them together, so
+nine mutants of that rule's boundaries change no cell and no test suite in any arm can
+detect them (§4; `design/mutants/ADEQUACY.md`, `subsumed-region-lemma`). They are registered
+drops rather than a thin spot in gold, and the general statement is the one that
+generalises: a kill rate is bounded by what the reference makes observable, not by what a
+suite could in principle notice. The two arms' kill denominators are different sizes and
+their rates are quantised on different lattices; the two integer cuts are published side by
+side and nothing reconciles them. The gold suite is two authors
 deep plus a clean-room check that shares the gold author's model lineage (registered;
 third vendor declined 2026-08-15). The census's expressiveness rows and these rates live
 on different stimuli: **no tradeoff statement combining them is licensed** (pinned as a
@@ -626,6 +710,20 @@ every record (§5) — the full decision table, every identity-failure, out-of-d
 timeout, and unpairable-mutant count, both group counts, both integer cuts, the E1 ceiling
 report, and the latency
 distributions are published whichever way they land, with a pass's prominence.
+
+**What "all intervals" means, and the one thing this commitment does not promise**
+(round-3 finding R3-8). Every quantity that EXISTS is published whichever way it lands, and
+nothing is withheld for being unflattering — that is the whole of the commitment. It is not
+a promise that a contrast interval exists in every outcome, because §5 forbids computing
+one above row 3: an outcome that reaches a gate row has **no** A−C or A−B interval to
+publish, and the record says so by naming the row and the cause rather than by printing an
+endpoint. A blocked contrast is published as blocked, with its cause, in the same record
+and with the same prominence. The rule is ordered rather than conditional, so it holds for
+a gate failure discovered LATE as well as early: if the secondary contrast fails after the
+primary has been evaluated, the primary's interval is settled to the decided row it
+actually reached and no partially computed secondary quantity is emitted. Publishing a
+number the registered rule says must not be computed is not a stronger publication
+commitment; it is a violation of §5 wearing one.
 `CORRECTION.md` targets (verbatim wording, venue, URL, retrieval date) are pinned before
 the freeze. A failed or INDETERMINATE R1 is reported with the same prominence as a decided
 one.

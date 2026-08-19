@@ -72,7 +72,9 @@ def test_row_3_control_gate_failed():
 def test_row_4_decided():
     verdict = decision.decide({"pipelineProblems": [],
                                "controlGates": gates(),
-                               "contrasts": {"A-C": contrast(50, 0)}})
+                               "contrasts": {"A-C": contrast(50, 0),
+                                             "A-B": contrast(50, 40,
+                                                             arms=("A", "B"))}})
     assert verdict["row"] == "decided"
     assert verdict["rowIndex"] == 4
     assert verdict["verdict"] == "R1 decided - A above C"
@@ -95,7 +97,9 @@ def test_every_row_is_reachable():
         decision.decide({"pipelineProblems": [],
                          "controlGates": gates(golden_context=False)})["row"],
         decision.decide({"pipelineProblems": [], "controlGates": gates(),
-                         "contrasts": {"A-C": contrast(50, 0)}})["row"],
+                         "contrasts": {"A-C": contrast(50, 0),
+                                       "A-B": contrast(50, 40,
+                                                       arms=("A", "B"))}})["row"],
         decision.decide({"pipelineProblems": [], "controlGates": gates(),
                          "contrasts": {"A-C": contrast(25, 25)}})["row"],
         decision.decide({"shortfallDeclared": ["short"]})["row"],
@@ -217,10 +221,13 @@ def test_direction_refuses_a_decided_contrast_with_no_decision_field():
 # --- direction, and the fixed sequence --------------------------------------
 
 def test_direction_is_reported_as_observed_in_both_directions():
+    secondary = contrast(50, 40, arms=("A", "B"))
     above = decision.decide({"pipelineProblems": [], "controlGates": gates(),
-                             "contrasts": {"A-C": contrast(50, 0)}})
+                             "contrasts": {"A-C": contrast(50, 0),
+                                           "A-B": secondary}})
     below = decision.decide({"pipelineProblems": [], "controlGates": gates(),
-                             "contrasts": {"A-C": contrast(0, 50)}})
+                             "contrasts": {"A-C": contrast(0, 50),
+                                           "A-B": secondary}})
     assert above["verdict"] == "R1 decided - A above C"
     assert below["verdict"] == "R1 decided - C above A"
 
@@ -244,10 +251,40 @@ def test_an_indeterminate_primary_never_reports_a_secondary():
     assert "secondary" not in verdict
 
 
-def test_a_decided_primary_with_no_secondary_computed_says_so():
-    verdict = decision.decide({"pipelineProblems": [], "controlGates": gates(),
-                               "contrasts": {"A-C": contrast(50, 0)}})
+def test_a_decided_primary_with_no_secondary_computed_says_WHY():
+    """ROUND-3 FINDING R3-8, and this test is STRENGTHENED rather than kept.
+
+    It used to accept a bare `result: null` for an absent secondary, which is
+    what let the scorer publish one: `FM-EMPTY-ARM` on A-B cleared the whole
+    contrast set, and the decided row would have carried a null beside it that
+    reads as "not decided" and is indistinguishable from "never computed". Once
+    the primary decides, §5's sequence has REACHED the secondary, so it has a
+    result or it has a cause."""
+    verdict = decision.decide({
+        "pipelineProblems": [], "controlGates": gates(),
+        "contrasts": {"A-C": contrast(50, 0)},
+        "secondaryRefusal": "FM-EMPTY-ARM arm B has 0 admitted runs"})
+    assert verdict["row"] == "decided"
     assert verdict["secondary"]["result"] is None
+    assert verdict["secondary"]["refusal"].startswith("FM-EMPTY-ARM")
+
+
+def test_a_decided_primary_with_a_silently_absent_secondary_refuses():
+    """The other half of the same rule: no cause, no verdict."""
+    with pytest.raises(decision.DecisionError) as raised:
+        decision.decide({"pipelineProblems": [], "controlGates": gates(),
+                         "contrasts": {"A-C": contrast(50, 0)}})
+    assert str(raised.value).startswith("DECISION-SECONDARY-UNEXPLAINED")
+
+
+def test_a_computed_secondary_carries_no_refusal():
+    verdict = decision.decide({
+        "pipelineProblems": [], "controlGates": gates(),
+        "contrasts": {"A-C": contrast(50, 0),
+                      "A-B": contrast(50, 40, arms=("A", "B"))},
+        "secondaryRefusal": "this must not be read when the secondary exists"})
+    assert verdict["secondary"]["result"] == "A above B"
+    assert verdict["secondary"]["refusal"] is None
 
 
 def test_direction_of_an_undecided_contrast_is_never_a_direction():

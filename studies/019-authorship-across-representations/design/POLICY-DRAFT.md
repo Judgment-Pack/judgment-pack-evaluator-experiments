@@ -240,8 +240,10 @@ counterfactual test (v0's "needed by" admitted two readings — three findings).
   inexpressibility conclusion drawn from it is false. A pack in the same fragment says
   `review` on all 72 cells — two region-scoped rules plus two region-scoped suppressions of
   D8, adopted into the arm-A reference (`reference/refA/PACK-CHANGE-001.md`). The registered
-  exclusion set is now empty, gold **does** carry rows in this class (three, plus an
-  adjacency control), and the census row is not a fragment boundary but an asymmetry-ledger
+  exclusion set is now empty, gold **does** carry rows in this class (five, plus an
+  adjacency control just outside it — the round-3 adequacy repair added one of the five,
+  `x1r-country-unreadable-40`, which is the first witness for two mutants), and the census
+  row is not a fragment boundary but an asymmetry-ledger
   row: expressing it costs a derived region lemma the prose never states.
 - **Registered exclusion X1 (arm-A inexpressibility, census row) — WITHDRAWN, see above.**
   In the class
@@ -272,10 +274,17 @@ counterfactual test (v0's "needed by" admitted two readings — three findings).
   tie-break. **There is no exclusion left to assert**: X1 is retired and the registered
   exclusion set is empty, so V7 must instead assert that the former X1 region is *covered*
   — an exclusion that once existed stays falsifiable.
-- **V8**: re-derive the asymmetry ledger from the two reference implementations (three new
+- **V8**: re-derive the asymmetry ledger from the two reference implementations (four new
   rows so far: the former X1 region as an asymmetry-ledger row — expressing it costs a
   derived region lemma the prose never states, which is a cost row and not a boundary —
-  A1's uniform-U1 burden, and the inert O3 conjunct; the panel re-signed two of v0's rows).
+  A1's uniform-U1 burden, the inert O3 conjunct, and the **subsumption** row the round-3
+  adequacy repair measured: the region lemma `r-o1-wide-low` strictly contains the O1
+  companion rule `r-o1-review`, both say `review` and D5 suppresses them together, so
+  `r-o1-review` is behaviourally inert in the repaired reference — deleting it changes no
+  cell — and nine mutants of its boundaries are unkillable by any gold suite as a result
+  (`mutants/ADEQUACY.md`, `subsumed-region-lemma`). A redundant rule contributes nothing
+  while it is correct and can still do damage when it is wrong; the panel re-signed two of
+  v0's rows).
 - Gold rows are authored as reason sets, cite governing clauses under the earliest-clause
   tie-break, and deliberately include: every boundary literal in every band; the three U1
   worked examples plus at least one more per unreadable input; D6b's three insurance

@@ -1199,7 +1199,7 @@ def e4_endpoint(arm: str, runs: list, cut: dict, engine_supplied=None,
     identity-PASSING runs only, and the round-1 disposition wrote that reading
     down; on a two-run arm with one identity-passing high-kill run the two rules
     answer 1/2 and 1/1. The registered rule is this one, the pilot has been
-    changed to it, and the pilot's numbers moved (`design/mutants/E4-PILOT-v3.json`).
+    changed to it, and the pilot's numbers moved (`design/mutants/E4-PILOT-v4.json`).
 
     The per-run marker is published as well as the count: an identity-failing run
     carries `highKill: null` — never `false` — because it was never asked, and it
@@ -1220,7 +1220,15 @@ def e4_endpoint(arm: str, runs: list, cut: dict, engine_supplied=None,
     for run in runs:
         run["highKill"] = (run["run"] in high_names
                            if run.get("identityPass") else None)
-    excluded_cases = sum(len(run.get("x1Excluded") or []) for run in runs)
+    # ROUND-3 FINDING R3-9. The per-run excluded-case list and its per-arm sum
+    # are GONE, not zeroed. §4: "There is no exclusion class, no per-case X1
+    # filter and no per-run excluded-case count." The scorer published
+    # `x1Excluded` per run, `x1ExcludedCases` per arm and an excluded-case
+    # column while the registration said the count did not exist and the smoke
+    # record said the field did not exist — three surfaces, two of them false.
+    # One surface is adopted: the registration's. What remains is
+    # `outOfDomainCases`, which §4 does register, and `e4lib.in_x1()`, which is
+    # a measurement helper that gates nothing and is asserted to gate nothing.
     out_of_domain = sum(len(run.get("outOfDomainCases") or []) for run in runs)
     return {
         "arm": arm,
@@ -1240,7 +1248,6 @@ def e4_endpoint(arm: str, runs: list, cut: dict, engine_supplied=None,
         "identityRate": stats.rate_block(len(identity_pass), len(runs),
                                          "admitted runs"),
         "identityFailedRuns": sorted(run["run"] for run in identity_fail),
-        "x1ExcludedCases": excluded_cases,
         "outOfDomainCases": out_of_domain,
         "outOfDomainRuns": sorted(run["run"] for run in runs
                                   if run.get("outOfDomainCases")),
@@ -1274,6 +1281,16 @@ def contrast(left_arm: str, right_arm: str, e4_by_arm: dict,
     publishes its own refusal, because section 5's rule reads `excludesZero` and
     nothing else.
 
+    THEY ARE NOT COMPUTED HERE (round-3 finding R3-8). `endpoints=True` marks the
+    contrast's interval PENDING and `stats.fill_intervals()` settles it after
+    the decision, for the same reason `stats.rate_block()` stopped computing its
+    own Clopper-Pearson bounds in round 2: the sweep used to run the moment the
+    contrast was built, which is before the run's final row is known. The
+    reviewer's scenario is the proof — gates clear, A = 5/5, C = 0/5, B = 0/0,
+    so A−C swept its endpoints, A−B then raised `FM-EMPTY-ARM`, and the attempt
+    landed on row 1 with an inferential quantity already computed for it. §5
+    prohibits the computation, not merely the printing.
+
     THE DENOMINATORS MUST BE POSITIVE (round-1 R1-14). An arm with zero admitted
     runs passes E1's floor by definition — `perfect / 0` is not evaluated and the
     gate reads `len(runs) == 0 or ...` — so the control rows let an empty arm
@@ -1295,14 +1312,64 @@ def contrast(left_arm: str, right_arm: str, e4_by_arm: dict,
                                  left["denominator"], right["denominator"])
     result["arms"] = [left_arm, right_arm]
     if endpoints:
-        try:
-            result["interval"] = stats.interval_endpoints(
-                left["highKill"], right["highKill"],
-                left["denominator"], right["denominator"])
-        except stats.StatsError as error:
-            result["interval"] = None
-            result["intervalRefusal"] = str(error)
+        result["interval"] = None
+        result["intervalState"] = stats.INTERVAL_PENDING
     return result
+
+
+def registered_contrasts(e4_by_arm: dict, outcome: dict, refusals: dict,
+                         gate_causes: list) -> dict:
+    """§5's fixed sequence — A−C, then A−B only because A−C decided — with the
+    two failure modes kept apart.
+
+    EXTRACTED FROM `main()` FOR ROUND-3 FINDING R3-8, and the extraction is part
+    of the fix: the sequence lived inline in a 300-line function, which is why
+    the one thing it got wrong could only be found by running an attempt. It is
+    driven directly by `tests/test_score_publication.py` now.
+
+    Three outcomes, and the finding is the third:
+
+    * A gating row matched — nothing is computed at all, and the refusal says
+      so (round-1 R1-14).
+    * The PRIMARY could not be computed — a pipeline problem, because the last
+      row's INDETERMINATE is the statement that an interval straddles zero and
+      there is no interval (round-1 R1-14's second scenario).
+    * The SECONDARY could not be computed after the primary DECIDED — the
+      finding. Both contrasts shared one `except`, so `FM-EMPTY-ARM` on A−B
+      deleted a primary that had already decided, filed itself under the
+      primary's name and landed the attempt on row 1 — over an A−C comparison
+      that was made and is sound. §5's decided row registers "A−C interval
+      excludes zero -> R1 decided, direction as observed; THEN A−B likewise":
+      the sequence is conditional, so the decided row stands and the secondary
+      is published as the absent thing it is, WITH its cause.
+      `decision.decide()` refuses when that cause is missing, so silence is not
+      one of the answers available here."""
+    bind_study_modules()
+    if gate_causes:
+        refusals["contrast"] = (
+            "not computed: %d gating row(s) matched above the substantive "
+            "rows (%s). §5's row 2 adjudicates R1 in neither direction, and "
+            "a direction computed and then withheld is a direction "
+            "published" % (len(gate_causes), "; ".join(gate_causes)))
+        return {}
+    try:
+        primary = contrast("A", "C", e4_by_arm)
+    except stats.StatsError as error:
+        refusals["contrast"] = str(error)
+        outcome["pipelineProblems"] = [
+            "the registered primary contrast could not be computed: %s" % error]
+        return {}
+    contrasts = {decision.CONTRAST_PRIMARY: primary}
+    if primary["excludesZero"]:
+        try:
+            contrasts[decision.CONTRAST_SECONDARY] = contrast("A", "B",
+                                                              e4_by_arm)
+        except stats.StatsError as error:
+            refusals["contrastSecondary"] = str(error)
+            outcome["secondaryRefusal"] = (
+                "the registered secondary contrast %s could not be computed: "
+                "%s" % (decision.CONTRAST_SECONDARY, error))
+    return contrasts
 
 
 # --------------------------------------------------------------------------
@@ -1403,16 +1470,23 @@ def score_run(tools, arm: str, slot: dict, context: dict, workdir: str) -> dict:
     run["outOfDomainCases"] = [failure["case"] for failure in domain_failures]
 
     if arm == "A":
+        # ROUND-3 FINDING R3-9. `partition_excluded()` stays — it is the ONE
+        # place a registered exclusion class would ever be applied, and a class
+        # applied in two places is two filters — but nothing about it is
+        # PUBLISHED any more. The registry is empty (X1 retired, R1-2) and §4
+        # registers no per-case filter and no per-run excluded-case count, so
+        # `excludedCases`/`x1Excluded` were publishing a measured zero for a
+        # thing the registration says does not exist. A non-empty partition is
+        # therefore impossible under the registered surface and is refused as
+        # the registration mismatch it would be, rather than quietly reported.
         scored_cases, excluded = e4lib.partition_excluded(cases)
-        run["excludedCases"] = excluded
-        # The registered exclusion registry is empty (X1 retired, R1-2), so this
-        # is a measured zero rather than an unapplied filter. The member keeps
-        # its published name.
-        run["x1Excluded"] = excluded
+        if excluded:
+            raise e4lib.MatrixError(
+                "E4-EXCLUSION-REGISTRY §4 registers no exclusion class and no "
+                "per-case filter, and %d case(s) were partitioned out (%s): a "
+                "filter this registration does not carry must not decide which "
+                "cases are scored" % (len(excluded), ", ".join(excluded[:3])))
         run["scoredCases"] = scored_cases
-    else:
-        run["excludedCases"] = []
-        run["x1Excluded"] = []
 
     if domain_failures:
         # Identical treatment in all three arms: the run stays in the E4
@@ -1534,20 +1608,23 @@ def results_markdown(results: dict) -> str:
                  (results.get("pairing") or {}).get("pairedAdequateJps", 0),
                  (results.get("pairing") or {}).get("pairedAdequateRego", 0)),
               "",
+              # ROUND-3 R3-9: the excluded-case column is gone. §4 registers
+              # no per-run excluded-case count, so a column of zeros for it
+              # taught every reader of RESULTS.md that a filter was applied.
               "| Arm | Language | Cut | High-kill | Denominator | Rate | "
-              "95% CI | Identity pass | Excluded cases | Out-of-domain cases |",
-              "|---|---|---|---|---|---|---|---|---|---|"]
+              "95% CI | Identity pass | Out-of-domain cases |",
+              "|---|---|---|---|---|---|---|---|---|"]
     for arm in batch.ARMS:
         entry = (results.get("e4") or {}).get(arm)
         if entry is None:
-            lines.append("| %s | — | — | — | — | — | — | — | — | — |" % arm)
+            lines.append("| %s | — | — | — | — | — | — | — | — |" % arm)
             continue
         block = entry["highKillRate"]
-        lines.append("| %s | %s | %d | %d | %d | %s | %s | %d | %d | %d |"
+        lines.append("| %s | %s | %d | %d | %d | %s | %s | %d | %d |"
                      % (arm, entry.get("language"), entry["cut"]["integerCut"],
                         entry["highKill"], entry["denominator"],
                         _fmt(block["rate"]), _fmt_ci(block["ci95"]),
-                        entry["identityPass"], entry["x1ExcludedCases"],
+                        entry["identityPass"],
                         entry.get("outOfDomainCases", 0)))
     lines += ["", "## E1 — gold agreement (control, expected at ceiling)", "",
               "| Arm | Perfect | Runs | Rate | Floor held |", "|---|---|---|---|---|"]
@@ -2019,29 +2096,8 @@ def main(argv=None) -> int:
         outcome = {"pipelineProblems": [], "shortfallDeclared": [],
                    "controlGates": gates, "contrasts": {}}
         gate_causes = decision.gate_causes(outcome)
-        contrasts = {}
-        if gate_causes:
-            refusals["contrast"] = (
-                "not computed: %d gating row(s) matched above the substantive "
-                "rows (%s). §5's row 2 adjudicates R1 in neither direction, and "
-                "a direction computed and then withheld is a direction "
-                "published" % (len(gate_causes), "; ".join(gate_causes)))
-        else:
-            try:
-                contrasts[decision.CONTRAST_PRIMARY] = contrast("A", "C",
-                                                               e4_by_arm)
-                if contrasts[decision.CONTRAST_PRIMARY]["excludesZero"]:
-                    contrasts[decision.CONTRAST_SECONDARY] = contrast(
-                        "A", "B", e4_by_arm)
-            except stats.StatsError as error:
-                # A contrast that could not be computed is a PIPELINE problem,
-                # not a straddling interval: the last row's INDETERMINATE says an
-                # interval exists and contains zero.
-                contrasts = {}
-                refusals["contrast"] = str(error)
-                outcome["pipelineProblems"] = [
-                    "the registered primary contrast could not be computed: %s"
-                    % error]
+        contrasts = registered_contrasts(e4_by_arm, outcome, refusals,
+                                         gate_causes)
         outcome["contrasts"] = contrasts
         verdict = decision.decide(outcome)
 

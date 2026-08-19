@@ -1,11 +1,13 @@
 # Study 019 — authorship across representations
 
-**Status: PREREGISTRATION DRAFT, third major revision. Not frozen, and nothing citable has
-run — every freeze pin is null and every execution so far is a non-citable pilot. Two
+**Status: PREREGISTRATION DRAFT, fifth major revision. Not frozen, and nothing citable has
+run — every freeze pin is null and every execution so far is a non-citable pilot. Three
 cross-vendor review rounds have read this study under the RFC 0009 interim review regime;
-both returned DO NOT FREEZE. Round 1's twenty findings are dispositioned and round 2's
-fourteen are open. The record is [`PREREG-REVIEW.md`](PREREG-REVIEW.md), with each round
-verbatim under [`reviews/`](reviews/).**
+all three returned DO NOT FREEZE. Round 1's twenty findings and round 2's fourteen are
+dispositioned; round 3's ten are open — this revision is the response to them, and the
+maintainer's written disposition per finding is what closes them. The record is
+[`PREREG-REVIEW.md`](PREREG-REVIEW.md), with each round verbatim under
+[`reviews/`](reviews/).**
 
 ## The question
 

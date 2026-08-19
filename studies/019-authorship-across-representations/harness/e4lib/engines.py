@@ -468,10 +468,27 @@ def opa_test(tools: Toolchain, policy_path: str, suite_path: str,
     `opa eval --strict-builtin-errors` over the same two files. Strict mode is
     where the pinned binary itself distinguishes the two — an evaluation fault
     comes back as an `errors` list carrying `eval_builtin_error`, and a genuine
-    assertion failure comes back undefined (`{}`, exit 0). The scan stops at the
-    first test that survives adjudication, because one real assertion failure is
-    a kill and the rest is diagnosis. An adjudication whose own output cannot be
-    read counts the test as ERRORED: fail-closed is a refusal, never a kill."""
+    assertion failure comes back undefined (`{}`, exit 0). An adjudication whose
+    own output cannot be read counts the test as ERRORED: fail-closed is a
+    refusal, never a kill.
+
+    ROUND-3 FINDING R3-3, and it reverses this function's stopping rule. The
+    scan used to stop at the first test that survived adjudication, on the
+    reading that "one real assertion failure is a kill and the rest is
+    diagnosis". The reviewer's two-failure probe shows why that reading is not
+    available: a suite whose LEXICALLY FIRST reported failure is a genuine
+    assertion failure and whose later one is a division by zero returned
+    `status: "failed"`, an empty `evaluationFaults` list, and `killed` from
+    `e4.kill_arm_rego()` — an invocation in which the pinned engine faulted,
+    scored as evidence about the suite. §2 registers the opposite: "a
+    load/parse/compile/RUNTIME/timeout failure is an apparatus refusal", and an
+    apparatus refusal is a property of the INVOCATION, not of whichever test
+    happened to sort first. So EVERY reported failure is adjudicated, and any
+    evaluation fault or unreadable adjudication anywhere in the run refuses the
+    whole invocation regardless of how many genuine assertion failures sit
+    beside it. `errored` therefore outranks `failed` when the status is chosen
+    — the fail-closed direction, and the only one under which the reported
+    status does not depend on a lexical accident."""
     code, out, err = _run(
         [tools.opa, "test", policy_path, suite_path,
          "--capabilities", tools.caps, "--timeout", OPA_EVAL_TIMEOUT,
@@ -506,23 +523,38 @@ def opa_test(tools: Toolchain, policy_path: str, suite_path: str,
             reported_failures.append(name)
     # DETERMINISM, and it is a registered property of what this produces.
     # `opa test --format json` does not order its result list (`--sort` defaults
-    # to `none`), so "the first reported failure" is not a stable choice and two
-    # scorings of one batch disagreed on which named test they recorded. Sorting
-    # here makes the adjudication order — and therefore the retained
-    # `failedTests` — a function of the data and not of the run.
+    # to `none`), so the retained lists are not a stable choice unless something
+    # orders them. Sorting here makes the adjudication order — and therefore the
+    # published `failedTests` and `evaluationFaults` — a function of the data
+    # and not of the run.
+    #
+    # ROUND-3 R3-3: EVERY reported failure is adjudicated. There is no early
+    # exit, because an early exit makes the answer depend on which name sorted
+    # first, and the fault the scan skipped is an apparatus event that already
+    # happened.
     for name in sorted(reported_failures):
         fault = evaluation_fault(tools, [policy_path, suite_path], name,
                                  workdir)
         if fault is None:
             record["failed"].append(name)
-            break
+            continue
         record["evaluationFaults"].append({"test": name, "fault": fault})
         record["errored"].append(name)
+    record["failed"].sort()
     record["errored"].sort()
-    if record["failed"]:
-        record["status"] = TEST_FAILED
-    elif record["errored"]:
+    record["evaluationFaults"].sort(key=lambda entry: entry["test"])
+    # ROUND-3 R3-3: `errored` OUTRANKS `failed`. An evaluation fault or an
+    # unreadable adjudication anywhere in this invocation means the pinned
+    # engine did not answer the question the run asked, and §2 routes that to
+    # the `engine-execution-clean` control gate rather than into a rate — even
+    # when a genuine assertion failure sits beside it, because the genuine
+    # failure is evidence about the suite and the fault is evidence about the
+    # apparatus, and the apparatus is what decides whether the invocation is
+    # readable at all.
+    if record["errored"]:
         record["status"] = TEST_ERRORED
+    elif record["failed"]:
+        record["status"] = TEST_FAILED
     else:
         record["status"] = TEST_PASS
     return record

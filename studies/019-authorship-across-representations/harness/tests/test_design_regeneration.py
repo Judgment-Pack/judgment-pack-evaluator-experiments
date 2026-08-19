@@ -134,9 +134,21 @@ def test_a_scratch_only_empty_witness_mutant_fails_the_check(regen, tmp_path,
     monkeypatch.setattr(regen, "HERE", str(report_dir))
     monkeypatch.setattr(regen, "COPY_TREES", ["mutants"])
 
-    def chain(arm, root, jobs, env):
+    def chain(arm, root, jobs, env, steps=None):
         """Stands in for the generators: emits one empty-witness mutant that
-        exists only in the regenerated tree."""
+        exists only in the regenerated tree.
+
+        `steps` is accepted and ignored: `regenerate.py` calls `run_chain()` for
+        the two arms and once more for the two-armed adequacy TAIL, which it
+        selects with that keyword. A stand-in that cannot be called the way the
+        real function is called tests the stand-in's signature and not the
+        closure rule — this raised `TypeError` before the keyword was
+        accepted. The TAIL call emits nothing: it stands in for the two-armed
+        adequacy tail, which disposition-stamps and generates no mutant, and a
+        stand-in that emitted one there would count the same scratch-only mutant
+        twice."""
+        if arm not in ("A", "B"):
+            return
         if arm == "A":
             path = os.path.join(root, "mutants", "refA", "MANIFEST.json")
             records = json.load(open(path, encoding="utf-8"))

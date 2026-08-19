@@ -26,6 +26,7 @@ nothing about the destination set.
 """
 import json
 import os
+import re
 
 import pytest
 
@@ -123,3 +124,98 @@ def test_a_row_added_to_the_table_refuses(tmp_path):
     with pytest.raises(integrity.IntegrityError) as caught:
         integrity.verify_chain(ports_path=ports, pins_path=registry)
     assert "harness/unregistered.py" in str(caught.value)
+
+
+# --- ROUND-3 R3-1's neighbour: the design-lineage stamps, and what they are ---
+#
+# The port table carries a SECOND table under "assembled from this study's own
+# design code", and its third column is a different kind of cell from the port
+# rows above it: an AS-ASSEMBLED stamp of the prototype the module was carried
+# from, not a pin on the prototype's current bytes. Round 3 rebuilt
+# `design/mutants/oc_table.py` and `design/mutants/e4_score.py`, so those two
+# stamps no longer match the files on disk — correctly, because what they record
+# is what was inherited.
+#
+# That leaves exactly one property worth enforcing, and it is enforced: the
+# stamp is written in TWO places, the assembled module's own docstring and the
+# table, and the two must agree. A digest edited on one side and not the other
+# is a lineage claim nobody can check.
+
+_LINEAGE_SECTION = "| assembled module | design prototype | prototype sha256 |"
+
+
+def _lineage_rows():
+    with open(PORTS, "rb") as handle:
+        text = handle.read().decode("utf-8")
+    body = text.split(_LINEAGE_SECTION, 1)[1].split("\n\n", 1)[0]
+    rows = []
+    for line in body.splitlines():
+        if not line.startswith("| `"):
+            continue
+        cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+        if len(cells) != 3:
+            continue
+        # The module cell may carry a parenthetical scope after the path
+        # (`harness/e4lib/stats.py` (contrast half only)); the path is the
+        # backticked span, which is what the row is about.
+        match = re.match(r"`([^`]+)`", cells[0])
+        if not match:
+            continue
+        module = match.group(1)
+        # Full 64-hex stamps only. The engines row abbreviates two of its three
+        # to `09da06b3…`, and an abbreviation is not a digest to check against.
+        rows.append((module, re.findall(r"\b[0-9a-f]{64}\b", cells[2])))
+    return rows
+
+
+def test_the_design_lineage_table_names_modules_that_exist():
+    rows = _lineage_rows()
+    assert len(rows) >= 5, rows
+    for module, _shas in rows:
+        assert os.path.isfile(os.path.join(STUDY, module)), module
+
+
+def test_every_lineage_stamp_is_the_one_the_assembled_module_states():
+    """The two-place property. A stamp that appears in the table must appear in
+    the module the table names, byte for byte.
+
+    Deliberately NOT asserted: that the stamp equals the design file's current
+    digest. It is a record of what was carried, the design tree moves on, and
+    re-pinning it on every design edit would make it say nothing."""
+    problems = []
+    for module, shas in _lineage_rows():
+        if not shas:
+            continue
+        with open(os.path.join(STUDY, module), "rb") as handle:
+            source = handle.read().decode("utf-8")
+        for sha in shas:
+            if sha not in source:
+                problems.append("%s does not state the stamp %s the port "
+                                "table records for it" % (module, sha[:12]))
+    assert problems == [], "\n  ".join([""] + problems)
+
+
+def test_the_lineage_stamps_are_declared_as_as_assembled_not_as_current():
+    """The sentence that makes the exemption above legible rather than a silent
+    gap — R1-20's rule, applied to the one column nothing re-digests."""
+    with open(PORTS, "rb") as handle:
+        flat = " ".join(handle.read().decode("utf-8").split())
+    assert "AS-ASSEMBLED stamp, not a currency pin" in flat
+    assert "Nothing verifies these digests against the current design tree" in flat
+
+
+def test_the_run_time_derived_row_carries_no_as_assembled_stamp():
+    """`harness/leak_tokens.py` is the one lineage row whose source is read at
+    RUN time — it derives `LEAK_TOKENS` from `design/POLICY-DRAFT.md` on every
+    call — so an as-assembled stamp is the wrong kind of cell for it and was a
+    stale one: the digest it carried had drifted from the prose two revisions
+    before this was noticed. The digest of the file actually read is published by
+    `report()` and asserted by `tests/test_leak_tokens.py`; this asserts the
+    table does not offer a second, unchecked one."""
+    rows = dict(_lineage_rows())
+    assert "harness/leak_tokens.py" in rows
+    assert rows["harness/leak_tokens.py"] == [], (
+        "the run-time-derived row must not carry an as-assembled digest")
+    for module, shas in _lineage_rows():
+        if module != "harness/leak_tokens.py":
+            assert shas, "%s states no lineage stamp at all" % module

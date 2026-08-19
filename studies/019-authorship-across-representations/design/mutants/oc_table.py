@@ -172,18 +172,21 @@ EXTRA = [Fraction(0, 1), Fraction(1, 1)]
 # a later pilot supersedes this one, the suite fails until this constant, the
 # preregistration and the regenerated table all move together.
 #
-# >>> MAINTAINER SPLICE, PENDING AT THE CLOSE OF THE ROUND-2 RESPONSE <<<
-# Round-2 finding R2-3 (Rego evaluation faults credited as kills) invalidates the
-# kill counts every pilot so far has recorded, so the code lane is producing
-# `E4-PILOT-v3.json` through the corrected taxonomy. IT IS NOT ON DISK YET, so
-# this table is still built on v2 and every fraction it prints is a v2 fraction.
-# WHEN v3 LANDS: change this one constant, update the preregistration's Design
-# provenance to name v3, regenerate with `python3 oc_table.py`, and re-run the
-# currency suite. Nothing else in this file needs to move — the §7 numbers, the
-# denominator asymmetry sentence and §5's region gloss are all computed from
-# whichever pilot this constant names. The currency suite fails while this
-# constant and the preregistration disagree, so the splice cannot be forgotten.
-PILOT_FILE = 'E4-PILOT-v2.json'
+# ROUND-3 FINDINGS R3-4 and R3-5 closed the splice this comment used to carry.
+# The pending re-score landed twice: `E4-PILOT-v3.json` under R2-3's corrected
+# `opa test` taxonomy, and then `E4-PILOT-v4.json`, which is what this constant
+# names, under §4's registered per-case DOMAIN check that v3 omitted and under
+# the round-3 adequacy repair's corpus. Naming the current issue in one constant
+# was never the whole safeguard — R3-5 found the constant, the preregistration
+# and this document agreeing on a stale v2, which mutual agreement cannot
+# detect — so the file this names is now also required to be the END of the
+# supersession chain: every earlier issue carries `supersededBy` naming its
+# successor, the walk from the first issue must arrive here, and this file must
+# carry no `supersededBy` of its own
+# (`harness/tests/test_prereg_currency.py::test_the_pilot_supersession_chain_*`).
+# Agreement on a stale file now fails, because staleness is a property of the
+# chain rather than of the spelling.
+PILOT_FILE = 'E4-PILOT-v4.json'
 
 DEC_A = 0      # decided: arm A high-kill rate above arm C
 DEC_C = 1      # decided: arm C above arm A
@@ -429,6 +432,25 @@ def pilot_anchor(path):
     than its scored-run count and this function says so through `identityFail`
     rather than silently substituting a diagnostic surface for the registered
     one. Reading a diagnostic as an anchor is exactly what round 1 caught.
+
+    ROUND-3 FINDINGS R3-4 and R3-6, and the guard above went off: `E4-PILOT-v4`
+    records four arm-C identity failures, because §4's per-case domain check is
+    applied for the first time. So the denominator this function reports had to
+    stop being derived and start being READ.
+
+    It used to be `len(vals)` — the runs that carry a `killRatePaired`, i.e. the
+    identity-PASSING ones. That is the DENOMINATOR-OUT reading, and it is not the
+    registered rule: §1a/§5 register admitted runs, an identity failure stays in
+    the denominator carrying `highKill: null`, and round-2 finding R2-2 settled
+    that between the two scorers already (`harness/score.py`'s `e4_arm()` and
+    `e4_score.py`'s `high_kill_layer()` both compute it). On this pilot the two
+    readings answer arm C 0/5 and 0/1. So `k` and `n` are now read straight off
+    `perArm.<arm>.highKill`, the same block both scorers publish, and this
+    document, the pilot and the primary scorer state one denominator between
+    them. `runs` keeps the per-run kill rates for the table, and
+    `identityFailedRuns` keeps the runs that are in `n` without having been
+    asked, so the table can print every admitted run and the fraction still
+    reconstructs.
     """
     with open(path) as fh:
         d = json.load(fh)
@@ -448,13 +470,28 @@ def pilot_anchor(path):
         block = d['perArm'][arm]
         vals, hits = score(block['perRun'])
         failures = block['identityFail']
+        high = block['highKill']
+        # The registered denominator, read rather than recomputed. If the pilot's
+        # own two published lists stop reconstructing the rate, that is a defect
+        # in the pilot and this document refuses to average over it.
+        if high['admittedRuns'] != len(vals) + failures:
+            raise SystemExit(
+                'arm %s: %d admitted runs but %d scored + %d identity-failing — '
+                'the pilot\'s denominator and its per-run lists disagree'
+                % (arm, high['admittedRuns'], len(vals), failures))
+        if len(hits) != high['highKillRuns']:
+            raise SystemExit(
+                'arm %s: this table counts %d high-kill runs and the pilot '
+                'publishes %d' % (arm, len(hits), high['highKillRuns']))
         out[arm] = {
-            'source': 'perArm (registered rule%s)'
-                      % ('; identity control passed on every scored run'
+            'source': 'perArm.highKill (registered rule: §1a/§5 admitted runs%s)'
+                      % ('; the identity control passed on every admitted run'
                          if not failures else
-                         '; %d identity failure(s) — see the caveat below' % failures),
+                         '; %d identity failure(s), IN this denominator and never '
+                         'asked — see the caveat below' % failures),
             'runs': vals, 'high': hits,
-            'n': len(vals), 'k': len(hits),
+            'n': high['admittedRuns'], 'k': high['highKillRuns'],
+            'identityFailedRuns': list(block['identityFailedRuns']),
             'mutantsPairedAdequate': block['mutantsPairedAdequate'],
             'identityFail': failures,
             'dropped': [(x['run'], x['dropCode']) for x in block['droppedRuns']],
@@ -518,6 +555,11 @@ def main(argv):
 
     anchor = pilot_anchor(os.path.join(HERE, PILOT_FILE))
     fracs = {arm: Fraction(anchor[arm]['k'], anchor[arm]['n']) for arm in 'ABC'}
+    # ROUND-3 R3-4/R3-6: whether this document has an identity-failure story to
+    # tell is READ from the pilot, never assumed. Sec. 7's caveat and Sec. 8's
+    # attrition paragraph both branch on it, so a pilot with no failures gets no
+    # caveat and a pilot with failures cannot get the "excludes no run" sentence.
+    total_identity_failures = sum(anchor[arm]['identityFail'] for arm in 'ABC')
 
     L = []
     w = L.append
@@ -777,27 +819,36 @@ def main(argv):
       'pre-freeze gold. These are fractions, not an anchor: prereg §5 registers no '
       'expected direction and this section locates no operating point.' % PILOT_FILE)
     w('')
-    w('> **PENDING, and named here rather than discovered later.** Round-2 finding R2-3 '
-      'found that Rego evaluation faults are credited as mutant kills on one path, which '
-      'means the kill counts underlying **every pilot issued so far**, `%s` included, are '
-      'contaminated. A re-scored pilot through the corrected taxonomy is owed. Until it '
-      'lands and this document is rebuilt against it, every fraction in this section is a '
-      '`%s` fraction and inherits that defect. This does not touch Secs. 1-6, which are '
-      'exact enumerations over a grid of (p_A, p_C, N) and depend on no pilot at all.'
-      % (PILOT_FILE, PILOT_FILE))
+    w('> **The re-score this section used to say was owed has landed, twice, and the '
+      'second time it moved an arm.** Round-2 finding R2-3 (Rego evaluation faults '
+      'credited as kills off the `opa test` exit status) was corrected in '
+      '`E4-PILOT-v3.json`, and on those inputs no kill vector changed. Round-3 finding '
+      'R3-4 then found that no pilot issue had ever applied prereg §4\'s registered '
+      'per-case DOMAIN check: `%s` applies it, by calling the harness\'s own '
+      'implementation rather than carrying a second one, and it also carries the round-3 '
+      'adequacy repair\'s corpus (gold at 117 rows; both mutant MANIFESTs re-witnessed). '
+      'Arm C moves as a result — four of its five admitted runs are identity failures '
+      'under §4, where every earlier issue recorded none — and every pairing quantity in '
+      'this section moves with the corpus. No fraction below is a `E4-PILOT-v3.json` '
+      'fraction. This does not touch Secs. 1-6, which are exact enumerations over a grid '
+      'of (p_A, p_C, N) and depend on no pilot at all.' % PILOT_FILE)
     w('')
     for arm in ('A', 'B', 'C'):
         a = anchor[arm]
         m = a['mutantsPairedAdequate']
         k, rate = tau_bites(m)
-        w('**Arm %s** -- %d scored runs, paired adequate subset = %d mutants; '
-          'at `tau = 0.95` a run must kill **%d/%d = %s**.'
-          % (arm, a['n'], m, k, m, f4(rate)))
+        w('**Arm %s** -- %d admitted runs (%d scored, %d identity failure%s), paired '
+          'adequate subset = %d mutants; at `tau = 0.95` a run must kill **%d/%d = %s**.'
+          % (arm, a['n'], len(a['runs']), a['identityFail'],
+             '' if a['identityFail'] == 1 else 's', m, k, m, f4(rate)))
         w('')
         w('| run | paired kill rate | high-kill at tau=0.95 |')
         w('|---|---|---|')
         for name, v in a['runs']:
             w('| %s | %s | %s |' % (name, f4(v), 'YES' if v >= TAU else 'no'))
+        for name in a['identityFailedRuns']:
+            w('| %s | identity FAIL -- not asked | no (`highKill: null`, in the '
+              'denominator) |' % name)
         w('')
         w('- **high-kill fraction: %d/%d = %s**' % (a['k'], a['n'], f3(Fraction(a['k'], a['n']))))
         w('- source: %s' % a['source'])
@@ -811,30 +862,71 @@ def main(argv):
         w('')
     kA, kB, kC = (anchor[a]['k'] for a in 'ABC')
     nA, nB, nC = (anchor[a]['n'] for a in 'ABC')
-    w('**Current fractions: A %d/%d = %s, B %d/%d = %s, C %d/%d = %s**, each on five runs, '
-      'all three read from the registered `perArm` surface with `identityFail` = %d / %d / '
-      '%d. Three things must be said with them:'
+    w('**Current fractions: A %d/%d = %s, B %d/%d = %s, C %d/%d = %s**, each on five '
+      'admitted runs, all three read from the registered `perArm.highKill` surface with '
+      '`identityFail` = %d / %d / %d. %s things must be said with them:'
       % (kA, nA, f3(fracs['A']), kB, nB, f3(fracs['B']), kC, nC, f3(fracs['C']),
          anchor['A']['identityFail'], anchor['B']['identityFail'],
-         anchor['C']['identityFail']))
+         anchor['C']['identityFail'],
+         'Four' if total_identity_failures else 'Three'))
     w('')
-    w('1. **These fractions supersede every earlier issue of this section, and they moved '
+    # The points are collected and numbered BY POSITION, because the
+    # identity-control point (round-3 R3-4) is present only when the pilot
+    # records a failure and a hand-numbered list would then either mis-count or
+    # carry a "1a." that is not a list item at all.
+    points = []
+    points.append(
+        '**These fractions supersede every earlier issue of this section, and they moved '
       'the direction as well as the magnitude.** The superseded issue read `0.20 / 0.80 / '
       '1.00` from a 145-mutant arm-A corpus built on the pre-repair reference, and took '
       'arm A\'s number from `diagnostics.armAOffProtocol` because all five arm-A suites '
       'had then failed the identity control on X1-region cases. **X1 is retired at the '
-      'cause** (round-1 R1-2): the reference was repaired, the registered exclusion '
-      'registry is empty, and every arm above passes identity on every scored run. There '
-      'is no off-protocol diagnostic in this document any more.')
-    w('2. **Five runs per arm locate nothing.** A 1/5 and a 0/5 are compatible with a very '
+      'cause** (round-1 R1-2): the reference was repaired and the registered exclusion '
+      'registry is empty. There is no off-protocol diagnostic in this document any more, '
+      'and no arm-A exclusion: arm A passes the identity control on every admitted run '
+      'above.')
+    if total_identity_failures:
+        points.append(
+            '**Identity-control caveat, and it is the reason to read `%s` rather than '
+          'any earlier issue.** %s. These are not authoring failures of a new kind and '
+          'they are not new behaviour in the suites: they are prereg §4\'s **registered '
+          'per-case domain check**, applied for the first time by this pilot issue '
+          '(round-3 finding R3-4). §4 validates every enumerated case against the '
+          'registered input domain *before* identity and mutation execution, identically '
+          'in A, B and C, and an out-of-domain case "is an identity failure categorised '
+          '`out-of-domain-case`". Two things follow, and both are visible in the tables '
+          'above. **The denominator does not shrink.** §1a/§5 register *admitted* runs; an '
+          'identity-failing run stays in `n` carrying `highKill: null` -- never `false`, '
+          'because it was never asked -- so arm C\'s fraction is %d/%d and not %d/%d. That '
+          'is the denominator-in rule, it is Sec. 9 D3\'s settled reading, and the primary '
+          'scorer, the pilot scorer and this table all read it off the same published '
+          '`highKill` block. **The descriptive mean kill rate does shrink**, because a '
+          'mean over admitted runs would have to average a quantity that does not exist '
+          'for four of arm C\'s five: arm C\'s mean paired kill rate rests on the single '
+          'admitted run that passed, and is a one-run number wearing a mean\'s clothes. '
+          'Neither quantity is an anchor; see the next point.'
+          % (PILOT_FILE,
+             '; '.join('Arm %s records %d of its %d admitted runs as identity '
+                       'failures (%s)'
+                       % (arm, anchor[arm]['identityFail'], anchor[arm]['n'],
+                          ', '.join('`%s`' % r
+                                    for r in anchor[arm]['identityFailedRuns']))
+                       for arm in ('A', 'B', 'C') if anchor[arm]['identityFail']),
+             anchor['C']['k'], anchor['C']['n'],
+             anchor['C']['k'], max(1, len(anchor['C']['runs']))))
+    points.append(
+        '**Five runs per arm locate nothing.** A 1/5 and a 0/5 are compatible with a very '
       'wide range of true rates and with either direction; prereg §5 registers **no '
       'expected direction for R1** on exactly this ground. Sec. 5 tabulates two regions of '
       'the grid, neither of which is claimed to be where the study will land.')
-    w('3. **`tau = 0.95` bites hard, which is the point of the threshold.** Mean paired '
+    points.append(
+        '**`tau = 0.95` bites hard, which is the point of the threshold.** Mean paired '
       'kill rates in this pilot are far above 0.5 in every arm while the high-kill '
       'fractions above are near 0: a run can kill most paired mutants and still not be '
       'high-kill. Reading the mean rates as if they were the endpoint is the error the '
       'threshold exists to prevent.')
+    for number, point in enumerate(points, 1):
+        w('%d. %s' % (number, point))
     w('')
     w('Note the **denominator asymmetry**, which is a design fact and not noise. Pairing '
       'is at the level of witness-equivalence groups, not 1:1 mutants, so the paired '
@@ -894,18 +986,25 @@ def main(argv):
       '(Sec. 1). Given that the whole point of R1 is a retractable directional claim, '
       'reproducible arithmetic is worth the points.' % f4(results[50]['size']))
     w('')
-    w('**N = 50 is a ceiling, not a floor.** The E4 denominator is *admitted* runs -- runs '
-      'that clear the identity control -- not attempted runs. In the current pilot the '
-      'registered identity control excludes **no** run in any arm (Sec. 7), which is the '
-      'state after the arm-A reference repair retired X1; the earlier 5/5 arm-A exclusion '
-      'and the X1-exclusion amendment it motivated are both historical. If identity '
-      'failures nonetheless run at any appreciable rate in the registered batch, the '
-      'affected arm\'s effective N drops and the N = 30 column is the honest one to read. '
-      'At N = 30 a boundary gap of the size Sec. 5 Region L tabulates is still decided '
-      'with probability %s, so the design survives moderate attrition -- but the '
-      'middle-of-range 0.20 gap collapses to %s. **What a run that fails identity does to '
-      'the denominator is not settled**: see Sec. 9, D3.'
-      % (f4(a20_30[0] + a20_30[1]),
+    w('**N = 50 is a ceiling for a different reason than it used to be.** The E4 '
+      'denominator is §1a/§5\'s *admitted* runs -- attempted runs whose apparatus '
+      'succeeded -- and **an identity failure does not leave it** (Sec. 9, D3, settled '
+      'denominator-in; the run carries `highKill: null` and is reported). So identity '
+      'attrition does not move `N` at all, and the N = 30 column is not the column to read '
+      'for it: what identity failures cost is the NUMERATOR, one high-kill opportunity per '
+      'failing run, which is a loss of power at fixed `N` rather than a smaller design. '
+      'The current pilot makes that concrete -- %s (Sec. 7) -- and every one of those runs '
+      'is in its arm\'s denominator. What does shrink `N` is APPARATUS attrition: '
+      'timeouts at the registered 2700 s ceiling, wrapper and golden-context failures, '
+      'engine refusals. Those are pipeline-invalid, they leave the denominator by '
+      'registration, and they are the reason the smaller columns are printed at all. At '
+      'N = 30 a boundary gap of the size Sec. 5 Region L tabulates is still decided with '
+      'probability %s, so the design survives moderate apparatus attrition -- but the '
+      'middle-of-range 0.20 gap collapses to %s.'
+      % ('%d of the 15 admitted pilot runs fail the identity control'
+         % total_identity_failures if total_identity_failures else
+         'no admitted pilot run fails the identity control',
+         f4(a20_30[0] + a20_30[1]),
          f3(sum(results[30]['oc'][(Fraction(8, 20), Fraction(12, 20))][:2]))))
     w('')
     worst_indet = None
@@ -935,7 +1034,7 @@ def main(argv):
     w('')
 
     # ---- 9. defects for review
-    w('## 9. Three defects this gate found in the preregistration (two closed, one open)')
+    w('## 9. Three defects this gate found in the preregistration (all three closed)')
     w('')
     w('**D1 -- alpha was never registered. CLOSED.** Prereg §5 registered exact '
       'Clopper-Pearson intervals and "exact two-proportion difference intervals" without '
@@ -968,10 +1067,33 @@ def main(argv):
       'This OC table is valid for Reading 1, which is the registered one.')
     w('')
     w('**D3 -- the E4 denominator does not say what happens to a run with no artifact. '
-      'STILL OPEN.** Round 2 found the adjacent defect live in code (finding R2-2: the '
-      'primary scorer and the pilot scorer disagree about whether an identity-failing run '
-      'stays in the E4 denominator), so this section may not report D3 as settled. What '
-      'follows is the gate\'s original statement of it, unchanged.')
+      'CLOSED, denominator-in.** The gate raised it, round-2 finding R2-2 found the '
+      'adjacent defect live in code (the primary scorer and the pilot scorer disagreed '
+      'about whether an identity-failing run stays in the E4 denominator), and round-3 '
+      'finding R3-6 found this section still reporting the question open after the '
+      'response had decided it. It is decided, in the direction §1a already committed to, '
+      'and it is decided in three places at once rather than in prose: prereg §5 registers '
+      'the rule ("Runs carrying authoring-outcome codes remain in the E4 denominator as '
+      'not-high-kill ... only apparatus codes leave it, and identity-control exclusions '
+      'are reported, never silently dropped"); `harness/score.py`\'s `e4_arm()` publishes '
+      '`denominatorRule` and gives an identity-failing run `highKill: null` in a '
+      'denominator of `len(runs)`; `design/mutants/e4_score.py`\'s `high_kill_layer()` '
+      'computes the same thing; and Sec. 7 of this document READS that block rather than '
+      'recomputing a denominator of its own. The two readings genuinely disagree on the '
+      'current pilot -- arm C is %d/%d denominator-in and %d/%d denominator-out -- so this '
+      'is a closure with a live witness, not a formality. `harness/tests` carries the '
+      'mixed one-pass/one-fail probe asserting 1/2 on the primary scorer, and the currency '
+      'suite asserts that the pilot, this table and the registration state one '
+      'denominator between them.'
+      % (anchor['C']['k'], anchor['C']['n'],
+         anchor['C']['k'], max(1, len(anchor['C']['runs']))))
+    w('')
+    w('**What the closure does NOT settle**, stated so the next reader does not have to '
+      'rediscover it: denominator-in fixes what a failing run does to `N`, not how often '
+      'runs fail. A rate of %d in 15 pilot calls does not bound the rate in 150, and the '
+      'power cost of identity failures falls on the numerator (Sec. 8). What follows is '
+      'the gate\'s original statement of the question, kept because the reasoning is the '
+      'reason for the answer.' % total_identity_failures)
     w('')
     w('Prereg §5 scopes E4 to "admitted runs" -- runs that clear the identity control -- '
       'while prereg §1a says every author-attributable failure, including "no extractable '
@@ -979,11 +1101,14 @@ def main(argv):
       'A `no-marker` run reaches E4 in the §1a sense but has no suite to run against '
       'the mutants. Two readings, and they move `N`, which is what this table is about:')
     w('')
-    w('- **Denominator-in:** a `no-marker` run pinned nothing, hence is not high-kill; it '
-      'enters the E4 denominator and scores 0. `N` stays 50 and the endpoint measures '
-      'authorship end to end.')
-    w('- **Denominator-out:** it is excluded like an identity failure; `N` shrinks by the '
-      'drop count, and the endpoint measures "testing skill given a parseable artifact".')
+    w('- **Denominator-in (REGISTERED, and the answer above):** a `no-marker` run pinned '
+      'nothing, hence is not high-kill; it enters the E4 denominator and scores 0. `N` '
+      'stays 50 and the endpoint measures authorship end to end. The same rule governs an '
+      'identity failure, which is likewise in the denominator and likewise not high-kill.')
+    w('- **Denominator-out (NOT registered):** it is excluded; `N` shrinks by the drop '
+      'count, and the endpoint measures "testing skill given a parseable artifact". This '
+      'reading is rejected, not merely unchosen: it is the reading an arm can game by '
+      'failing loudly.')
     w('')
     w('**The pilot supplies no evidence either way, and this gate initially misread it.** '
       'The pilot scorer files %d arm-A, %d arm-B and %d arm-C runs as `no-marker`, which '
@@ -998,18 +1123,18 @@ def main(argv):
          len(anchor['C']['dropped']),
          sum(anchor[k]['n'] for k in ('A', 'B', 'C'))))
     w('')
-    w('So authoring validity is not the threat to `N`. **Where the threat sits has since '
-      'moved**: the gate wrote "the identity control is (5/5 arm-A suites in the pilot)", '
-      'and that sentence is now historical — X1 is retired, the exclusion registry is '
-      'empty, and the current pilot records zero identity failures in every arm (Sec. 7). '
-      'D3 is nonetheless still open, because a rate of zero in fifteen calls does not '
-      'bound the rate in 150, because the two readings answer different questions, and '
-      'because round-2 finding R2-2 shows the primary scorer and the pilot scorer do not '
-      'currently agree on the denominator rule for a run that fails identity. '
-      '**The gate\'s recommendation remains denominator-in**, because prereg §1a commits '
-      'to it in general terms and because it is the reading that cannot be gamed by an arm '
-      'that fails loudly. One rule must be registered and made to hold in the primary '
-      'scorer, the pilot scorer and this table together, before the freeze.')
+    w('So authoring validity is not the threat to `N`. **The gate\'s recommendation was '
+      'denominator-in**, because prereg §1a commits to it in general terms and because it '
+      'is the reading that cannot be gamed by an arm that fails loudly, and '
+      'denominator-in is what is registered and implemented. The gate\'s closing condition '
+      '-- "one rule must be registered and made to hold in the primary scorer, the pilot '
+      'scorer and this table together, before the freeze" -- is the condition that has '
+      'been met, and the three-place statement above is what meeting it looks like. The '
+      'gate\'s other sentence, "the identity control is (5/5 arm-A suites in the pilot)", '
+      'is historical twice over: X1 is retired, the exclusion registry is empty, and arm A '
+      'now passes identity on every admitted run. The identity failures the current pilot '
+      'does record are arm C\'s, from §4\'s domain check (Sec. 7), and denominator-in is '
+      'exactly why they do not move `N`.')
     w('')
 
     # ---- 10. reproduction

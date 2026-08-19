@@ -169,6 +169,80 @@ def test_verification_precedes_every_study_local_call(tmp_path, monkeypatch):
     assert order[0] == "verify", order
 
 
+# --- ROUND-3 FINDING R3-7: the IMPORT order, not only the call order --------
+
+def _study_local_module_names():
+    """Every module name that lives in this study's harness — the set §7's claim
+    is about. Read off the tree rather than listed, so a module added to the
+    harness is covered by these assertions the day it lands."""
+    names = {"e4lib"}
+    for entry in sorted(os.listdir(os.path.dirname(score.__file__))):
+        if entry.endswith(".py") and entry != "__init__.py":
+            names.add(entry[:-3])
+    return names
+
+
+def _module_scope_imports(path):
+    import ast
+    with open(path, "rb") as handle:
+        tree = ast.parse(handle.read(), filename=path)
+    imported = set()
+    for node in tree.body:            # MODULE SCOPE ONLY, deliberately
+        if isinstance(node, ast.Import):
+            imported.update(alias.name.split(".")[0] for alias in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+            imported.add(node.module.split(".")[0])
+    return imported
+
+
+def test_integrity_is_the_only_study_module_the_scorer_imports_at_module_scope():
+    """R3-7. R2-8 closed the CALL order — `integrity.verify()` is the first
+    study-local call, asserted above — and the reviewer's round-3 read is that
+    the registration claims more than that: that integrity runs "before the
+    scorer imports a single study module", while `score.py` imports study-local
+    `integrity` at module scope.
+
+    The honest property is the one asserted here, and it is worth having: of
+    every module in this harness, exactly ONE is bound before verification, and
+    it is the one doing the verifying. A future `import batch` beside it fails
+    here rather than quietly widening the pre-verification surface again."""
+    local = _study_local_module_names()
+    assert "batch" in local and "e4lib" in local, local
+    assert _module_scope_imports(score.__file__) & local == {"integrity"}
+
+
+def test_the_integrity_module_itself_imports_nothing_study_local():
+    """Why importing `integrity` costs nothing the gate could have caught: it
+    pulls in no study byte of its own, so the pre-verification surface is that
+    one module and its stdlib imports."""
+    local = _study_local_module_names()
+    assert _module_scope_imports(score.integrity.__file__) & local == set()
+
+
+def test_importing_the_scorer_binds_no_other_study_module(tmp_path):
+    """The same property MEASURED rather than parsed, in a fresh interpreter —
+    `sys.modules` inside this suite is useless for it, because every other test
+    module has already imported the whole package.
+
+    A subprocess imports `score` and nothing else and reports which study-local
+    modules exist afterwards. That is the state §7's sentence is about."""
+    import subprocess
+    harness = os.path.dirname(score.__file__)
+    program = (
+        "import sys, os\n"
+        "sys.dont_write_bytecode = True\n"
+        "sys.path.insert(0, %r)\n"
+        "import score\n"
+        "local = {'e4lib'} | {e[:-3] for e in os.listdir(%r)\n"
+        "                     if e.endswith('.py') and e != '__init__.py'}\n"
+        "print(' '.join(sorted(n for n in sys.modules if n in local)))\n"
+        % (harness, harness))
+    out = subprocess.run([sys.executable, "-c", program], capture_output=True,
+                         text=True, cwd=str(tmp_path))
+    assert out.returncode == 0, out.stderr
+    assert out.stdout.split() == ["integrity", "score"], out.stdout
+
+
 def test_a_pre_verification_failure_does_not_bind_the_tree(tmp_path,
                                                            monkeypatch):
     """The one path that exists BECAUSE the tree cannot be trusted was the path
@@ -196,18 +270,57 @@ def _reachable(monkeypatch, label="PILOT"):
     monkeypatch.setattr(score.integrity, "study_label", lambda *_a, **_k: label)
 
 
+def _defective_set(tmp_path, monkeypatch):
+    """A copy of the committed sealed set with ONE payload byte changed, pointed
+    at by the scorer.
+
+    ROUND 3 REPAIRED THE REAL SET. Both tests below used to rely on the
+    committed set being digest-invalid — the round-2 reviewer emitted a
+    pre-final `rm-jps-03` — and the reviewer re-issued that payload this round,
+    so all six digests verify and the two tests stopped exercising the refusal
+    they are named for. A test whose power came from a defect someone was
+    always going to fix is a test that quietly stops discriminating, so the
+    defect is CONSTRUCTED here instead, in a scratch copy: the committed set is
+    read and never written (§1a: the maintainer touches nothing in it)."""
+    import shutil
+    source = os.path.join(score.STUDY, score.REVIEWER_SET_RELATIVE)
+    copy = tmp_path / "sealed-set"
+    shutil.copytree(source, copy)
+    payload = copy / "rm-jps-01.json"
+    payload.write_bytes(payload.read_bytes() + b"\n")
+    monkeypatch.setattr(score, "REVIEWER_SET_RELATIVE", str(copy))
+    return copy
+
+
+def test_the_committed_sealed_set_loads_as_the_reviewer_re_issued_it(
+        tmp_path, monkeypatch):
+    """The positive control the two tests below need in order to mean anything:
+    the set as committed LOADS. Round 2 recorded two defects in it as authored
+    and refused to repair them from this side; round 3's reviewer re-issued
+    `rm-jps-03` and re-attested `rm-rego-01`, and this is that repair, executed
+    rather than described."""
+    _reachable(monkeypatch)
+    loaded = score.reviewer_lib.load(
+        os.path.join(score.STUDY, score.REVIEWER_SET_RELATIVE), None)
+    assert loaded["count"] == 6
+    assert loaded["executed"] is False, "the load invokes no engine (§1a)"
+    assert sorted(entry["language"] for entry in loaded["mutants"]) == \
+        ["jps"] * 3 + ["rego"] * 3
+    assert loaded["manifestSha256"] == \
+        "6bff7f950b132505d1034fe7d993a8920f028647b35dc1f48d9072884fedaa0e", (
+            "the reviewer's round-3 MANIFEST.json is what is committed; a "
+            "maintainer edit to the sealed set would show up here")
+
+
 def test_a_reviewer_set_that_does_not_load_is_pipeline_invalid(tmp_path,
                                                                monkeypatch):
     """The finding, exactly: the scorer computed endpoints, gates, contrasts and
     THE DECISION and only then loaded the sealed set, caught a
     `ReviewerSetError` into `refusals`, recorded `pipelineInvalid: false` and
     exited 0. A missing, malformed or digest-invalid mandatory holdout could
-    coexist with a published substantive verdict.
-
-    The committed set is currently digest-invalid — the round-2 reviewer's own
-    `rm-jps-03` payload does not hash to its manifest entry — so this runs
-    against the real refusal rather than a synthetic one."""
+    coexist with a published substantive verdict."""
     _reachable(monkeypatch)
+    _defective_set(tmp_path, monkeypatch)
     root = tmp_path / "primary-attempt-001"
     assert score.main(["--attempt-root", str(root),
                        "--include-reviewer-set"]) == 2
@@ -227,6 +340,7 @@ def test_the_reviewer_set_loads_before_a_single_slot_is_read(tmp_path,
     asserted by making the slot reader explode: the reviewer refusal is the one
     that lands, so nothing downstream of it ran."""
     _reachable(monkeypatch)
+    _defective_set(tmp_path, monkeypatch)
 
     def explode(*_args, **_kwargs):
         raise AssertionError("the population was built before the holdout was "
@@ -916,10 +1030,14 @@ def test_a_declaration_that_is_not_an_object_is_not_a_declaration(tmp_path):
 # --- the endpoint aggregations ---------------------------------------------
 
 def run(name, arm="A", admitted=True, identity=True, killed=38, paired=39,
-        gold_perfect=True, code=None, excluded=()):
+        gold_perfect=True, code=None, out_of_domain=()):
+    # ROUND-3 R3-9: no `x1Excluded` member. §4 registers no per-case filter and
+    # no per-run excluded-case count, and a fixture that kept publishing one
+    # would let the field come back without a test noticing.
     return {"run": name, "arm": arm, "code": code, "admitted": admitted,
             "goldPerfect": gold_perfect, "identityPass": identity,
-            "durationSeconds": 100.0, "x1Excluded": list(excluded),
+            "durationSeconds": 100.0,
+            "outOfDomainCases": list(out_of_domain),
             "kill": {"killedPaired": killed, "paired": paired},
             "goldFailures": [], "identityFailures": []}
 
@@ -957,7 +1075,7 @@ def test_the_identity_failure_denominator_is_the_registered_one(tmp_path):
     with identity-control exclusions "reported, never silently dropped". So 1/2
     is the registered answer, the primary scorer has always given it, and the
     PILOT scorer was the one taking the other reading — it now takes this one
-    (`design/mutants/E4-PILOT-v3.json`).
+    (`design/mutants/E4-PILOT-v4.json`).
 
     The per-run marker is asserted here too, because it is the other half of the
     same sentence: an identity-failing run carries `highKill: null` and never
@@ -1003,10 +1121,51 @@ def test_the_pilot_scorer_now_computes_the_same_denominator():
     assert doc["perArm"]["A"]["perRun"][1]["highKill"] is None
 
 
-def test_e4_publishes_the_x1_excluded_case_count():
-    endpoint = score.e4_endpoint("A", [run("run-001", excluded=["c1", "c2"])],
+def test_e4_publishes_no_x1_member_at_all(study):
+    """ROUND-3 FINDING R3-9, and this test is REVERSED from what it asserted.
+
+    It required `x1ExcludedCases` to be published and was cited as evidence that
+    the X1 surface was coherent. It was not: §4 says "There is no exclusion
+    class, no per-case X1 filter and no per-run excluded-case count", the
+    scorer emitted `x1Excluded` per run, `x1ExcludedCases` per arm and an
+    "Excluded cases" column, and `tests/E2E-SMOKE.md` said the field no longer
+    existed. Three surfaces, two of them false. The registration's is the one
+    that stands, so the assertion is that NOTHING published names X1 — over the
+    endpoint's own keys rather than a fixed list, so a member re-added under any
+    spelling fails here."""
+    endpoint = score.e4_endpoint("A", [run("run-001",
+                                           out_of_domain=["c1", "c2"])],
                                  {"integerCut": 38})
-    assert endpoint["x1ExcludedCases"] == 2
+    assert [key for key in endpoint if "x1" in key.lower()] == []
+    assert endpoint["outOfDomainCases"] == 2, (
+        "the member §4 DOES register is still published, so this is a "
+        "correction and not a deletion")
+
+
+def test_the_published_report_has_no_excluded_cases_column():
+    """The same surface where a reader meets it. A column of zeros headed
+    "Excluded cases" teaches every reader of RESULTS.md that a filter ran."""
+    results = {"label": "PILOT", "unfilledPins": [], "cuts": {},
+               "e1": {}, "e2": {}, "e5": None, "contrasts": {},
+               "contrastsGatedBy": ["control-gate-failed: e1-floor"],
+               "refusals": {}, "pairing": {},
+               "e4": {"A": score.e4_endpoint("A", [run("run-001")],
+                                             {"integerCut": 38,
+                                              "language": "jps"})},
+               "decision": decision.decide({"pipelineProblems": ["x"]})}
+    body = score.results_markdown(results)
+    assert "Excluded cases" not in body
+    assert "Out-of-domain cases" in body
+
+
+def test_the_retired_predicate_survives_and_gates_nothing():
+    """R3-9's other half, adopted rather than argued away: `in_x1()` stays as an
+    explicitly NON-GATING measurement helper — the retirement is a fact about
+    the reference that was measured, and the predicate is how it was measured —
+    while the registry it would have been read through is empty."""
+    from e4lib import e4 as e4_module
+    assert e4_module.REGISTERED_EXCLUSION_CLASSES == {}
+    assert callable(e4_module.in_x1)
 
 
 def test_e1_reports_the_ceiling_and_the_floor_separately():
@@ -1085,11 +1244,19 @@ def test_the_contrast_publishes_the_swept_interval_beside_the_decision():
     """Section 10 commits to publishing every interval, and section 5 says the
     reported endpoints come from the full Delta0 sweep of the same
     construction. Small denominators here because the sweep's cost is the whole
-    Delta0 mesh; `tests/test_score_stats.py` holds the construction itself."""
+    Delta0 mesh; `tests/test_score_stats.py` holds the construction itself.
+
+    ROUND-3 R3-8: the sweep runs at SETTLEMENT rather than at construction, so
+    the two steps are driven in the publisher's order here — the endpoints are
+    the same endpoints, computed once the row is known."""
     e4_by_arm = {"A": {"highKill": 6, "denominator": 6},
                  "C": {"highKill": 0, "denominator": 5}}
     result = score.contrast("A", "C", e4_by_arm)
+    assert result["intervalState"] == score.stats.INTERVAL_PENDING
+    assert result["interval"] is None
+    score.stats.fill_intervals(result, True)
     assert result["excludesZero"] is True
+    assert result["intervalState"] == score.stats.INTERVAL_COMPUTED
     assert result["interval"]["lower"] == "43/100"
     assert result["interval"]["upper"] == "1"
     assert result["interval"]["deltaMeshDenominator"] == \
@@ -1110,10 +1277,12 @@ def test_an_endpoint_refusal_leaves_the_decision_intact():
     score.stats.interval_endpoints = refuse
     try:
         result = score.contrast("A", "C", e4_by_arm)
+        score.stats.fill_intervals(result, True)
     finally:
         score.stats.interval_endpoints = saved
     assert result["excludesZero"] is True
     assert result["interval"] is None
+    assert result["intervalState"] == score.stats.INTERVAL_REFUSED
     assert result["intervalRefusal"].startswith("FM-EMPTY-ACCEPTANCE")
 
 

@@ -256,9 +256,10 @@ def direction(contrast: dict) -> str:
 def decide(outcome: dict) -> dict:
     """Walk the table in registered order and return the first matching row.
 
-    `outcome` carries `pipelineProblems`, `controlGates` and `contrasts`; every
-    member is optional and an absent one is treated as the state that FAILS,
-    never as the state that passes."""
+    `outcome` carries `pipelineProblems`, `controlGates`, `contrasts` and —
+    round-3 R3-8 — `secondaryRefusal`, the cause of an absent A-B once A-C has
+    decided; every member is optional and an absent one is treated as the state
+    that FAILS, never as the state that passes."""
     for row in ROWS:
         causes = row.predicate(outcome)
         if not causes:
@@ -293,11 +294,30 @@ def decide(outcome: dict) -> dict:
             # can lift the secondary contrast out of the sequence that controls
             # its error rate.
             secondary = contrasts.get(CONTRAST_SECONDARY)
+            refusal = outcome.get("secondaryRefusal")
+            if secondary is None and not refusal:
+                # ROUND-3 FINDING R3-8. An absent secondary used to be published
+                # as a bare `result: null`, which reads as "not decided" and is
+                # indistinguishable from "never computed". The registered
+                # sequence is "A-C decided, THEN A-B likewise", so once the
+                # primary has decided the secondary was REACHED: it either has a
+                # result or has a stated cause. Refusing here is what stops a
+                # scorer that dropped it silently — the round-3 scenario, in
+                # which a secondary raising `FM-EMPTY-ARM` deleted the whole
+                # contrast set — from publishing a decided row with a null
+                # beside it and no reader able to tell which happened.
+                raise DecisionError(
+                    "DECISION-SECONDARY-UNEXPLAINED the primary contrast %s "
+                    "decided, so the registered sequence reached %s, and it is "
+                    "neither computed nor refused: an absent secondary must "
+                    "carry its cause in `secondaryRefusal`"
+                    % (CONTRAST_PRIMARY, CONTRAST_SECONDARY))
             record["secondary"] = {
                 "contrast": CONTRAST_SECONDARY,
                 "testedBecause": "A-C decided (fixed-sequence gatekeeping; FWER "
                                  "controlled at alpha, no further adjustment)",
                 "result": None if secondary is None else direction(secondary),
+                "refusal": refusal if secondary is None else None,
             }
         return record
     raise DecisionError(

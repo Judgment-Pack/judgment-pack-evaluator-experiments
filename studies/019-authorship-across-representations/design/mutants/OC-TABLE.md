@@ -393,62 +393,63 @@ For each `p_C`, the largest `p_A` on the grid at which `P(decide) >= 0.80`, and 
 
 ## 7. Pilot fractions: what fraction of pilot runs are high-kill at tau = 0.95
 
-Read from `E4-PILOT-v2.json`, which is the pilot the preregistration's Design-provenance section names as current; `oc_table.py` names the same file in one constant and a currency test asserts the two agree, so a superseded pilot cannot survive here as it did before (round-2 finding R2-13). **NON-CITABLE**: five runs per arm, pilot suites, pre-freeze gold. These are fractions, not an anchor: prereg §5 registers no expected direction and this section locates no operating point.
+Read from `E4-PILOT-v4.json`, which is the pilot the preregistration's Design-provenance section names as current; `oc_table.py` names the same file in one constant and a currency test asserts the two agree, so a superseded pilot cannot survive here as it did before (round-2 finding R2-13). **NON-CITABLE**: five runs per arm, pilot suites, pre-freeze gold. These are fractions, not an anchor: prereg §5 registers no expected direction and this section locates no operating point.
 
-> **PENDING, and named here rather than discovered later.** Round-2 finding R2-3 found that Rego evaluation faults are credited as mutant kills on one path, which means the kill counts underlying **every pilot issued so far**, `E4-PILOT-v2.json` included, are contaminated. A re-scored pilot through the corrected taxonomy is owed. Until it lands and this document is rebuilt against it, every fraction in this section is a `E4-PILOT-v2.json` fraction and inherits that defect. This does not touch Secs. 1-6, which are exact enumerations over a grid of (p_A, p_C, N) and depend on no pilot at all.
+> **The re-score this section used to say was owed has landed, twice, and the second time it moved an arm.** Round-2 finding R2-3 (Rego evaluation faults credited as kills off the `opa test` exit status) was corrected in `E4-PILOT-v3.json`, and on those inputs no kill vector changed. Round-3 finding R3-4 then found that no pilot issue had ever applied prereg §4's registered per-case DOMAIN check: `E4-PILOT-v4.json` applies it, by calling the harness's own implementation rather than carrying a second one, and it also carries the round-3 adequacy repair's corpus (gold at 117 rows; both mutant MANIFESTs re-witnessed). Arm C moves as a result — four of its five admitted runs are identity failures under §4, where every earlier issue recorded none — and every pairing quantity in this section moves with the corpus. No fraction below is a `E4-PILOT-v3.json` fraction. This does not touch Secs. 1-6, which are exact enumerations over a grid of (p_A, p_C, N) and depend on no pilot at all.
 
-**Arm A** -- 5 scored runs, paired adequate subset = 75 mutants; at `tau = 0.95` a run must kill **72/75 = 0.9600**.
+**Arm A** -- 5 admitted runs (5 scored, 0 identity failures), paired adequate subset = 69 mutants; at `tau = 0.95` a run must kill **66/69 = 0.9565**.
 
 | run | paired kill rate | high-kill at tau=0.95 |
 |---|---|---|
-| run-006 | 0.9067 | no |
-| run-007 | 0.9067 | no |
-| run-008 | 0.8533 | no |
-| run-009 | 0.8133 | no |
-| run-010 | 0.9600 | YES |
+| run-006 | 0.8986 | no |
+| run-007 | 0.8986 | no |
+| run-008 | 0.8406 | no |
+| run-009 | 0.7971 | no |
+| run-010 | 0.9565 | YES |
 
 - **high-kill fraction: 1/5 = 0.200**
-- source: perArm (registered rule; identity control passed on every scored run)
+- source: perArm.highKill (registered rule: §1a/§5 admitted runs; the identity control passed on every admitted run)
 - attempted pilot slots for this arm: 10; runs dropped before scoring: run-001 (filed `no-marker`; exit 124, 0-byte completion), run-002 (filed `no-marker`; exit 124, 0-byte completion), run-003 (filed `no-marker`; exit 124, 0-byte completion), run-004 (filed `no-marker`; exit 124, 0-byte completion), run-005 (filed `no-marker`; exit 124, 0-byte completion)
 - identity-control failures in the pilot: 0
 
-**Arm B** -- 5 scored runs, paired adequate subset = 65 mutants; at `tau = 0.95` a run must kill **62/65 = 0.9538**.
+**Arm B** -- 5 admitted runs (5 scored, 0 identity failures), paired adequate subset = 62 mutants; at `tau = 0.95` a run must kill **59/62 = 0.9516**.
 
 | run | paired kill rate | high-kill at tau=0.95 |
 |---|---|---|
-| run-001 | 0.8462 | no |
-| run-002 | 0.9077 | no |
-| run-004 | 0.9385 | no |
-| run-005 | 0.9077 | no |
-| run-006 | 0.9077 | no |
+| run-001 | 0.8387 | no |
+| run-002 | 0.9032 | no |
+| run-004 | 0.9355 | no |
+| run-005 | 0.9032 | no |
+| run-006 | 0.9032 | no |
 
 - **high-kill fraction: 0/5 = 0.000**
-- source: perArm (registered rule; identity control passed on every scored run)
+- source: perArm.highKill (registered rule: §1a/§5 admitted runs; the identity control passed on every admitted run)
 - attempted pilot slots for this arm: 6; runs dropped before scoring: run-003 (filed `no-marker`; exit 124, 0-byte completion)
 - identity-control failures in the pilot: 0
 
-**Arm C** -- 5 scored runs, paired adequate subset = 65 mutants; at `tau = 0.95` a run must kill **62/65 = 0.9538**.
+**Arm C** -- 5 admitted runs (1 scored, 4 identity failures), paired adequate subset = 62 mutants; at `tau = 0.95` a run must kill **59/62 = 0.9516**.
 
 | run | paired kill rate | high-kill at tau=0.95 |
 |---|---|---|
-| run-001 | 0.9077 | no |
-| run-002 | 0.8154 | no |
-| run-003 | 0.8308 | no |
-| run-005 | 0.8308 | no |
-| run-006 | 0.8923 | no |
+| run-002 | 0.8065 | no |
+| run-001 | identity FAIL -- not asked | no (`highKill: null`, in the denominator) |
+| run-003 | identity FAIL -- not asked | no (`highKill: null`, in the denominator) |
+| run-005 | identity FAIL -- not asked | no (`highKill: null`, in the denominator) |
+| run-006 | identity FAIL -- not asked | no (`highKill: null`, in the denominator) |
 
 - **high-kill fraction: 0/5 = 0.000**
-- source: perArm (registered rule; identity control passed on every scored run)
+- source: perArm.highKill (registered rule: §1a/§5 admitted runs; 4 identity failure(s), IN this denominator and never asked — see the caveat below)
 - attempted pilot slots for this arm: 6; runs dropped before scoring: run-004 (filed `no-marker`; exit 124, 0-byte completion)
-- identity-control failures in the pilot: 0
+- identity-control failures in the pilot: 4
 
-**Current fractions: A 1/5 = 0.200, B 0/5 = 0.000, C 0/5 = 0.000**, each on five runs, all three read from the registered `perArm` surface with `identityFail` = 0 / 0 / 0. Three things must be said with them:
+**Current fractions: A 1/5 = 0.200, B 0/5 = 0.000, C 0/5 = 0.000**, each on five admitted runs, all three read from the registered `perArm.highKill` surface with `identityFail` = 0 / 0 / 4. Four things must be said with them:
 
-1. **These fractions supersede every earlier issue of this section, and they moved the direction as well as the magnitude.** The superseded issue read `0.20 / 0.80 / 1.00` from a 145-mutant arm-A corpus built on the pre-repair reference, and took arm A's number from `diagnostics.armAOffProtocol` because all five arm-A suites had then failed the identity control on X1-region cases. **X1 is retired at the cause** (round-1 R1-2): the reference was repaired, the registered exclusion registry is empty, and every arm above passes identity on every scored run. There is no off-protocol diagnostic in this document any more.
-2. **Five runs per arm locate nothing.** A 1/5 and a 0/5 are compatible with a very wide range of true rates and with either direction; prereg §5 registers **no expected direction for R1** on exactly this ground. Sec. 5 tabulates two regions of the grid, neither of which is claimed to be where the study will land.
-3. **`tau = 0.95` bites hard, which is the point of the threshold.** Mean paired kill rates in this pilot are far above 0.5 in every arm while the high-kill fractions above are near 0: a run can kill most paired mutants and still not be high-kill. Reading the mean rates as if they were the endpoint is the error the threshold exists to prevent.
+1. **These fractions supersede every earlier issue of this section, and they moved the direction as well as the magnitude.** The superseded issue read `0.20 / 0.80 / 1.00` from a 145-mutant arm-A corpus built on the pre-repair reference, and took arm A's number from `diagnostics.armAOffProtocol` because all five arm-A suites had then failed the identity control on X1-region cases. **X1 is retired at the cause** (round-1 R1-2): the reference was repaired and the registered exclusion registry is empty. There is no off-protocol diagnostic in this document any more, and no arm-A exclusion: arm A passes the identity control on every admitted run above.
+2. **Identity-control caveat, and it is the reason to read `E4-PILOT-v4.json` rather than any earlier issue.** Arm C records 4 of its 5 admitted runs as identity failures (`run-001`, `run-003`, `run-005`, `run-006`). These are not authoring failures of a new kind and they are not new behaviour in the suites: they are prereg §4's **registered per-case domain check**, applied for the first time by this pilot issue (round-3 finding R3-4). §4 validates every enumerated case against the registered input domain *before* identity and mutation execution, identically in A, B and C, and an out-of-domain case "is an identity failure categorised `out-of-domain-case`". Two things follow, and both are visible in the tables above. **The denominator does not shrink.** §1a/§5 register *admitted* runs; an identity-failing run stays in `n` carrying `highKill: null` -- never `false`, because it was never asked -- so arm C's fraction is 0/5 and not 0/1. That is the denominator-in rule, it is Sec. 9 D3's settled reading, and the primary scorer, the pilot scorer and this table all read it off the same published `highKill` block. **The descriptive mean kill rate does shrink**, because a mean over admitted runs would have to average a quantity that does not exist for four of arm C's five: arm C's mean paired kill rate rests on the single admitted run that passed, and is a one-run number wearing a mean's clothes. Neither quantity is an anchor; see the next point.
+3. **Five runs per arm locate nothing.** A 1/5 and a 0/5 are compatible with a very wide range of true rates and with either direction; prereg §5 registers **no expected direction for R1** on exactly this ground. Sec. 5 tabulates two regions of the grid, neither of which is claimed to be where the study will land.
+4. **`tau = 0.95` bites hard, which is the point of the threshold.** Mean paired kill rates in this pilot are far above 0.5 in every arm while the high-kill fractions above are near 0: a run can kill most paired mutants and still not be high-kill. Reading the mean rates as if they were the endpoint is the error the threshold exists to prevent.
 
-Note the **denominator asymmetry**, which is a design fact and not noise. Pairing is at the level of witness-equivalence groups, not 1:1 mutants, so the paired adequate subsets differ in size by language: 75 JPS mutants against 65 Rego. `tau = 0.95` therefore bites arm A at 72/75 = 0.9600 and arms B/C at 62/65 = 0.9538 -- two integer cuts, not one -- and the arms' kill rates are quantised on different lattices (1/75 vs 1/65). It is a real asymmetry in the endpoint definition, it is carried in prereg §5 rather than discovered at analysis time, and prereg §4 publishes the unpairable counts that produce it.
+Note the **denominator asymmetry**, which is a design fact and not noise. Pairing is at the level of witness-equivalence groups, not 1:1 mutants, so the paired adequate subsets differ in size by language: 69 JPS mutants against 62 Rego. `tau = 0.95` therefore bites arm A at 66/69 = 0.9565 and arms B/C at 59/62 = 0.9516 -- two integer cuts, not one -- and the arms' kill rates are quantised on different lattices (1/69 vs 1/62). It is a real asymmetry in the endpoint definition, it is carried in prereg §5 rather than discovered at analysis time, and prereg §4 publishes the unpairable counts that produce it.
 
 ## 8. Plain-language summary: what this design can and cannot decide
 
@@ -460,13 +461,13 @@ Note the **denominator asymmetry**, which is a design fact and not noise. Pairin
 
 **The conservatism is real and is being paid deliberately.** Realised size at N = 50 is 0.0488 against a 0.05 nominal, maximised over the registered mesh. That conservatism costs several points of power relative to a normal-approximation interval, and it buys exactly reproducible decision arithmetic — **not** a coverage guarantee at every true common rate, which this construction does not certify (Sec. 1). Given that the whole point of R1 is a retractable directional claim, reproducible arithmetic is worth the points.
 
-**N = 50 is a ceiling, not a floor.** The E4 denominator is *admitted* runs -- runs that clear the identity control -- not attempted runs. In the current pilot the registered identity control excludes **no** run in any arm (Sec. 7), which is the state after the arm-A reference repair retired X1; the earlier 5/5 arm-A exclusion and the X1-exclusion amendment it motivated are both historical. If identity failures nonetheless run at any appreciable rate in the registered batch, the affected arm's effective N drops and the N = 30 column is the honest one to read. At N = 30 a boundary gap of the size Sec. 5 Region L tabulates is still decided with probability 0.8773, so the design survives moderate attrition -- but the middle-of-range 0.20 gap collapses to 0.330. **What a run that fails identity does to the denominator is not settled**: see Sec. 9, D3.
+**N = 50 is a ceiling for a different reason than it used to be.** The E4 denominator is §1a/§5's *admitted* runs -- attempted runs whose apparatus succeeded -- and **an identity failure does not leave it** (Sec. 9, D3, settled denominator-in; the run carries `highKill: null` and is reported). So identity attrition does not move `N` at all, and the N = 30 column is not the column to read for it: what identity failures cost is the NUMERATOR, one high-kill opportunity per failing run, which is a loss of power at fixed `N` rather than a smaller design. The current pilot makes that concrete -- 4 of the 15 admitted pilot runs fail the identity control (Sec. 7) -- and every one of those runs is in its arm's denominator. What does shrink `N` is APPARATUS attrition: timeouts at the registered 2700 s ceiling, wrapper and golden-context failures, engine refusals. Those are pipeline-invalid, they leave the denominator by registration, and they are the reason the smaller columns are printed at all. At N = 30 a boundary gap of the size Sec. 5 Region L tabulates is still decided with probability 0.8773, so the design survives moderate apparatus attrition -- but the middle-of-range 0.20 gap collapses to 0.330.
 
 **It decides direction, not magnitude, and nothing about the middle.** At N = 50 a true gap as large as **0.25** still returns INDETERMINATE at least 20% of the time somewhere on the grid (worst cell: p_A = 0.20 against p_C = 0.45), so an observed INDETERMINATE is consistent with a true gap anywhere from 0 to about that size, in either direction. The preregistration already says INDETERMINATE licenses nothing; this table is the quantitative reason why that sentence has to be honoured. It is also why no post-hoc "the gap was small" reading is available: the design cannot distinguish a small gap from no gap.
 
 **Sign errors are negligible but not zero.** At N = 50 the probability of deciding in the wrong direction is at most 0.0065 over the whole grid, attained near the diagonal.
 
-## 9. Three defects this gate found in the preregistration (two closed, one open)
+## 9. Three defects this gate found in the preregistration (all three closed)
 
 **D1 -- alpha was never registered. CLOSED.** Prereg §5 registered exact Clopper-Pearson intervals and "exact two-proportion difference intervals" without stating a confidence level; this OC assumed two-sided `alpha = 0.05`. §5 now states `α = 0.05` with the decision clause, and states that the A-C / A-B hierarchy is fixed-sequence gatekeeping controlling the family-wise error rate at `alpha` without adjustment -- which is why no Bonferroni appears anywhere. `harness/tests/test_prereg_currency.py` asserts exactly one alpha is stated.
 
@@ -477,16 +478,18 @@ Note the **denominator asymmetry**, which is a design fact and not noise. Pairin
 
 The two readings do not agree on any interesting cell of the table above, so this was not a cosmetic edit. **Reading 1 was registered** (round-1 finding R1-15): prereg §1 and §5 now carry one decision clause verbatim -- the A−C difference interval excludes zero at two-sided α = 0.05 -- `delta` is registered as an interpretation and power quantity that no decision reads, and the currency suite asserts that no decision statement anywhere qualifies zero-exclusion by delta. This OC table is valid for Reading 1, which is the registered one.
 
-**D3 -- the E4 denominator does not say what happens to a run with no artifact. STILL OPEN.** Round 2 found the adjacent defect live in code (finding R2-2: the primary scorer and the pilot scorer disagree about whether an identity-failing run stays in the E4 denominator), so this section may not report D3 as settled. What follows is the gate's original statement of it, unchanged.
+**D3 -- the E4 denominator does not say what happens to a run with no artifact. CLOSED, denominator-in.** The gate raised it, round-2 finding R2-2 found the adjacent defect live in code (the primary scorer and the pilot scorer disagreed about whether an identity-failing run stays in the E4 denominator), and round-3 finding R3-6 found this section still reporting the question open after the response had decided it. It is decided, in the direction §1a already committed to, and it is decided in three places at once rather than in prose: prereg §5 registers the rule ("Runs carrying authoring-outcome codes remain in the E4 denominator as not-high-kill ... only apparatus codes leave it, and identity-control exclusions are reported, never silently dropped"); `harness/score.py`'s `e4_arm()` publishes `denominatorRule` and gives an identity-failing run `highKill: null` in a denominator of `len(runs)`; `design/mutants/e4_score.py`'s `high_kill_layer()` computes the same thing; and Sec. 7 of this document READS that block rather than recomputing a denominator of its own. The two readings genuinely disagree on the current pilot -- arm C is 0/5 denominator-in and 0/1 denominator-out -- so this is a closure with a live witness, not a formality. `harness/tests` carries the mixed one-pass/one-fail probe asserting 1/2 on the primary scorer, and the currency suite asserts that the pilot, this table and the registration state one denominator between them.
+
+**What the closure does NOT settle**, stated so the next reader does not have to rediscover it: denominator-in fixes what a failing run does to `N`, not how often runs fail. A rate of 4 in 15 pilot calls does not bound the rate in 150, and the power cost of identity failures falls on the numerator (Sec. 8). What follows is the gate's original statement of the question, kept because the reasoning is the reason for the answer.
 
 Prereg §5 scopes E4 to "admitted runs" -- runs that clear the identity control -- while prereg §1a says every author-attributable failure, including "no extractable marker block", is "valid, counted, and scoring zero on every endpoint it reaches". A `no-marker` run reaches E4 in the §1a sense but has no suite to run against the mutants. Two readings, and they move `N`, which is what this table is about:
 
-- **Denominator-in:** a `no-marker` run pinned nothing, hence is not high-kill; it enters the E4 denominator and scores 0. `N` stays 50 and the endpoint measures authorship end to end.
-- **Denominator-out:** it is excluded like an identity failure; `N` shrinks by the drop count, and the endpoint measures "testing skill given a parseable artifact".
+- **Denominator-in (REGISTERED, and the answer above):** a `no-marker` run pinned nothing, hence is not high-kill; it enters the E4 denominator and scores 0. `N` stays 50 and the endpoint measures authorship end to end. The same rule governs an identity failure, which is likewise in the denominator and likewise not high-kill.
+- **Denominator-out (NOT registered):** it is excluded; `N` shrinks by the drop count, and the endpoint measures "testing skill given a parseable artifact". This reading is rejected, not merely unchosen: it is the reading an arm can game by failing loudly.
 
 **The pilot supplies no evidence either way, and this gate initially misread it.** The pilot scorer files 5 arm-A, 1 arm-B and 1 arm-C runs as `no-marker`, which reads like a large arm-A authoring-validity problem. It is not one. Re-reading the raw call records (Sec. 7, exit codes above) shows every one of those drops is exit 124 with a zero-byte completion -- a timeout at the pilot driver's 900 s ceiling, mis-filed as an authoring code. That is exactly the driver defect prereg §1a already records, and it is why the registered ceiling is 2700 s. Every pilot call that returned a completion at all produced an extractable artifact: the observed `no-marker` rate among returned completions is **0 of 15**.
 
-So authoring validity is not the threat to `N`. **Where the threat sits has since moved**: the gate wrote "the identity control is (5/5 arm-A suites in the pilot)", and that sentence is now historical — X1 is retired, the exclusion registry is empty, and the current pilot records zero identity failures in every arm (Sec. 7). D3 is nonetheless still open, because a rate of zero in fifteen calls does not bound the rate in 150, because the two readings answer different questions, and because round-2 finding R2-2 shows the primary scorer and the pilot scorer do not currently agree on the denominator rule for a run that fails identity. **The gate's recommendation remains denominator-in**, because prereg §1a commits to it in general terms and because it is the reading that cannot be gamed by an arm that fails loudly. One rule must be registered and made to hold in the primary scorer, the pilot scorer and this table together, before the freeze.
+So authoring validity is not the threat to `N`. **The gate's recommendation was denominator-in**, because prereg §1a commits to it in general terms and because it is the reading that cannot be gamed by an arm that fails loudly, and denominator-in is what is registered and implemented. The gate's closing condition -- "one rule must be registered and made to hold in the primary scorer, the pilot scorer and this table together, before the freeze" -- is the condition that has been met, and the three-place statement above is what meeting it looks like. The gate's other sentence, "the identity control is (5/5 arm-A suites in the pilot)", is historical twice over: X1 is retired, the exclusion registry is empty, and arm A now passes identity on every admitted run. The identity failures the current pilot does record are arm C's, from §4's domain check (Sec. 7), and denominator-in is exactly why they do not move `N`.
 
 ## 10. Reproduction and arithmetic discipline
 

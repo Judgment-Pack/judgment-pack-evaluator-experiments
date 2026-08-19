@@ -15,7 +15,9 @@ can be edited after the freeze is not a guard.
 `harness/score.py` will verify this file before it adjudicates anything, and a
 harness test verifies it too.
 
-**Three exclusions, each by construction and each asserted by a harness test.**
+**Four exclusions, each by construction and each asserted by a harness test.**
+Every one carries its REASON in `EXCLUDED_DOCUMENTS` itself, so a future reader
+deciding whether to re-cover a path reads why it is out rather than guessing.
 
 1. `DEVIATIONS.md` and `README.md` — **ADR 0004**. A file whose purpose is to be
    appended to after the freeze is not a file that must not change: covering
@@ -26,7 +28,21 @@ harness test verifies it too.
    that needed the mechanism. `harness/tests/test_manifest.py` asserts both
    exclusions hold **while both files exist**, so a future widening fails the
    suite rather than passing quietly and taking the deviation mechanism with it.
-2. `harness/PINS.json` — Study 014's round-3 lesson, carried unchanged. The
+2. `PREREG-REVIEW.md` — **ADR 0004 again, ROUND-3 FINDING R3-1.** The review
+   record is the SAME SHAPE of file and it was covered anyway: it grows by one
+   disposition table per review round, and every round therefore had to
+   regenerate the manifest after writing its dispositions or leave the committed
+   manifest describing a tree that no longer exists. It went stale that way three
+   rounds running — between rounds 1 and 2, again between 2 and 3, and again in
+   the round-2 response, which reported a green suite while three enforcement
+   tests were red. Round 2's answer was a procedure ("regenerate LAST") and a
+   second failing test; a procedure that must be remembered every round is not a
+   safeguard, and the third recurrence is the evidence. ADR 0004's own decision
+   is the fix: the pre-freeze review record is appendable BY DESIGN, so it leaves
+   the covered set by named constant. Nothing is lost — `PREREG-REVIEW.md`
+   carries no claim any published number rests on, and the artifacts that do are
+   still covered file by file.
+3. `harness/PINS.json` — Study 014's round-3 lesson, carried unchanged. The
    manifest must not cover the registry that pins the manifest: that is a cycle
    which cannot be initialized without finding a SHA-256 fixed point. The
    anchor order is LINEAR:
@@ -57,7 +73,8 @@ MANIFEST_PATH = STUDY / "harness" / "STUDY-MANIFEST.sha256"
 
 REGISTERED_DOCUMENTS = (
     "PREREGISTRATION.md",
-    "PREREG-REVIEW.md",
+    # `PREREG-REVIEW.md` is NOT here — round-3 R3-1, module head point 2. It is
+    # an appendable file and lives in `EXCLUDED_DOCUMENTS` with its reason.
     "policy/POLICY.md",
     "gold/GOLD.json",
     "mutants/MANIFEST-jps.json",
@@ -93,11 +110,30 @@ REGISTERED_PAYLOAD_SETS = (
     ("controls/reviewer-mutants", "*.rego"),
 )
 
-# Excluded from the covered set by construction, not by omission. All three are
-# asserted by a harness test. `DEVIATIONS.md` and `README.md` are ADR 0004's
-# named exclusions; `harness/PINS.json` is the linear-anchor exclusion Study 014
-# established in its round 3.
-EXCLUDED_DOCUMENTS = ("DEVIATIONS.md", "README.md", "harness/PINS.json")
+# Excluded from the covered set by construction, not by omission — a MAPPING
+# rather than a bare tuple, because ADR 0004 asks for a named constant and a
+# name without its reason is the thing a later widening argues past. All four
+# are asserted by a harness test (`harness/tests/test_manifest.py`).
+EXCLUDED_DOCUMENTS = {
+    "DEVIATIONS.md":
+        "ADR 0004: appendable by design. Post-freeze corrections go here, so "
+        "covering it means the first genuine deviation breaks the anchor the "
+        "deviation exists to protect.",
+    "README.md":
+        "ADR 0004: appendable by design. The status banner must be able to move "
+        "as the study's state moves; covering it freezes the banner at whatever "
+        "it said before the attempt ran.",
+    "PREREG-REVIEW.md":
+        "ADR 0004, round-3 finding R3-1: appendable by design. The pre-freeze "
+        "review record grows by one disposition table per round, so covering it "
+        "made every round's dispositions stale the committed manifest — three "
+        "rounds running. The registered claims live in PREREGISTRATION.md and "
+        "the artifacts, all of which stay covered.",
+    "harness/PINS.json":
+        "Study 014's round-3 linear-anchor rule: the manifest must not cover "
+        "the registry that pins the manifest, or the anchor cannot be "
+        "initialized without finding a SHA-256 fixed point.",
+}
 
 # Files this module and its neighbours WRITE, which therefore cannot be covered:
 # the manifest cannot contain its own digest, and a scratch temporary is not a

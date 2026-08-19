@@ -205,6 +205,16 @@ CI_COMPUTED = "computed"
 CI_EMPTY = "undefined-over-an-empty-denominator"
 CI_SUPPRESSED = "not-computed-control-gate-failed"
 
+# The same four states for a CONTRAST's reported interval endpoints
+# (round-3 finding R3-8). They are spelled separately from the `CI_*` names
+# because the two objects are settled by the same walker but are different
+# quantities: `CI_*` is one arm's marginal Clopper-Pearson interval and
+# `INTERVAL_*` is the difference interval's Delta0 sweep.
+INTERVAL_PENDING = "not-computed-yet"
+INTERVAL_COMPUTED = "computed"
+INTERVAL_SUPPRESSED = "not-computed-control-gate-failed"
+INTERVAL_REFUSED = "refused"
+
 
 def rate_block(k: int, n: int, denominator: str) -> dict:
     """The reported shape for one proportion: the integers, the point estimate,
@@ -237,14 +247,66 @@ def _is_pending_block(node) -> bool:
             and isinstance(node.get("trials"), int))
 
 
+def _is_pending_contrast(node) -> bool:
+    """ROUND-3 FINDING R3-8. A contrast whose endpoints have not been computed
+    yet, recognised by the same idiom as a pending rate block: the state member
+    plus the integers the settlement needs, so a dict that merely mentions the
+    word is not settled by accident."""
+    return (isinstance(node, dict)
+            and node.get("intervalState") == INTERVAL_PENDING
+            and all(isinstance(node.get(member), int)
+                    for member in ("left", "right", "nLeft", "nRight")))
+
+
+def settle_contrast(node, licensed: bool, reason: str = None) -> None:
+    """Settle ONE pending contrast's reported endpoints, in place.
+
+    ROUND-3 FINDING R3-8, and it is why the endpoints are not computed where the
+    contrast is built. The reviewer's scenario: gates initially clear, A = 5/5,
+    C = 0/5, B = 0/0. The primary A−C contrast computed its endpoints eagerly;
+    the secondary A−B then raised `FM-EMPTY-ARM`; the contrasts were cleared and
+    the attempt landed on row 1. So an inferential quantity had been COMPUTED
+    for an outcome whose final row was pipeline-invalid — and §5 prohibits the
+    computation, not only the printing ("No inferential quantity is computed,
+    let alone published, at or above row 3").
+
+    A sweep cannot be un-run, so the fix is not to run it until the row is
+    known. `harness/score.py` builds every contrast with its endpoints PENDING,
+    the decision walks the ordered table, and this settles the endpoints
+    afterwards — computed only for an outcome that reached the substantive row,
+    suppressed with its cause otherwise. An endpoint sweep that refuses is still
+    only a report: `excludesZero` is already fixed and §5's rule reads that and
+    nothing else."""
+    if not licensed:
+        node["interval"] = None
+        node["intervalState"] = INTERVAL_SUPPRESSED
+        node["intervalSuppressed"] = reason
+        return
+    try:
+        node["interval"] = interval_endpoints(
+            node["left"], node["right"], node["nLeft"], node["nRight"])
+        node["intervalState"] = INTERVAL_COMPUTED
+    except StatsError as error:
+        node["interval"] = None
+        node["intervalState"] = INTERVAL_REFUSED
+        node["intervalRefusal"] = str(error)
+
+
 def fill_intervals(node, licensed: bool, reason: str = None) -> int:
-    """Walk a published structure and settle every pending rate block.
+    """Walk a published structure and settle every pending inferential quantity.
 
     `licensed` is "the ordered decision rule reached row 4": the gate rows were
     evaluated first and none of them matched. When it is false nothing is
     computed at all — the state becomes `not-computed-control-gate-failed` and
     carries the reason, so a reader sees an interval that was withheld rather
-    than an interval that does not exist. Returns how many blocks it settled."""
+    than an interval that does not exist. Returns how many blocks it settled.
+
+    TWO KINDS OF BLOCK, one walker (round-3 R3-8). A pending rate block is one
+    arm's marginal interval; a pending CONTRAST is the difference interval's
+    Delta0 sweep, which used to be computed where the contrast was built —
+    before the run's final row was known. Both are settled here, once, after the
+    decision, so neither can be computed for an outcome that never reaches the
+    substantive rows."""
     settled = 0
     if isinstance(node, dict):
         if _is_pending_block(node):
@@ -256,6 +318,9 @@ def fill_intervals(node, licensed: bool, reason: str = None) -> int:
                 node["ci95State"] = CI_SUPPRESSED
                 node["ci95Suppressed"] = reason
             return 1
+        if _is_pending_contrast(node):
+            settle_contrast(node, licensed, reason)
+            settled += 1
         for value in node.values():
             settled += fill_intervals(value, licensed, reason)
     elif isinstance(node, list):

@@ -37,7 +37,9 @@ def arm(high_kill, denominator, name="A"):
         "denominator": denominator,
         "highKill": high_kill,
         "identityPass": denominator,
-        "x1ExcludedCases": 0,
+        # No `x1ExcludedCases`: round-3 R3-9 retired it from the published
+        # shape, and a fixture that still carries it is a fixture that would
+        # hide its return.
         "outOfDomainCases": 0,
         "cut": {"integerCut": 72, "language": "jps",
                 "statement": "a run is high-kill iff it kills at least 72 of "
@@ -94,13 +96,19 @@ def test_the_report_prints_the_contrast_table_when_no_gate_matched():
     contrast = stats.excludes_zero(45, 5, 50, 50)
     contrast["arms"] = ["A", "C"]
     contrast["interval"] = {"lower": "3/10", "upper": "9/10"}
+    secondary = stats.excludes_zero(45, 40, 50, 50)
+    secondary["arms"] = ["A", "B"]
     results = {
         "label": "PILOT",
         "unfilledPins": ["studyManifest"],
+        # Round-3 R3-8: a decided primary REACHES the secondary, so an outcome
+        # that carries neither a secondary nor a cause for its absence is one
+        # `decide()` now refuses. The fixture carries the secondary.
         "decision": decision.decide({"pipelineProblems": [],
                                      "shortfallDeclared": [],
                                      "controlGates": gates(),
-                                     "contrasts": {"A-C": contrast}}),
+                                     "contrasts": {"A-C": contrast,
+                                                   "A-B": secondary}}),
         "cuts": {},
         "e1": {}, "e2": {}, "e4": {}, "e5": None,
         "contrasts": {"A-C": contrast},
@@ -157,7 +165,9 @@ def test_the_decision_reads_exactly_four_members_and_none_of_them_is_the_set():
             "controlGates": gates(), "contrasts": {}}
     contrast = stats.excludes_zero(45, 5, 50, 50)
     contrast["arms"] = ["A", "C"]
-    base["contrasts"] = {"A-C": contrast}
+    secondary = stats.excludes_zero(45, 40, 50, 50)
+    secondary["arms"] = ["A", "B"]
+    base["contrasts"] = {"A-C": contrast, "A-B": secondary}
     without = decision.decide(dict(base))
     with_set = decision.decide(dict(base, reviewerSet={"killed": ["r-001"]}))
     assert without == with_set
@@ -217,3 +227,146 @@ def test_an_outcome_that_reaches_the_substantive_rows_publishes_its_interval():
     assert block["ci95State"] == stats.CI_COMPUTED
     assert block["ci95"][0] < block["rate"] < block["ci95"][1]
     assert "0.0126" in body and "0.9874" in body
+
+
+# --- ROUND-3 FINDING R3-8: the LATE secondary failure -----------------------
+
+def _sequence(e4_by_arm, gate_state=None):
+    """`main()`'s own steps, in `main()`'s order and through `main()`'s own
+    function: gate rows, the registered contrast sequence, the decision, then
+    the interval settlement. Round-2's R2-12 helper above stops at the marginal
+    blocks; this one exists because R3-8 lives in the ORDER."""
+    outcome = {"pipelineProblems": [], "shortfallDeclared": [],
+               "controlGates": gate_state or gates(), "contrasts": {}}
+    refusals = {}
+    causes = decision.gate_causes(outcome)
+    contrasts = score.registered_contrasts(e4_by_arm, outcome, refusals, causes)
+    outcome["contrasts"] = contrasts
+    verdict = decision.decide(outcome)
+    licensed = not causes and not outcome["pipelineProblems"]
+    reason = None if licensed else "; ".join(causes + outcome["pipelineProblems"])
+    results = {
+        "label": "PILOT",
+        "unfilledPins": ["studyManifest"],
+        "decision": verdict,
+        "cuts": {}, "e1": {}, "e2": {}, "e4": e4_by_arm, "e5": None,
+        "contrasts": contrasts,
+        "contrastsGatedBy": causes,
+        "refusals": refusals,
+    }
+    settled = stats.fill_intervals(results, licensed, reason)
+    return results, refusals, settled
+
+
+# The reviewer's R3-8 population, verbatim: "With gates initially clear,
+# A = 5/5, C = 0/5, and B = 0/0, A−C eagerly computes its interval endpoints;
+# then A−B raises `FM-EMPTY-ARM`, contrasts are cleared, and the final row is
+# pipeline-invalid."
+def _r3_8_arms():
+    return {"A": arm(5, 5, "A"), "B": arm(0, 0, "B"), "C": arm(0, 5, "C")}
+
+
+def test_a_late_secondary_failure_leaves_the_decided_primary_standing():
+    """THE REVIEWER'S R3-8 PROBE.
+
+    The primary A−C is a real comparison over two full arms and it decides. The
+    secondary A−B cannot exist, because B has no admitted run at all. Sharing
+    one `except` made that delete the primary, file itself under the primary's
+    name, and land the whole attempt on row 1 — so an attempt that measured a
+    difference published `pipeline-invalid` instead of it.
+
+    §5's decided row registers the sequence as conditional: "A−C interval
+    excludes zero -> R1 decided, direction as observed; then A−B likewise"."""
+    results, refusals, _settled = _sequence(_r3_8_arms())
+    assert results["decision"]["row"] == "decided"
+    assert results["decision"]["rowIndex"] == 4
+    assert results["decision"]["primary"] == {"A-C": "A above C"}
+    assert results["decision"]["secondary"]["result"] is None
+    assert "FM-EMPTY-ARM" in results["decision"]["secondary"]["refusal"]
+    assert "FM-EMPTY-ARM" in refusals["contrastSecondary"]
+    # …and the primary is not deleted along with it.
+    assert set(results["contrasts"]) == {"A-C"}
+
+
+def test_a_decided_primary_with_a_silently_absent_secondary_refuses():
+    """The safeguard the fix rests on. A bare `result: null` reads as "not
+    decided" and is indistinguishable from "never computed", so once the primary
+    has decided the secondary must carry either a result or a cause."""
+    primary = stats.excludes_zero(5, 0, 5, 5)
+    primary["arms"] = ["A", "C"]
+    with pytest.raises(decision.DecisionError) as raised:
+        decision.decide({"pipelineProblems": [], "shortfallDeclared": [],
+                         "controlGates": gates(),
+                         "contrasts": {"A-C": primary}})
+    assert str(raised.value).startswith("DECISION-SECONDARY-UNEXPLAINED")
+
+
+def test_no_contrast_endpoint_is_computed_before_the_row_is_known():
+    """R3-8's first half, at the level the prohibition is written on. §5: "No
+    inferential quantity is COMPUTED, let alone published, at or above row 3" —
+    and a Delta0 sweep that has run cannot be un-run by clearing the dict it
+    landed in. So the contrast leaves `contrast()` with its endpoints PENDING
+    and `stats.fill_intervals()` settles them after `decide()` has chosen the
+    row."""
+    e4_by_arm = {"A": arm(5, 5, "A"), "C": arm(0, 5, "C")}
+    built = score.contrast("A", "C", e4_by_arm)
+    assert built["interval"] is None
+    assert built["intervalState"] == stats.INTERVAL_PENDING
+    assert built["excludesZero"] is True, "the DECISION is fixed here, not later"
+
+
+def test_a_gate_that_fails_suppresses_the_contrast_endpoints_too():
+    """The settlement is licensed by the same predicate the marginal blocks
+    are. A failed gate means the contrast is never built at all; a PRIMARY that
+    refuses means the pending contrast never exists either — so the assertion
+    that bites is on a run where the row is known late: gates held, primary
+    decided, secondary refused, endpoints computed for the primary only."""
+    results, _refusals, settled = _sequence(_r3_8_arms())
+    primary = results["contrasts"]["A-C"]
+    assert primary["intervalState"] == stats.INTERVAL_COMPUTED
+    assert primary["interval"]["lower"] and primary["interval"]["upper"]
+    # One marginal block per arm with a POSITIVE denominator — A and C; B's is
+    # `undefined-over-an-empty-denominator` and was never pending — plus the one
+    # contrast that exists.
+    assert settled == 3
+    assert results["e4"]["B"]["highKillRate"]["ci95State"] == stats.CI_EMPTY
+    body = score.results_markdown(results)
+    assert "A above C" in body
+
+
+def test_a_suppressed_outcome_settles_its_pending_contrast_as_suppressed():
+    """The other direction: a pending contrast reaching the settlement under a
+    failed gate is SUPPRESSED with its cause, never silently left null."""
+    pending = stats.excludes_zero(5, 0, 5, 5)
+    pending["arms"] = ["A", "C"]
+    pending["interval"] = None
+    pending["intervalState"] = stats.INTERVAL_PENDING
+    node = {"contrasts": {"A-C": pending}}
+    assert stats.fill_intervals(node, False, "e1-floor") == 1
+    assert pending["intervalState"] == stats.INTERVAL_SUPPRESSED
+    assert pending["intervalSuppressed"] == "e1-floor"
+    assert pending["interval"] is None
+
+
+def test_an_endpoint_sweep_that_refuses_leaves_the_decision_intact():
+    """§5 reads `excludesZero` and nothing else, so a refused REPORT is not a
+    refused decision — asserted through the settlement path now that the sweep
+    runs there."""
+    pending = stats.excludes_zero(1, 0, 1, 1)
+    pending["arms"] = ["A", "C"]
+    pending["interval"] = None
+    pending["intervalState"] = stats.INTERVAL_PENDING
+    saved = stats.interval_endpoints
+
+    def refuse(*_args, **_kwargs):
+        raise stats.StatsError("FM-EMPTY-ACCEPTANCE nothing to sweep")
+
+    stats.interval_endpoints = refuse
+    try:
+        stats.fill_intervals({"contrasts": {"A-C": pending}}, True)
+    finally:
+        stats.interval_endpoints = saved
+    assert pending["intervalState"] == stats.INTERVAL_REFUSED
+    assert pending["intervalRefusal"].startswith("FM-EMPTY-ACCEPTANCE")
+    assert pending["excludesZero"] is False or pending["excludesZero"] is True
+    assert "decision" in pending

@@ -162,4 +162,28 @@ all — its repair is the reviewer's, in round 3.
 
 ### Dispositions
 
-**Pending — no R3 finding has been dispositioned yet.**
+(Written 2026-08-19, after the response landed. Suite of record 708/708 with the pinned
+engines, `manifest_problems()` empty re-checked after the suite, the regeneration record
+independently re-run to `pass: true` at 375/375, and the whole response verified from the
+reconciled tree. This table is appended to a manifest-excluded record — the R3-1 fix —
+so writing it stales nothing.)
+
+| # | Sev | Disposition |
+|---|---|---|
+| R3-1 | BLOCKER | **Accepted at the root.** `PREREG-REVIEW.md` is excluded from the manifest's covered set by named constant with an asserting test, per ADR 0004 — the record is appendable by design and can no longer stale the manifest, which had now bitten three times. The final reconciliation regenerated the manifest last; `manifest_problems()` is empty after the suite ran. |
+| R3-2 | BLOCKER | **Accepted; the cascade re-ran end to end.** All 71 empty-witness mutants of the repaired corpus disposed: 8 new prose-derived gold rows (gold 109 → 117, every row's note naming its deriving sentence; both engines and the clean-room oracle reproduce 117/117 on the first run) kill 11; 26 + 34 registered drops with mechanisms, zero undispositioned. The arm-A drop table was re-derived rather than re-keyed — three surviving ids named different edits, and one old drop (`m-a-088`) is in fact killable and now killed. The adequacy stamp moved inside the regeneration chain, so the defect class that let a stale DROPS table survive a corpus regeneration is closed structurally; `--check` is green at 375/375 for the first time in its history. New drop class `subsumed-region-lemma` (9 mutants) recorded as the X1 repair's measured price. Two prose flags raised and recorded, not resolved (A5: one kill rests on the literal "O1 suspends D6c and only D6c" reading; A6: the region lemma is entailed but never stated). |
+| R3-3 | BLOCKER | **Accepted.** Every reported failure is adjudicated; any evaluation fault or unreadable adjudication refuses the invocation regardless of genuine assertion failures elsewhere; the early-stop blessing test is reversed, and the reviewer's mixed two-failure probe runs in both lexical orders. |
+| R3-4 | MAJOR | **Accepted, and the pilot now says something new.** The pilot path consumes the harness's own domain/identity code — one path, not two. E4-PILOT-v4, re-issued through it: arm C identity drops from 5/5 to **1/5** — four pilot runs authored out-of-domain cases, all omitting the screening result the registered domain closure requires (three also passed a term with no vendor member). Arm A 5/5, mean paired 0.878, high-kill 1/5; arm B 5/5, 0.897, 0/5; arm C one admitted run, 0.806. Published prominently, old beside new; byte-identical on a second full scoring. The domain closure's bite on real authored suites is now a measured design fact, not a surprise waiting for the batch. |
+| R3-5 | MAJOR | **Accepted.** Reciprocal supersession: every superseded pilot issue names its successor, v4 names what it supersedes, and the currency test walks the chain (single terminus, no forks, no cycles, reciprocity) instead of matching spelling. |
+| R3-6 | MAJOR | **Accepted.** The OC generator reads its denominator off the pilot's published `highKill` block; the D3 question is closed denominator-in; the identity-attrition language is gone; one test asserts the mixed 1/2 rule semantically across scorer, pilot, and OC. |
+| R3-7 | MAJOR | **Accepted.** §7's import-before-integrity sentence is withdrawn for the honest bootstrap limitation — the scorer and integrity module execute before either can check anything, a gate against drift, not a root of trust — and the clause is frozen by a test that re-derives it from `score.py`'s own imports. |
+| R3-8 | MAJOR | **Accepted.** §10 and §5 reconciled: what exists is published; a blocked contrast is published as blocked, with its cause; the late secondary-contrast residual lands on the registered row and is tested. |
+| R3-9 | MAJOR | **Accepted (code half in the response's code lane).** The README/currency tests that tolerated contradictory X1 output fields are tightened to fail on the contradictions they tolerated, and the documents now pass the tightened tests. |
+| R3-10 | MINOR | **Accepted.** Both status headers rewritten under exact latest-round/revision tests; this record's round count and open-round state are themselves under test. |
+
+**Also recorded from the response, beyond the findings:** the adequacy lane's OOM
+diagnosis (14 concurrent OPA sweeps; the runner now reports exit status and the
+killed-process signature), and one known-imperfect left deliberately: `regenerate.py`'s
+`build_report` note is imprecise about the adequacy stamp's derivation and was not edited
+because editing it would make the committed record unreproducible by its own generator —
+it is rewritten at the next full `--check`.

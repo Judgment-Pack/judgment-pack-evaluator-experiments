@@ -365,6 +365,48 @@ def test_an_evaluation_fault_on_a_mutant_refuses_and_is_not_a_kill(tools,
     assert answers["disagreeing-mutant"] == (engines.TEST_FAILED, e4.KILLED, [])
 
 
+# The reviewer's R3-3 probe body, retained as bytes: a suite carrying one
+# genuine assertion failure and one divide-by-zero fault, so the construction in
+# this file is the one the review executed rather than a paraphrase. The two
+# spellings differ ONLY in which test name sorts first.
+_R3_3_POLICY = ("package study\n\nimport rego.v1\n\ndenominator := 0\n\n"
+                "value := 1\n")
+_R3_3_SUITE = ("package probe_test\nimport rego.v1\n\n"
+               "test_%s_genuine if {\n\tdata.study.value == 2\n}\n\n"
+               "test_%s_fault if {\n\t1 / data.study.denominator == 1\n}\n")
+
+
+@pytest.mark.parametrize("genuine,fault", [("aaa", "zzz"), ("zzz", "aaa")])
+def test_a_mixed_failure_and_fault_refuses_in_either_lexical_order(
+        tools, tmp_path, genuine, fault):
+    """THE REVIEWER'S R3-3 PROBE, executed against the pinned binary.
+
+    "A two-failure probe — lexically first a genuine assertion, later a
+    divide-by-zero fault — returned `status:"failed"`, no evaluation faults, and
+    `kill_arm_rego = killed`." The adjudicating scan stopped at the first
+    survivor, so in one of these two orders the fault was never looked at and
+    the invocation was credited as evidence about the suite.
+
+    §2: "a load/parse/compile/RUNTIME/timeout failure is an apparatus refusal".
+    Both orders must therefore refuse, and the genuine failure must still be
+    named — a refusal that also deletes the observation is not the rule."""
+    workdir = tmp_path / ("order_%s" % genuine)
+    workdir.mkdir()
+    policy = workdir / "policy.rego"
+    policy.write_text(_R3_3_POLICY)
+    suite = workdir / "probe_test.rego"
+    suite.write_text(_R3_3_SUITE % (genuine, fault))
+    record = engines.opa_test(tools, str(policy), str(suite), str(workdir))
+    assert record["status"] == engines.TEST_ERRORED
+    assert record["status"] not in engines.TEST_SUITE_STATUSES
+    assert record["failed"] == ["data.probe_test.test_%s_genuine" % genuine]
+    assert [entry["fault"] for entry in record["evaluationFaults"]] == \
+        ["eval_builtin_error"]
+    outcome, _detail = e4.kill_arm_rego(tools, str(policy), str(suite),
+                                        str(workdir))
+    assert outcome == e4.REFUSED, "a faulting invocation must not be a kill"
+
+
 def test_an_explicit_null_in_a_rego_case_is_out_of_domain(tools, tmp_path):
     """ROUND-2 R2-4, first half, through the pinned parser. A suite using
     `newVendor: null` passed domain validation and identity validation and
@@ -405,22 +447,88 @@ def test_an_unrelated_decoy_literal_cannot_certify_a_dynamic_input(tools,
     assert "does not stand in for them" in str(raised.value)
 
 
+def _real_rego_pilot_suites():
+    root = os.path.join(DESIGN, "pilots", "2026-08-15-calibration-pilot-01")
+    return [(arm, run, os.path.join(root, arm, run, "secondary.rego"))
+            for arm in ("arm-B", "arm-C")
+            for run in sorted(os.listdir(os.path.join(root, arm)))
+            if os.path.isfile(os.path.join(root, arm, run, "secondary.rego"))]
+
+
 def test_the_real_pilot_suites_still_enumerate_under_the_per_term_rule(
         tools, tmp_path):
     """The per-term rule must not refuse the shapes real authored suites use: a
     `some name, tc in cases` table, package-level named constants, and a
     `decision_for(doc)` helper whose parameter is bound at its call sites."""
     reference = os.path.join(DESIGN, "reference", "refB", "policy.rego")
-    root = os.path.join(DESIGN, "pilots", "2026-08-15-calibration-pilot-01")
-    suites = [os.path.join(root, arm, run, "secondary.rego")
-              for arm in ("arm-B", "arm-C")
-              for run in sorted(os.listdir(os.path.join(root, arm)))
-              if os.path.isfile(os.path.join(root, arm, run,
-                                             "secondary.rego"))]
+    suites = _real_rego_pilot_suites()
     assert len(suites) >= 10
-    for path in suites:
+    for _arm, _run, path in suites:
         named = e4.rego_case_signatures(tools, path, str(tmp_path), reference)
         assert len(named) > 20, path
+
+
+# --- ROUND-3 FINDING R3-4: every real pilot suite through DOMAIN validation --
+
+def test_every_real_pilot_suite_is_domain_validated_and_four_arm_c_runs_fail(
+        tools, tmp_path):
+    """R3-4, and the test above is why the finding survived round 2.
+
+    That test enumerates every real suite and asserts only that enumeration
+    SUCCEEDS. Enumeration is the input to the registered check, not the check:
+    §4 says "each enumerated case is validated against the registered domain
+    before identity and mutation execution, identically in A, B and C. An
+    out-of-domain case is an identity failure categorised `out-of-domain-case`".
+    Four of the five arm-C suites carry one — three assert `with input as {}`
+    and one an input with no `sanctionsStatus` — and the pilot published arm C
+    at identity 5/5 over them anyway.
+
+    So the assertion here is on `domain_failures()`, per suite, with the real
+    counts written down: a repair that made the check vacuous would pass a
+    "no failures" test and fails this one."""
+    reference = os.path.join(DESIGN, "reference", "refB", "policy.rego")
+    failing = {}
+    for arm, run, path in _real_rego_pilot_suites():
+        named = e4.rego_case_signatures(tools, path, str(tmp_path), reference)
+        failures = e4.domain_failures(named, "number")
+        assert all(entry["got"] == e4.OUT_OF_DOMAIN for entry in failures)
+        if failures:
+            failing["%s/%s" % (arm, run)] = len(failures)
+    assert sorted(failing) == ["arm-C/run-001", "arm-C/run-003",
+                               "arm-C/run-005", "arm-C/run-006"], failing
+    assert set(failing.values()) == {1}, failing
+
+
+def test_the_pilot_scorer_runs_the_harness_domain_check_or_does_not_run(
+        tools, tmp_path):
+    """R3-4's other half: ONE code path, not two.
+
+    The pilot layer had no per-case domain check at all and said so in the
+    artifact it published. It does not have its own now either — it CALLS the
+    harness, so there is no second implementation to drift — and it refuses to
+    score if the harness or the pinned toolchain does not resolve.
+
+    Asserted by identity of the functions rather than by re-measuring: the
+    prototype's `registered_domain_failures()` must reach `e4lib`'s own
+    enumerators and `e4lib.domain_failures`, and its answers on the real suites
+    must be the harness's answers case for case."""
+    import importlib.util
+    path = os.path.join(DESIGN, "mutants", "e4_score.py")
+    spec = importlib.util.spec_from_file_location("pilot_e4_score", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    assert module.harness_e4 is e4, (
+        "the pilot scorer must consume harness/e4lib/e4.py itself; a copy of it "
+        "is the two-implementations defect R3-4 found")
+    reference = os.path.join(DESIGN, "reference", "refB", "policy.rego")
+    for arm, run, suite_path in _real_rego_pilot_suites():
+        mine = module.registered_domain_failures(arm[-1], suite_path,
+                                                 str(tmp_path))
+        named = e4.rego_case_signatures(tools, suite_path, str(tmp_path),
+                                        reference)
+        theirs = e4.domain_failures(named, "number")
+        assert [entry["case"] for entry in mine] == \
+            [entry["case"] for entry in theirs], "%s/%s" % (arm, run)
 
 
 def test_a_suite_whose_points_cannot_be_recovered_is_the_authoring_code(
