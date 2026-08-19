@@ -323,3 +323,29 @@ verdict attribution is parsed from an English clause shape (`round(s) N returned
 the answer if that ever happens is to widen the parser rather than to loosen it; and
 `POLICY-DRAFT.md`'s V7 and V8 remain open verification items, now labelled as such rather
 than as gold authoring, which is a heading correction and not a closure.
+
+## Round 6 — 2026-08-19
+
+- Reviewer: codex-cli 0.145.0 / gpt-5.6-sol (OpenAI), reasoning effort ultra, read-only
+  sandbox, same invocation shape as all rounds.
+- Clean HEAD read: the round-6 prompt commit (`33a3eed` + the prompt commit).
+- Verbatim record: [`reviews/round-6/PROMPT.md`](reviews/round-6/PROMPT.md),
+  [`reviews/round-6/REVIEW.md`](reviews/round-6/REVIEW.md).
+- Verdict: **DO NOT FREEZE** — 1 BLOCKER, 4 MAJOR, 1 MINOR (R6-1 … R6-6).
+- The blocker (R6-1) has three parts, two of them the maintainer's process and one
+  structural: the round-5 response's `ci.yml` correction was left unstaged by the
+  maintainer's study-path-only commit, so HEAD carries the false interpreter rationale
+  its own test forbids; and the per-round lifecycle test defines a completed round by raw
+  directory equality, so the act of committing a round's prompt — required by the regime
+  before the reviewer reads — makes HEAD red by construction. The reviewer's fresh
+  `git archive HEAD` suite: 736/3/0 against the recorded 739/0/0.
+- R6-2 … R6-6: the currency guards remain defeasible where they parse prose — negated
+  verdict sentences accepted, blank/PENDING disposition cells counted, a `if: false` CI
+  job passing the shape test, sentinel payloads satisfying the freeze closure, and a
+  truncated-document guard that never reads the heading it protects.
+- Round-5 disposition verification: R5-4 holds; R5-1 holds for bytecode with the class
+  regressed one level up; the rest partial or failing on HEAD.
+
+### Dispositions
+
+**Pending — no R6 finding has been dispositioned yet.**

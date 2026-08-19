@@ -265,8 +265,14 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          # The exact pinned interpreter: harness/PINS.json records 3.12.11 and
-          # the scorer refuses to adjudicate under anything else.
+          # The fixed CI runtime, and the honest statement of what it is
+          # (round-5 finding R5-5). harness/PINS.json registers the CPython
+          # 3.12 SERIES and integrity.verify_interpreter() enforces
+          # implementation and series; the patch level is deliberately
+          # reported at run time and not required (Study 012's round 3,
+          # finding 20). Naming 3.12.11 here fixes the runner so this job is
+          # reproducible, and it is not a claim that another patch would be
+          # refused.
           python-version: "3.12.11"
       - name: Install pytest
         # Fully offline apparatus: the harness, the design generators and the
