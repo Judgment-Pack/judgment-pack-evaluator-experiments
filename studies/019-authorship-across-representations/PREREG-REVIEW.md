@@ -165,6 +165,18 @@ mechanical.
   },
   {
    "number": 11,
+   "state": "complete",
+   "verdict": "FREEZABLE AFTER LISTED FIXES",
+   "severities": {
+    "MAJOR": 1
+   },
+   "findings": {
+    "first": 1,
+    "last": 1
+   }
+  },
+  {
+   "number": 12,
    "state": "awaiting-review",
    "verdict": null,
    "severities": null,
@@ -792,3 +804,28 @@ response itself caught it unable to discriminate a hardcoded literal.)
 **Post-revision state.** Suite 815 → 829 both ways; the substitute-registry attack is
 closed at the argument surface, the load surface, and the scoring comparison; the freeze
 gate refuses prior attempts and prior authoring state alike.
+
+## Round 11 — 2026-08-19
+
+- Reviewer: codex-cli 0.145.0 / gpt-5.6-sol (OpenAI), reasoning effort ultra, read-only
+  sandbox; completed on the first attempt.
+- Verbatim record: [`reviews/round-11/PROMPT.md`](reviews/round-11/PROMPT.md),
+  [`reviews/round-11/REVIEW.md`](reviews/round-11/REVIEW.md).
+- Verdict: **FREEZABLE AFTER LISTED FIXES** — one finding, R11-1 (MAJOR), no intended
+  advisories. The reviewer verified there is **no live substitute-registry bypass**; the
+  finding is that the two call-side canonical checks masked each other's deletion, so
+  R10-1's test-depth claim was not yet true against §4b's own mutation-sensitivity rule.
+- Round-10 disposition verification: R10-2 and R10-3 hold; R10-1 partial exactly on the
+  test-depth gap that is this round's finding.
+
+### Dispositions
+
+(Written 2026-08-19 at round close. Suite of record 831/831 expected at the close commit,
+archive-verified.)
+
+| # | Sev | Disposition |
+|---|---|---|
+| R11-1 | MAJOR | **Accepted; each layer now fails alone.** Two tests in the reviewer's exact specification: `load_registry()` invoked directly with the complete substitute registry refuses at the load boundary, and `main()` with the downstream loader stubbed permissively refuses before dispatch — the stub is asserted never called and the scratch left empty. Mutation-verified independently: deleting the load-boundary check fails only its test while the argument surface stands; deleting the argument-surface check fails its test while the load boundary stands. The scoring layer's independent coverage was already accepted by the reviewer. |
+
+**Post-revision state.** No open registered-surface findings; no open advisories beyond
+the four recorded; the defense in depth is mutation-sensitive layer by layer.

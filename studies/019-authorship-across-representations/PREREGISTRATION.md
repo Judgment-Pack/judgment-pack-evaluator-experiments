@@ -1,6 +1,6 @@
 # Preregistration — Study 019: authorship across representations
 
-**Status: DRAFT, eleventh major revision (post-round-10). Not frozen. Nothing citable has
+**Status: DRAFT, twelfth major revision (post-round-11). Not frozen. Nothing citable has
 run. The cross-vendor review rounds are recorded in [`PREREG-REVIEW.md`](PREREG-REVIEW.md),
 each verbatim under [`reviews/`](reviews/), and that record's round-state block is the
 single machine-readable source for round counts, verdicts and open state. The rendered
@@ -24,7 +24,7 @@ states nothing a test parses out of English: it carries a rendered sentence, the
 it is the record's block, and the truth of the surrounding prose rests on review.)**
 
 <!-- round-status:begin -->
-ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 11 review rounds are on the record, 10 have returned a verdict — rounds 1-3 and 5-10 returned DO NOT FREEZE; round 4 returned FREEZABLE AFTER LISTED FIXES — and round 11 is open, awaiting the reviewer's answer.
+ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 12 review rounds are on the record, 11 have returned a verdict — rounds 1-3 and 5-10 returned DO NOT FREEZE; rounds 4 and 11 returned FREEZABLE AFTER LISTED FIXES — and round 12 is open, awaiting the reviewer's answer.
 <!-- round-status:end -->
 
 

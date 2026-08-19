@@ -728,6 +728,39 @@ class CanonicalRegistry(unittest.TestCase):
             self.assertIn("not harness/PINS.json", stderr.getvalue(), argv[1])
         self.assertEqual(os.listdir(scratch), [], "no command may have run")
 
+    def test_the_load_boundary_refuses_on_its_own(self):
+        """ROUND-11 FINDING R11-1, first half. The load boundary is a layer,
+        not a beneficiary: `load_registry()` called DIRECTLY with a complete
+        substitute registry refuses — so deleting the canonical check inside it
+        fails this test even while `main()`'s argument check still stands."""
+        refusal = self.refusal(batch.load_registry,
+                               self.alternate_registered_registry())
+        self.assertIn("R10-1", refusal)
+        self.assertIn("harness/PINS.json", refusal)
+
+    def test_the_argument_surface_rejects_before_dispatch(self):
+        """ROUND-11 FINDING R11-1, second half. `main()`'s own check is a
+        layer, not a beneficiary: with the downstream loader stubbed
+        permissively, the alternate registry is still refused BEFORE dispatch —
+        so deleting the argument-surface check fails this test even while
+        `load_registry()`'s check still stands."""
+        import contextlib
+        import io
+        alternate = self.alternate_registered_registry()
+        scratch = throwaway_root()
+        self.addCleanup(shutil.rmtree, scratch, True)
+        permissive = mock.Mock(side_effect=AssertionError(
+            "dispatch was reached: the argument surface did not refuse"))
+        with mock.patch.object(batch, "load_registry", permissive):
+            stderr = io.StringIO()
+            with contextlib.redirect_stderr(stderr):
+                code = batch.main(["batch.py", "run", "--scratch-parent",
+                                   scratch, "--pins", alternate])
+        self.assertEqual(code, 1)
+        self.assertIn("R10-1", stderr.getvalue())
+        permissive.assert_not_called()
+        self.assertEqual(os.listdir(scratch), [], "no command may have run")
+
     def test_the_stand_in_surface_keeps_the_flag(self):
         """The other direction. The gate distinguishes the two surfaces by the
         STUDY in effect and by nothing else, so the harness's stand-in study —
