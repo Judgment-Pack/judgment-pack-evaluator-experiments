@@ -187,3 +187,31 @@ killed-process signature), and one known-imperfect left deliberately: `regenerat
 `build_report` note is imprecise about the adequacy stamp's derivation and was not edited
 because editing it would make the committed record unreproducible by its own generator —
 it is rewritten at the next full `--check`.
+
+## Round 4 — 2026-08-19
+
+- Reviewer: codex-cli 0.145.0 / gpt-5.6-sol (OpenAI), reasoning effort ultra, read-only
+  sandbox, same invocation shape as rounds 1–3.
+- Clean HEAD read: the round-4 prompt commit; working tree clean.
+- Verbatim record: [`reviews/round-4/PROMPT.md`](reviews/round-4/PROMPT.md),
+  [`reviews/round-4/REVIEW.md`](reviews/round-4/REVIEW.md).
+- Verdict: **FREEZABLE AFTER LISTED FIXES** — the first non-DO-NOT-FREEZE verdict of the
+  regime. 0 BLOCKER, 4 MAJOR, 2 MINOR (R4-1 … R4-6).
+- Round-3 disposition verification: 7 hold, 2 partial (R3-2's lemma description and class
+  attribution — R4-1/R4-2; R3-6's OC header — R4-5), 1 fails (R3-10: the front doors
+  still call round 3 open after the table landed — R4-3).
+- Prose flags A5/A6: the reviewer's reasoned answer is that **neither requires a prose
+  amendment** — the recorded flags plus both-engine and clean-room-oracle agreement are
+  sufficient for a frozen reader, and "A5/A6 add nothing" to the freeze-distance list.
+- The reviewer's complete freeze-distance list, in dependency order, is quoted verbatim
+  in the review and adopted as the response plan: (1) R4-1/R4-2 corrected at the adequacy
+  source with the cascade re-run; (2) pilot and OC reissued, R4-4/R4-5 generator fixes,
+  preregistration updated only after the derived surfaces settle; (3) R4-3/R4-6 —
+  stable headers, the Study 019 CI job, stale lifecycle claims reconciled, and a fresh
+  full pinned suite (708/708 is not to be reused); (4) the registered operational gates
+  against the final prose: the clean-room re-run and the freeze-commit off-gold
+  certificate.
+
+### Dispositions
+
+**Pending — no R4 finding has been dispositioned yet.**
