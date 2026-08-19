@@ -69,10 +69,53 @@ def test_rate_block_never_publishes_a_rate_without_its_denominator():
     block = stats.rate_block(3, 50, "admitted runs")
     assert block["denominator"] == "admitted runs"
     assert block["count"] == 3 and block["trials"] == 50
-    assert block["ci95"][0] < block["rate"] < block["ci95"][1]
+    assert block["rate"] == 3 / 50
     empty = stats.rate_block(0, 0, "admitted runs")
     assert empty["rate"] is None and empty["ci95"] is None
     assert empty["denominator"] == "admitted runs"
+    assert empty["ci95State"] == stats.CI_EMPTY
+
+
+# --- ROUND-2 R2-12: no inferential quantity at or above row 3 ---------------
+
+def test_a_rate_block_leaves_its_interval_uncomputed():
+    """§5: "No inferential quantity is COMPUTED, let alone published, at or
+    above row 3." The bounds used to be computed inside every endpoint before a
+    single gate had been read."""
+    block = stats.rate_block(3, 50, "admitted runs")
+    assert block["ci95"] is None
+    assert block["ci95State"] == stats.CI_PENDING
+
+
+def test_intervals_are_filled_only_for_an_outcome_that_reaches_row_four():
+    published = {"e4": {"A": {"highKillRate":
+                              stats.rate_block(1, 2, "admitted runs")}},
+                 "population": {"B": {"timeoutRate":
+                                      stats.rate_block(0, 10, "attempted")}}}
+    assert stats.fill_intervals(published, True) == 2
+    block = published["e4"]["A"]["highKillRate"]
+    assert block["ci95State"] == stats.CI_COMPUTED
+    assert block["ci95"][0] < block["rate"] < block["ci95"][1]
+
+
+def test_a_failed_gate_suppresses_every_marginal_interval():
+    """THE REVIEWER'S R2-12 PROBE: a failed E1 gate with E4 1/2 returned
+    `control-gate-failed` and still printed `[0.0126, 0.9874]`."""
+    published = {"e4": {"A": {"highKillRate":
+                              stats.rate_block(1, 2, "admitted runs")}}}
+    assert stats.fill_intervals(published, False, "E1 floor breached") == 1
+    block = published["e4"]["A"]["highKillRate"]
+    assert block["ci95"] is None
+    assert block["ci95State"] == stats.CI_SUPPRESSED
+    assert block["ci95Suppressed"] == "E1 floor breached"
+    assert block["count"] == 1 and block["trials"] == 2
+
+
+def test_filling_twice_does_not_recompute_a_settled_block():
+    published = {"r": stats.rate_block(1, 2, "runs")}
+    assert stats.fill_intervals(published, True) == 1
+    assert stats.fill_intervals(published, False, "late gate") == 0
+    assert published["r"]["ci95State"] == stats.CI_COMPUTED
 
 
 # --- PORT 2: the registered contrast ----------------------------------------

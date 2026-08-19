@@ -35,7 +35,7 @@ anything by this study.
 | `harness/e4lib/extract.py` | assembled: the registered marker rule | `tests/test_score_extract.py` (12) |
 | `harness/e4lib/admit.py` | assembled: §1a's SIX authoring codes, arm-structural enforced | `tests/test_score_admit.py` (22) |
 | `harness/e4lib/engines.py` | assembled: two-engine layer, binaries fail-closed, capabilities canary | `tests/test_score_engines.py` (15) |
-| `harness/e4lib/e4.py` | assembled: X1 filter, pairing, identity, kill with the engine-supplied split (S9), the τ cut | `tests/test_score_e4.py` (34) |
+| `harness/e4lib/e4.py` | assembled: pairing, identity, kill with the engine-supplied split (S9), the per-language τ cuts. **No X1 filter — the registered exclusion registry is EMPTY** (round-1 R1-2) | `tests/test_score_e4.py` (34) |
 | `harness/e4lib/census.py` | ported: 012's census machinery; the §5 stimulus is registered and READ (S6) | `tests/test_score_census.py` (16) |
 | `harness/e4lib/decision.py` | assembled from the 015–018 shape as an ordered table | `tests/test_score_decision.py` (19) |
 | — | the assembled pipeline against the REAL pinned engines | `tests/test_score_pipeline.py` (12, skipped without the pins) |
@@ -62,7 +62,8 @@ under CPython 3.12.11 (353 at V1; the six scorer items added 34), and the twelve
 
 What the pipeline suite established against the pinned binaries, so that it is
 written down rather than remembered: the reference pack admits through the real
-`jpack spec validate`; all 105 gold rows reproduce in BOTH languages; the arm-A
+`jpack spec validate`; every gold row reproduces in BOTH languages (the suite reads
+the committed suite, 109 rows at this revision); the arm-A
 identity control passes on a matrix drawn from gold; `opa test` passes the
 reference against the reference suite and the same suite kills a real Rego
 mutant; the `time.now_ns` canary is refused with `rego_type_error`; and the
@@ -98,7 +99,14 @@ module against the directory**. The suite is **353 passing**, with all ten
 `tests/test_score_pipeline.py` cases RUNNING against the pinned binaries.
 `integrity.verify()` as a whole still refuses, now for **T3's reason alone**.
 
-**V2 — the end-to-end smoke ran green through the apparatus.** Twelve slots
+**V2 — the end-to-end smoke ran green through the apparatus.** **ARCHIVED RUN RECORD,
+second pass.** The corpus numbers in this paragraph were measured against the
+PRE-REPAIR arm-A reference and its 145-mutant corpus, and every one of them has since
+moved: the current figures are in `harness/tests/E2E-SMOKE.md` §9 (third pass) and are
+recomputed from the artifacts by `tests/test_prereg_currency.py`. In particular the
+single cross-language τ cut recorded below was round-1 finding R1-1's defect — there
+are two integer cuts now, one per language. The paragraph is left as written because
+it is a record of a run, not a claim about the tree. Twelve slots
 through the real wrapper and the real driver (`--runs 12` plus a shortfall
 declaration — the registry cannot name another N, and `check_registry()`
 refusing one is the guarantee working), then the scorer over the batch. What was
@@ -255,7 +263,7 @@ attempt time — was owed as **S10** and is **LANDED**.
 `harness/census.py` now has the sixth `PORTS.md` row, and the machinery
 (`cover_greedily`, the renderers, the distinct-whole-run grouping) is carried
 verbatim with the enumerated change list in that row. The stimulus was the open half, and §5 now
-registers one: "Registered census stimulus: the gold-row input set (the 105 gold
+registers one: "Registered census stimulus: the gold-row input set (the gold
 inputs; disagreement profiles are computed over exactly these cells, closing the
 §9 joint-reading concern about unstated stimuli)".
 `census.registered_stimulus(rows, digest)` reads it from the frozen gold suite
@@ -323,9 +331,14 @@ The acceptance test is the one that makes it safe to register: at
 N_A = N_C = 30, 50 and 100 the general form reproduces `OC-TABLE.md`'s published
 c* and realised size **exactly, as the same rationals** — 30/7, 625/154, 175/44 —
 not to the four decimals the document printed. `score.contrast()`'s
-`FM-UNEQUAL-N` refusal is gone; the smoke scored A−C at 3 versus 4.
+`FM-UNEQUAL-N` refusal is gone; the smoke as recorded scored A−C at 3 versus 4 (an
+archived second-pass number; see the V2 note above).
 
-**S9 — the engine-supplied-kill list — LANDED.** §4 registers 35 (now 41) arm-A
+**S9 — the engine-supplied-kill list — LANDED, then RE-MEASURED.** §4 registered 35,
+then 41, and the dense census over the full derived space (round-1 R1-11) makes the
+current number **27** — the 41 was gold-witness-scoped and wrong by fourteen. The count
+below is read from the manifests by `tests/test_prereg_currency.py`, not from this file.
+What §4 registers is arm-A
 mutants "listed in the registries" whose kills are achievable only through the
 engine's structural conflict detection, "reported both included and excluded".
 The marking lived only as a `⚠conflict-only` glyph in
@@ -333,9 +346,10 @@ The marking lived only as a `⚠conflict-only` glyph in
 machine-readable member now.
 
 * `design/mutants/refA/MANIFEST.json` — every mutant carries
-  `engineSuppliedKill`, true for exactly the 41 ids in
-  `design/mutants/refA/REGISTRY.json`'s `conflictOnlyMutants`, cell for cell.
-  The list is READ from the registry, never re-derived from prose.
+  `engineSuppliedKill`, true for exactly the ids the dense census confirms (27 at this
+  revision; `design/mutants/refA/REGISTRY.json`'s `conflictOnlyMutants` was the
+  superseded gold-witness-scoped list). The class is MEASURED, never re-derived from
+  prose, and the currency suite recomputes the count from the manifest.
 * `design/mutants/refB/MANIFEST.json` — the registry carries no Rego analog, and
   that is recorded EXPLICITLY rather than left as silence: every mutant carries
   `engineSuppliedKill: false` and a top-level `engineSuppliedKillClass` states
@@ -362,7 +376,8 @@ sources of `e4lib/engines.py`), and `held` is true only when both references
 reproduced every gold row. The gate is shown to have POWER as well as to pass:
 `tests/test_score_pipeline.py` drives it against a real Rego mutant standing in
 for the arm-B reference and requires `held: false` with the failing rows and the
-reference named. The smoke: 105 rows, 0 failures, `held: true`.
+reference named. The smoke as recorded ran 105 rows, 0 failures, `held: true`; gold has
+since grown to 109 rows and the gate reads whatever the committed suite carries.
 
 **S11 — the scorer and the driver held two readings of a slot — LANDED.** The
 scorer was assembled while `harness/batch.py` was still the schedule core, so

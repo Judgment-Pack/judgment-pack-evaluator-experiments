@@ -161,3 +161,59 @@ def test_the_decision_reads_exactly_four_members_and_none_of_them_is_the_set():
     without = decision.decide(dict(base))
     with_set = decision.decide(dict(base, reviewerSet={"killed": ["r-001"]}))
     assert without == with_set
+
+
+# --- ROUND-2 R2-12: no marginal interval above row 4 either -----------------
+
+def _published(gate_state, contrasts=None):
+    """The publisher's own two steps, in the order `main()` runs them: the gate
+    rows first, then the interval settlement, then the report."""
+    outcome = {"pipelineProblems": [], "shortfallDeclared": [],
+               "controlGates": gate_state, "contrasts": contrasts or {}}
+    causes = decision.gate_causes(outcome)
+    results = {
+        "label": "PILOT",
+        "unfilledPins": ["studyManifest"],
+        "decision": decision.decide(outcome),
+        "cuts": {},
+        "e1": {}, "e2": {}, "e4": {"A": arm(1, 2)}, "e5": None,
+        "contrasts": outcome["contrasts"],
+        "contrastsGatedBy": causes,
+        "refusals": {},
+    }
+    licensed = not causes
+    reason = None if licensed else "; ".join(causes)
+    settled = stats.fill_intervals(results, licensed, reason)
+    return results, settled, score.results_markdown(results)
+
+
+def test_a_failed_gate_publishes_no_marginal_interval():
+    """THE REVIEWER'S R2-12 PROBE. §5: "No inferential quantity is computed, let
+    alone published, at or above row 3." A failed-E1-gate probe with E4 1/2
+    returned `control-gate-failed` and still printed `[0.0126, 0.9874]`.
+    Contrast and direction suppression held, which is narrower than the
+    prohibition."""
+    results, settled, body = _published(gates(e1_floor=False))
+    assert results["decision"]["row"] == "control-gate-failed"
+    assert settled == 1
+    block = results["e4"]["A"]["highKillRate"]
+    assert block["ci95"] is None
+    assert block["ci95State"] == stats.CI_SUPPRESSED
+    assert "0.0126" not in body and "0.9874" not in body
+    # The COUNTS are still published: a suppressed interval is not a withheld
+    # observation, and a reader can still see 1 of 2.
+    assert block["count"] == 1 and block["trials"] == 2
+
+
+def test_an_outcome_that_reaches_the_substantive_rows_publishes_its_interval():
+    """The other direction, so the suppression is a rule and not a removal."""
+    # The real shape, from the real construction, so the report renders it.
+    straddling = {decision.CONTRAST_PRIMARY: stats.excludes_zero(1, 1, 2, 2)}
+    straddling[decision.CONTRAST_PRIMARY]["arms"] = ["A", "C"]
+    results, settled, body = _published(gates(), straddling)
+    assert not results["contrastsGatedBy"]
+    assert settled == 1
+    block = results["e4"]["A"]["highKillRate"]
+    assert block["ci95State"] == stats.CI_COMPUTED
+    assert block["ci95"][0] < block["rate"] < block["ci95"][1]
+    assert "0.0126" in body and "0.9874" in body

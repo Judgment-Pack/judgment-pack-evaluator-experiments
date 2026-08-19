@@ -255,15 +255,49 @@ def test_the_engine_supplied_list_refuses_when_no_manifest_member_exists(
     assert str(raised.value).startswith("E4-ENGINE-SUPPLIED-UNREGISTERED")
 
 
-def test_the_engine_supplied_list_is_read_when_the_manifest_carries_it(
-        mutant_tree, tmp_path):
+def _remark_jps(mutant_tree, markings):
+    """Rewrite the JPS manifest's `engineSuppliedKill` members and reload."""
     jps_manifest, rego_manifest, jps_dir, rego_dir = mutant_tree
-    marked = json.loads(open(jps_manifest).read())
-    marked[0]["engineSuppliedKill"] = True
-    marked[1]["engineSuppliedKill"] = False
-    open(jps_manifest, "w").write(json.dumps(marked))
-    mutants = e4.load_mutants(jps_manifest, rego_manifest, jps_dir, rego_dir)
+    records = json.loads(open(jps_manifest).read())
+    for record, marking in zip([r for r in records if r["validates"]], markings):
+        if marking is not _ABSENT:
+            record["engineSuppliedKill"] = marking
+    open(jps_manifest, "w").write(json.dumps(records))
+    return e4.load_mutants(jps_manifest, rego_manifest, jps_dir, rego_dir)
+
+
+_ABSENT = object()
+
+
+def test_the_engine_supplied_list_is_read_when_every_record_is_marked(
+        mutant_tree):
+    """A COMPLETE Boolean census is what section 4's class is computed from."""
+    mutants = _remark_jps(mutant_tree, [True, False, False])
     assert e4.engine_supplied_ids(mutants, "jps") == ["m-a-001"]
+
+
+@pytest.mark.parametrize("markings,why", [
+    ([True, _ABSENT, False],
+     "one true and one MISSING — the reviewer's R2-10 construction"),
+    ([True, False, _ABSENT], "the last record is silent"),
+    ([True, None, False], "a null is not a Boolean"),
+    ([True, "false", False],
+     "the STRING 'false' is truthy and used to be COUNTED IN"),
+    ([True, 0, False], "a numeric marking is not a Boolean"),
+    ([1, 0, 0], "1/0 are not Booleans"),
+])
+def test_a_partial_or_mistyped_engine_supplied_census_refuses(mutant_tree,
+                                                              markings, why):
+    """ROUND-2 R2-10, and the old refusal fired only when EVERY record was
+    unmarked — so a manifest marking one mutant and leaving the next silent was
+    accepted and published a class computed from a partial census, which is the
+    "0 from an absence" the refusal exists to prevent, one record at a time. And
+    the marking was read for truthiness, so the string `"false"` counted a mutant
+    INTO the class."""
+    mutants = _remark_jps(mutant_tree, markings)
+    with pytest.raises(e4.E4Error) as raised:
+        e4.engine_supplied_ids(mutants, "jps")
+    assert str(raised.value).startswith("E4-ENGINE-SUPPLIED-INCOMPLETE"), why
 
 
 def test_an_all_false_marking_is_an_empty_registered_class_and_not_a_refusal(
@@ -428,15 +462,40 @@ def test_a_cut_above_its_own_denominator_refuses_at_derivation(monkeypatch):
 
 @pytest.mark.parametrize("payload,why", [
     ("[]", "the document is a list"),
-    ('{"matrixVersion": 2, "cases": [null]}', "a case is null"),
-    ('{"matrixVersion": 2, "cases": [{"facts": {"vendor": "LOW"}}]}',
+    ('{"matrixVersion": "2", "cases": [null]}', "a case is null"),
+    ('{"matrixVersion": "2", "cases": [{"facts": {"vendor": "LOW"}}]}',
      "facts.vendor is a string"),
     ('{"cases": []}', "matrixVersion is absent"),
     ('{"matrixVersion": 1, "cases": []}', "matrixVersion is not 2"),
-    ('{"matrixVersion": 2, "cases": {}}', "cases is not a list"),
-    ('{"matrixVersion": 2, "cases": [{"evidenceAvailability": 3}]}',
+    ('{"matrixVersion": 2, "cases": []}',
+     "the JSON NUMBER 2 is not the registered spelling (round-2 R2-6)"),
+    ('{"matrixVersion": "2", "cases": [{"facts": {"vendor": {}}, '
+     '"expectedDisposition": {"kind": "unresolved", "reasons": 1}}]}',
+     "reasons is a number and used to raise TypeError (round-2 R2-6)"),
+    ('{"matrixVersion": "2", "cases": [{"facts": {"vendor": {}}, '
+     '"expectedDisposition": {"kind": "unresolved", "reasons": [1]}}]}',
+     "reasons is a list of non-strings"),
+    ('{"matrixVersion": "2", "cases": [{"facts": {"vendor": {}}, '
+     '"expectedDisposition": {"kind": "outcome", "outcomeId": 7}}]}',
+     "outcomeId is a number"),
+    ('{"matrixVersion": "2", "cases": [{"facts": {"vendor": {}}, '
+     '"expectedDisposition": {"kind": 2}}]}', "kind is a number"),
+    ('{"matrixVersion": "2", "cases": [{"facts": {"vendor": {}}, '
+     '"expectedDisposition": {"kind": "outcome", "outcomeId": "a", '
+     '"handoff": "none"}}]}', "handoff is a string"),
+    ('{"matrixVersion": "2", "cases": [{"facts": {"vendor": {}}, '
+     '"expectedDisposition": {"kind": "outcome", "outcomeId": "a"}, '
+     '"expectedErrorClass": "malformed-input"}]}',
+     "both registered expectation forms in one case"),
+    ('{"matrixVersion": "2", "cases": [{"facts": {"vendor": {}}, '
+     '"expectedErrorClass": 3}]}', "expectedErrorClass is a number"),
+    ('{"matrixVersion": "2", "cases": [{"facts": {"vendor": {}}, '
+     '"expectedHandoffTarget": "Front desk"}]}',
+     "expectedHandoffTarget is a string"),
+    ('{"matrixVersion": "2", "cases": {}}', "cases is not a list"),
+    ('{"matrixVersion": "2", "cases": [{"evidenceAvailability": 3}]}',
      "evidenceAvailability is a number"),
-    ('{"matrixVersion": 2, "cases": [{"expectedDisposition": []}]}',
+    ('{"matrixVersion": "2", "cases": [{"expectedDisposition": []}]}',
      "expectedDisposition is a list"),
     ("not json at all", "the block is not JSON"),
 ])
@@ -474,7 +533,7 @@ def test_a_matrix_error_is_not_the_outer_exception_path(tmp_path):
 
 def test_load_matrix_marks_unreadable_cases_rather_than_dropping_them(tmp_path):
     path = tmp_path / "matrix.json"
-    path.write_text(json.dumps({"matrixVersion": 2, "cases": [
+    path.write_text(json.dumps({"matrixVersion": "2", "cases": [
         {"id": "ok", "facts": {"vendor": {"riskScore": "10"}},
          "expectedDisposition": {"kind": "outcome", "outcomeId": "approve"}},
         {"id": "no-facts",
@@ -482,7 +541,7 @@ def test_load_matrix_marks_unreadable_cases_rather_than_dropping_them(tmp_path):
         {"facts": {"vendor": {}}},
     ]}))
     cases, note = e4.load_matrix(str(path))
-    assert note == {"matrixVersion": 2, "caseCount": 3}
+    assert note == {"matrixVersion": "2", "caseCount": 3}
     assert [case[0] for case in cases] == ["ok", "no-facts", "case[2]"]
     assert [case[4] for case in cases] == [True, False, False]
 

@@ -86,13 +86,23 @@ catch-all; A is forbidden the shortcut and must reach `no-match` structurally.**
 
 ## 4. Open items for the maintainer and the review round
 
-- **OPEN-1 (design tension, needs a decision before freeze).** BRIEF §3 says B and C "differ
-  in formality only", and also that C carries a full judgment convention B does not have. As
-  built, the B→C step changes **two** things: the contract's formality *and* the presence of
-  C1–C5. Either the claim is narrowed ("the contract differs in formality only; C additionally
-  carries the convention"), or the convention is itself de-formalized into B — which would
-  make C's treatment the schema alone, i.e. v1's design, which review already rejected as
-  motivated. Recommend narrowing the claim in the preregistration; flagged, not decided here.
+- **~~OPEN-1~~ — DECIDED 2026-08-18 (maintainer), closing round-1 finding R1-17.** The
+  tension this item raised was real and the decision went the other way from the
+  recommendation: rather than narrow the formality claim, **the formality claim is deleted**.
+  BRIEF §3's "B and C differ in formality only" is withdrawn; A−C is registered as a
+  **bundled** representation-plus-convention treatment, the estimand is the bundle's effect,
+  and **no attribution of any part of an A−C result to any component of the bundle** —
+  representation, result schema, or any individual convention — is licensed
+  (`../../PREREGISTRATION.md` §1, §5, §9). The original statement is kept below the strike
+  because it is what the notes said at the time.
+
+  > BRIEF §3 says B and C "differ in formality only", and also that C carries a full
+  > judgment convention B does not have. As built, the B→C step changes **two** things: the
+  > contract's formality *and* the presence of C1–C5. Either the claim is narrowed ("the
+  > contract differs in formality only; C additionally carries the convention"), or the
+  > convention is itself de-formalized into B — which would make C's treatment the schema
+  > alone, i.e. v1's design, which review already rejected as motivated. Recommend narrowing
+  > the claim in the preregistration; flagged, not decided here.
 - **OPEN-2 (duplication).** The result contract restates the four determination ids and the
   four ground tokens that the shared naming appendix already pins. This is duplication, but
   the alternative — a schema deferring to prose for its value lists — removes exactly the

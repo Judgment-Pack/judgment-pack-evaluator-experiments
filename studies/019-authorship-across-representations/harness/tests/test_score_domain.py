@@ -48,9 +48,52 @@ def test_an_omitted_axis_is_the_registered_encoding_of_unreadable():
     """"An input that is unreadable/unreported is an OMITTED MEMBER — never a
     null, never a sentinel string" (the naming appendix)."""
     assert domain.domain_problems(rego_signature(), "number") == []
-    problems = domain.domain_problems(rego_signature(countryRisk=None),
-                                      "number")
-    assert problems == []
+    absent = domain.signature_from_documents({"sanctionsStatus": "CLEAR"}, {})
+    assert domain.domain_problems(absent, "number") == []
+
+
+# --- ROUND-2 R2-4, first half: an explicit null is not an omission -----------
+
+@pytest.mark.parametrize("wire,vendor", [
+    ("number", {"sanctionsStatus": "CLEAR", "newVendor": None}),
+    ("string", {"sanctionsStatus": "CLEAR", "newVendor": None}),
+    ("number", {"sanctionsStatus": "CLEAR", "countryRisk": None}),
+    ("number", {"sanctionsStatus": "CLEAR", "riskScore": None}),
+    ("string", {"sanctionsStatus": "CLEAR", "requestedSpend": None}),
+])
+def test_an_explicit_null_is_not_the_registered_omission(wire, vendor):
+    """THE REVIEWER'S R2-4 PROBE, on the axis it used and on every axis that
+    admits an omitted state.
+
+    `_literal()` converted an AST `null` to Python `None`, `dict.get()` returned
+    `None` for an absent member too, and `_enum_problem()` read an optional
+    `None` as an omission — so a suite writing `newVendor: null` passed domain
+    validation, passed identity validation, and killed four paired mutants on an
+    input point the registered space does not contain. Presence is decided at the
+    document now, and the refusal is the same in both wire forms."""
+    signature = domain.signature_from_documents(vendor, {})
+    problems = domain.domain_problems(signature, wire)
+    assert any("carrying a JSON null" in problem for problem in problems), \
+        problems
+
+
+def test_an_explicit_null_evidence_availability_is_not_an_omission():
+    signature = domain.signature_from_documents(
+        {"sanctionsStatus": "CLEAR"}, {"insurance-certificate": None})
+    assert any("insurance is present carrying a JSON null" in problem
+               for problem in domain.domain_problems(signature, "number"))
+
+
+def test_a_null_sanctions_status_is_named_a_null_and_not_an_omission():
+    """The one axis with no omitted state distinguishes the two anyway: "absent"
+    and "present but null" are different sentences about an input document."""
+    absent = domain.signature_from_documents({}, {})
+    nulled = domain.signature_from_documents({"sanctionsStatus": None}, {})
+    assert domain.domain_problems(absent, "number") == \
+        ["sanctions is omitted and the registered domain admits no unreadable "
+         "state for it"]
+    assert any("carrying a JSON null" in problem
+               for problem in domain.domain_problems(nulled, "number"))
 
 
 def test_sanctions_is_the_one_axis_with_no_omitted_state():
@@ -154,12 +197,42 @@ def _with_input(term):
          "value": term}]}]}]}
 
 
+def _member_binding(value_var, collection_var):
+    """`some name, <value_var> in <collection_var>` as the parser emits it."""
+    return {"terms": {"symbols": [{"type": "call", "value": [
+        {"type": "ref", "value": [{"type": "var", "value": "internal"},
+                                  {"type": "string", "value": "member_3"}]},
+        {"type": "var", "value": "name"},
+        {"type": "var", "value": value_var},
+        {"type": "var", "value": collection_var}]}]}}
+
+
+def _assign(name, term):
+    return {"terms": [{"type": "ref",
+                       "value": [{"type": "var", "value": "assign"}]},
+                      {"type": "var", "value": name}, term]}
+
+
+def _with_expression(term):
+    return {"terms": [], "with": [
+        {"target": {"type": "ref",
+                    "value": [{"type": "var", "value": "input"}]},
+         "value": term}]}
+
+
+def _ref(*path):
+    head = [{"type": "var", "value": path[0]}]
+    return {"type": "ref",
+            "value": head + [{"type": "string", "value": step}
+                             for step in path[1:]]}
+
+
 def test_a_literal_with_input_term_is_a_direct_case():
     tree = _with_input(_object([
         ("vendor", _object([("sanctionsStatus", _string("CLEAR")),
                             ("riskScore", _number(40))]))]))
-    indirect, cases = domain.cases_from_tree(tree)
-    assert indirect == 0
+    unresolved, cases = domain.cases_from_tree(tree)
+    assert unresolved == []
     assert len(cases) == 1
     assert domain.domain_problems(cases[0][1], "number") == []
 
@@ -177,14 +250,12 @@ def test_a_partial_input_override_cannot_be_enumerated():
     assert str(raised.value).startswith("DOMAIN-UNENUMERABLE-CASE")
 
 
-def test_a_named_term_is_indirect_until_the_name_is_resolved():
+def test_a_named_term_is_unresolved_until_the_name_is_resolved():
     """The table-driven mode. `with input as tc.given` carries a ref where the
     point is, and only the pinned evaluator resolves it."""
-    tree = _with_input({"type": "ref",
-                        "value": [{"type": "var", "value": "tc"},
-                                  {"type": "string", "value": "given"}]})
-    indirect, cases = domain.cases_from_tree(tree)
-    assert indirect == 1 and cases == []
+    tree = _with_input(_ref("tc", "given"))
+    unresolved, cases = domain.cases_from_tree(tree)
+    assert len(unresolved) == 1 and cases == []
 
 
 def test_a_package_level_name_resolves_into_a_literal_object():
@@ -194,37 +265,85 @@ def test_a_package_level_name_resolves_into_a_literal_object():
         ("vendor", _object([("sanctionsStatus", _string("CLEAR"))])),
         ("evidence", {"type": "var", "value": "financial_present"})]))
     names = {"financial_present": {"financial-evidence": "present"}}
-    indirect, cases = domain.cases_from_tree(tree, names)
-    assert indirect == 0
+    unresolved, cases = domain.cases_from_tree(tree, names)
+    assert unresolved == []
     assert cases[0][1]["finEvidence"] == "present"
 
 
-def test_input_documents_nested_inside_a_case_table_are_found():
-    """A case table converts whole, and the input documents live one level
-    inside it — stopping at the outermost convertible object would collect the
-    table and none of its cases."""
-    table = _object([
-        ("first", _object([
-            ("input", _object([("vendor",
-                                _object([("sanctionsStatus",
-                                          _string("CLEAR"))]))])),
-            ("want", _string("review"))])),
-        ("second", _object([
-            ("input", _object([("vendor",
-                                _object([("sanctionsStatus",
-                                          _string("MATCH"))]))])),
-            ("want", _string("reject"))]))])
-    tree = {"rules": [{"body": [{"terms": [table]}]}]}
-    _indirect, cases = domain.cases_from_tree(tree)
-    assert len(cases) == 2
+def test_a_table_driven_term_resolves_through_its_some_in_binding():
+    """`some name, tc in cases` then `with input as tc.input` — the pilot's own
+    arm-B and arm-C shape, and the point set is the table's inputs."""
+    tree = {"rules": [{"body": [_member_binding("tc", "cases"),
+                                _with_expression(_ref("tc", "input"))]}]}
+    names = {"cases": {
+        "first": {"input": {"vendor": {"sanctionsStatus": "CLEAR"}},
+                  "want": "review"},
+        "second": {"input": {"vendor": {"sanctionsStatus": "MATCH"}},
+                   "want": "reject"}}}
+    unresolved, cases = domain.cases_from_tree(tree, names)
+    assert unresolved == []
     assert sorted(signature["sanctions"] for _index, signature in cases) == \
         ["CLEAR", "MATCH"]
 
 
+def test_an_unrelated_literal_does_not_certify_an_indirect_input():
+    """ROUND-2 R2-4, SECOND HALF — the reviewer's decoy, as a tree.
+
+    The enumeration used to validate the aggregate of input-shaped literals
+    anywhere in the file, so ONE unrelated valid literal made the point set
+    non-empty and the suite was accepted; the input the test actually asserted
+    about — built by a call inside the rule body — was never enumerated and never
+    domain-checked. A term is enumerable now only when THAT term resolves."""
+    decoy = _object([("vendor", _object([("sanctionsStatus",
+                                          _string("CLEAR"))]))])
+    call = {"type": "call", "value": [
+        {"type": "ref", "value": [{"type": "var", "value": "make_bad"}]},
+        _number(7)]}
+    tree = {"rules": [
+        {"head": {"name": "decoy", "value": decoy}},
+        {"body": [_assign("built", call),
+                  _with_expression({"type": "var", "value": "built"})]}]}
+    unresolved, cases = domain.cases_from_tree(tree, {"decoy": {
+        "vendor": {"sanctionsStatus": "CLEAR"}}})
+    assert len(unresolved) == 1
+    assert cases == []
+
+
+def test_a_helper_parameter_resolves_from_its_call_sites():
+    """`decision_for(doc) := … { … with input as doc }` — the pilot's arm-B
+    run-004 shape. The parameter's value is at the call sites, and the call
+    sites are in the same file."""
+    tree = {"rules": [
+        {"head": {"name": "decision_for",
+                  "args": [{"type": "var", "value": "doc"}]},
+         "body": [_with_expression({"type": "var", "value": "doc"})]},
+        {"body": [_member_binding("tc", "cases"),
+                  _assign("actual", {"type": "call", "value": [
+                      {"type": "ref",
+                       "value": [{"type": "var", "value": "decision_for"}]},
+                      _ref("tc", "input")]})]}]}
+    names = {"cases": {"one": {
+        "input": {"vendor": {"sanctionsStatus": "UNKNOWN"}}}}}
+    unresolved, cases = domain.cases_from_tree(tree, names)
+    assert unresolved == []
+    assert [signature["sanctions"] for _index, signature in cases] == ["UNKNOWN"]
+
+
+def test_a_resolved_term_that_is_not_an_input_document_is_still_validated():
+    """`with input as {}` used to be filtered out by a shape test and validated
+    by nobody, which is a silent pass on the inputs least likely to be inside
+    the registered space."""
+    _unresolved, cases = domain.cases_from_tree(_with_input(_object([])))
+    assert len(cases) == 1
+    problems = domain.domain_problems(cases[0][1], "number")
+    assert any("carries no `vendor` member" in problem for problem in problems)
+    assert any("sanctions is omitted" in problem for problem in problems)
+
+
 def test_two_tests_over_one_input_point_are_one_point():
     one = _object([("vendor", _object([("sanctionsStatus", _string("CLEAR"))]))])
-    tree = {"rules": [{"body": [{"terms": [_object([("a", one), ("b", one)])]}]}]}
-    _indirect, cases = domain.cases_from_tree(tree)
+    tree = {"rules": [{"body": [_with_expression(one), _with_expression(one)]}]}
+    _unresolved, cases = domain.cases_from_tree(tree)
     assert len(cases) == 1
 
 
@@ -236,10 +355,13 @@ def test_the_resolved_document_reading_decodes_numbers_exactly():
         "cases": {"c": {"input": {"vendor": {"sanctionsStatus": "CLEAR",
                                              "requestedSpend": 100000.01}}}}}
     }]}]}).encode("utf-8")
-    points = domain.resolved_input_points(raw)
-    assert len(points) == 1
-    assert str(points[0][1]["spend"]) == "100000.01"
-    assert domain.domain_problems(points[0][1], "number") == []
+    names = domain.package_document(raw)
+    tree = {"rules": [{"body": [_member_binding("tc", "cases"),
+                                _with_expression(_ref("tc", "input"))]}]}
+    _unresolved, cases = domain.cases_from_tree(tree, names)
+    assert len(cases) == 1
+    assert str(cases[0][1]["spend"]) == "100000.01"
+    assert domain.domain_problems(cases[0][1], "number") == []
 
 
 # --- how the scorer maps the two answers (round-1 R1-3) --------------------

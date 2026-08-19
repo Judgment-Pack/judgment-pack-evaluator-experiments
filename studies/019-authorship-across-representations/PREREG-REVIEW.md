@@ -100,6 +100,32 @@ refused by the loader (`e4lib/reviewer.py`) — correctly. **Round 3 asks the re
 re-issue its own `rm-jps-03` payload and re-attest both digests**; the maintainer touches
 nothing in the set.
 
-### Dispositions
+### Dispositions (written 2026-08-18, after the response landed; suite of record 669/669
+with the pinned engines after the final manifest/ownPorts reconciliation)
 
-**Pending — no R2 finding has been dispositioned yet.**
+| # | Sev | Disposition |
+|---|---|---|
+| R2-1 | BLOCKER | **Accepted, both halves.** The manifest is regenerated last and now double-gated: a stale manifest fails the suite itself (`test_prereg_currency.py::test_the_committed_manifest_is_current_with_the_tree`) instead of waiting for a reviewer. The regeneration record is re-run green at 372/372 across both arms with `armsCovered` stamped, and a single-arm check can no longer write the committed record. |
+| R2-2 | BLOCKER | **Accepted, in the direction the registration requires.** The primary scorer held the registered denominator rule; the pilot layer disagreed and was changed to match it — never the reverse. `denominatorRule` is published, identity failures carry `highKill: null`, and the reviewer's two-run probe is a verbatim test asserting 1/2. |
+| R2-3 | BLOCKER | **Accepted for the path; corrected on the pilot claim.** The fault path was real and is closed: every reported `opa test` failure is adjudicated by a strict-builtin re-query (`engines.evaluation_fault()`), faults refuse rather than kill, unreadable adjudications fail closed, all engine-tested. On the claim that the *current pilot* credits faults as kills: `E4-PILOT-v3.json`, regenerated under the corrected semantics, is numerically identical to v2 — the leak existed and no pilot suite happened to exercise it. Recorded as found, not rounded in either direction. |
+| R2-4 | BLOCKER | **Accepted, both constructions.** Presence is decided by key membership (explicit null refused in both wire forms, 5 axes tested), and enumeration is per `with input as` term with resolution through bindings and call sites — the decoy-literal certification path is deleted, and the reviewer's decoy suite is a named engine-backed test. All ten real pilot suites still enumerate under the per-term rule. |
+| R2-5 | BLOCKER | **Accepted, and it surfaced a second defect.** The scorer recomputes the transcript verdict from sealed bytes through the driver's own binding and files its registered code; an unclassified refusal terminates. Found while fixing: author protocol violations wrote no completion and were being filed as apparatus `slot-shape` — deleted from the very denominators §3's no-tools rule exists to police. An authoring verdict now outranks a missing completion; seven adversarial-transcript cases enforce both. |
+| R2-6 | BLOCKER | **Accepted, both directions.** The loader accepts exactly the matrix the prompt instructs (string `"2"`, refusal naming the integer misreading), and every nested member is typed so the reviewer's `reasons: 1` lands on the authoring code instead of a `TypeError`. A pinned-parser test reads the assertion out of the arm-A instructions and loads a real pilot matrix. |
+| R2-7 | BLOCKER | **Accepted.** The loader enforces the authored schema (cardinality, both languages, exact members, filename-extension consistency) and real-path containment closing the absolute-path escape; set load/validate precedes any endpoint and failure is terminal — proven against the really-committed digest-defective set. |
+| R2-8 | MAJOR | **Accepted, with the residue stated in code rather than prose.** `integrity.verify()` is now the first study-local call (order-asserted by test), and a pre-verification failure no longer binds the tree. The honest limit is written where it lives: the scorer and integrity module execute before either can check anything — a gate against drift, not a root of trust. |
+| R2-9 | MAJOR | **Accepted.** The registered empty-prefix representation round-trips driver-to-scorer, and an empty declaration over a tree that carries a ledger refuses. |
+| R2-10 | MAJOR | **Accepted.** `engineSuppliedKill` is fail-closed: strict booleans on every valid record, partial or mistyped censuses refuse by name, and the test that tolerated partial marking is reversed. |
+| R2-11 | MAJOR | **Accepted.** The closure check reads the tree under check; the reviewer's scratch-only empty-witness scenario is the regression, asserted on the reported list. |
+| R2-12 | MAJOR | **Accepted in the code-side option.** No interval is computed anywhere until the outcome has passed the gate rows; blocked intervals publish their cause, and the reviewer's probe interval is asserted absent from the failed-gate output. |
+| R2-13 | MAJOR | **Accepted, at the generator.** `oc_table.py` itself no longer emits the withdrawn exactness vocabulary, reads the current pilot file through one constant, and rebuilds its anchor section from the registered surface — so regeneration can no longer resurrect a corrected claim. |
+| R2-14 | MAJOR | **Accepted.** The README states the registered question, the bundle prohibition, the two DO-NOT-FREEZE verdicts, and the no-direction registration; the X1 and formality-only residuals are swept from every reader-facing file with the sweep's grep list recorded, and README claims are now themselves under test. |
+
+**Also found and fixed by the response, not by the review:** `opa test --format json`
+does not order its result list, which made the pilot regeneration nondeterministic —
+adjudication and error lists are now sorted, v3 verified byte-identical across two full
+regenerations. Recorded so the determinism claim stays measured rather than assumed.
+
+**Post-revision state.** Suite 669/669 with pins after the final reconciliation (the
+three failures both lanes deliberately left for the maintainer's ordered
+manifest/ownPorts step). The sealed reviewer set remains exactly as authored, defects and
+all — its repair is the reviewer's, in round 3.

@@ -109,9 +109,58 @@ class DomainError(Exception):
 # the registered domain
 # --------------------------------------------------------------------------
 
+class _ExplicitNull(object):
+    """The PRESENCE SENTINEL — round-2 finding R2-4, first half.
+
+    The registered encoding of "unreadable/unreported" is an OMITTED MEMBER,
+    "never a null, never a sentinel string" (the module head, the naming
+    appendix, and `design/reference/refB/policy.rego`'s own comment: "the
+    projection never emits a JSON null, so the sentinels cannot collide with a
+    real value"). The enumeration used to lose that distinction one step before
+    the check that depends on it: `_literal()` converts an AST `null` to Python
+    `None`, `dict.get()` returns `None` for an absent member too, and
+    `_enum_problem()` then reads an optional `None` as an omission. A suite
+    writing `"newVendor": null` therefore passed domain validation and identity
+    validation and went on to kill paired mutants, on an input point the
+    registered space does not contain and the off-gold certificate says nothing
+    about.
+
+    Presence is now decided where presence is KNOWN — at the document, by key
+    membership — and survives into the check as this sentinel, in BOTH wire
+    forms: arm A's matrix `"newVendor": null` and arms B/C's `newVendor: null`
+    reach the same refusal by the same route, which is what §4's "enforced
+    symmetrically" requires."""
+
+    __slots__ = ()
+
+    def __repr__(self):
+        return "<explicit JSON null>"
+
+    __str__ = __repr__
+
+
+EXPLICIT_NULL = _ExplicitNull()
+
+
+def _null_problem(cell):
+    return ("%s is present carrying a JSON null, and the registered encoding of "
+            "an unreadable/unreported input is an OMITTED MEMBER — never a "
+            "null, never a sentinel string" % cell)
+
+
+def _presence(document: dict, member: str):
+    """One member's value, with ABSENT and PRESENT-BUT-NULL kept apart."""
+    if member not in document:
+        return None
+    value = document[member]
+    return EXPLICIT_NULL if value is None else value
+
+
 def _enum_problem(cell, value, allowed, optional):
     """One enumerated axis. An omitted member is `None`; a null or a sentinel
     string is NOT an omission and is reported as the value it is."""
+    if value is EXPLICIT_NULL:
+        return _null_problem(cell)
     if value is None:
         if optional:
             return None
@@ -124,6 +173,8 @@ def _enum_problem(cell, value, allowed, optional):
 
 
 def _risk_problem(value, wire: str):
+    if value is EXPLICIT_NULL:
+        return _null_problem("risk")
     if value is None:
         return None
     if wire == "string":
@@ -149,6 +200,8 @@ def _risk_problem(value, wire: str):
 
 
 def _spend_problem(value, wire: str):
+    if value is EXPLICIT_NULL:
+        return _null_problem("spend")
     if value is None:
         return None
     if wire == "string":
@@ -207,19 +260,31 @@ def domain_problems(signature: dict, wire: str) -> list:
                                       AVAILABILITY_VALUES, optional=True))
     for member in sorted(signature.get("unknownMembers") or ()):
         problems.append("%s is not a registered input member" % member)
+    # A point whose DOCUMENT is the wrong shape (round-2 R2-4): the term the
+    # suite asserts with is not an object at all, or carries no `vendor`. It is
+    # out of domain for a reason the axis checks cannot state, so the reason
+    # travels with the signature rather than being dropped on the way in.
+    for problem in signature.get("shapeProblems") or ():
+        problems.append(problem)
     return sorted(problem for problem in problems if problem)
 
 
-def signature_from_documents(vendor, evidence, extra_members=()) -> dict:
+def signature_from_documents(vendor, evidence, extra_members=(),
+                             shape_problems=()) -> dict:
     """The canonical signature of one input point, with every member the
-    registered document does NOT carry recorded rather than dropped."""
+    registered document does NOT carry recorded rather than dropped.
+
+    PRESENCE IS DECIDED HERE (round-2 R2-4), because here is where it is still
+    knowable: a member the document does not carry reads `None`, and a member it
+    carries with a JSON null reads `EXPLICIT_NULL`. `dict.get()` collapsed the
+    two, and the registered domain distinguishes them."""
     vendor = vendor if isinstance(vendor, dict) else {}
     evidence = evidence if isinstance(evidence, dict) else {}
     signature = {}
     for cell, member in VENDOR_CELLS:
-        signature[cell] = vendor.get(member)
+        signature[cell] = _presence(vendor, member)
     for cell, member in EVIDENCE_CELLS:
-        signature[cell] = evidence.get(member)
+        signature[cell] = _presence(evidence, member)
     known_vendor = set(member for _cell, member in VENDOR_CELLS)
     known_evidence = set(member for _cell, member in EVIDENCE_CELLS)
     unknown = ["vendor.%s" % name for name in vendor if name not in known_vendor]
@@ -227,7 +292,37 @@ def signature_from_documents(vendor, evidence, extra_members=()) -> dict:
                 if name not in known_evidence]
     unknown += list(extra_members)
     signature["unknownMembers"] = sorted(unknown)
+    signature["shapeProblems"] = sorted(shape_problems)
     return signature
+
+
+def point_signature(value) -> dict:
+    """The signature of one RESOLVED `with input as` value, whatever it is.
+
+    Every resolved term is validated (round-2 R2-4): a term that is not an
+    object, or an object carrying members the registered input document does not
+    have, used to be filtered out by `_is_input_document()` and validated by
+    nobody — which is a silent pass on exactly the inputs least likely to be in
+    the registered space."""
+    if not isinstance(value, dict):
+        return signature_from_documents(
+            None, None,
+            shape_problems=["the `with input as` term resolves to a JSON %s and "
+                            "the registered input document is an object"
+                            % type(value).__name__])
+    extra = [name for name in value if name not in REGO_INPUT_MEMBERS]
+    shape = []
+    if "vendor" not in value:
+        shape.append("the `with input as` term carries no `vendor` member and "
+                     "the registered input document puts every vendor fact "
+                     "under it")
+    for member in REGO_INPUT_MEMBERS:
+        if member in value and not isinstance(value[member], dict):
+            shape.append("the `with input as` term's `%s` member is a JSON %s "
+                         "and the registered input document is an object of "
+                         "objects" % (member, type(value[member]).__name__))
+    return signature_from_documents(value.get("vendor"), value.get("evidence"),
+                                    extra, shape)
 
 
 # --------------------------------------------------------------------------
@@ -325,26 +420,270 @@ def _is_input_target(target) -> bool:
             and value[0].get("value") == "input")
 
 
-def _walk_with_terms(node, found):
-    """Every `with` term anywhere in the tree, in document order.
+def _head_parameter_bindings(node, into: dict) -> None:
+    """`f(doc) := … { … with input as doc }` — the parameter's value is at the
+    CALL SITES, so it binds to them rather than to nothing.
+
+    Real suites factor the evaluation into a helper (`decision_for(doc)` in the
+    pilot's own arm-B run-004), and a helper's parameter is neither a literal nor
+    a name in its own body. It is still mechanically resolvable: every call to
+    the function is in the same file, and the argument in the matching position
+    is a term this module already resolves."""
+    head = node.get("head") if isinstance(node, dict) else None
+    if not isinstance(head, dict):
+        return
+    arguments = head.get("args")
+    name = head.get("name")
+    if not isinstance(arguments, list) or not isinstance(name, str):
+        return
+    for index, argument in enumerate(arguments):
+        parameter = _var_name(argument)
+        if parameter is not None:
+            into[parameter] = ("param", (name, index))
+
+
+def _collect_callsites(node, into: dict, bindings=None) -> None:
+    """`{function name: [(arguments, bindings in scope at the call)]}`."""
+    if isinstance(node, dict):
+        scope = bindings
+        if isinstance(node.get("body"), list):
+            scope = dict(bindings or {})
+            _collect_bindings(node["body"], scope)
+            _head_parameter_bindings(node, scope)
+        if node.get("type") == "call" and isinstance(node.get("value"), list) \
+                and node["value"]:
+            name = _op_name(node["value"][0])
+            if name is not None and "." not in name:
+                into.setdefault(name, []).append(
+                    (node["value"][1:], scope or {}))
+        for value in node.values():
+            _collect_callsites(value, into, scope)
+    elif isinstance(node, list):
+        for item in node:
+            _collect_callsites(item, into, bindings)
+
+
+def _walk_with_terms(node, found, bindings=None):
+    """Every `with` term anywhere in the tree, in document order, each paired
+    with the LOCAL BINDINGS in scope where it was written.
 
     Walked structurally rather than read off `rules[].body[]`: `with` modifiers
     attach to expressions, and expressions occur in rule bodies, `else` bodies,
     every-bodies and comprehension bodies alike. A walk cannot miss a site a
     later dialect adds, and missing one is exactly the silent pass R1-3 is
-    about."""
+    about.
+
+    The bindings travel with the term because round-2 R2-4 is about the term and
+    not about the file: `with input as built` is an input point exactly when
+    `built` can be resolved, and the only place `built` is defined is the body
+    the modifier hangs in."""
     if isinstance(node, dict):
+        scope = bindings
+        if isinstance(node.get("body"), list):
+            scope = dict(bindings or {})
+            _collect_bindings(node["body"], scope)
+            _head_parameter_bindings(node, scope)
         modifiers = node.get("with")
         if isinstance(modifiers, list):
             for modifier in modifiers:
                 if isinstance(modifier, dict):
-                    found.append(modifier)
+                    found.append((modifier, scope or {}))
         for key, value in node.items():
             if key != "with":
-                _walk_with_terms(value, found)
+                _walk_with_terms(value, found, scope)
     elif isinstance(node, list):
         for item in node:
-            _walk_with_terms(item, found)
+            _walk_with_terms(item, found, bindings)
+
+
+# --- the local binding trace (round-2 R2-4) --------------------------------
+#
+# The reviewer's residual probe built its input point inside the rule body —
+# `built := make_bad(7)` — while leaving an unrelated input-shaped literal at
+# package level. The enumeration validated the aggregate of input-shaped
+# literals in the tree, so the decoy made the point set non-empty and the actual
+# tested input was never checked. An unrelated literal must never certify an
+# indirect input, so the enumeration is now PER TERM: a `with input as` term is
+# an enumerable case exactly when THAT term resolves, through the pinned
+# parser's tree and the pinned evaluator's package document, to a concrete
+# value. A term that does not resolve is a refusal by name, whatever else the
+# file contains.
+
+_ASSIGN_OPS = ("assign", "eq", "equal")
+_MEMBER_OPS = {"internal.member_2": (0, 1), "internal.member_3": (1, 2)}
+_RESOLVE_DEPTH = 12
+
+
+class _Unresolved(Exception):
+    """A term this module will not guess at. Never escapes the module."""
+
+
+def _op_name(term):
+    """The dotted operator name of an expression's head term, or None."""
+    if not isinstance(term, dict) or term.get("type") != "ref":
+        return None
+    path = term.get("value")
+    if not isinstance(path, list) or not path:
+        return None
+    parts = []
+    for node in path:
+        value = node.get("value") if isinstance(node, dict) else None
+        if not isinstance(value, str):
+            return None
+        parts.append(value)
+    return ".".join(parts)
+
+
+def _var_name(term):
+    if isinstance(term, dict) and term.get("type") == "var" \
+            and isinstance(term.get("value"), str):
+        return term["value"]
+    return None
+
+
+def _collect_bindings(body, into: dict) -> None:
+    """`{local name: binding}` for one rule body.
+
+    Two forms, and they are the two real suites use: `x := <term>` / `x = <term>`
+    binds a term, and `some k, x in coll` (`internal.member_3`) or
+    `some x in coll` (`internal.member_2`) binds x to a MEMBER of coll."""
+    for expression in body or []:
+        if not isinstance(expression, dict):
+            continue
+        terms = expression.get("terms")
+        if isinstance(terms, dict):
+            for symbol in terms.get("symbols") or []:
+                _bind_symbol(symbol, into)
+            continue
+        if isinstance(terms, list) and len(terms) == 3:
+            operator = _op_name(terms[0])
+            if operator in _ASSIGN_OPS:
+                for name, other in ((_var_name(terms[1]), terms[2]),
+                                    (_var_name(terms[2]), terms[1])):
+                    if name is not None and name not in into:
+                        into[name] = ("term", other)
+            elif operator in _MEMBER_OPS:
+                _bind_symbol({"type": "call", "value": [terms[0]] + terms[1:]},
+                             into)
+
+
+def _bind_symbol(symbol, into: dict) -> None:
+    if not isinstance(symbol, dict) or symbol.get("type") != "call":
+        return
+    call = symbol.get("value")
+    if not isinstance(call, list) or not call:
+        return
+    positions = _MEMBER_OPS.get(_op_name(call[0]))
+    if positions is None:
+        return
+    value_at, collection_at = positions
+    arguments = call[1:]
+    if len(arguments) <= max(value_at, collection_at):
+        return
+    name = _var_name(arguments[value_at])
+    if name is not None and name not in into:
+        into[name] = ("member", arguments[collection_at])
+
+
+def _index(value, key):
+    """One step of a static path into a resolved value."""
+    if isinstance(value, dict) and key in value:
+        return value[key]
+    if isinstance(value, list) and isinstance(key, int) \
+            and 0 <= key < len(value):
+        return value[key]
+    raise _Unresolved("the path step %r is not in the resolved value" % (key,))
+
+
+def _members(value):
+    if isinstance(value, dict):
+        return list(value.values())
+    if isinstance(value, (list, tuple)):
+        return list(value)
+    raise _Unresolved("a `some … in` collection resolved to a JSON %s"
+                      % type(value).__name__)
+
+
+def _resolve_term(term, bindings, names, depth=0, callsites=None) -> list:
+    """Every concrete value `term` can take, or `_Unresolved`.
+
+    A literal is itself; a package-level name is what the pinned binary computed
+    for it; a local is what its binding says; a function parameter is what its
+    call sites pass; a static path into any of those is that path applied. A
+    call, a comprehension, an arithmetic expression or a name nothing in scope
+    defines is UNRESOLVED — and unresolved is a refusal, never a zero."""
+    if depth > _RESOLVE_DEPTH:
+        raise _Unresolved("the binding chain is longer than %d steps"
+                          % _RESOLVE_DEPTH)
+    try:
+        return [_literal(term, names)]
+    except DomainError:
+        pass
+    name = _var_name(term)
+    if name is not None:
+        return _resolve_name(name, [], bindings, names, depth, callsites)
+    if isinstance(term, dict) and term.get("type") == "ref":
+        path = term.get("value")
+        if isinstance(path, list) and path:
+            root = _var_name(path[0])
+            if root is not None:
+                steps = []
+                for node in path[1:]:
+                    if not isinstance(node, dict) \
+                            or node.get("type") not in ("string", "number"):
+                        raise _Unresolved("a path step is a %r term"
+                                          % (node or {}).get("type"))
+                    steps.append(node.get("value"))
+                return _resolve_name(root, steps, bindings, names, depth,
+                                     callsites)
+    raise _Unresolved("a %r term is not a readable input point"
+                      % (term or {}).get("type"))
+
+
+def _resolve_name(name, steps, bindings, names, depth, callsites=None) -> list:
+    # The NEAREST scope first: a name the rule body binds is that binding, and a
+    # name nothing in the body binds is the package-level rule of that name.
+    if name in (bindings or {}):
+        kind, term = bindings[name]
+        if kind == "param":
+            roots = _resolve_parameter(term, names, depth, callsites)
+        else:
+            resolved = _resolve_term(term, bindings, names, depth + 1,
+                                     callsites)
+            roots = resolved if kind == "term" else [
+                member for value in resolved for member in _members(value)]
+    elif names and name in names:
+        roots = [names[name]]
+    else:
+        raise _Unresolved("the name %r is not a package-level rule and nothing "
+                          "in its rule body binds it" % name)
+    if not steps:
+        return roots
+    out = []
+    for root in roots:
+        value = root
+        for step in steps:
+            value = _index(value, step)
+        out.append(value)
+    return out
+
+
+def _resolve_parameter(where, names, depth, callsites) -> list:
+    """A function parameter, resolved from every call site in the file."""
+    function, position = where
+    sites = (callsites or {}).get(function) or []
+    if not sites:
+        raise _Unresolved("the parameter %d of %r is never passed a value "
+                          "anywhere in the suite" % (position, function))
+    values = []
+    for arguments, scope in sites:
+        if position >= len(arguments):
+            raise _Unresolved("a call to %r passes %d argument(s) and the "
+                              "parameter is at position %d"
+                              % (function, len(arguments), position))
+        values.extend(_resolve_term(arguments[position], scope, names,
+                                    depth + 1, callsites))
+    return values
 
 
 def parse_tree(raw: bytes):
@@ -363,46 +702,14 @@ def parse_tree(raw: bytes):
                           "readable syntax tree (%s)" % type(error).__name__)
 
 
-def _walk_object_literals(node, found, names=None):
-    """Every INPUT-SHAPED object in the tree, as Python values, best-effort.
-
-    An object term that converts is descended into as DATA — a case table
-    converts whole, and the input documents live one level inside it, so
-    stopping at the outermost convertible object would collect the table and
-    none of its cases. A term that does not convert contributes nothing and
-    stops that branch; the caller decides what an unconvertible branch means."""
-    if isinstance(node, dict):
-        if node.get("type") == "object":
-            try:
-                _collect_documents(_literal(node, names), found)
-                return
-            except DomainError:
-                pass
-        for value in node.values():
-            _walk_object_literals(value, found, names)
-    elif isinstance(node, list):
-        for item in node:
-            _walk_object_literals(item, found, names)
-
-
-def _is_input_document(value) -> bool:
-    """The registered Rego input document's shape: `{"vendor": …}` with at most
-    `evidence` beside it.
-
-    `vendor` is the discriminating member — the naming appendix puts every
-    vendor fact under it — and it is what makes an input document recognisable
-    inside a table entry that also carries a name and an expectation."""
-    return (isinstance(value, dict) and "vendor" in value
-            and set(value) <= set(REGO_INPUT_MEMBERS))
-
-
 def canonical(value) -> str:
     """One spelling of a value, so two readings of one input point collapse."""
     return json.dumps(value, sort_keys=True, default=str)
 
 
 def cases_from_tree(document, names=None) -> tuple:
-    """`[(index, signature)]` for every input point this suite asserts about.
+    """`(unresolved, [(index, signature)])` — one reading PER `with input as`
+    TERM.
 
     TWO ENUMERATION MODES, because real authored suites use both and a mode that
     only handles one would either refuse most suites or silently validate none
@@ -410,62 +717,57 @@ def cases_from_tree(document, names=None) -> tuple:
 
     * **direct** — `with input as {…}`, the literal in the modifier itself;
     * **recovered** — `with input as tc.input` over a TABLE, which is what the
-      pilot's own arm-B and arm-C suites do. The input points are still literals
-      in the file, one level in; the modifier names them rather than carrying
-      them.
+      pilot's own arm-B and arm-C suites do. The modifier names its point rather
+      than carrying it, so the name is resolved: against the pinned evaluator's
+      package document for a package-level rule, and against the rule body's own
+      `:=` and `some … in` bindings for a local.
 
-    So the scan is over every OBJECT LITERAL in the tree that has the registered
-    input document's shape, which is a superset of the direct terms and is
-    exactly as mechanical: it is the pinned parser's own tree, and no string
-    matching, no evaluation and no guess about what a test intends.
+    ROUND-2 FINDING R2-4, second half, and it is why this is per term. The scan
+    used to be over every input-shaped OBJECT LITERAL anywhere in the tree, and
+    the suite was accepted whenever that aggregate was non-empty. So a suite
+    could carry one unrelated valid literal — the reviewer's `decoy` — build its
+    real input inside a rule body (`built := make_bad(7)`, `newVendor: 7`) and
+    have the decoy certify it: the actual asserted point was never enumerated,
+    never domain-checked, and went on to kill four paired mutants. The point set
+    is now exactly the set the `with input as` terms RESOLVE to, so a literal no
+    term names certifies nothing, and a term that resolves to nothing is
+    `unresolved` — which the caller turns into the registered authoring code.
 
-    The one thing that is never a silent pass: a suite whose `with input as`
-    terms are all indirect AND in which no input-shaped literal exists at all
-    has constructed its points by some computation, and this refuses rather than
-    reporting zero cases and validating nothing.
+    `unresolved` is the list of those refusals, one message per term. It replaces
+    a bare count: a caller that must refuse should be able to say which term.
 
     Duplicates collapse: two tests asserting about one input point are one point,
     and the domain check is about points."""
-    modifiers = []
+    modifiers, callsites = [], {}
+    _collect_callsites(document, callsites)
     _walk_with_terms(document, modifiers)
-    indirect = 0
-    for modifier in modifiers:
+    unresolved, values = [], []
+    for modifier, bindings in modifiers:
         if not _is_input_target(modifier.get("target")):
             raise DomainError(
                 "DOMAIN-UNENUMERABLE-CASE a `with` term overrides something "
                 "other than the whole `input` document, so its input point "
                 "cannot be read from the suite")
         try:
-            value = _literal(modifier.get("value"), names)
-        except DomainError:
-            indirect += 1
-            continue
-        if not isinstance(value, dict):
-            indirect += 1
-    literals = []
-    _walk_object_literals(document, literals, names)
-    return indirect, input_points(literals)
+            values.extend(_resolve_term(modifier.get("value"), bindings,
+                                        names, 0, callsites))
+        except _Unresolved as error:
+            unresolved.append(str(error))
+    return unresolved, resolved_points(values)
 
 
-def input_points(values) -> list:
-    """`[(index, signature)]` for the input-shaped documents among `values`,
-    deduplicated. Two tests asserting about one point are one point."""
+def resolved_points(values) -> list:
+    """`[(index, signature)]` over the values `with input as` terms resolved to,
+    deduplicated. EVERY value is validated, whatever its shape."""
     points, seen = [], set()
     for value in values:
-        if not _is_input_document(value):
-            continue
         key = canonical(value)
         if key in seen:
             continue
         seen.add(key)
         points.append(value)
-    cases = []
-    for index, value in enumerate(points):
-        extra = [name for name in value if name not in REGO_INPUT_MEMBERS]
-        cases.append((index, signature_from_documents(value.get("vendor"),
-                                                      value.get("evidence"),
-                                                      extra)))
-    return cases
+    return [(index, point_signature(value))
+            for index, value in enumerate(points)]
 
 
 def package_path(document) -> str:
@@ -491,35 +793,3 @@ def package_document(raw: bytes):
         return document["result"][0]["expressions"][0]["value"]
     except (KeyError, IndexError, TypeError):
         return None
-
-
-def resolved_input_points(raw: bytes) -> list:
-    """The input points inside an `opa eval` result document.
-
-    THE SECOND ENUMERATION MODE, and the one real suites need. The pilot's own
-    arm-B and arm-C suites build their case inputs out of named constants
-    (`"evidence": financial_present`) and helper functions
-    (`make_input(status, …)` over `object.union`), so the SYNTAX tree carries a
-    ref exactly where the point is. Evaluating the suite's own package resolves
-    them — with the pinned binary, under the pinned capabilities, at the
-    registered flags — and the result is data this module can walk the same way
-    it walks a literal. No string matching, no re-implementation of Rego, and no
-    guess about what a test intends."""
-    value = package_document(raw)
-    if value is None:
-        return []
-    found = []
-    _collect_documents(value, found)
-    return input_points(found)
-
-
-def _collect_documents(node, found):
-    if isinstance(node, dict):
-        if _is_input_document(node):
-            found.append(node)
-            return
-        for item in node.values():
-            _collect_documents(item, found)
-    elif isinstance(node, list):
-        for item in node:
-            _collect_documents(item, found)

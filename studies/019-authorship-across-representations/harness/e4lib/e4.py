@@ -186,20 +186,50 @@ def align_expected(expected):
     This IS the alignment map on the expectation side, and it drops exactly what
     section 5 puts outside every endpoint: `handoff` (state, triggeredBy,
     target) and `trace[]` are never read, so ADR-0025's handoff assertion cannot
-    enter an E4 number by accident."""
+    enter an E4 number by accident.
+
+    TOTAL over every JSON value (round-2 R2-6). `reasons` used to be iterated
+    with only a falsy guard in front of it, so `"reasons": 1` raised an uncaught
+    `TypeError` out of the scorer instead of landing on the registered authoring
+    code. Every shape this cannot read now answers `None`, and `load_matrix()`
+    refuses the document before this is ever reached with such a value."""
     if not isinstance(expected, dict):
         return None
     kind = expected.get("kind")
-    reasons = tuple(sorted(str(reason)
-                           for reason in (expected.get("reasons") or [])))
+    raw_reasons = expected.get("reasons")
+    if raw_reasons is None:
+        raw_reasons = []
+    if not isinstance(raw_reasons, list) \
+            or not all(isinstance(reason, str) for reason in raw_reasons):
+        return None
+    reasons = tuple(sorted(raw_reasons))
     if kind == "outcome":
-        return ("outcome", expected.get("outcomeId"), reasons)
+        outcome_id = expected.get("outcomeId")
+        if not isinstance(outcome_id, str):
+            return None
+        return ("outcome", outcome_id, reasons)
     if kind == "unresolved":
         return ("unresolved", None, reasons)
     return None
 
 
-MATRIX_VERSION = 2
+# The REGISTERED spelling, and it is a STRING (round-2 finding R2-6).
+# `design/prompts/ARM-A-INSTRUCTIONS.md`: "`matrixVersion`: the string `"2"`";
+# the arm-A excerpt's own examples and every real pilot matrix
+# (`design/pilots/.../arm-A/run-008/secondary.json`) emit `"matrixVersion": "2"`.
+# This loader registered the INTEGER 2, so every prompt-conforming matrix was
+# refused as `unparseable-artifact` and scored zero — the endpoint was
+# unreachable for arm A in exactly the way R1-1's single cut made it unreachable
+# for arms B and C, and the tests missed it because they were written against
+# the loader rather than against the prompt.
+MATRIX_VERSION = "2"
+MATRIX_VERSION_MISREAD = 2
+
+# §5's scored surface has no error-class axis, so `expectedErrorClass` is a
+# registered expectation form this study cannot score: the case carries no
+# readable expectation and fails the identity control, which is what §1a does
+# with what the author emitted.
+EXPECTATION_FORMS = ("expectedDisposition", "expectedErrorClass")
 
 
 def _require(condition, message):
@@ -239,8 +269,11 @@ def load_matrix(path: str) -> tuple:
              % type(document).__name__)
     version = document.get("matrixVersion")
     _require(version == MATRIX_VERSION,
-             "matrixVersion is %r and this study registers %d"
-             % (version, MATRIX_VERSION))
+             "matrixVersion is %r and this study registers the string %r%s"
+             % (version, MATRIX_VERSION,
+                " (the JSON number 2 is not the registered spelling; the prompt "
+                "and every example emit the string)"
+                if version == MATRIX_VERSION_MISREAD else ""))
     raw_cases = document.get("cases")
     _require(isinstance(raw_cases, list),
              "the `cases` member is a JSON %s and matrixVersion 2 registers a "
@@ -271,6 +304,46 @@ def load_matrix(path: str) -> tuple:
         _require(expectation is None or isinstance(expectation, dict),
                  "%s carries an `expectedDisposition` member that is a JSON %s"
                  % (case_id, type(expectation).__name__))
+        # ROUND-2 R2-6, second half: the enclosing-object check was the whole of
+        # the validation, so a nested member of the wrong type walked past it
+        # and raised out of `align_expected()`. Every nested member is typed
+        # here, and the registered "exactly one of" is enforced: two expectation
+        # forms in one case is a contradictory document and refuses, while
+        # NEITHER form leaves the case unreadable, which is the line the
+        # docstring above draws between a schema failure and an absence.
+        _require(not all(form in case for form in EXPECTATION_FORMS),
+                 "%s carries both `expectedDisposition` and "
+                 "`expectedErrorClass` and the registered matrix row carries "
+                 "exactly one of them" % case_id)
+        for member in ("expectedErrorClass", "expectedErrorPhase"):
+            value = case.get(member)
+            _require(value is None or isinstance(value, str),
+                     "%s carries a `%s` member that is a JSON %s"
+                     % (case_id, member, type(value).__name__))
+        if isinstance(expectation, dict):
+            _require(isinstance(expectation.get("kind"), str)
+                     or expectation.get("kind") is None,
+                     "%s carries an `expectedDisposition.kind` that is a JSON %s"
+                     % (case_id, type(expectation.get("kind")).__name__))
+            reasons = expectation.get("reasons")
+            _require(reasons is None
+                     or (isinstance(reasons, list)
+                         and all(isinstance(reason, str) for reason in reasons)),
+                     "%s carries an `expectedDisposition.reasons` that is not a "
+                     "list of strings (%r)" % (case_id, reasons))
+            outcome_id = expectation.get("outcomeId")
+            _require(outcome_id is None or isinstance(outcome_id, str),
+                     "%s carries an `expectedDisposition.outcomeId` that is a "
+                     "JSON %s" % (case_id, type(outcome_id).__name__))
+            handoff = expectation.get("handoff")
+            _require(handoff is None or isinstance(handoff, dict),
+                     "%s carries an `expectedDisposition.handoff` that is a "
+                     "JSON %s" % (case_id, type(handoff).__name__))
+        target = case.get("expectedHandoffTarget")
+        _require(target is None or isinstance(target, dict),
+                 "%s carries an `expectedHandoffTarget` that is a JSON %s and "
+                 "the registered member is an object or the literal null"
+                 % (case_id, type(target).__name__))
         expected = align_expected(expectation)
         readable = isinstance(facts, dict) and expected is not None
         facts = facts if isinstance(facts, dict) else {}
@@ -433,18 +506,40 @@ def engine_supplied_ids(mutants: dict, language: str) -> list:
     `design/mutants/refB/MANIFEST.json`'s `engineSuppliedKillClass` states with
     its reason — while a manifest with no member at all says nothing, and
     returning an empty list from it would publish "0 engine-supplied kills" and
-    satisfy section 4 in form only."""
+    satisfy section 4 in form only.
+
+    ROUND-2 FINDING R2-10, and the refusal was not fail-closed. It fired only
+    when EVERY record was unmarked, so a manifest marking one mutant and leaving
+    the next silent was accepted and published a class computed from a partial
+    census — the same "0 from an absence" this refusal exists to prevent, one
+    record at a time. And the marking was read for TRUTHINESS, so the string
+    `"false"` counted a mutant INTO the class. Every valid record must now carry
+    a real Boolean: `type(...) is bool`, which admits neither `None`, nor `0`/`1`,
+    nor `"false"`, and the refusal names the records that do not."""
     entries = mutants[language]
-    marked = [record for record in entries
-              if record.get("engineSuppliedKill") is not None]
-    if not marked:
+    unmarked = [record["id"] for record in entries
+                if type(record.get("engineSuppliedKill")) is not bool]
+    # SILENCE and WRONG TYPE are different refusals. A manifest where no record
+    # carries the member at all has said nothing (the round-1 refusal); one that
+    # carries values of the wrong type has said something unreadable, and naming
+    # it "carries no member" would send a reader to the wrong file.
+    if all(record.get("engineSuppliedKill") is None for record in entries):
         raise E4Error(
             "E4-ENGINE-SUPPLIED-UNREGISTERED the %s mutant manifest carries no "
             "engineSuppliedKill member, so section 4's 'reported both included "
             "and excluded' cannot be computed from frozen bytes; the marking is "
             "prose in design/mutants/ADEQUACY.md and must become a manifest "
             "member before the freeze (harness/SCAFFOLD.md item S9)" % language)
-    return sorted(record["id"] for record in marked
+    if unmarked:
+        raise E4Error(
+            "E4-ENGINE-SUPPLIED-INCOMPLETE %d of the %d valid %s mutants carry "
+            "no BOOLEAN engineSuppliedKill member (%s%s): section 4's class is "
+            "a census over the whole set, and a class computed from a partial "
+            "or mistyped census is the same '0 from an absence' the refusal "
+            "above exists to prevent"
+            % (len(unmarked), len(entries), language,
+               ", ".join(unmarked[:5]), "…" if len(unmarked) > 5 else ""))
+    return sorted(record["id"] for record in entries
                   if record["engineSuppliedKill"])
 
 
@@ -477,13 +572,23 @@ def rego_case_signatures(tools: engines.Toolchain, suite_path: str,
     are read straight off the tree; a table-driven suite — which is what the
     pilot's own arm-B and arm-C runs wrote, with named evidence constants and a
     `make_input()` helper over `object.union` — carries a ref there instead, and
-    the points are recovered by EVALUATING the suite's own package with the
-    pinned binary. Both readings are the pinned toolchain's; neither is a
-    re-implementation of Rego and neither is a guess.
+    that ref is resolved against the suite's own package document, EVALUATED with
+    the pinned binary, plus the rule body's own `:=` and `some … in` bindings.
+    Both readings are the pinned toolchain's; neither is a re-implementation of
+    Rego and neither is a guess.
 
-    A file the pinned parser refuses, or a suite whose input points cannot be
-    read either way, is a `MatrixError` — the registered authoring outcome — and
-    never a silent pass."""
+    ROUND-2 FINDING R2-4. The refusal used to be "no input-shaped literal exists
+    ANYWHERE in the file", which is a statement about the file and not about the
+    terms: the reviewer's probe carried one unrelated valid `decoy` literal,
+    built its real input inside a rule body, and had the decoy satisfy the check
+    while the tested point — `newVendor: 7` — was never enumerated and never
+    domain-validated. The enumeration is per term now, so EVERY `with input as`
+    term must resolve; one that does not is this refusal by name, whatever else
+    the file contains.
+
+    A file the pinned parser refuses, or a suite with a `with input as` term that
+    cannot be resolved either way, is a `MatrixError` — the registered authoring
+    outcome — and never a silent pass."""
     code, raw = engines.opa_parse(tools, suite_path, workdir)
     if code != 0:
         raise MatrixError(
@@ -493,41 +598,32 @@ def rego_case_signatures(tools: engines.Toolchain, suite_path: str,
             % code)
     try:
         document = domain.parse_tree(raw)
-        indirect, cases = domain.cases_from_tree(document)
-        if indirect:
+        unresolved, cases = domain.cases_from_tree(document)
+        if unresolved:
             # The table-driven mode. Evaluate the suite's own package with the
             # pinned binary: that resolves the named constants and helper
             # functions real suites build their input points out of, and gives
-            # both a NAME MAP for the syntactic scan (a table written inside a
-            # rule body never reaches the package document) and a set of
-            # resolved points (a table written AS a rule does).
+            # the NAME MAP the per-term resolution needs.
             data_paths = [suite_path] + ([policy_path] if policy_path else [])
             eval_code, eval_raw = engines.opa_eval_document(
                 tools, data_paths, domain.package_path(document), workdir)
             if eval_code == 0:
                 resolved = domain.package_document(eval_raw)
                 names = resolved if isinstance(resolved, dict) else None
-                _indirect, cases = domain.cases_from_tree(document, names)
-                seen = {domain.canonical(signature)
-                        for _index, signature in cases}
-                merged = list(cases)
-                for _index, signature in domain.resolved_input_points(eval_raw):
-                    key = domain.canonical(signature)
-                    if key not in seen:
-                        seen.add(key)
-                        merged.append((len(merged), signature))
-                cases = merged
+                unresolved, cases = domain.cases_from_tree(document, names)
     except domain.DomainError as error:
         raise MatrixError("E4-MATRIX-SCHEMA %s" % error)
     except ValueError as error:
         raise MatrixError("E4-MATRIX-SCHEMA the resolved suite document is not "
                           "readable JSON (%s)" % type(error).__name__)
-    if indirect and not cases:
+    if unresolved:
         raise MatrixError(
             "E4-MATRIX-SCHEMA %d `with input as` term(s) name an input point "
-            "rather than carrying one, and neither the suite's syntax tree nor "
-            "its resolved document holds one: its case inputs cannot be "
-            "validated against the registered domain" % indirect)
+            "that neither the suite's syntax tree nor its resolved package "
+            "document holds (%s): those case inputs cannot be validated against "
+            "the registered domain, and an unrelated literal elsewhere in the "
+            "file does not stand in for them"
+            % (len(unresolved), "; ".join(sorted(set(unresolved))[:3])))
     return [("case[%d]" % order, signature)
             for order, (_index, signature) in enumerate(cases)]
 

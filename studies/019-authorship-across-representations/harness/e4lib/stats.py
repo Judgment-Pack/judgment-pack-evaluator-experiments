@@ -198,18 +198,70 @@ def probability_at_least(k: int, n: int, p: Fraction) -> Fraction:
     return _tail_ge(k, n, p)
 
 
+# The three states of a published rate block's interval. Section 5: "No
+# inferential quantity is computed, let alone published, at or above row 3."
+CI_PENDING = "not-computed-yet"
+CI_COMPUTED = "computed"
+CI_EMPTY = "undefined-over-an-empty-denominator"
+CI_SUPPRESSED = "not-computed-control-gate-failed"
+
+
 def rate_block(k: int, n: int, denominator: str) -> dict:
     """The reported shape for one proportion: the integers, the point estimate,
     the exact interval, and the NAME of the denominator it is over. Never a
     rate without its denominator, and never a bound a reader cannot recompute
     from the integers (Study 012 section 4.7; PREREGISTRATION.md section 10's
-    publication commitment repeats it for every rate this study publishes)."""
+    publication commitment repeats it for every rate this study publishes).
+
+    THE INTERVAL IS NOT COMPUTED HERE (round-2 finding R2-12). §5 says no
+    inferential quantity is COMPUTED, let alone published, at or above row 3, and
+    the marginal Clopper-Pearson bounds were computed inside every endpoint
+    before any gate had been evaluated and printed unconditionally afterwards —
+    a failed-E1 probe returned `control-gate-failed` and still published
+    `[0.0126, 0.9874]`. Contrast and direction suppression held, which is
+    narrower than the prohibition. So the block leaves with its integers and its
+    rate and an interval in the `not-computed-yet` state; `fill_intervals()`
+    computes the bounds once, later, and only for an outcome that reaches row 4.
+    Nothing recomputes a rate: a suppressed interval and a published one are the
+    same counts."""
     if n <= 0:
         return {"count": k, "trials": n, "denominator": denominator,
-                "rate": None, "ci95": None}
-    low, high = clopper_pearson(k, n)
+                "rate": None, "ci95": None, "ci95State": CI_EMPTY}
     return {"count": k, "trials": n, "denominator": denominator,
-            "rate": k / n, "ci95": [low, high]}
+            "rate": k / n, "ci95": None, "ci95State": CI_PENDING}
+
+
+def _is_pending_block(node) -> bool:
+    return (isinstance(node, dict) and node.get("ci95State") == CI_PENDING
+            and isinstance(node.get("count"), int)
+            and isinstance(node.get("trials"), int))
+
+
+def fill_intervals(node, licensed: bool, reason: str = None) -> int:
+    """Walk a published structure and settle every pending rate block.
+
+    `licensed` is "the ordered decision rule reached row 4": the gate rows were
+    evaluated first and none of them matched. When it is false nothing is
+    computed at all — the state becomes `not-computed-control-gate-failed` and
+    carries the reason, so a reader sees an interval that was withheld rather
+    than an interval that does not exist. Returns how many blocks it settled."""
+    settled = 0
+    if isinstance(node, dict):
+        if _is_pending_block(node):
+            if licensed:
+                low, high = clopper_pearson(node["count"], node["trials"])
+                node["ci95"] = [low, high]
+                node["ci95State"] = CI_COMPUTED
+            else:
+                node["ci95State"] = CI_SUPPRESSED
+                node["ci95Suppressed"] = reason
+            return 1
+        for value in node.values():
+            settled += fill_intervals(value, licensed, reason)
+    elif isinstance(node, list):
+        for item in node:
+            settled += fill_intervals(item, licensed, reason)
+    return settled
 
 
 # --- PORT 2: the registered contrast (design/mutants/oc_table.py) -----------

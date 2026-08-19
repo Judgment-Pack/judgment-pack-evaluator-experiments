@@ -32,6 +32,10 @@ from e4lib import e4
 from e4lib import engines
 
 DESIGN = os.path.join(score.STUDY, "design")
+
+# The reviewer's R2-4 residual suite, retained as bytes so the probe in
+# this file is the construction the review published and not a paraphrase.
+DECOY_SUITE = 'package residual_dynamic_test\nimport rego.v1\n\ndecoy := {"vendor": {"sanctionsStatus": "CLEAR"}}\n\nmake_bad(nv) := {\n\t"vendor": {\n\t\t"sanctionsStatus": "CLEAR",\n\t\t"countryRisk": "LOW",\n\t\t"riskScore": 50,\n\t\t"requestedSpend": 50000,\n\t\t"newVendor": nv,\n\t\t"criticalSupplier": "no",\n\t\t"priorEnforcement": "no",\n\t},\n\t"evidence": {\n\t\t"financial-evidence": "present",\n\t\t"insurance-certificate": "present",\n\t},\n}\n\ntest_dynamic_case if {\n\tbuilt := make_bad(7)\n\tdata.study.decision == {"disposition": "approve", "reasons": []} with input as built\n}\n'
 PILOT_SUITE = os.path.join(
     DESIGN, "pilots", "2026-08-15-calibration-pilot-01", "arm-B", "run-005",
     "secondary.rego")
@@ -112,7 +116,9 @@ def arm_a_completion(gold, rows=3):
         cases.append({"id": row["id"], "facts": facts,
                       "evidenceAvailability": evidence,
                       "expectedDisposition": expected})
-    matrix = json.dumps({"matrixVersion": 2, "cases": cases}, indent=1)
+    # The REGISTERED spelling is the STRING (round-2 R2-6): the prompt says
+    # "`matrixVersion`: the string `"2"`" and every real pilot matrix emits it.
+    matrix = json.dumps({"matrixVersion": "2", "cases": cases}, indent=1)
     pack = read(os.path.join(DESIGN, "reference", "refA", "pack.json"))
     return "PACK:\n```json\n%s\n```\n\nMATRIX:\n```json\n%s\n```\n" % (pack,
                                                                        matrix)
@@ -297,6 +303,124 @@ def test_an_out_of_domain_rego_case_is_caught_and_named(tools, tmp_path):
     assert failures[0]["got"] == e4.OUT_OF_DOMAIN
     assert any("sanctions is omitted" in problem
                for problem in failures[0]["problems"])
+
+
+def test_a_prompt_conforming_matrix_is_the_one_the_loader_accepts(tools, gold,
+                                                                  tmp_path):
+    """ROUND-2 R2-6, against the prompt's own bytes.
+
+    `design/prompts/ARM-A-INSTRUCTIONS.md` registers `matrixVersion` as the
+    STRING "2", the arm-A excerpt's examples emit it, and so does every real
+    pilot matrix. The loader registered the INTEGER, so a prompt-conforming
+    matrix was refused as `unparseable-artifact` and scored zero — the primary
+    endpoint was unreachable for arm A, exactly as R1-1's single cut made it
+    unreachable for arms B and C. The old tests missed it because they were
+    written against the loader rather than against the prompt."""
+    instructions = read(os.path.join(DESIGN, "prompts",
+                                     "ARM-A-INSTRUCTIONS.md"))
+    assert '`matrixVersion`: the string `"2"`' in instructions
+    assert e4.MATRIX_VERSION == "2"
+    real = os.path.join(DESIGN, "pilots", "2026-08-15-calibration-pilot-01",
+                        "arm-A", "run-008", "secondary.json")
+    if os.path.isfile(real):
+        _cases, note = e4.load_matrix(real)
+        assert note["matrixVersion"] == "2"
+    numeric = tmp_path / "as_the_loader_used_to_say.json"
+    numeric.write_text(json.dumps({"matrixVersion": 2, "cases": []}))
+    with pytest.raises(e4.MatrixError) as raised:
+        e4.load_matrix(str(numeric))
+    assert "registered spelling" in str(raised.value)
+
+
+# --- ROUND-2 R2-3 and R2-4, against the pinned binary -----------------------
+
+def test_an_evaluation_fault_on_a_mutant_refuses_and_is_not_a_kill(tools,
+                                                                   tmp_path):
+    """THE REVIEWER'S R2-3 PROBE, executed.
+
+    `opa test` has no `--strict-builtin-errors` at v1.19.0, so a division by
+    zero inside a test body is not an error: the expression is undefined, the
+    body is undefined, and the test reports `fail: true` with no `error` member.
+    A reference-passing test therefore "killed" every mutant that faulted it.
+    Three policies here — the value the test expects, a zero that faults, and a
+    value that simply disagrees — and the three answers must be
+    survived / refused / killed."""
+    suite = tmp_path / "fault_test.rego"
+    suite.write_text("package study_test\nimport rego.v1\n"
+                     "test_div if {\n  1 / data.study.denominator == 1\n}\n")
+    answers = {}
+    for label, value in (("reference", 1), ("faulting-mutant", 0),
+                         ("disagreeing-mutant", 5)):
+        policy = tmp_path / ("%s.rego" % label)
+        policy.write_text("package study\nimport rego.v1\n"
+                          "denominator := %d\n" % value)
+        record = engines.opa_test(tools, str(policy), str(suite), str(tmp_path))
+        outcome, _r = e4.kill_arm_rego(tools, str(policy), str(suite),
+                                       str(tmp_path))
+        answers[label] = (record["status"], outcome,
+                          [f["fault"] for f in record["evaluationFaults"]])
+    assert answers["reference"] == (engines.TEST_PASS, e4.SURVIVED, [])
+    assert answers["faulting-mutant"] == (engines.TEST_ERRORED, e4.REFUSED,
+                                          ["eval_builtin_error"])
+    assert answers["disagreeing-mutant"] == (engines.TEST_FAILED, e4.KILLED, [])
+
+
+def test_an_explicit_null_in_a_rego_case_is_out_of_domain(tools, tmp_path):
+    """ROUND-2 R2-4, first half, through the pinned parser. A suite using
+    `newVendor: null` passed domain validation and identity validation and
+    killed four paired mutants."""
+    suite = tmp_path / "explicit_null_test.rego"
+    suite.write_text(
+        "package explicit_null_test\nimport rego.v1\n"
+        "test_null if {\n"
+        '  data.study.decision.disposition == "approve" with input as '
+        '{"vendor": {"sanctionsStatus": "CLEAR", "countryRisk": "LOW", '
+        '"riskScore": 50, "requestedSpend": 50000, "newVendor": null, '
+        '"criticalSupplier": "no", "priorEnforcement": "no"}, '
+        '"evidence": {"financial-evidence": "present"}}\n'
+        "}\n")
+    reference = os.path.join(DESIGN, "reference", "refB", "policy.rego")
+    named = e4.rego_case_signatures(tools, str(suite), str(tmp_path), reference)
+    failures = e4.domain_failures(named, "number")
+    assert len(failures) == 1
+    assert failures[0]["got"] == e4.OUT_OF_DOMAIN
+    assert any("carrying a JSON null" in problem
+               for problem in failures[0]["problems"])
+
+
+def test_an_unrelated_decoy_literal_cannot_certify_a_dynamic_input(tools,
+                                                                   tmp_path):
+    """THE REVIEWER'S R2-4 SUITE, as written.
+
+    The decoy makes the file's aggregate of input-shaped literals non-empty, so
+    the enumeration accepted the suite and never validated the point the test
+    actually asserts about — `newVendor: 7` — which then earned four paired
+    kills. Enumeration is per term now: the term resolves or the suite is the
+    registered authoring code."""
+    suite = tmp_path / "residual_dynamic_test.rego"
+    suite.write_text(DECOY_SUITE)
+    reference = os.path.join(DESIGN, "reference", "refB", "policy.rego")
+    with pytest.raises(e4.MatrixError) as raised:
+        e4.rego_case_signatures(tools, str(suite), str(tmp_path), reference)
+    assert "does not stand in for them" in str(raised.value)
+
+
+def test_the_real_pilot_suites_still_enumerate_under_the_per_term_rule(
+        tools, tmp_path):
+    """The per-term rule must not refuse the shapes real authored suites use: a
+    `some name, tc in cases` table, package-level named constants, and a
+    `decision_for(doc)` helper whose parameter is bound at its call sites."""
+    reference = os.path.join(DESIGN, "reference", "refB", "policy.rego")
+    root = os.path.join(DESIGN, "pilots", "2026-08-15-calibration-pilot-01")
+    suites = [os.path.join(root, arm, run, "secondary.rego")
+              for arm in ("arm-B", "arm-C")
+              for run in sorted(os.listdir(os.path.join(root, arm)))
+              if os.path.isfile(os.path.join(root, arm, run,
+                                             "secondary.rego"))]
+    assert len(suites) >= 10
+    for path in suites:
+        named = e4.rego_case_signatures(tools, path, str(tmp_path), reference)
+        assert len(named) > 20, path
 
 
 def test_a_suite_whose_points_cannot_be_recovered_is_the_authoring_code(

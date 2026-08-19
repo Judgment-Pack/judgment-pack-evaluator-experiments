@@ -441,20 +441,43 @@ def opa_test(tools: Toolchain, policy_path: str, suite_path: str,
 
         pass                 the document lists tests and none failed or errored
         failed               at least one test FAILED — the only kill signal
-        errored              a test ERRORED; the assertion never decided
+        errored              a test ERRORED, or its assertion never decided
+                             because an EVALUATION FAULT made the body undefined
         invocation-refused   `opa test` never ran the tests (load/parse/compile)
         timeout              the harness's own bound
         unreadable-result-document   a nonempty stdout that is not a result list
 
     The exit status is RECORDED and read by nothing. At v1.19.0 it is 0/2/1 for
     pass/failure/invocation-error (module docstring), but a status is a contract
-    that can move between versions and a result document is data."""
+    that can move between versions and a result document is data.
+
+    ROUND-2 FINDING R2-3, and the result document alone was not enough. §2
+    registers the taxonomy — "a kill is an assertion failure on a named test, and
+    a load/parse/compile/RUNTIME/timeout failure is an apparatus refusal" — and
+    upstream's own testing document distinguishes a failed assertion from an
+    evaluation error. But `opa test` has NO `--strict-builtin-errors` at v1.19.0
+    (verified against the pinned binary), so a builtin fault inside a test body
+    is not an error at all: it makes the expression UNDEFINED, the body
+    undefined, and the test reports `fail: true` with no `error` member. The
+    reviewer's probe is exactly that — a reference-passing test containing
+    `1 / denominator == 1` against a valid mutant that sets the denominator to
+    zero — and the harness credited a kill for a division by zero.
+
+    The failure is therefore ADJUDICATED rather than read off one document: every
+    test the run reports as failed is re-evaluated as a query, once, under
+    `opa eval --strict-builtin-errors` over the same two files. Strict mode is
+    where the pinned binary itself distinguishes the two — an evaluation fault
+    comes back as an `errors` list carrying `eval_builtin_error`, and a genuine
+    assertion failure comes back undefined (`{}`, exit 0). The scan stops at the
+    first test that survives adjudication, because one real assertion failure is
+    a kill and the rest is diagnosis. An adjudication whose own output cannot be
+    read counts the test as ERRORED: fail-closed is a refusal, never a kill."""
     code, out, err = _run(
         [tools.opa, "test", policy_path, suite_path,
          "--capabilities", tools.caps, "--timeout", OPA_EVAL_TIMEOUT,
          "--format", "json"], workdir)
     record = {"exitCode": code, "tests": 0, "failed": [], "errored": [],
-              "status": None}
+              "status": None, "evaluationFaults": []}
     if code == 124:
         record["status"] = TEST_TIMEOUT
         return record
@@ -470,6 +493,7 @@ def opa_test(tools: Toolchain, policy_path: str, suite_path: str,
                             else TEST_UNREADABLE)
         record["diagnosticBytes"] = len(err.encode("utf-8"))
         return record
+    reported_failures = []
     for entry in document:
         if not isinstance(entry, dict):
             record["status"] = TEST_UNREADABLE
@@ -479,14 +503,63 @@ def opa_test(tools: Toolchain, policy_path: str, suite_path: str,
         if entry.get("error") is not None:
             record["errored"].append(name)
         elif entry.get("fail"):
+            reported_failures.append(name)
+    # DETERMINISM, and it is a registered property of what this produces.
+    # `opa test --format json` does not order its result list (`--sort` defaults
+    # to `none`), so "the first reported failure" is not a stable choice and two
+    # scorings of one batch disagreed on which named test they recorded. Sorting
+    # here makes the adjudication order — and therefore the retained
+    # `failedTests` — a function of the data and not of the run.
+    for name in sorted(reported_failures):
+        fault = evaluation_fault(tools, [policy_path, suite_path], name,
+                                 workdir)
+        if fault is None:
             record["failed"].append(name)
-    if record["errored"]:
-        record["status"] = TEST_ERRORED
-    elif record["failed"]:
+            break
+        record["evaluationFaults"].append({"test": name, "fault": fault})
+        record["errored"].append(name)
+    record["errored"].sort()
+    if record["failed"]:
         record["status"] = TEST_FAILED
+    elif record["errored"]:
+        record["status"] = TEST_ERRORED
     else:
         record["status"] = TEST_PASS
     return record
+
+
+def evaluation_fault(tools: Toolchain, data_paths, test_name: str,
+                     workdir: str):
+    """The named test re-evaluated in STRICT builtin-error mode: the fault code
+    when the body could not be evaluated, or `None` when it merely did not hold.
+
+    `test_name` is the result document's `"<package>.<name>"`, which is already
+    a query path (`data.study_test.test_x`). A sub-test name carries a `/`
+    suffix; the rule is what is queried, so the suffix is dropped and a fault
+    anywhere in the rule counts — the conservative direction, since the outcome
+    of a fault is a refusal.
+
+    `None` means "a real assertion failure": under strict mode the query is
+    undefined (`{}`, exit 0) or false, and neither is an apparatus event."""
+    query = test_name.split("/")[0]
+    code, raw = opa_eval_document(tools, list(data_paths), query, workdir)
+    try:
+        document = json.loads(raw.decode("utf-8", "replace") or "{}")
+    except ValueError:
+        return "unreadable-adjudication"
+    if not isinstance(document, dict):
+        return "unreadable-adjudication"
+    errors = document.get("errors")
+    if isinstance(errors, list) and errors:
+        codes = sorted({entry.get("code") for entry in errors
+                        if isinstance(entry, dict)
+                        and isinstance(entry.get("code"), str)})
+        return ",".join(codes) or "eval-error"
+    if code != 0:
+        # Nonzero with no readable error list: the adjudication itself did not
+        # answer, and an unanswered adjudication is not evidence of a kill.
+        return "adjudication-exit-%d" % code
+    return None
 
 
 def opa_eval_document(tools: Toolchain, data_paths, query: str,

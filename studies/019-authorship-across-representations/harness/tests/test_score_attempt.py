@@ -115,15 +115,141 @@ def test_the_pins_digest_is_over_the_exact_bytes_that_are_parsed(tmp_path,
         assert marker["pinsRawSha256"] == score.sha256_bytes(handle.read())
 
 
-def test_the_reviewer_set_is_refused_while_any_pin_is_null(tmp_path):
+def test_the_reviewer_set_is_refused_while_any_pin_is_null(tmp_path,
+                                                           monkeypatch):
     """`harness/PINS.json`'s own rule: `--include-reviewer-set` refuses while
-    any pin is null."""
+    any pin is null.
+
+    The guard reads `integrity.unfilled_pins()`, which is STUDY-LOCAL, so
+    round-2 R2-8 moved it below `integrity.verify()` — verification is the first
+    thing that runs against the tree, and on this pre-freeze tree it is the
+    refusal that lands. The guard's own refusal is what lands once the tree
+    verifies, which is what the no-op here stands in for."""
+    root = tmp_path / "primary-attempt-001"
+    assert score.main(["--attempt-root", str(root),
+                       "--include-reviewer-set"]) == 2
+    assert json.loads(read(root / "ATTEMPT.json"))["includeReviewerSet"] is True
+
+    verified = tmp_path / "verified-attempt-001"
+    monkeypatch.setattr(score.integrity, "verify", lambda *_a, **_k: None)
+    assert score.main(["--attempt-root", str(verified),
+                       "--include-reviewer-set"]) == 2
+    results = json.loads(read(verified / "RESULTS.json"))
+    assert results["problem"].startswith("--include-reviewer-set is refused")
+
+
+def test_verification_precedes_every_study_local_call(tmp_path, monkeypatch):
+    """ROUND-2 R2-8, as an ORDER assertion.
+
+    The scorer used to call `integrity.study_label()` and
+    `integrity.unfilled_pins()` — study-local code — and, on its early terminal
+    path, to import `batch` and the whole of `e4lib`, all before
+    `integrity.verify()` had established anything about the tree those bytes
+    live in. The claim "integrity runs before the scorer imports a single study
+    module" was therefore false of the label rule, the null-pin guard and every
+    pre-verification failure."""
+    order = []
+    for name in ("verify", "study_label", "unfilled_pins"):
+        original = getattr(score.integrity, name)
+
+        def wrapper(*args, _name=name, _original=original, **kwargs):
+            order.append(_name)
+            return _original(*args, **kwargs)
+
+        monkeypatch.setattr(score.integrity, name, wrapper)
+    original_bind = score.bind_study_modules
+
+    def record_bind(*args, **kwargs):
+        order.append("bind_study_modules")
+        return original_bind(*args, **kwargs)
+
+    monkeypatch.setattr(score, "bind_study_modules", record_bind)
+    score.main(["--attempt-root", str(tmp_path / "primary-attempt-001")])
+    assert order, "nothing study-local was invoked at all"
+    assert order[0] == "verify", order
+
+
+def test_a_pre_verification_failure_does_not_bind_the_tree(tmp_path,
+                                                           monkeypatch):
+    """The one path that exists BECAUSE the tree cannot be trusted was the path
+    that bound the untrusted tree: `terminal()` called `bind_study_modules()`
+    unconditionally to print a row-1 verdict whose text is a constant."""
+    bound = []
+    monkeypatch.setattr(score, "bind_study_modules",
+                        lambda *a, **k: bound.append(1))
+    monkeypatch.setattr(score, "PINS_PATH", str(tmp_path / "absent.json"))
+    root = tmp_path / "primary-attempt-001"
+    assert score.main(["--attempt-root", str(root)]) == 2
+    assert bound == []
+    results = json.loads(read(root / "RESULTS.json"))
+    assert results["decision"]["verdict"] == "R1 inconclusive - pipeline-invalid"
+    assert "could not be imported" in results["decision"]["note"]
+
+
+# --- ROUND-2 R2-7: the mandatory holdout is loaded FIRST and fatally ---------
+
+def _reachable(monkeypatch, label="PILOT"):
+    """A tree the integrity gate accepts and a registry with no unfilled pin, so
+    the reviewer-set branch is reachable at all on this pre-freeze checkout."""
+    monkeypatch.setattr(score.integrity, "verify", lambda *_a, **_k: None)
+    monkeypatch.setattr(score.integrity, "unfilled_pins", lambda *_a, **_k: [])
+    monkeypatch.setattr(score.integrity, "study_label", lambda *_a, **_k: label)
+
+
+def test_a_reviewer_set_that_does_not_load_is_pipeline_invalid(tmp_path,
+                                                               monkeypatch):
+    """The finding, exactly: the scorer computed endpoints, gates, contrasts and
+    THE DECISION and only then loaded the sealed set, caught a
+    `ReviewerSetError` into `refusals`, recorded `pipelineInvalid: false` and
+    exited 0. A missing, malformed or digest-invalid mandatory holdout could
+    coexist with a published substantive verdict.
+
+    The committed set is currently digest-invalid — the round-2 reviewer's own
+    `rm-jps-03` payload does not hash to its manifest entry — so this runs
+    against the real refusal rather than a synthetic one."""
+    _reachable(monkeypatch)
     root = tmp_path / "primary-attempt-001"
     assert score.main(["--attempt-root", str(root),
                        "--include-reviewer-set"]) == 2
     results = json.loads(read(root / "RESULTS.json"))
-    assert results["problem"].startswith("--include-reviewer-set is refused")
-    assert json.loads(read(root / "ATTEMPT.json"))["includeReviewerSet"] is True
+    assert results["pipelineInvalid"] is True
+    assert results["problem"].startswith("the sealed reviewer mutant set is "
+                                         "mandatory")
+    assert "REVIEWER-SET" in results["problem"]
+    # …and no substantive record was written beside it.
+    assert not (root / "RESULTS.md").exists()
+    assert "decision" in results and results["decision"]["rowIndex"] == 1
+
+
+def test_the_reviewer_set_loads_before_a_single_slot_is_read(tmp_path,
+                                                             monkeypatch):
+    """"Loaded and schema-checked BEFORE the attempt" (§1a). The order is
+    asserted by making the slot reader explode: the reviewer refusal is the one
+    that lands, so nothing downstream of it ran."""
+    _reachable(monkeypatch)
+
+    def explode(*_args, **_kwargs):
+        raise AssertionError("the population was built before the holdout was "
+                             "validated")
+
+    monkeypatch.setattr(score, "slots_present", explode)
+    root = tmp_path / "primary-attempt-001"
+    assert score.main(["--attempt-root", str(root),
+                       "--include-reviewer-set"]) == 2
+    results = json.loads(read(root / "RESULTS.json"))
+    assert results["problem"].startswith("the sealed reviewer mutant set is "
+                                         "mandatory")
+
+
+def test_an_attempt_without_the_flag_never_touches_the_sealed_set(tmp_path,
+                                                                  monkeypatch):
+    """A PILOT may not execute it, and the load is what would touch it."""
+    _reachable(monkeypatch)
+    touched = []
+    monkeypatch.setattr(score.reviewer_lib, "load",
+                        lambda *a, **k: touched.append(1))
+    score.main(["--attempt-root", str(tmp_path / "primary-attempt-001")])
+    assert touched == []
 
 
 # --- the terminal record ----------------------------------------------------
@@ -186,6 +312,9 @@ def test_a_crash_after_the_marker_is_recorded_and_re_raised(tmp_path,
                                                             monkeypatch):
     def explode(*_args, **_kwargs):
         raise RuntimeError("synthetic")
+    # `study_label` is invoked BELOW `integrity.verify()` since round-2 R2-8, so
+    # reaching it at all needs a tree the gate accepts.
+    monkeypatch.setattr(score.integrity, "verify", lambda *_a, **_k: None)
     monkeypatch.setattr(score.integrity, "study_label", explode)
     root = tmp_path / "primary-attempt-001"
     with pytest.raises(RuntimeError):
@@ -199,6 +328,7 @@ def test_a_system_exit_after_the_marker_is_recorded_and_re_raised(tmp_path,
                                                                   monkeypatch):
     def leave(*_args, **_kwargs):
         raise SystemExit(3)
+    monkeypatch.setattr(score.integrity, "verify", lambda *_a, **_k: None)
     monkeypatch.setattr(score.integrity, "study_label", leave)
     root = tmp_path / "primary-attempt-001"
     with pytest.raises(SystemExit):
@@ -252,6 +382,13 @@ def test_the_timeout_rate_is_over_attempted_runs_and_carries_an_interval():
     assert counted["timeoutRate"]["count"] == 1
     assert counted["timeoutRate"]["trials"] == 10
     assert counted["timeoutRate"]["denominator"] == "attempted runs"
+    # ROUND-2 R2-12: the block leaves `population()` with its integers and no
+    # interval; the bounds are settled once, later, and only for an outcome that
+    # reached row 4.
+    from e4lib import stats
+    assert counted["timeoutRate"]["ci95"] is None
+    assert counted["timeoutRate"]["ci95State"] == stats.CI_PENDING
+    stats.fill_intervals(counted, True)
     assert counted["timeoutRate"]["ci95"][0] < 0.1 < counted["timeoutRate"]["ci95"][1]
 
 
@@ -692,6 +829,69 @@ def test_a_full_batch_with_no_declaration_is_terminal(tmp_path):
                      "declaration": None}
 
 
+def test_the_registered_empty_prefix_round_trips(tmp_path):
+    """ROUND-2 R2-9, driver to scorer.
+
+    `SHORTFALL_SCHEMA` registers `ledgerSha256`, `ledgerHeadSha256` and
+    `lastSlot` as nullable "only where a null is a fact (an empty prefix has no
+    last slot)", and `declare_shortfall()` emits exactly that when the batch died
+    before slot 1 — no ledger file, both digests null, an empty inventory. The
+    scorer demanded `BATCH.json` unconditionally, so the one declaration the
+    driver can write for the earliest possible failure was the one declaration
+    the scorer refused: `batch.validate_shortfall` and `batch.verify_shortfall`
+    both passed and `score.validate_attempt` failed solely because no ledger
+    existed. R1-7's branch to UNRESOLVED-BY-DESIGN was unreachable at zero."""
+    declaration = {
+        "declarationVersion": batch.SHORTFALL_VERSION,
+        "registeredRounds": batch.ROUNDS,
+        "registeredRunsPerArm": batch.RUNS_PER_ARM,
+        "registeredSlots": batch.REGISTERED_SLOTS,
+        "completedRounds": 0,
+        "completedThroughGlobalIndex": 0,
+        "completedSlots": 0,
+        "ledgerSha256": None,
+        "ledgerHeadSha256": None,
+        "slots": [],
+        "lastSlot": None,
+        "lastSlotEndedAt": None,
+        "lastSlotEndedAtFrom": None,
+        "reason": "the batch died before the first slot",
+        "note": "declared before scoring",
+    }
+    assert set(declaration) == set(batch.SHORTFALL_SCHEMA)
+    # The DRIVER accepts it, both ways, which is the half that already held.
+    batch.validate_shortfall(declaration)
+    batch.verify_shortfall(declaration, [], None)
+    (tmp_path / score.SHORTFALL_FILE).write_text(json.dumps(declaration))
+    shape = score.terminality(present(0), str(tmp_path))
+    assert shape["declared"] is True and shape["complete"] is False
+    assert shape["declaration"]["declaredSlots"] == 0
+    assert shape["declaration"]["ledgerRecords"] == 0
+    assert "no ledger file" in shape["declaration"]["verified"]
+
+
+def test_an_empty_prefix_that_names_a_ledger_refuses(tmp_path):
+    """The other direction: an empty prefix has no ledger, so a declaration that
+    names one, or a tree that carries one, is a disagreement about whether any
+    slot ran."""
+    declaration = {
+        "declarationVersion": batch.SHORTFALL_VERSION,
+        "registeredRounds": batch.ROUNDS,
+        "registeredRunsPerArm": batch.RUNS_PER_ARM,
+        "registeredSlots": batch.REGISTERED_SLOTS,
+        "completedRounds": 0, "completedThroughGlobalIndex": 0,
+        "completedSlots": 0, "ledgerSha256": None, "ledgerHeadSha256": None,
+        "slots": [], "lastSlot": None, "lastSlotEndedAt": None,
+        "lastSlotEndedAtFrom": None, "reason": "died early",
+        "note": "declared before scoring",
+    }
+    (tmp_path / score.SHORTFALL_FILE).write_text(json.dumps(declaration))
+    (tmp_path / batch.LEDGER_NAME).write_text(json.dumps({"records": []}))
+    with pytest.raises(score.ScoreError) as raised:
+        score.terminality(present(0), str(tmp_path))
+    assert "disagree about whether any slot ran" in str(raised.value)
+
+
 def test_a_short_batch_with_a_valid_declaration_is_terminal(tmp_path):
     slots = declared_batch(tmp_path, 10)
     shape = score.terminality(slots, str(tmp_path))
@@ -746,6 +946,61 @@ def test_e4_reports_identity_failures_as_a_first_class_rate():
     assert endpoint["identityRate"]["count"] == 1
     # …and an identity-failing suite is never high-kill, whatever it killed.
     assert endpoint["highKillRuns"] == ["run-001"]
+
+
+def test_the_identity_failure_denominator_is_the_registered_one(tmp_path):
+    """ROUND-2 FINDING R2-2, as the reviewer's own two-run probe.
+
+    "A direct two-run probe — one identity-pass/high-kill run and one identity
+    failure — produced primary E4 1/2, while the pilot rule produces 1/1." §5
+    registers §1a's denominator, "attempted runs whose apparatus succeeded",
+    with identity-control exclusions "reported, never silently dropped". So 1/2
+    is the registered answer, the primary scorer has always given it, and the
+    PILOT scorer was the one taking the other reading — it now takes this one
+    (`design/mutants/E4-PILOT-v3.json`).
+
+    The per-run marker is asserted here too, because it is the other half of the
+    same sentence: an identity-failing run carries `highKill: null` and never
+    `False`, since it was never asked, and it is in the denominator all the
+    same."""
+    cut = {"integerCut": 38}
+    passing = run("run-001", killed=39)
+    failing = run("run-002", identity=False, killed=39)
+    endpoint = score.e4_endpoint("A", [passing, failing], cut)
+    assert (endpoint["highKill"], endpoint["denominator"]) == (1, 2)
+    assert endpoint["highKillRate"]["count"] == 1
+    assert endpoint["highKillRate"]["trials"] == 2
+    assert endpoint["identityFail"] == 1
+    assert endpoint["identityFailedRuns"] == ["run-002"]
+    assert passing["highKill"] is True
+    assert failing["highKill"] is None
+    assert "identity-control exclusions" in endpoint["denominatorRule"]
+
+
+def test_the_pilot_scorer_now_computes_the_same_denominator():
+    """The two scorers agree by CONSTRUCTION, not by inspection: this reads the
+    pilot's own layer over a two-run arm shaped like the probe above."""
+    import importlib.util
+    path = os.path.join(score.STUDY, "design", "mutants", "e4_score.py")
+    if not os.path.isfile(path):
+        pytest.skip("the pilot scorer is absent")
+    spec = importlib.util.spec_from_file_location("e4_score_probe", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    doc = {"perArm": {
+        "A": {"mutantsPairedAdequate": 75, "identityFailedRuns": ["run-002"],
+              "perRun": [{"run": "run-001", "identityPass": True,
+                          "killedPaired": 72},
+                         {"run": "run-002", "identityPass": False}]},
+        "B": {"mutantsPairedAdequate": 65, "identityFailedRuns": [],
+              "perRun": []},
+        "C": {"mutantsPairedAdequate": 65, "identityFailedRuns": [],
+              "perRun": []}}}
+    module.high_kill_layer(doc, 0.95)
+    high = doc["perArm"]["A"]["highKill"]
+    assert (high["highKillRuns"], high["admittedRuns"]) == (1, 2)
+    assert high["identityFailingRunsInDenominator"] == 1
+    assert doc["perArm"]["A"]["perRun"][1]["highKill"] is None
 
 
 def test_e4_publishes_the_x1_excluded_case_count():

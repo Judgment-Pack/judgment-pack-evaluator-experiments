@@ -10,6 +10,17 @@ This file is a work record like `harness/SCAFFOLD.md` and is deleted at the
 freeze; it carries **no timestamps**, so re-running the deterministic half
 reproduces it byte for byte.
 
+> **ARCHIVE NOTICE (round-2 finding R2-14). Sections 1–8 of this file are the
+> SECOND-pass run record and their numbers are SUPERSEDED.** They were measured
+> before the arm-A reference repair, against a 145-mutant arm-A corpus, a 105-row
+> gold suite and a single cross-language τ cut. All three are gone: **X1 is
+> retired and `e4.partition_x1()`/`e4.in_x1()` no longer exist** — the registered
+> exclusion registry is empty (round-1 R1-2) — gold is 109 rows, and there are
+> **two** integer cuts, one per language (round-1 R1-1). §9 below is the current
+> pass and governs wherever the two disagree. Sections 1–8 are kept because a run
+> record is evidence of what ran, not a claim about the tree; nothing in them may
+> be read as describing the harness as it stands.
+
 It found **three structural defects in `harness/score.py`** on its first run.
 All three are FIXED, and section 8 is now the re-run that shows each one closed
 in the numbers rather than in a claim. Every scorer item `harness/SCAFFOLD.md`
@@ -94,9 +105,9 @@ reviewed harness code.
 The completions are **derived, never transcribed**:
 
 * the three matrix rows are gold rows chosen greedily for mutant-witness
-  coverage, with X1 rows excluded first — the same predicate `e4.partition_x1()`
-  applies at scoring time, so the suite is not built out of cases the filter
-  would drop;
+  coverage. *(Archived: this pass excluded X1 rows first, via the then-existing
+  `e4.partition_x1()`. That predicate is gone and the exclusion registry is
+  empty; the current builder excludes nothing.)*
 * arm A's `MATRIX:` block is those three points with expectations read off the
   arm's **own reference pack**, and its `PACK:` block is that reference;
 * arms B/C's `TESTS:` block is the same three points against the arm's own
@@ -220,7 +231,8 @@ What the run established, mechanically:
   Rego; **the τ cut derived at run time**: 77 of 81, `cutRate` 0.9506…;
 * **the identity control passed on the reference-derived suites in every arm** —
   arm A through `jpack experimental evaluate`, arms B/C through `opa test`; zero
-  identity failures, zero X1-excluded cases;
+  identity failures, zero X1-excluded cases *(X1 is retired; the field no longer
+  exists and the exclusion registry is empty)*;
 * **the reference-vs-gold floor gate RAN** (S10): 105 rows against both
   references, `failureCount: 0`, `held: true`. It was `held: false` with the
   code `GATE-FLOOR-NOT-RUN` in the first pass, and it is a real evaluation now —
@@ -292,7 +304,8 @@ directory** rather than against a list.
 `FM_ALPHA = 1/20`, `MESH_DEN = 1000`, `TAU = 19/20`, `DELTA = 1/5` — the mesh and
 the two-sided α the document pins.
 
-**The X1 predicate.** `e4.in_x1()` (what `score.py` filters with) against the
+**The X1 predicate — ARCHIVED, the predicate no longer exists.** This cross-check
+compared `e4.in_x1()` (what `score.py` then filtered with) against the
 predicate `design/gold/check_gold.py` enforces over the gold suite, on a shared
 vector set of 840 points — the cross product of risk `{None, 0, 39, 40, 41, 55,
 69, 70, 71, 100}`, spend `{None, 0.00, 99999.99, 100000.00, 100000.01,
@@ -300,6 +313,7 @@ vector set of 840 points — the cross product of risk `{None, 0, 39, 40, 41, 55
 `{None, yes, no}`, which straddles all three registered boundaries:
 
 ```
+ARCHIVED transcript — X1 is retired and neither predicate exists any more
 check_gold.py's four predicate lines are present verbatim
 shared vector set: 840 points; agree 840; disagree 0
 gold rows: 105; rows where the two differ or either says X1: none
@@ -418,7 +432,7 @@ the six items added is derived from a clock or from where the attempt lives. The
 Δ₀ sweep is the one that had to be checked: exact integer arithmetic over a
 registered mesh with a fixed bisection count, and it reproduces bit for bit.
 
-## 9. Reproducing this
+## 9. Reproducing this (second pass)
 
 The deterministic half — sections 3 and 7 — reproduces from the worktree alone.
 Section 4 onward needs the two pinned binaries and the fixture builder. The
@@ -444,7 +458,7 @@ not recorded here. Every scorer output above is.
 
 ---
 
-## 9. Third pass — after the round-1 response (supersedes sections 6–8's numbers)
+## 10. Third pass — after the round-1 response (supersedes sections 1–9's numbers)
 
 Sections 1–5 reproduce unchanged (same fixture builder path, same twelve slots, same four
 planned outcomes: slot 8 `call-timeout`, slot 11 no-marker; pre-batch identity 3/3). The

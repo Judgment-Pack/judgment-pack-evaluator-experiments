@@ -45,9 +45,19 @@ What it implements (the REGISTERED E4 scoring rules, applied to pilot inputs)
               iff AT LEAST ONE case disagrees in alignment scope (evaluation in case order,
               short-circuited at the first disagreement; the first disagreeing case id is
               recorded). A refusal on a mutant counts as disagreement.
-   arms B/C -- `opa test <mutant> <suite> ...`; kills iff exit is NONZERO. The failure
-              class is recorded: exit 1 -> `test-failure`, exit 2 -> `error`,
-              124 -> `timeout`, anything else -> `other`.
+   arms B/C -- `opa test <mutant> <suite> --format json ...`; the suite KILLS the
+              mutant iff a NAMED TEST FAILED ITS ASSERTION, read from the result
+              document. Nothing is keyed on the exit status (round-1 R1-8), and a
+              reported failure is ADJUDICATED before it counts (round-2 R2-3):
+              `opa test` has no `--strict-builtin-errors` at v1.19.0, so an
+              evaluation fault inside a test body makes the body undefined and the
+              test reports `fail: true` with no `error` member. Every reported
+              failure is therefore re-evaluated as a query under
+              `opa eval --strict-builtin-errors`; a fault comes back as an
+              `eval_builtin_error` and REFUSES, and an undefined body is the real
+              assertion failure and kills. A refused mutant is scored NEITHER way:
+              it is not a kill and not a survivor, and it stays in the denominator
+              so no refusal inflates a rate by shrinking one.
    `notAdequate` mutants (empty witness set -- no gold row kills them) are scored but
    reported SEPARATELY: the headline kill rate is over the adequate own-language mutants.
 
@@ -109,7 +119,7 @@ REF_A = os.path.join(DESIGN, "reference", "refA", "pack.json")
 REF_B = os.path.join(DESIGN, "reference", "refB", "policy.rego")
 MUT_A_DIR = os.path.join(HERE, "refA")
 MUT_B_DIR = os.path.join(HERE, "refB")
-OUT = os.path.join(HERE, "E4-PILOT.json")
+OUT = os.path.join(HERE, "E4-PILOT-v3.json")
 
 ENGINE_TIMEOUT_S = 60
 WORKERS = int(os.environ.get("E4_WORKERS", str(min(16, (os.cpu_count() or 4)))))
@@ -335,26 +345,118 @@ def kill_arm_a(mutant_path, cases, root):
 # ---------------------------------------------------------------------- arms B/C
 
 
+TEST_PASS = "pass"
+TEST_FAILED = "failed"
+TEST_ERRORED = "errored"
+TEST_INVOCATION_REFUSED = "invocation-refused"
+TEST_TIMEOUT = "timeout"
+TEST_UNREADABLE = "unreadable-result-document"
+
+# The two statuses that are evidence ABOUT THE SUITE. Every other status is
+# evidence about the apparatus. Identical to `harness/e4lib/engines.py`'s, and
+# deliberately so: the pilot read and the primary read are the same taxonomy or
+# the pilot is not a pilot of this study (round-2 findings R2-2 and R2-3).
+TEST_SUITE_STATUSES = (TEST_PASS, TEST_FAILED)
+
+
+def _run(argv, wd):
+    try:
+        finished = subprocess.run(argv, stdout=subprocess.PIPE,
+                                  stderr=subprocess.PIPE,
+                                  timeout=ENGINE_TIMEOUT_S, cwd=wd,
+                                  env=clean_env(wd))
+    except subprocess.TimeoutExpired:
+        return 124, b"", b""
+    return finished.returncode, finished.stdout, finished.stderr
+
+
+def evaluation_fault(policy_path, suite_path, test_name, wd):
+    """The named test re-evaluated in STRICT builtin-error mode: the fault code
+    when the body could not be evaluated, or None when it merely did not hold."""
+    query = test_name.split("/")[0]
+    argv = [OPA, "eval", "--format", "json", "--strict-builtin-errors",
+            "--capabilities", CAPS, "--timeout", "10s",
+            "--data", policy_path, "--data", suite_path, query]
+    code, out, _err = _run(argv, wd)
+    try:
+        document = json.loads(out.decode("utf-8", "replace") or "{}")
+    except ValueError:
+        return "unreadable-adjudication"
+    if not isinstance(document, dict):
+        return "unreadable-adjudication"
+    errors = document.get("errors")
+    if isinstance(errors, list) and errors:
+        codes = sorted({entry.get("code") for entry in errors
+                        if isinstance(entry, dict)
+                        and isinstance(entry.get("code"), str)})
+        return ",".join(codes) or "eval-error"
+    if code != 0:
+        return "adjudication-exit-%d" % code
+    return None
+
+
 def opa_test(policy_path, suite_path, root):
-    """-> (exit_code, class_label)"""
+    """-> the RESULT-DOCUMENT record: `{exitCode, tests, failed, errored,
+    evaluationFaults, status}`.
+
+    ROUND-1 R1-8 and ROUND-2 R2-3, together. This returned `(exit code, class
+    label)` and the caller killed on any nonzero, so a compile failure, a load
+    failure and this script's own timeout each killed every mutant they touched;
+    and the class table it recorded had the v1.19.0 statuses backwards. The
+    status is now RECORDED and read by nothing, the kill signal is a named test
+    that failed its assertion, and a reported failure that is really an
+    evaluation fault refuses instead of killing."""
     wd = worker_dir(root)
     argv = [OPA, "test", policy_path, suite_path,
-            "--capabilities", CAPS, "--timeout", "10s"]
+            "--capabilities", CAPS, "--timeout", "10s", "--format", "json"]
+    code, out, err = _run(argv, wd)
+    record = {"exitCode": code, "tests": 0, "failed": [], "errored": [],
+              "evaluationFaults": [], "status": None}
+    if code == 124:
+        record["status"] = TEST_TIMEOUT
+        return record
+    text = out.decode("utf-8", "replace")
     try:
-        p = subprocess.run(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                           timeout=ENGINE_TIMEOUT_S, cwd=wd, env=clean_env(wd))
-        rc = p.returncode
-    except subprocess.TimeoutExpired:
-        rc = 124
-    if rc == 0:
-        return rc, "pass"
-    if rc == 1:
-        return rc, "test-failure"
-    if rc == 2:
-        return rc, "error"
-    if rc == 124:
-        return rc, "timeout"
-    return rc, "other"
+        document = json.loads(text)
+    except ValueError:
+        document = None
+    if not isinstance(document, list):
+        record["status"] = (TEST_INVOCATION_REFUSED if not text.strip()
+                            else TEST_UNREADABLE)
+        record["diagnosticBytes"] = len(err)
+        return record
+    reported = []
+    for entry in document:
+        if not isinstance(entry, dict):
+            record["status"] = TEST_UNREADABLE
+            return record
+        record["tests"] += 1
+        name = "%s.%s" % (entry.get("package"), entry.get("name"))
+        if entry.get("error") is not None:
+            record["errored"].append(name)
+        elif entry.get("fail"):
+            reported.append(name)
+    # DETERMINISM, and it is a registered property of what this produces.
+    # `opa test --format json` does not order its result list (`--sort` defaults
+    # to `none`), so "the first reported failure" is not a stable choice and two
+    # scorings of one batch disagreed on which named test they recorded. Sorting
+    # here makes the adjudication order — and therefore the retained
+    # `failedTests` — a function of the data and not of the run.
+    for name in sorted(reported):
+        fault = evaluation_fault(policy_path, suite_path, name, wd)
+        if fault is None:
+            record["failed"].append(name)
+            break
+        record["evaluationFaults"].append({"test": name, "fault": fault})
+        record["errored"].append(name)
+    record["errored"].sort()
+    if record["failed"]:
+        record["status"] = TEST_FAILED
+    elif record["errored"]:
+        record["status"] = TEST_ERRORED
+    else:
+        record["status"] = TEST_PASS
+    return record
 
 
 # -------------------------------------------------------------------- diagnostics
@@ -561,7 +663,7 @@ def score_arm(arm, lang, filename, mutants, paired_ids, root, pool):
     not_adequate = [m for m in scored if m["notAdequate"]]
     paired_adequate = [m for m in adequate if m["id"] in paired_ids[lang]]
 
-    per_run, id_failures = [], []
+    per_run, id_failures, refused_runs = [], [], []
     for suite in suites:
         entry = {"run": suite["run"],
                  "suiteFile": os.path.relpath(suite["path"], DESIGN),
@@ -572,10 +674,23 @@ def score_arm(arm, lang, filename, mutants, paired_ids, root, pool):
             ident_ok, failures = identity_arm_a(cases, root)
         else:
             cases = None
-            rc, cls = opa_test(REF_B, suite["path"], root)
-            ident_ok = (rc == 0)
-            failures = [] if ident_ok else [{"exitCode": rc, "class": cls}]
-            entry["identityExitCode"] = rc
+            probe = opa_test(REF_B, suite["path"], root)
+            # ROUND-1 R1-8: `pass` is the control held and `failed` is a real
+            # identity failure. Every other status is the APPARATUS, and a suite
+            # is not scored zero for an invocation this script could not make.
+            entry["identityStatus"] = probe["status"]
+            entry["identityExitCode"] = probe["exitCode"]
+            if probe["status"] not in TEST_SUITE_STATUSES:
+                entry["identityPass"] = None
+                entry["engineRefused"] = probe["status"]
+                entry["excludedFromKillRates"] = True
+                entry["apparatusRefusal"] = True
+                refused_runs.append(entry["run"])
+                per_run.append(entry)
+                continue
+            ident_ok = (probe["status"] == TEST_PASS)
+            failures = [] if ident_ok else [{"status": probe["status"],
+                                             "failedTests": probe["failed"][:5]}]
         entry["identityPass"] = ident_ok
         if not ident_ok:
             entry["identityFailures"] = failures[:20]
@@ -595,9 +710,20 @@ def score_arm(arm, lang, filename, mutants, paired_ids, root, pool):
         else:
             futs = [pool.submit(opa_test, m["path"], suite["path"], root) for m in scored]
             results = [f.result() for f in futs]
-            killed = [r[0] != 0 for r in results]
-            detail = {m["id"]: {"exitCode": r[0], "class": r[1]}
-                      for m, r in zip(scored, results) if r[0] != 0}
+            # ROUND-2 R2-3: a kill is a named test that FAILED ITS ASSERTION and
+            # survived the strict-mode adjudication. Everything else — an
+            # errored test, an evaluation fault, an invocation that never ran the
+            # tests, a timeout — is a REFUSAL, scored neither way.
+            killed = [r["status"] == TEST_FAILED for r in results]
+            refused = [m["id"] for m, r in zip(scored, results)
+                       if r["status"] not in TEST_SUITE_STATUSES]
+            detail = {m["id"]: {"exitCode": r["exitCode"], "status": r["status"],
+                                "failedTests": r["failed"][:3],
+                                "evaluationFaults": r["evaluationFaults"][:3]}
+                      for m, r in zip(scored, results)
+                      if r["status"] != TEST_PASS}
+            entry["refusedMutants"] = refused
+            entry["refusedMutantCount"] = len(refused)
 
         kill_of = dict(zip((m["id"] for m in scored), killed))
         n_ad = sum(1 for m in adequate if kill_of[m["id"]])
@@ -605,8 +731,8 @@ def score_arm(arm, lang, filename, mutants, paired_ids, root, pool):
         n_pa = sum(1 for m in paired_adequate if kill_of[m["id"]])
         classes = {}
         for v in detail.values():
-            if "class" in v:
-                classes[v["class"]] = classes.get(v["class"], 0) + 1
+            if "status" in v:
+                classes[v["status"]] = classes.get(v["status"], 0) + 1
 
         entry.update({
             "killVector": "".join("1" if k else "0" for k in killed),
@@ -635,6 +761,7 @@ def score_arm(arm, lang, filename, mutants, paired_ids, root, pool):
         "identityPass": len(used),
         "identityFail": len(id_failures),
         "identityFailedRuns": id_failures,
+        "apparatusRefusedRuns": refused_runs,
         "droppedRuns": dropped,
         "missingSuiteFiles": missing,
         "mutantsScored": len(scored),
@@ -654,7 +781,7 @@ def score_arm(arm, lang, filename, mutants, paired_ids, root, pool):
 
 
 def high_kill_layer(doc, tau):
-    """E4's decision layer, added 2026-08-18 for round-1 findings R1-1 and R1-18.
+    """E4's decision layer, at the REGISTERED denominator.
 
     R1-1, verbatim: *"The scorer derives one cutoff -- 77 -- from the JPS count and passes
     it to all arms, while each arm's kill denominator remains language-specific ... A
@@ -664,9 +791,21 @@ def high_kill_layer(doc, tau):
 
     So the cut is computed PER LANGUAGE from that language's own paired-adequate
     denominator, published as an integer next to the denominator it came from, and
-    asserted to be reachable. `high-kill` is `killedPaired >= cut` for the arm's own
-    language; a suite that failed the identity control has no kill vector and is recorded
-    as null, never as False.[0m""".replace("\033[0m", "")
+    asserted to be reachable.
+
+    ROUND-2 FINDING R2-2, and it was a disagreement between two scorers about ONE
+    registered rule. This layer divided by the identity-PASSING runs; §5 registers the
+    denominator as §1a's "attempted runs whose apparatus succeeded", with authoring
+    outcomes retained as not-high-kill and "identity-control exclusions ... reported,
+    never silently dropped". On a two-run arm with one identity-passing high-kill run and
+    one identity failure the two rules answer 1/1 and 1/2, and `harness/score.py` has
+    always answered 1/2. The registered rule is the primary scorer's; this now computes
+    it, and the pilot's published rates moved.
+
+    An identity-failing suite carries `highKill: null` — never False, because it was never
+    asked — and is IN the denominator all the same. A suite the ENGINE refused on is
+    neither: an apparatus failure is not an attempted run whose apparatus succeeded, so it
+    leaves the denominator and is published as its own count."""
     lang_of = {"A": "jps", "B": "rego", "C": "rego"}
     cuts = {}
     for lang, arm in (("jps", "A"), ("rego", "B")):
@@ -681,36 +820,46 @@ def high_kill_layer(doc, tau):
         a = doc["perArm"][arm]
         cut = cuts[lang_of[arm]]["integerCut"]
         high = 0
+        denominator = 0
         for e in a["perRun"]:
+            if e.get("apparatusRefusal"):
+                e["highKill"] = None          # outside the population entirely
+                continue
+            denominator += 1
             if not e.get("identityPass"):
-                e["highKill"] = None
+                e["highKill"] = None          # in the denominator, never asked
                 continue
             e["highKill"] = e["killedPaired"] >= cut
             high += 1 if e["highKill"] else 0
-        admitted = sum(1 for e in a["perRun"] if e.get("identityPass"))
         a["highKill"] = {
             "language": lang_of[arm],
             "integerCut": cut,
             "pairedAdequateMutants": cuts[lang_of[arm]]["pairedAdequateMutants"],
-            "admittedRuns": admitted,
+            "admittedRuns": denominator,
+            "identityFailingRunsInDenominator": len(a["identityFailedRuns"]),
+            "apparatusRefusedRuns": len(a.get("apparatusRefusedRuns") or []),
             "highKillRuns": high,
-            "highKillRate": round(high / admitted, 6) if admitted else None,
-            "note": "denominator is the arm's ADMITTED runs (identity-passing); suites "
-                    "failing identity carry highKill: null and are reported separately",
+            "highKillRate": round(high / denominator, 6) if denominator else None,
+            "note": "denominator is §1a's ADMITTED runs (attempted runs whose apparatus "
+                    "succeeded), so identity-failing suites are IN it carrying "
+                    "highKill: null and are reported separately; an engine refusal is an "
+                    "apparatus failure and leaves it (round-2 R2-2)",
         }
     return {"tau": tau,
             "rule": "high-kill iff the suite kills at least ceil(tau * N) of ITS OWN "
-                    "language's paired adequate mutant subset",
+                    "language's paired adequate mutant subset, over §1a's admitted-run "
+                    "denominator",
             "perLanguage": cuts,
             "finding": "round-1 R1-1 (one cut derived from the JPS count was applied to "
-                       "every arm, making a perfect Rego suite unable to be high-kill)"}
+                       "every arm) and round-2 R2-2 (the denominator here excluded "
+                       "identity-failing runs and the registered rule retains them)"}
 
 
 def main():
     global OUT
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=OUT,
-                    help="output path (E4-PILOT-v2.json for the rescored issue)")
+                    help="output path (E4-PILOT-v3.json for the current issue)")
     ap.add_argument("--tau", type=float, default=0.95)
     args = ap.parse_args()
     OUT = args.out
@@ -753,6 +902,35 @@ def main():
     doc = {
         "label": LABEL,
         "citable": False,
+        "issue": "v3",
+        "supersedes": ["E4-PILOT.json", "E4-PILOT-v2.json"],
+        "supersedingBanner":
+            "THIS ISSUE SUPERSEDES E4-PILOT-v2.json. Two round-2 findings changed HOW "
+            "two numbers are computed, and on this pilot's inputs neither changed WHAT "
+            "they are: every kill vector here is byte-identical to v2's, and the "
+            "published rates are unchanged. R2-3 -- arms B and C counted every nonzero "
+            "`opa test` exit as a kill, so an invocation that never ran the tests, a "
+            "timeout, and an evaluation fault inside a test body would each have killed "
+            "every mutant they touched. A kill is now a NAMED TEST THAT FAILED ITS "
+            "ASSERTION, read from the result document and adjudicated under "
+            "`opa eval --strict-builtin-errors` because `opa test` has no such flag at "
+            "v1.19.0. Measured: 0 refused mutants and 0 evaluation faults across all ten "
+            "Rego runs -- v2's per-run `killFailureClasses` of {error: 126} and the like "
+            "were a LABELLING defect (this script's class table had v1.19.0's exit "
+            "taxonomy backwards; exit 2 is a failed test, not an error), not "
+            "errors-counted-as-kills. R2-2 -- the high-kill denominator here was the "
+            "identity-PASSING runs, and Sec 5 registers Sec 1a's admitted runs, which "
+            "RETAIN identity-control exclusions carrying `highKill: null`. This pilot "
+            "has no identity failures in any arm, so the two rules agree here; "
+            "`harness/score.py` has always used the registered one. KNOWN LIMIT, "
+            "measured and not applied: this prototype runs no per-case registered-domain "
+            "check, and the harness's corrected enumeration finds one out-of-domain case "
+            "in 4 of the 5 arm-C suites (three assert `with input as {}`, one an input "
+            "with no `sanctionsStatus`) and none in arm A or arm B. Under Sec 4 those "
+            "four arm-C runs are identity failures, which would leave arm C's identity "
+            "at 1/5 and its descriptive mean paired kill rate resting on run-002 alone "
+            "(0.815) rather than on five suites (0.855). Arm C's high-kill endpoint is "
+            "0/5 either way. v2 and v1 are bannered, not deleted.",
         "study": "019-authorship-across-representations",
         "analysis": "E4 (mutation kill rate) applied to the calibration pilot",
         "warning": "NON-CITABLE PILOT: pilot suites from pilot_run.py, gold 0-draft; "

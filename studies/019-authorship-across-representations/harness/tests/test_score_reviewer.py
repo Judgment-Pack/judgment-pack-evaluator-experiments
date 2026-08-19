@@ -21,29 +21,43 @@ import integrity
 from e4lib import reviewer
 
 
+# The AUTHORED shape (round-2 R2-7): six mutants, both languages, filenames
+# `rm-<language>-NN.<registered extension>`, and records carrying exactly the
+# four registered members. The old fixture was two mutants named `r-a-001`
+# with an extra `authoredBy` member and a `sealedAt` beside the list — none of
+# which the round's own prompt registers, and all of which the loader accepted.
+DEFAULT_MUTANTS = [
+    ("rm-jps-01", "jps", "rm-jps-01.json", '{"specVersion": "0.2.0-draft"}\n'),
+    ("rm-jps-02", "jps", "rm-jps-02.json", '{"specVersion": "0.2.1-draft"}\n'),
+    ("rm-jps-03", "jps", "rm-jps-03.json", '{"specVersion": "0.2.2-draft"}\n'),
+    ("rm-rego-01", "rego", "rm-rego-01.rego", "package study\n"),
+    ("rm-rego-02", "rego", "rm-rego-02.rego", "package study\n# two\n"),
+    ("rm-rego-03", "rego", "rm-rego-03.rego", "package study\n# three\n"),
+]
+
+
 def sealed_tree(root, *, mutants=None, edits=None, manifest=None):
     root.mkdir(parents=True, exist_ok=True)
-    mutants = mutants if mutants is not None else [
-        ("r-a-001", "jps", "r-a-001.json", '{"specVersion": "0.2.0-draft"}\n'),
-        ("r-b-001", "rego", "r-b-001.rego", "package study\n"),
-    ]
+    mutants = mutants if mutants is not None else DEFAULT_MUTANTS
     records = []
     for identifier, language, filename, body in mutants:
         (root / filename).write_text(body)
         records.append({
             "id": identifier, "language": language, "file": filename,
             "sha256": hashlib.sha256(body.encode()).hexdigest(),
-            "authoredBy": "round-1 reviewer",
         })
     document = manifest if manifest is not None else {
         "reviewerSetVersion": reviewer.SET_VERSION,
-        "sealedAt": "round-1",
         "mutants": records,
     }
     if edits:
         document.update(edits)
     (root / reviewer.MANIFEST_NAME).write_text(json.dumps(document))
     return root
+
+
+def records_of(root):
+    return json.loads((root / reviewer.MANIFEST_NAME).read_text())["mutants"]
 
 
 # --- mandatory for REGISTERED ----------------------------------------------
@@ -65,17 +79,17 @@ def test_loading_validates_and_invokes_no_engine(tmp_path):
     `load()` takes no toolchain argument at all."""
     sealed = sealed_tree(tmp_path / "reviewer-mutants")
     loaded = reviewer.load(str(sealed))
-    assert loaded["count"] == 2
+    assert loaded["count"] == 6
     assert loaded["executed"] is False
     assert "no engine has been invoked" in loaded["note"]
-    assert sorted(record["language"] for record in loaded["mutants"]) == \
+    assert sorted(set(record["language"] for record in loaded["mutants"])) == \
         ["jps", "rego"]
 
 
 def test_the_manifest_digest_binds_the_executed_bytes_to_the_freeze(tmp_path):
     sealed = sealed_tree(tmp_path / "reviewer-mutants")
     loaded = reviewer.load(str(sealed))
-    assert reviewer.load(str(sealed), loaded["manifestSha256"])["count"] == 2
+    assert reviewer.load(str(sealed), loaded["manifestSha256"])["count"] == 6
     with pytest.raises(reviewer.ReviewerSetError) as raised:
         reviewer.load(str(sealed), "sha256:" + "0" * 64)
     assert str(raised.value).startswith("REVIEWER-SET-DIGEST")
@@ -84,7 +98,7 @@ def test_the_manifest_digest_binds_the_executed_bytes_to_the_freeze(tmp_path):
 def test_a_payload_edited_after_sealing_refuses(tmp_path):
     """"Committed verbatim": the set is executed as sealed or not at all."""
     sealed = sealed_tree(tmp_path / "reviewer-mutants")
-    (sealed / "r-b-001.rego").write_text("package study\n# edited\n")
+    (sealed / "rm-rego-01.rego").write_text("package study\n# edited\n")
     with pytest.raises(reviewer.ReviewerSetError) as raised:
         reviewer.load(str(sealed))
     assert str(raised.value).startswith("REVIEWER-SET-DIGEST")
@@ -97,6 +111,8 @@ def test_a_payload_edited_after_sealing_refuses(tmp_path):
     ({"mutants": [{"id": "r-1"}]}, "REVIEWER-SET-SCHEMA"),
     ({"mutants": [{"id": "r-1", "language": "python", "file": "x",
                    "sha256": "0" * 64}]}, "REVIEWER-SET-SCHEMA"),
+    # ROUND-2 R2-7: the authored schema, which the loader did not enforce.
+    ({"sealedAt": "round-1"}, "REVIEWER-SET-SCHEMA"),
 ])
 def test_every_schema_failure_refuses_by_name(tmp_path, edits, code):
     sealed = sealed_tree(tmp_path / "reviewer-mutants", edits=edits)
@@ -105,14 +121,92 @@ def test_every_schema_failure_refuses_by_name(tmp_path, edits, code):
     assert str(raised.value).startswith(code)
 
 
+# --- ROUND-2 R2-7: the schema is the one that was AUTHORED ------------------
+
+def test_a_set_below_the_registered_cardinality_refuses(tmp_path):
+    """The round's own prompt: "6-10 mutants total, both languages
+    represented". The loader accepted two."""
+    sealed = sealed_tree(tmp_path / "reviewer-mutants",
+                         mutants=DEFAULT_MUTANTS[:2])
+    with pytest.raises(reviewer.ReviewerSetError) as raised:
+        reviewer.load(str(sealed))
+    assert "6-10" in str(raised.value)
+
+
+def test_a_set_above_the_registered_cardinality_refuses(tmp_path):
+    extra = [("rm-rego-%02d" % index, "rego", "rm-rego-%02d.rego" % index,
+              "package study\n# %d\n" % index) for index in range(4, 10)]
+    sealed = sealed_tree(tmp_path / "reviewer-mutants",
+                         mutants=DEFAULT_MUTANTS + extra)
+    with pytest.raises(reviewer.ReviewerSetError) as raised:
+        reviewer.load(str(sealed))
+    assert "6-10" in str(raised.value)
+
+
+def test_a_single_language_set_refuses(tmp_path):
+    """"Both languages represented": a set that reaches one arm's language is
+    not the holdout that was authored."""
+    single = [("rm-rego-%02d" % index, "rego", "rm-rego-%02d.rego" % index,
+               "package study\n# %d\n" % index) for index in range(1, 7)]
+    sealed = sealed_tree(tmp_path / "reviewer-mutants", mutants=single)
+    with pytest.raises(reviewer.ReviewerSetError) as raised:
+        reviewer.load(str(sealed))
+    assert "both languages" in str(raised.value)
+
+
+def test_an_unregistered_record_member_refuses(tmp_path):
+    sealed = sealed_tree(tmp_path / "reviewer-mutants")
+    records = records_of(sealed)
+    records[0]["authoredBy"] = "round-2 reviewer"
+    sealed_tree(sealed, edits={"mutants": records},
+                manifest={"reviewerSetVersion": reviewer.SET_VERSION,
+                          "mutants": records})
+    with pytest.raises(reviewer.ReviewerSetError) as raised:
+        reviewer.load(str(sealed))
+    assert "authoredBy" in str(raised.value)
+
+
+@pytest.mark.parametrize("filename", ["rm-jps-01.rego", "rm-jps-01.txt",
+                                      "rm-jps-99.json", "other/rm-jps-01.json"])
+def test_a_filename_that_is_not_the_registered_one_refuses(tmp_path, filename):
+    """Filename/extension consistency: a `jps` mutant is `<id>.json` and a
+    `rego` mutant is `<id>.rego`, and the id names the file."""
+    sealed = sealed_tree(tmp_path / "reviewer-mutants")
+    records = records_of(sealed)
+    records[0]["file"] = filename
+    (sealed / reviewer.MANIFEST_NAME).write_text(json.dumps(
+        {"reviewerSetVersion": reviewer.SET_VERSION, "mutants": records}))
+    with pytest.raises(reviewer.ReviewerSetError) as raised:
+        reviewer.load(str(sealed))
+    assert str(raised.value).startswith("REVIEWER-SET-SCHEMA")
+
+
+def test_an_absolute_path_does_not_escape_the_sealed_directory(tmp_path):
+    """THE REVIEWER'S R2-7 CONSTRUCTION. The containment check was
+    `dirname(normpath(file)).startswith("..")` — and `dirname("/x")` is `"/"`,
+    which does not start with `..`, while `os.path.join(root, "/x")` is `"/x"`.
+    An absolute path therefore passed containment and was read from outside the
+    sealed set entirely."""
+    outside = tmp_path / "outside.json"
+    outside.write_text('{"specVersion": "0.2.0-draft"}\n')
+    sealed = sealed_tree(tmp_path / "reviewer-mutants")
+    records = records_of(sealed)
+    records[0]["file"] = str(outside)
+    records[0]["sha256"] = hashlib.sha256(outside.read_bytes()).hexdigest()
+    (sealed / reviewer.MANIFEST_NAME).write_text(json.dumps(
+        {"reviewerSetVersion": reviewer.SET_VERSION, "mutants": records}))
+    with pytest.raises(reviewer.ReviewerSetError) as raised:
+        reviewer.load(str(sealed))
+    assert str(raised.value).startswith("REVIEWER-SET-SCHEMA")
+
+
 def test_two_members_of_one_name_refuse(tmp_path):
     body = "package study\n"
     digest = hashlib.sha256(body.encode()).hexdigest()
-    sealed = sealed_tree(tmp_path / "reviewer-mutants", edits={"mutants": [
-        {"id": "r-b-001", "language": "rego", "file": "r-b-001.rego",
-         "sha256": digest},
-        {"id": "r-b-001", "language": "rego", "file": "r-b-001.rego",
-         "sha256": digest}]})
+    duplicate = {"id": "rm-rego-01", "language": "rego",
+                 "file": "rm-rego-01.rego", "sha256": digest}
+    sealed = sealed_tree(tmp_path / "reviewer-mutants",
+                         edits={"mutants": [duplicate] * 6})
     with pytest.raises(reviewer.ReviewerSetError) as raised:
         reviewer.load(str(sealed))
     assert "appears twice" in str(raised.value)
@@ -142,9 +236,11 @@ def test_the_set_is_executed_exactly_once(tmp_path, monkeypatch):
     published = reviewer.execute(None, sealed, runs, {}, ("A", "B", "C"),
                                 {"A": "jps", "B": "rego", "C": "rego"},
                                 str(tmp_path))
-    assert published["reviewerMutants"] == 2
-    assert published["perArm"]["A"]["perRun"][0]["killed"] == ["r-a-001"]
-    assert published["perArm"]["B"]["perRun"][0]["survived"] == ["r-b-001"]
+    assert published["reviewerMutants"] == 6
+    assert published["perArm"]["A"]["perRun"][0]["killed"] == \
+        ["rm-jps-01", "rm-jps-02", "rm-jps-03"]
+    assert published["perArm"]["B"]["perRun"][0]["survived"] == \
+        ["rm-rego-01", "rm-rego-02", "rm-rego-03"]
     assert published["perArm"]["C"]["scoredRuns"] == 0
     with pytest.raises(reviewer.ReviewerSetError) as raised:
         reviewer.execute(None, sealed, runs, {}, ("A", "B", "C"),
@@ -181,7 +277,8 @@ def test_a_refused_reviewer_mutant_is_published_as_refused(tmp_path,
     published = reviewer.execute(None, sealed, runs, {}, ("A", "B", "C"),
                                  {"A": "jps", "B": "rego", "C": "rego"},
                                  str(tmp_path))
-    assert published["perArm"]["B"]["perRun"][0]["refused"] == ["r-b-001"]
+    assert published["perArm"]["B"]["perRun"][0]["refused"] == \
+        ["rm-rego-01", "rm-rego-02", "rm-rego-03"]
 
 
 def test_the_published_block_says_it_moves_nothing(tmp_path, monkeypatch):

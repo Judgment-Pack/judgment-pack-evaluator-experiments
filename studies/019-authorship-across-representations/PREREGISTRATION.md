@@ -53,7 +53,15 @@ paired subset, and the high-kill fractions at the two registered integer cuts ar
 longer places B/C above A at this endpoint, so **R1 registers no expected direction**; and
 **τ = 0.95 is an openly pilot-chosen threshold with no surviving empirical anchor** — the
 OC table's power grid (`design/mutants/OC-TABLE.md`) must be read as covering the whole
-grid rather than a located operating point.
+grid rather than a located operating point. The OC table itself now says so in its own
+voice (round-2 finding R2-13): its §7 is titled *pilot fractions*, not *pilot anchor*, it
+reads this file's named pilot and no other, and its §5 tabulates two named regions of the
+grid with neither claimed to be where the study will land. **A further re-score is owed
+and is named rather than left to be discovered:** round-2 finding R2-3 found Rego
+evaluation faults credited as mutant kills on one path, so the kill counts under
+`E4-PILOT-v2.json` — and under every pilot issued before it — are contaminated. When the
+re-scored pilot lands, this sentence, the fractions above and `design/mutants/oc_table.py`'s
+`PILOT_FILE` constant move together; the currency suite fails while they disagree.
 
 The design phase also produced, and this preregistration inherits by reference: the contest
 policy (`design/POLICY-DRAFT.md` v0.3 — panel-reviewed, twice engine-verified, clean-room
@@ -535,6 +543,27 @@ reachable while any of them is null — and `--include-reviewer-set` refusing wh
 null, while a REGISTERED attempt without it also refuses. CI runs the deterministic controls
 only; the batch never runs in CI, and the tests that invoke the pinned engines skip by name
 there.
+
+**The manifest is regenerated LAST, and a stale one now fails the suite twice**
+(round-2 finding R2-1). The manifest covers `PREREG-REVIEW.md`, so writing a review
+disposition after regenerating it leaves the committed manifest describing a tree that no
+longer exists — which is exactly what happened between rounds 1 and 2, and what round 2
+caught by running the suite rather than by reading a claim. Two tests now fail on it, under
+two different names, so the failure cannot be mistaken for one test's flakiness:
+`tests/test_manifest.py` compares the exact set, and `tests/test_prereg_currency.py`
+carries manifest currency as a currency property alongside the counts. **The order is
+fixed: every artifact and document edit first, `harness/make_manifest.py` last, then the
+full pinned suite from the resulting tree.**
+
+**Deterministic regeneration of the mutant corpora** is claimed by
+`design/mutants/regenerate.py --arm both --check`, which regenerates into a scratch copy
+and byte-compares every committed artifact. Two properties are registered: the record it
+commits (`design/mutants/REGENERATION-CHECK.json`) must cover **both** arms — a single-arm
+record is not written at all — and the fail-closed adequacy census is evaluated **under the
+regenerated tree**, never under the committed one, so a newly generated empty-witness
+mutant cannot evade it (round-2 finding R2-11). `byteIdentical` is the reproducibility
+claim; `pass` additionally requires the adequacy stamp and is therefore FALSE while §4's
+gate is open. Enforced by `tests/test_design_regeneration.py`.
 
 `GATE(pre-freeze)` in this section is now narrow and named: the untracked `design/` sources
 and stale bytecode caches that `integrity.verify_bytecode()` refuses must be committed, and

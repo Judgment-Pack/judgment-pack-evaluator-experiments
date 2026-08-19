@@ -54,6 +54,7 @@ import unittest
 from unittest import mock
 
 import batch
+import score
 import integrity
 import leak_tokens
 import make_manifest
@@ -2020,3 +2021,146 @@ def _stderr(callable_, *args, **kwargs) -> str:
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TranscriptBindingReachesThePopulation(TranscriptBindingAtTheSeal):
+    """ROUND-2 FINDING R2-5, and this class is the seam the round-1 tests never
+    crossed.
+
+    R1-5's repair built the whole binding, ran it on every completed slot and
+    sealed its verdict inside the manifest — and then the SCORER never read it.
+    `score.read_slot()` read the seal, the wrapper record, the golden stamp and
+    the completion and stopped, so a transcript carrying an extra author turn or
+    a drifted pre-prompt context left `code = None` and the slot stayed in its
+    arm's denominator and was scored. `batch.py`'s own retained note said
+    "harness/score.py recomputes this verdict from the same retained bytes",
+    which described a call that did not exist. Both classes above pass and
+    neither reaches the population.
+
+    The cases here run a real batch through the real wrapper, then ask the
+    SCORER what the slot's code is — one branch per §1a side."""
+
+    def scored(self, index=0):
+        """`(scorer record, sealed verdict)` for one slot of the batch just
+        run, read through the production path with the stand-in registry."""
+        verdict, _slot, _record = self.bound(index)
+        present = score.slots_present(self.arms_root)
+        record = score.read_slot(ENTRIES[index], self.arms_root, present,
+                                 (self.pins.get("golden") or {}).get("sha256"),
+                                 self.pins)
+        return record, verdict
+
+    def test_a_clean_transcript_leaves_the_slot_in_the_population(self):
+        self.golden_from_a_real_call()
+        self.plan({"completion": "an artifact"})
+        self.assertEqual(self.run_command("--runs", "1"), 0)
+        record, verdict = self.scored()
+        self.assertTrue(verdict["admissible"])
+        self.assertIsNone(record["code"])
+        self.assertTrue(record["transcript"]["admissible"])
+        self.assertTrue(record["transcript"]["agreesWithSeal"])
+        self.assertIsNotNone(record["completion"])
+
+    def test_an_extra_turn_reaches_the_scorer_as_the_authoring_code(self):
+        """THE REVIEWER'S FIRST R2-5 PROBE. An author protocol violation is an
+        AUTHORING outcome: the run stays in the denominator and scores zero, and
+        it does that by carrying a code the scorer actually sets."""
+        self.golden_from_a_real_call()
+        self.plan({"completion": "an artifact", "extra_turn": True})
+        self.assertEqual(self.run_command("--runs", "1"), 0)
+        record, verdict = self.scored()
+        self.assertEqual(verdict["reason"], "extra-turn")
+        self.assertEqual(record["code"], "author-protocol-violation")
+        self.assertEqual(batch.CODE_PARTITION[record["code"]][0], "authoring")
+        self.assertNotIn(record["code"], score.APPARATUS_SIDE)
+        self.assertIn(record["code"], score.AUTHORING_SIDE)
+
+    def test_a_tool_call_reaches_the_scorer_as_the_authoring_code(self):
+        """And the completion is ABSENT here, by the wrapper's own design: a
+        transcript that broke the protocol compiles nothing. The scorer read the
+        missing file as `slot-shape` — an APPARATUS code — and so deleted from
+        every denominator exactly the runs §3's no-tools instruction exists to
+        catch, which is the deletion the wrapper's own comment refuses to make
+        one layer down."""
+        self.golden_from_a_real_call()
+        self.plan({"completion": "an artifact", "tool_call": True})
+        self.assertEqual(self.run_command("--runs", "1"), 0)
+        record, verdict = self.scored()
+        self.assertEqual(verdict["reason"], "tool-use")
+        self.assertIsNone(record["completion"])
+        self.assertEqual(record["code"], "author-protocol-violation")
+        self.assertIn(record["code"], score.AUTHORING_SIDE)
+
+    def test_a_drifted_context_reaches_the_scorer_as_the_apparatus_code(self):
+        """THE REVIEWER'S SECOND R2-5 PROBE. The other side of the partition: a
+        pre-prompt context that is not the pinned capture is APPARATUS, so the
+        run leaves every denominator instead of scoring zero inside one."""
+        self.golden_from_a_real_call()
+        drifted = json.load(open(self.golden))["entries"]
+        drifted[0]["sha256"] = "0" * 64
+        self.write_golden(drifted)
+        self.record_negative_control()
+        self.plan({"completion": "an artifact"})
+        self.assertEqual(self.run_command("--runs", "1"), 0)
+        record, verdict = self.scored()
+        self.assertEqual(verdict["reason"], "context-mismatch")
+        self.assertEqual(record["code"], "transcript-refused")
+        self.assertIn(record["code"], score.APPARATUS_SIDE)
+
+    def test_the_population_rule_reads_the_recomputed_code(self):
+        """End to end: the three-slot round carries one authoring violation and
+        one clean run, and `population()` — which is what every denominator is
+        built from — sees them as §1a registers them."""
+        self.golden_from_a_real_call()
+        self.plan({"completion": "one", "tool_call": True},
+                  {"completion": "two"},
+                  {"completion": "three"})
+        self.assertEqual(self.run_command("--runs", str(ROUND)), 0)
+        present = score.slots_present(self.arms_root)
+        golden_pin = (self.pins.get("golden") or {}).get("sha256")
+        slots = [score.read_slot(entry, self.arms_root, present, golden_pin,
+                                 self.pins)
+                 for entry in ENTRIES[:ROUND]]
+        codes = sorted(slot["code"] for slot in slots
+                       if slot["code"] is not None)
+        self.assertEqual(codes, ["author-protocol-violation"])
+        counted = score.population(slots)
+        # The violation is COUNTED, not excluded: it is an authoring outcome.
+        self.assertEqual(counted["A"]["denominator"], 1)
+        self.assertEqual(counted["A"]["apparatusExcluded"], 0)
+
+    def test_a_transcript_the_scorer_cannot_attribute_refuses_the_scoring(self):
+        """§1a's fail-closed clause, on the scorer's side of the wire: "a
+        transcript this study cannot attribute does not get a denominator by
+        default"."""
+        self.golden_from_a_real_call()
+        self.plan({"completion": "an artifact"})
+        self.assertEqual(self.run_command("--runs", "1"), 0)
+        original = batch.transcript_check.classify
+
+        def unregistered(*args, **kwargs):
+            raise batch.transcript_check.UnclassifiedRefusal("a cause nobody "
+                                                             "registered")
+
+        try:
+            batch.transcript_check.classify = unregistered
+            present = score.slots_present(self.arms_root)
+            with self.assertRaises(score.ScoreError) as caught:
+                score.read_slot(ENTRIES[0], self.arms_root, present,
+                                (self.pins.get("golden") or {}).get("sha256"),
+                                self.pins)
+        finally:
+            batch.transcript_check.classify = original
+        self.assertIn("does not get a denominator by default",
+                      str(caught.exception))
+
+    def test_a_reader_that_passes_no_registry_recomputes_nothing(self):
+        """The recompute is the ATTEMPT's, and a reader that is not an attempt
+        does not silently get a different answer from one that is."""
+        self.golden_from_a_real_call()
+        self.plan({"completion": "an artifact", "extra_turn": True})
+        self.assertEqual(self.run_command("--runs", "1"), 0)
+        present = score.slots_present(self.arms_root)
+        record = score.read_slot(ENTRIES[0], self.arms_root, present)
+        self.assertIsNone(record["code"])
+        self.assertIsNone(record["transcript"])

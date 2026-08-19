@@ -10,8 +10,10 @@ WHAT THIS COMPUTES
 The registered endpoint is a per-arm *high-kill run rate*: a run is high-kill iff
 its paired-subset mutant kill rate is >= tau = 0.95.  Each arm contributes N
 admitted runs, so each arm's endpoint is a Binomial(N, p) count.  The registered
-contrast is an *exact two-proportion difference interval* for p_A - p_C, and the
-registered decision is:
+contrast is the *exact-arithmetic mesh-inversion hull* for p_A - p_C (the
+preregistration's earlier wording, "exact two-proportion difference interval",
+named a family and is superseded -- see R1-16 below), and the registered decision
+is:
 
     interval excludes zero  -> R1 decided, direction as observed
     interval straddles zero -> INDETERMINATE (licenses nothing)
@@ -27,17 +29,43 @@ There is no simulation anywhere in this file.
 THE REGISTERED CONSTRUCTION (this is the pinning the gate asked for)
 -------------------------------------------------------------------
 "Exact two-proportion difference interval" names a family, not a procedure.  This
-script pins ONE member, and the preregistration must adopt this wording verbatim:
+script pins ONE member, and the preregistration adopts this wording:
 
-    The A-C interval is the exact unconditional (Barnard-type) confidence
-    interval for the difference of independent binomial proportions obtained by
-    inverting the two-sided Farrington-Manning score test, with the nuisance
-    parameter eliminated by maximisation (Chan & Zhang 1999; Agresti & Min 2001).
-    Nominal coverage 1 - alpha with alpha = 0.05, two-sided.  The nuisance
-    maximisation is taken over the registered rational mesh
-    M = {k/1000 : k = 0..1000} in exact integer arithmetic.  Where inversion
-    yields a non-convex acceptance set, the reported interval is its convex hull;
-    the zero-exclusion decision reads the acceptance set itself, not the hull.
+    The A-C interval is the EXACT-ARITHMETIC MESH-INVERSION HULL for the
+    difference of independent binomial proportions, obtained by inverting the
+    two-sided Farrington-Manning score test with the nuisance parameter
+    eliminated by maximisation over the registered rational mesh
+    M = {k/1000 : k = 0..1000} (Chan & Zhang 1999; Agresti & Min 2001), at
+    nominal two-sided alpha = 0.05, every comparison carried out in exact
+    integer arithmetic.  Where inversion yields a non-convex acceptance set, the
+    reported interval is its convex hull; the zero-exclusion decision reads the
+    acceptance set itself, not the hull.
+
+ROUND-1 FINDING R1-16, AND WHAT THIS FILE MAY NOT SAY
+-----------------------------------------------------
+The earlier issue of this file called the object an "exact unconditional
+(Barnard-type) confidence interval" with "nominal coverage 1 - alpha".  THAT
+CLAIM IS WITHDRAWN and must not reappear in the generated document.  The
+preregistration's §5 now carries `levelCertifiedOverContinuum: false`, and two
+approximations are registered, each with the direction it errs in:
+
+  * The nuisance supremum is taken over M, not over the continuum p in [0, 1].
+    A maximum over a finite subset is a LOWER bound on the continuum supremum,
+    so every "realised size" this file prints is a lower bound on the true
+    worst-case type-I error and the procedure may be anti-conservative by at
+    most the published, exactly computed slack (`nuisanceMeshSlackBound`).
+    Sec. 2's offset-mesh column is evidence that the mesh is fine, not a
+    certificate that it is sufficient.
+  * The Delta0 inversion is over a registered mesh too, so the published hull is
+    an INNER approximation of the continuum interval -- never wider than it.
+
+A certified continuum supremum was costed and DECLINED; relabelling is the
+registered response.  What follows is therefore an exactly reproducible,
+exactly computed operating-characteristic table for a named procedure, and NOT
+a coverage certificate.  Phrases such as "exact test", "exact confidence
+interval", "true worst-case" and "95% coverage" are barred from the emitted
+document, and `harness/tests/test_prereg_currency.py` parses the emitted
+document to keep them out.
 
 Two consequences make the OC computation exact and cheap:
 
@@ -45,7 +73,7 @@ Two consequences make the OC computation exact and cheap:
       By construction the interval is {Delta : the FM test at Delta does not
       reject}, so
 
-          interval excludes 0  <=>  the two-sided exact unconditional test of
+          interval excludes 0  <=>  the two-sided mesh-maximised FM test of
                                     H0: p_A = p_C rejects at alpha.
 
       So the OC needs only the Delta0 = 0 inversion.  The endpoint values of the
@@ -66,22 +94,26 @@ WHY THIS CONSTRUCTION AND NOT NEWCOMBE
 The gate offered Newcombe's method-10 hybrid score interval as the alternative.
 It is rejected for three stated reasons:
 
-  * It is not exact.  Newcombe's interval is a closed-form approximation with
-    coverage that oscillates around the nominal level; the preregistration says
-    "exact", and Clopper-Pearson (exact) is already registered for the per-arm
-    rates.  An approximate contrast bolted onto exact marginals is incoherent.
-  * Its coverage dips furthest below nominal exactly where this design lives:
-    one arm's rate pressed against 1.  The pilot puts arm C at 5/5.  A
-    construction whose weak spot is the study's own operating point cannot be
-    the registered one.
+  * Its arithmetic is not reproducible in the sense this program requires.  Its
+    coverage oscillates around the nominal level by a closed-form approximation
+    the study cannot recompute exactly, and the per-arm rates are registered as
+    exact Clopper-Pearson.  (Note this is a REPRODUCIBILITY argument, not a
+    claim that the registered construction is "exact" in the coverage sense --
+    see R1-16 above.)
+  * Its coverage dips furthest below nominal where one arm's rate is pressed
+    against a boundary of the unit interval, and the current five-run pilot
+    fractions sit hard against the LOWER boundary (Sec. 7).  A construction
+    whose weak spot is where the study's own fractions fall cannot be the
+    registered one.
   * Its bounds are irrational (Wilson roots), so the zero-comparison cannot be
     carried out in exact rational arithmetic.  The program's discipline forbids
     a float in the decision arithmetic.
 
-The cost of the exact unconditional construction is conservatism, and that cost
-is measured, not assumed: the null diagonal of the OC table below is the realised
-type-I error rate, and the script also re-checks the size on an offset mesh that
-shares no point with the registered one.
+The cost of the mesh-inversion construction is conservatism relative to a
+normal-approximation interval, and that cost is measured, not assumed: the null
+diagonal of the OC table below is the realised decision rate under a true null
+over the registered mesh, and the script also re-checks it on an offset mesh
+that shares no point with the registered one.
 
 ARITHMETIC DISCIPLINE
 ---------------------
@@ -126,8 +158,32 @@ N_CONTEXT = (30, 100)            # context sizes requested by the gate
 # OC grid: p in {0.05, 0.10, ..., 0.95}
 GRID = [Fraction(k, 20) for k in range(1, 20)]
 
-# Extra probabilities needed for the operating-point tables (1 is not on GRID).
-EXTRA = [Fraction(1, 1)]
+# Extra probabilities needed for the named-region tables: neither 0 nor 1 is on
+# GRID, and the current pilot fractions press against BOTH ends (Sec. 7).
+EXTRA = [Fraction(0, 1), Fraction(1, 1)]
+
+# ROUND-2 FINDING R2-13. The pilot this document is anchored to, named ONCE, in
+# code. The previous issue read `E4-PILOT.json` here while a hand-edited Sec. 7
+# claimed to have been regenerated from `E4-PILOT-v2.json`: the generator would
+# have re-emitted the superseded anchor on the next run, and the document was
+# internally inconsistent in the meantime. The file named here is the file the
+# preregistration's Design-provenance section names as the current anchor, and
+# `harness/tests/test_prereg_currency.py` asserts that those two agree — so when
+# a later pilot supersedes this one, the suite fails until this constant, the
+# preregistration and the regenerated table all move together.
+#
+# >>> MAINTAINER SPLICE, PENDING AT THE CLOSE OF THE ROUND-2 RESPONSE <<<
+# Round-2 finding R2-3 (Rego evaluation faults credited as kills) invalidates the
+# kill counts every pilot so far has recorded, so the code lane is producing
+# `E4-PILOT-v3.json` through the corrected taxonomy. IT IS NOT ON DISK YET, so
+# this table is still built on v2 and every fraction it prints is a v2 fraction.
+# WHEN v3 LANDS: change this one constant, update the preregistration's Design
+# provenance to name v3, regenerate with `python3 oc_table.py`, and re-run the
+# currency suite. Nothing else in this file needs to move — the §7 numbers, the
+# denominator asymmetry sentence and §5's region gloss are all computed from
+# whichever pilot this constant names. The currency suite fails while this
+# constant and the preregistration disagree, so the splice cannot be forgotten.
+PILOT_FILE = 'E4-PILOT-v2.json'
 
 DEC_A = 0      # decided: arm A high-kill rate above arm C
 DEC_C = 1      # decided: arm C above arm A
@@ -358,10 +414,21 @@ def pilot_anchor(path):
     Empirical p_A / p_B / p_C from the non-citable calibration pilot: fraction of
     scored runs whose paired-subset kill rate is >= tau.
 
-    Arm A has no registered E4 numbers in the pilot (all five suites failed the
-    identity control on X1-region cases; see E4-NOTES.md).  Its rates are read
-    from diagnostics.armAOffProtocol, which is what the proposed X1-exclusion
-    amendment would make the protocol number.  Labelled as such.
+    ROUND-2 FINDING R2-13. Every arm is now read from `perArm`, the registered
+    surface. The earlier issue special-cased arm A, reading it from
+    `diagnostics.armAOffProtocol` because all five arm-A suites had failed the
+    identity control on X1-region cases and the number was therefore what a
+    THEN-PROPOSED X1-exclusion amendment would have made the protocol figure.
+    X1 has since been RETIRED at the cause (round-1 R1-2): the arm-A reference
+    was repaired, the registered exclusion registry is empty, and the current
+    pilot records `identityFail: 0` in all three arms. The off-protocol
+    diagnostic is no longer a source of anchor numbers.
+
+    The special case is not deleted but INVERTED into a guard: if a future pilot
+    records an identity failure, the arm's registered E4 denominator is smaller
+    than its scored-run count and this function says so through `identityFail`
+    rather than silently substituting a diagnostic surface for the registered
+    one. Reading a diagnostic as an anchor is exactly what round 1 caught.
     """
     with open(path) as fh:
         d = json.load(fh)
@@ -377,29 +444,23 @@ def pilot_anchor(path):
         return vals, hits
 
     out = {}
-    for arm in ('B', 'C'):
-        vals, hits = score(d['perArm'][arm]['perRun'])
-        out[arm] = {'source': 'perArm (registered rule, identity control passed)',
-                    'runs': vals, 'high': hits,
-                    'n': len(vals), 'k': len(hits),
-                    'mutantsPairedAdequate': d['perArm'][arm]['mutantsPairedAdequate'],
-                    'identityFail': d['perArm'][arm]['identityFail'],
-                    'dropped': [(x['run'], x['dropCode'])
-                                for x in d['perArm'][arm]['droppedRuns']],
-                    'attempted': (len(d['perArm'][arm]['perRun'])
-                                  + len(d['perArm'][arm]['droppedRuns']))}
+    for arm in ('A', 'B', 'C'):
+        block = d['perArm'][arm]
+        vals, hits = score(block['perRun'])
+        failures = block['identityFail']
+        out[arm] = {
+            'source': 'perArm (registered rule%s)'
+                      % ('; identity control passed on every scored run'
+                         if not failures else
+                         '; %d identity failure(s) — see the caveat below' % failures),
+            'runs': vals, 'high': hits,
+            'n': len(vals), 'k': len(hits),
+            'mutantsPairedAdequate': block['mutantsPairedAdequate'],
+            'identityFail': failures,
+            'dropped': [(x['run'], x['dropCode']) for x in block['droppedRuns']],
+            'attempted': len(block['perRun']) + len(block['droppedRuns']),
+        }
         out[arm]['forensics'] = drop_forensics(arm, out[arm]['dropped'])
-    vals, hits = score(d['diagnostics']['armAOffProtocol']['perRun'])
-    out['A'] = {'source': 'diagnostics.armAOffProtocol (DIAGNOSTIC; registered rule '
-                          'excluded all five arm-A suites)',
-                'runs': vals, 'high': hits, 'n': len(vals), 'k': len(hits),
-                'mutantsPairedAdequate': d['perArm']['A']['mutantsPairedAdequate'],
-                'identityFail': d['perArm']['A']['identityFail'],
-                'dropped': [(x['run'], x['dropCode'])
-                            for x in d['perArm']['A']['droppedRuns']],
-                'attempted': (len(d['perArm']['A']['perRun'])
-                              + len(d['perArm']['A']['droppedRuns']))}
-    out['A']['forensics'] = drop_forensics('A', out['A']['dropped'])
     return out
 
 
@@ -455,7 +516,8 @@ def main(argv):
     for N in (N_PRIMARY,) + N_CONTEXT:
         results[N] = build_oc(N, ps_all)
 
-    anchor = pilot_anchor(os.path.join(HERE, 'E4-PILOT.json'))
+    anchor = pilot_anchor(os.path.join(HERE, PILOT_FILE))
+    fracs = {arm: Fraction(anchor[arm]['k'], anchor[arm]['n']) for arm in 'ABC'}
 
     L = []
     w = L.append
@@ -467,31 +529,51 @@ def main(argv):
       'Regenerate with `python3 oc_table.py`; output is byte-deterministic.')
     w('')
     w('**This document does not change the registered design. It reports what the '
-      'registered design can and cannot decide, and it names three defects in the preregistration that '
-      'a review round must close before the freeze (Sec. 9 below).**')
+      'registered design can and cannot decide.** Sec. 9 tracks the three defects this '
+      'gate found in the preregistration: two are closed, one is still open.')
     w('')
 
     # ---- 1. the pinned construction
     w('## 1. The pinned interval construction')
     w('')
-    w('The preregistration says "exact two-proportion difference interval". That names '
+    w('The preregistration said "exact two-proportion difference interval". That names '
       'a family. The OC of a family is undefined, so this gate pins one member, and '
-      'prereg §5 must adopt this wording verbatim at the freeze:')
+      'prereg §5 carries this wording:')
     w('')
-    w('> The A-C contrast is the exact unconditional (Barnard-type) confidence interval '
-      'for the difference of two independent binomial proportions, obtained by inverting '
+    w('> The A-C contrast is the **exact-arithmetic mesh-inversion hull** for the '
+      'difference of two independent binomial proportions, obtained by inverting '
       'the two-sided Farrington-Manning score test with the nuisance parameter eliminated '
-      'by maximisation (Chan & Zhang 1999; Agresti & Min 2001), at nominal two-sided '
-      '`alpha = 0.05`. The nuisance maximisation is taken over the registered rational '
-      'mesh `M = {k/1000 : k = 0..1000}` in exact integer arithmetic. Where the inverted '
+      'by maximisation over the registered rational mesh `M = {k/1000 : k = 0..1000}` '
+      '(Chan & Zhang 1999; Agresti & Min 2001), at nominal two-sided `alpha = 0.05`, '
+      'every comparison carried out in exact integer arithmetic. Where the inverted '
       'acceptance set is non-convex, the *reported* interval is its convex hull; the '
       'zero-exclusion decision reads the acceptance set itself.')
     w('')
-    w('Two facts make this exactly computable:')
+    w('**What this object is not (round-1 finding R1-16).** An earlier issue of this '
+      'document called it an "exact unconditional (Barnard-type) confidence interval" '
+      'with nominal coverage `1 - alpha`. **That claim is withdrawn.** Prereg §5 publishes '
+      '`levelCertifiedOverContinuum: false`, and registers two approximations with the '
+      'direction each errs in:')
+    w('')
+    w('- The nuisance supremum is taken over `M`, not over the continuum `p in [0, 1]`. '
+      'A maximum over a finite subset is a **lower** bound on the continuum supremum, so '
+      'every "realised size" printed in Sec. 2 is a lower bound on the worst-case type-I '
+      'error and the procedure may be anti-conservative by at most the published, exactly '
+      'computed slack (`nuisanceMeshSlackBound`).')
+    w('- The `Delta0` inversion runs over a registered mesh too, so the published hull is '
+      'an **inner** approximation of the continuum interval — never wider than it.')
+    w('')
+    w('A certified continuum supremum was costed and **declined**; relabelling is the '
+      'registered response, and nothing anywhere is adjusted by the slack bound. What '
+      'follows is an exactly reproducible, exactly computed operating-characteristic table '
+      'for a named procedure. **It is not a coverage certificate, and no sentence in this '
+      'document may claim 95% coverage at any true rate.**')
+    w('')
+    w('Two facts make the OC exactly computable:')
     w('')
     w('1. The registered decision only asks whether the interval contains zero. Since the '
       'interval is the set of `Delta` the FM test does not reject, **interval excludes '
-      'zero if and only if the two-sided exact unconditional test of `H0: p_A = p_C` '
+      'zero if and only if the two-sided mesh-maximised FM test of `H0: p_A = p_C` '
       'rejects at `alpha`**. The OC therefore needs only the `Delta0 = 0` inversion.')
     w('2. At `Delta0 = 0` the FM score statistic is the pooled-variance two-sample Z, and '
       'with equal arm sizes `N` its square is the exact rational')
@@ -504,29 +586,34 @@ def main(argv):
       'cross-multiplication.')
     w('')
     w('**Why not Newcombe.** The gate offered Newcombe method 10 as the alternative; it is '
-      'rejected on three grounds. (a) It is not exact -- its coverage oscillates around '
-      'nominal -- and the per-arm rates are already registered as exact Clopper-Pearson; '
-      'an approximate contrast on exact marginals is incoherent. (b) Its coverage is '
-      'weakest where one proportion is pressed against 1, which is precisely this study\'s '
-      'operating point (the pilot puts arm C at 5/5). A construction whose failure mode is '
-      'the study\'s own operating point cannot be the registered one. (c) Its bounds are '
+      'rejected on three grounds. (a) Its arithmetic is not reproducible in the sense this '
+      'program requires: its coverage oscillates around nominal by a closed-form '
+      'approximation the study cannot recompute exactly, while the per-arm rates are '
+      'registered as exact Clopper-Pearson. (This is a reproducibility argument, not a '
+      'claim that the registered construction certifies coverage — see R1-16 above.) '
+      '(b) Its coverage is weakest where one proportion is pressed against a boundary of '
+      'the unit interval, and the current pilot fractions sit hard against the LOWER '
+      'boundary (Sec. 7). A construction whose failure mode is where the study\'s own '
+      'fractions fall cannot be the registered one. (c) Its bounds are '
       'Wilson roots, hence irrational, so the zero-comparison cannot be carried out '
       'without floats in the decision arithmetic.')
     w('')
-    w('The price of the exact unconditional construction is conservatism. That price is '
-      'measured below, not assumed.')
+    w('The price of the mesh-inversion construction is conservatism relative to a '
+      'normal-approximation interval. That price is measured below, not assumed.')
     w('')
 
     # ---- 2. calibration
     w('## 2. Calibration of the implemented procedure')
     w('')
     w('`c*` is the smallest attained `z^2` level whose null tail supremum is at most '
-      '`alpha`; the rejection region is `{z^2 >= c*}`. "Realised size" is that supremum '
-      '-- the exact worst-case type-I error over the registered mesh, i.e. the true '
-      'probability of *any* decision when `p_A = p_C`. "Offset-mesh size" re-evaluates '
+      '`alpha`; the rejection region is `{z^2 >= c*}`. "Realised size (sup over M)" is '
+      'that supremum: the probability of *any* decision when `p_A = p_C`, maximised over '
+      'the **registered mesh**. It is a **lower bound** on the worst-case over the '
+      'continuum, not that worst case (Sec. 1). "Offset-mesh size" re-evaluates '
       'the same rejection region on the interleaved mesh `{(2k+1)/2000}`, which shares no '
-      'point with the registered one; it is a check that mesh 1/1000 is fine enough that '
-      'the registered sup is not an artefact of where the mesh points fall.')
+      'point with the registered one; it is evidence that mesh 1/1000 is fine enough that '
+      'the registered sup is not an artefact of where the mesh points fall — evidence, not '
+      'a certificate.')
     w('')
     w('| N | c* (exact) | c* (dec.) | realised size (sup over M) | offset-mesh size | '
       'nominal |')
@@ -542,13 +629,16 @@ def main(argv):
                      for N in (N_PRIMARY,) + N_CONTEXT)
     worst_drift = max(abs(results[N]['offsize'] - results[N]['size'])
                       for N in (N_PRIMARY,) + N_CONTEXT)
-    w('Every realised size is at or below the nominal 0.05, including on the offset mesh '
-      '(worst case over all three N, either mesh: **%s**). The two meshes agree to within '
+    w('Every realised size is at or below the nominal 0.05 on both meshes '
+      '(largest over all three N, either mesh: **%s**). The two meshes agree to within '
       '%s, so the registered mesh of 1/1000 resolves the nuisance supremum well below the '
       'precision any decision depends on -- the sup is a genuine feature of the tail '
-      'function, not an artefact of mesh placement. The shortfall below 0.05 is the '
-      'exactness tax: it is spent buying a coverage guarantee, and it is why the power '
-      'numbers below are lower than a normal-approximation calculation would suggest.'
+      'function, not an artefact of mesh placement. **That is not a coverage claim**: both '
+      'columns are maxima over finite meshes and therefore lower bounds on the continuum '
+      'worst case (Sec. 1), and the registered slack bound rather than this table is what '
+      'bounds the gap. The shortfall below 0.05 is the conservatism the construction pays '
+      'for its exact arithmetic, and it is why the power numbers below are lower than a '
+      'normal-approximation calculation would suggest.'
       % (f4(worst_size), '%.2e' % float(worst_drift)))
     w('')
 
@@ -604,43 +694,52 @@ def main(argv):
       % (f3(worst50), f3(best50)))
     w('')
 
-    # ---- 5. operating points
-    w('## 5. Power at the operating points')
+    # ---- 5. named regions of the grid
+    w('## 5. Power over two named regions of the grid')
     w('')
-    w('The gate asked for `p_A ~ 0.4-0.6` and `p_C ~ 0.8-1.0`. **The pilot does not '
-      'support `p_A ~ 0.4-0.6`** (Sec. 7): the pilot anchor is `p_A ~ 0.2`. Both bands '
-      'are tabulated, the pilot-anchored band first.')
+    w('**No operating point is located, and this section does not locate one** '
+      '(round-1 findings R1-16 and R1-18; round-2 finding R2-13). The gate\'s brief '
+      'guessed `p_A ~ 0.4-0.6` with `p_C ~ 0.8-1.0`, and an earlier issue of this '
+      'document carried a "pilot-anchored band" built on pilot fractions that the arm-A '
+      'reference repair and the corpus rebuild have since superseded. The current pilot '
+      'fractions are **A %s, B %s, C %s on five runs each** (Sec. 7), which is five runs '
+      'per arm and anchors nothing; prereg §5 registers **no expected direction for R1** '
+      'and says the power grid is to be read whole. Sec. 3 and Sec. 6 are that whole '
+      'reading; the two regions below are tabulated because they are the two the design '
+      'conversation has actually referred to, and for no stronger reason.'
+      % (f3(fracs['A']), f3(fracs['B']), f3(fracs['C'])))
     w('')
-    for label, pAs, pCs in (
-        ('Pilot-anchored band', [Fraction(k, 20) for k in (2, 3, 4, 5, 6)],
-         [Fraction(k, 20) for k in (16, 17, 18, 19)] + [Fraction(1, 1)]),
-        ('Gate-suggested band', [Fraction(k, 20) for k in (8, 9, 10, 11, 12)],
+    for label, gloss, pAs, pCs in (
+        ('Region L — both rates near the lower boundary',
+         'The region the current five-run fractions fall in. Note the direction: here it '
+         'is arm A that would be above arm C, the reverse of the superseded anchor. The '
+         'region is NOT symmetric with Region H under the exchange of arms, because the '
+         'design\'s power depends on where in the unit interval the pair sits, not only '
+         'on the gap.',
+         [Fraction(k, 20) for k in (1, 2, 3, 4, 5, 6)],
+         [Fraction(0, 1)] + [Fraction(k, 20) for k in (1, 2, 3, 4)]),
+        ('Region H — arm C near the upper boundary',
+         'The gate brief\'s original suggestion, retained so the two conversations can be '
+         'compared. Nothing currently points here.',
+         [Fraction(k, 20) for k in (8, 9, 10, 11, 12)],
          [Fraction(k, 20) for k in (16, 17, 18, 19)] + [Fraction(1, 1)]),
     ):
         w('### %s' % label)
         w('')
+        w(gloss)
+        w('')
         w('| p_A | p_C | gap | N=30 decide | N=50 decide | N=100 decide | '
-          'N=50 P(C-above) | N=50 P(INDET) |')
-        w('|---|---|---|---|---|---|---|---|')
+          'N=50 P(A-above) | N=50 P(C-above) | N=50 P(INDET) |')
+        w('|---|---|---|---|---|---|---|---|---|')
         for pA in pAs:
             for pC in pCs:
                 cells = {N: results[N]['oc'][(pA, pC)] for N in (30, 50, 100)}
                 d = {N: cells[N][0] + cells[N][1] for N in cells}
-                w('| %s | %s | %s | %s | %s | %s | %s | %s |'
+                w('| %s | %s | %s | %s | %s | %s | %s | %s | %s |'
                   % (f2(pA), f2(pC), f2(pC - pA),
                      f3(d[30]), f3(d[50]), f3(d[100]),
-                     f3(cells[50][1]), f3(cells[50][2])))
+                     f3(cells[50][0]), f3(cells[50][1]), f3(cells[50][2])))
         w('')
-        if label.startswith('Pilot'):
-            w('This band saturates: at the pilot anchor the design decides with probability '
-              'indistinguishable from 1 at every `N` considered. That is not a claim that '
-              'the study will decide -- it is a statement that *if* the pilot direction and '
-              'magnitude survive into the registered batch, sample size is not the binding '
-              'constraint. The binding constraint is the identity control, not authoring '
-              'validity (Sec. 9, D3). The informative question is how '
-              'far arm A can rise before power collapses, which is the gate-suggested band '
-              'below and Sec. 6.')
-            w('')
 
     # ---- 6. minimum decidable gap
     w('## 6. Smallest gap this design decides with power >= 0.80')
@@ -668,11 +767,24 @@ def main(argv):
         w('| %s | %s |' % (f2(pC), ' | '.join(flat)))
     w('')
 
-    # ---- 7. pilot anchor
-    w('## 7. Pilot anchor: what fraction of pilot runs are high-kill at tau = 0.95')
+    # ---- 7. pilot fractions (NOT an anchor; R1-18, R2-13)
+    w('## 7. Pilot fractions: what fraction of pilot runs are high-kill at tau = 0.95')
     w('')
-    w('Read from `E4-PILOT.json`. **NON-CITABLE**: five runs per arm, pilot suites, '
-      '0-draft gold. This is the empirical anchor for `p_A` / `p_C` and nothing else.')
+    w('Read from `%s`, which is the pilot the preregistration\'s Design-provenance section '
+      'names as current; `oc_table.py` names the same file in one constant and a currency '
+      'test asserts the two agree, so a superseded pilot cannot survive here as it did '
+      'before (round-2 finding R2-13). **NON-CITABLE**: five runs per arm, pilot suites, '
+      'pre-freeze gold. These are fractions, not an anchor: prereg §5 registers no '
+      'expected direction and this section locates no operating point.' % PILOT_FILE)
+    w('')
+    w('> **PENDING, and named here rather than discovered later.** Round-2 finding R2-3 '
+      'found that Rego evaluation faults are credited as mutant kills on one path, which '
+      'means the kill counts underlying **every pilot issued so far**, `%s` included, are '
+      'contaminated. A re-scored pilot through the corrected taxonomy is owed. Until it '
+      'lands and this document is rebuilt against it, every fraction in this section is a '
+      '`%s` fraction and inherits that defect. This does not touch Secs. 1-6, which are '
+      'exact enumerations over a grid of (p_A, p_C, N) and depend on no pilot at all.'
+      % (PILOT_FILE, PILOT_FILE))
     w('')
     for arm in ('A', 'B', 'C'):
         a = anchor[arm]
@@ -697,77 +809,102 @@ def main(argv):
           % (a['attempted'], drops))
         w('- identity-control failures in the pilot: %d' % a['identityFail'])
         w('')
-    w('**Anchor summary: p_A ~ 0.20, p_B ~ 0.80, p_C ~ 1.00**, each on five runs. '
-      'Two qualifications carry more weight than the numbers:')
+    kA, kB, kC = (anchor[a]['k'] for a in 'ABC')
+    nA, nB, nC = (anchor[a]['n'] for a in 'ABC')
+    w('**Current fractions: A %d/%d = %s, B %d/%d = %s, C %d/%d = %s**, each on five runs, '
+      'all three read from the registered `perArm` surface with `identityFail` = %d / %d / '
+      '%d. Three things must be said with them:'
+      % (kA, nA, f3(fracs['A']), kB, nB, f3(fracs['B']), kC, nC, f3(fracs['C']),
+         anchor['A']['identityFail'], anchor['B']['identityFail'],
+         anchor['C']['identityFail']))
     w('')
-    w('1. **Under the registered rule arm A has no `p_A` at all.** All five scored arm-A '
-      'suites failed the identity control, so the registered E4 denominator for arm A in '
-      'the pilot is zero. The 1/5 above is read from `diagnostics.armAOffProtocol`, i.e. '
-      'from what the proposed X1-exclusion amendment (E4-NOTES.md) would make the '
-      'protocol number. If that amendment does not land, this gate has no empirical '
-      'anchor for `p_A` and the OC must be read as covering the whole grid rather than a '
-      'located operating point.')
-    w('2. **The gate brief guessed `p_A ~ 0.4-0.6`; the pilot says ~0.2.** The guess came '
-      'from arm A\'s *unpaired* kill-rate range 0.84-1.00. On the paired subset the '
-      'rates are 0.80, 0.87, 0.92, 0.92, 1.00 against a threshold of 73/76 = 0.9605, and '
-      'only one clears it. `tau = 0.95` bites arm A much harder than the unpaired range '
-      'suggests, which is the whole reason the threshold discriminates.')
+    w('1. **These fractions supersede every earlier issue of this section, and they moved '
+      'the direction as well as the magnitude.** The superseded issue read `0.20 / 0.80 / '
+      '1.00` from a 145-mutant arm-A corpus built on the pre-repair reference, and took '
+      'arm A\'s number from `diagnostics.armAOffProtocol` because all five arm-A suites '
+      'had then failed the identity control on X1-region cases. **X1 is retired at the '
+      'cause** (round-1 R1-2): the reference was repaired, the registered exclusion '
+      'registry is empty, and every arm above passes identity on every scored run. There '
+      'is no off-protocol diagnostic in this document any more.')
+    w('2. **Five runs per arm locate nothing.** A 1/5 and a 0/5 are compatible with a very '
+      'wide range of true rates and with either direction; prereg §5 registers **no '
+      'expected direction for R1** on exactly this ground. Sec. 5 tabulates two regions of '
+      'the grid, neither of which is claimed to be where the study will land.')
+    w('3. **`tau = 0.95` bites hard, which is the point of the threshold.** Mean paired '
+      'kill rates in this pilot are far above 0.5 in every arm while the high-kill '
+      'fractions above are near 0: a run can kill most paired mutants and still not be '
+      'high-kill. Reading the mean rates as if they were the endpoint is the error the '
+      'threshold exists to prevent.')
     w('')
     w('Note the **denominator asymmetry**, which is a design fact and not noise. Pairing '
-      'is at the level of witness-equivalence groups, not 1:1 mutants: the 29 paired '
-      'adequate groups contain 76 JPS mutants and 65 Rego mutants. So `tau = 0.95` bites '
-      'arm A at 73/76 = 0.9605 and arms B/C at 62/65 = 0.9538 -- the threshold is '
-      '0.0067 stricter for arm A, and the two arms\' kill rates are also quantised on '
-      'different lattices (1/76 vs 1/65). The effect is small relative to the pilot gap, '
-      'but it is a real asymmetry in the endpoint definition and belongs in prereg §5 rather '
-      'than being discovered at analysis time. Prereg §4 already commits to publishing the '
-      'unpairable counts; this asks for one more sentence saying that a group-level '
-      'pairing does not equalise the per-arm denominators.')
+      'is at the level of witness-equivalence groups, not 1:1 mutants, so the paired '
+      'adequate subsets differ in size by language: %d JPS mutants against %d Rego. '
+      '`tau = 0.95` therefore bites arm A at %d/%d = %s and arms B/C at %d/%d = %s -- two '
+      'integer cuts, not one -- and the arms\' kill rates are quantised on different '
+      'lattices (1/%d vs 1/%d). It is a real asymmetry in the endpoint definition, it is '
+      'carried in prereg §5 rather than discovered at analysis time, and prereg §4 '
+      'publishes the unpairable counts that produce it.'
+      % (anchor['A']['mutantsPairedAdequate'], anchor['B']['mutantsPairedAdequate'],
+         tau_bites(anchor['A']['mutantsPairedAdequate'])[0],
+         anchor['A']['mutantsPairedAdequate'],
+         f4(tau_bites(anchor['A']['mutantsPairedAdequate'])[1]),
+         tau_bites(anchor['B']['mutantsPairedAdequate'])[0],
+         anchor['B']['mutantsPairedAdequate'],
+         f4(tau_bites(anchor['B']['mutantsPairedAdequate'])[1]),
+         anchor['A']['mutantsPairedAdequate'],
+         anchor['B']['mutantsPairedAdequate']))
     w('')
 
     # ---- 8. what this design can and cannot decide
     w('## 8. Plain-language summary: what this design can and cannot decide')
     w('')
-    a20 = results[50]['oc'][(Fraction(4, 20), Fraction(20, 20))]
-    a20_30 = results[30]['oc'][(Fraction(4, 20), Fraction(20, 20))]
-    a20_100 = results[100]['oc'][(Fraction(4, 20), Fraction(20, 20))]
+    a20 = results[50]['oc'][(Fraction(4, 20), Fraction(0, 1))]
+    a20_30 = results[30]['oc'][(Fraction(4, 20), Fraction(0, 1))]
+    a20_100 = results[100]['oc'][(Fraction(4, 20), Fraction(0, 1))]
     mid = results[50]['oc'][(Fraction(8, 20), Fraction(12, 20))]
-    w('**It can decide the gap the pilot points at, with room to spare.** If the truth is '
-      'near the pilot anchor (`p_A = 0.20`, `p_C = 1.00`), the registered N = 50 design '
-      'decides with probability %s (N = 30: %s; N = 100: %s). Even a much attenuated '
-      'version of that gap is comfortably decidable: see Sec. 5.'
-      % (f4(a20[0] + a20[1]), f4(a20_30[0] + a20_30[1]), f4(a20_100[0] + a20_100[1])))
+    w('**It decides large gaps at either boundary, wherever they turn out to be.** Taking '
+      'the current five-run fractions at face value purely as an arithmetic illustration '
+      '(`p_A = %s`, `p_C = %s` — Sec. 7 says they locate nothing), the registered N = 50 '
+      'design would decide with probability %s (N = 30: %s; N = 100: %s). The same is true '
+      'of the mirrored gap near the upper boundary (Sec. 5, Region H). Sample size is not '
+      'the binding constraint on a gap of that size in either direction.'
+      % (f2(Fraction(4, 20)), f2(Fraction(0, 1)),
+         f4(a20[0] + a20[1]), f4(a20_30[0] + a20_30[1]), f4(a20_100[0] + a20_100[1])))
     w('')
     w('**It cannot decide a 0.20 gap in the middle of the range.** At `p_A = 0.40` vs '
       '`p_C = 0.60` -- exactly the registered `delta` -- N = 50 decides with probability '
       '%s, i.e. INDETERMINATE with probability %s. `delta = 0.20` is registered as the '
       'minimum *meaningful* difference; it is emphatically not the minimum *detectable* '
       'difference at N = 50. Anyone reading `delta = 0.20` as "this study is powered to '
-      'find a 0.20 gap" is reading it wrong, and prereg §5 currently invites that reading.'
+      'find a 0.20 gap" is reading it wrong, and prereg §5 says so in those terms.'
       % (f3(mid[0] + mid[1]), f3(mid[2])))
     w('')
     w('**Power is strongly asymmetric across the unit interval.** Because the variance of '
       'a proportion collapses near 0 and 1, the same nominal gap is far easier to decide '
-      'when one arm is near a boundary. This design is fortunate: the pilot puts arm C at '
-      'the top boundary, which is where the design is strongest. It is also fragile in a '
-      'specific way -- if arm A comes in higher than the pilot suggests (say 0.6-0.7) '
-      'while arm C stays near 0.95-1.00, power falls (Sec. 5, gate-suggested band).')
+      'when one arm is near a boundary. Where this design will sit is unknown — R1 '
+      'registers no expected direction — so both boundaries and the middle are live, and '
+      'that is why Sec. 3 is printed whole rather than summarised at a point. The design '
+      'is weakest in the middle of the range and that weakness is symmetric.')
     w('')
-    w('**The exactness tax is real and is being paid deliberately.** Realised size at '
-      'N = 50 is %s against a 0.05 nominal. That conservatism costs several points of '
-      'power relative to a normal-approximation interval, and buys a guarantee that the '
-      'decision rate under a true null never exceeds 0.05 at any true common rate. Given '
-      'that the whole point of R1 is a retractable directional claim, the guarantee is '
-      'worth more than the points.' % f4(results[50]['size']))
+    w('**The conservatism is real and is being paid deliberately.** Realised size at '
+      'N = 50 is %s against a 0.05 nominal, maximised over the registered mesh. That '
+      'conservatism costs several points of power relative to a normal-approximation '
+      'interval, and it buys exactly reproducible decision arithmetic — **not** a coverage '
+      'guarantee at every true common rate, which this construction does not certify '
+      '(Sec. 1). Given that the whole point of R1 is a retractable directional claim, '
+      'reproducible arithmetic is worth the points.' % f4(results[50]['size']))
     w('')
     w('**N = 50 is a ceiling, not a floor.** The E4 denominator is *admitted* runs -- runs '
-      'that clear the identity control -- not attempted runs. In the pilot the registered '
-      'identity control excluded 5/5 arm-A suites; under the proposed X1-exclusion '
-      'amendment it would have excluded 0/5. If the amendment does not land, or if '
-      'identity failures run at any appreciable rate, arm A\'s effective N drops and the '
-      'N = 30 column is the honest one to read. At N = 30 the pilot-anchored gap is still '
-      'decided with probability %s, so the design survives moderate attrition -- but the '
-      'middle-of-range 0.20 gap collapses to %s.'
+      'that clear the identity control -- not attempted runs. In the current pilot the '
+      'registered identity control excludes **no** run in any arm (Sec. 7), which is the '
+      'state after the arm-A reference repair retired X1; the earlier 5/5 arm-A exclusion '
+      'and the X1-exclusion amendment it motivated are both historical. If identity '
+      'failures nonetheless run at any appreciable rate in the registered batch, the '
+      'affected arm\'s effective N drops and the N = 30 column is the honest one to read. '
+      'At N = 30 a boundary gap of the size Sec. 5 Region L tabulates is still decided '
+      'with probability %s, so the design survives moderate attrition -- but the '
+      'middle-of-range 0.20 gap collapses to %s. **What a run that fails identity does to '
+      'the denominator is not settled**: see Sec. 9, D3.'
       % (f4(a20_30[0] + a20_30[1]),
          f3(sum(results[30]['oc'][(Fraction(8, 20), Fraction(12, 20))][:2]))))
     w('')
@@ -798,18 +935,20 @@ def main(argv):
     w('')
 
     # ---- 9. defects for review
-    w('## 9. Three defects this gate found in the preregistration (review must close all three)')
+    w('## 9. Three defects this gate found in the preregistration (two closed, one open)')
     w('')
-    w('**D1 -- alpha is never registered.** Prereg §5 registers exact Clopper-Pearson '
-      'intervals and exact two-proportion difference intervals but never states a '
-      'confidence level. This OC assumes two-sided `alpha = 0.05`. The freeze text must '
-      'say so explicitly. Related: the A-C / A-B hierarchy is a fixed-sequence gatekeeping '
-      'procedure, which controls the family-wise error rate at `alpha` without adjustment '
-      '-- worth one sentence, because it is the reason no Bonferroni appears anywhere.')
+    w('**D1 -- alpha was never registered. CLOSED.** Prereg §5 registered exact '
+      'Clopper-Pearson intervals and "exact two-proportion difference intervals" without '
+      'stating a confidence level; this OC assumed two-sided `alpha = 0.05`. §5 now states '
+      '`α = 0.05` with the decision clause, and states that the A-C / A-B hierarchy is '
+      'fixed-sequence gatekeeping controlling the family-wise error rate at `alpha` '
+      'without adjustment -- which is why no Bonferroni appears anywhere. '
+      '`harness/tests/test_prereg_currency.py` asserts exactly one alpha is stated.')
     w('')
-    w('**D2 -- "excludes zero at delta" is not a rule.** Prereg §5 says the contrasts are '
-      'evaluated "each at `delta = 0.20`" and its decision table says "A-C interval '
-      'excludes zero at delta -> R1 decided". Those describe two different procedures:')
+    w('**D2 -- "excludes zero at delta" is not a rule. CLOSED, on Reading 1.** Prereg §5 '
+      'said the contrasts were evaluated "each at `delta = 0.20`" and its decision table '
+      'said "A-C interval excludes zero at delta -> R1 decided". Those describe two '
+      'different procedures:')
     w('')
     w('- **Reading 1 (implemented here, and the one the gate brief states):** decide iff '
       'the interval excludes zero; `delta = 0.20` is the registered minimum meaningful '
@@ -821,13 +960,20 @@ def main(argv):
       'except at the extreme corners of the grid.')
     w('')
     w('The two readings do not agree on any interesting cell of the table above, so this '
-      'is not a cosmetic edit. **Reading 1 is recommended** -- it matches the gate brief, '
-      'it matches the INDETERMINATE clause ("interval straddles zero"), and Reading 2 '
-      'would require re-registering N. Whichever is chosen, prereg §5 and its decision table '
-      'must use one form of words, and this OC table is only valid for Reading 1.')
+      'was not a cosmetic edit. **Reading 1 was registered** (round-1 finding R1-15): '
+      'prereg §1 and §5 now carry one decision clause verbatim -- the A−C difference '
+      'interval excludes zero at two-sided α = 0.05 -- `delta` is registered as an '
+      'interpretation and power quantity that no decision reads, and the currency suite '
+      'asserts that no decision statement anywhere qualifies zero-exclusion by delta. '
+      'This OC table is valid for Reading 1, which is the registered one.')
     w('')
-    w('**D3 -- the E4 denominator does not say what happens to a run with no artifact.** '
-      'Prereg §5 scopes E4 to "admitted runs" -- runs that clear the identity control -- '
+    w('**D3 -- the E4 denominator does not say what happens to a run with no artifact. '
+      'STILL OPEN.** Round 2 found the adjacent defect live in code (finding R2-2: the '
+      'primary scorer and the pilot scorer disagree about whether an identity-failing run '
+      'stays in the E4 denominator), so this section may not report D3 as settled. What '
+      'follows is the gate\'s original statement of it, unchanged.')
+    w('')
+    w('Prereg §5 scopes E4 to "admitted runs" -- runs that clear the identity control -- '
       'while prereg §1a says every author-attributable failure, including "no extractable '
       'marker block", is "valid, counted, and scoring zero on every endpoint it reaches". '
       'A `no-marker` run reaches E4 in the §1a sense but has no suite to run against '
@@ -852,14 +998,18 @@ def main(argv):
          len(anchor['C']['dropped']),
          sum(anchor[k]['n'] for k in ('A', 'B', 'C'))))
     w('')
-    w('So the correct design read is: authoring validity is not the threat to `N` -- the '
-      'identity control is (5/5 arm-A suites in the pilot). D3 still has to be closed, '
-      'because a rate of zero in fifteen calls does not bound the rate in 150, and because '
-      'the two readings answer different questions. **Recommendation: denominator-in**, '
-      'because prereg §1a already commits to it in general terms, and because it is the '
-      'reading that cannot be gamed by an arm that fails loudly. Whichever is chosen, it '
-      'must be registered before the freeze rather than settled after seeing which way '
-      'the drops fell.')
+    w('So authoring validity is not the threat to `N`. **Where the threat sits has since '
+      'moved**: the gate wrote "the identity control is (5/5 arm-A suites in the pilot)", '
+      'and that sentence is now historical — X1 is retired, the exclusion registry is '
+      'empty, and the current pilot records zero identity failures in every arm (Sec. 7). '
+      'D3 is nonetheless still open, because a rate of zero in fifteen calls does not '
+      'bound the rate in 150, because the two readings answer different questions, and '
+      'because round-2 finding R2-2 shows the primary scorer and the pilot scorer do not '
+      'currently agree on the denominator rule for a run that fails identity. '
+      '**The gate\'s recommendation remains denominator-in**, because prereg §1a commits '
+      'to it in general terms and because it is the reading that cannot be gamed by an arm '
+      'that fails loudly. One rule must be registered and made to hold in the primary '
+      'scorer, the pilot scorer and this table together, before the freeze.')
     w('')
 
     # ---- 10. reproduction

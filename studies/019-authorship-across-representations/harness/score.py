@@ -134,6 +134,11 @@ _LAZY_NAMES = ("batch", "admit_lib", "census_lib", "decision", "domain_lib",
                "AUTHORING_SIDE")
 _BOUND = False
 
+# Set by `main()` the instant `integrity.verify()` returns, and read by the
+# terminal path so that a pre-verification failure cannot bind the tree whose
+# untrustworthiness is the reason it is failing (round-2 finding R2-8).
+_VERIFIED = False
+
 
 def bind_study_modules():
     """Import the study-local scoring modules and derive the constants from
@@ -416,7 +421,7 @@ def slots_present(arms_root: str) -> dict:
 
 
 def read_slot(entry: dict, arms_root: str, present: dict = None,
-              golden_pin=None) -> dict:
+              golden_pin=None, pins: dict = None) -> dict:
     """One registered slot, read into the record the population rule works on —
     through the DRIVER's readers and no second reading of its own.
 
@@ -436,7 +441,23 @@ def read_slot(entry: dict, arms_root: str, present: dict = None,
     golden capture it ran behind into every `CALL.json` (section 3.2), so a run
     made against another capture is the apparatus code
     `golden-context-mismatch` — which the partition has always named and the
-    scorer's own reduced reader could never return."""
+    scorer's own reduced reader could never return.
+
+    THE TRANSCRIPT VERDICT IS RECOMPUTED HERE (round-2 finding R2-5), and `pins`
+    is what it needs. R1-5's repair built the whole binding and sealed its
+    verdict into every completed slot — and then nothing on the scoring side
+    read it. This reader read the seal, the wrapper record, the golden stamp and
+    the completion, and stopped; `batch.py`'s own note ("harness/score.py
+    recomputes this verdict from the same retained bytes and does not trust this
+    record") described a call that did not exist. In sealed-slot probes a
+    transcript carrying an extra author turn, or a drifted pre-prompt context,
+    left `code = None` and the slot stayed in its arm's denominator and was
+    scored. §1a registers both outcomes and registers them DIFFERENTLY: an author
+    protocol violation is an authoring outcome, retained and scoring zero, and a
+    prompt/context/log failure is apparatus and leaves the denominator. So the
+    binding runs on the sealed bytes, before the population is built, and its
+    registered code is the slot's code. Passing no `pins` recomputes nothing and
+    is for the readers that are not an attempt."""
     bind_study_modules()
     name = "run-%03d" % entry["slotIndex"]
     if present is None:
@@ -446,7 +467,8 @@ def read_slot(entry: dict, arms_root: str, present: dict = None,
               "globalIndex": entry["globalIndex"], "round": entry["round"],
               "position": entry["position"], "present": path is not None,
               "code": None, "durationSeconds": None, "completion": None,
-              "sessionId": None, "sealSha256": None, "wrapperExit": None}
+              "sessionId": None, "sealSha256": None, "wrapperExit": None,
+              "transcript": None}
     if path is None:
         return record
     try:
@@ -474,12 +496,81 @@ def read_slot(entry: dict, arms_root: str, present: dict = None,
             record["code"] = "golden-context-mismatch"
             return record
     completion_path = os.path.join(path, "completion.txt")
-    if not os.path.isfile(completion_path):
+    completion_present = os.path.isfile(completion_path)
+    if completion_present:
+        with open(completion_path, "rb") as handle:
+            record["completion"] = handle.read().decode("utf-8", "replace")
+    if pins is None:
+        # A reader that is not an attempt. It gets the shape check and no
+        # recomputed verdict, so it cannot quietly answer differently.
+        if not completion_present:
+            record["code"] = "slot-shape"
+        return record
+    verdict = bind_transcript_verdict(path, entry, pins)
+    record["transcript"] = verdict
+    # AN AUTHOR PROTOCOL VIOLATION OUTRANKS A MISSING COMPLETION, and the order
+    # is not a preference — it is a fact about the apparatus. `authoring_call.sh`
+    # writes NO `completion.txt` when the transcript shows the author using a
+    # tool, deliberately and with its reason in the file: refusing there would
+    # exit the wrapper non-zero, which is an apparatus code, "which would quietly
+    # delete from every denominator exactly the runs §3's no-tools instruction
+    # exists to catch". The scorer then read the missing file as `slot-shape` —
+    # an APPARATUS code — and deleted them anyway, one layer up. Round-2 R2-5
+    # made this visible: the tool-use branch of the driver's own binding tests
+    # passes, and the run it is about was leaving the population.
+    if verdict["side"] == "authoring":
+        record["code"] = verdict["code"]
+        return record
+    if not completion_present:
         record["code"] = "slot-shape"
         return record
-    with open(completion_path, "rb") as handle:
-        record["completion"] = handle.read().decode("utf-8", "replace")
+    if verdict["code"] is not None:
+        record["code"] = verdict["code"]
     return record
+
+
+def bind_transcript_verdict(slot_path: str, entry: dict, pins: dict) -> dict:
+    """§1a's transcript binding, RECOMPUTED from the sealed bytes (round-2 R2-5).
+
+    One binding, two callers: `batch.transcript_verdict()` is the driver's own
+    entry point and the scorer runs the same function on the same retained
+    bytes, so a verdict cannot be a driver record the scorer believes. The
+    recomputed verdict is published per slot — reason, side and code — beside
+    the driver's sealed one, because "the seal says admissible and the recompute
+    does not" is a fact a reader should be able to see.
+
+    An `UnclassifiedRefusal` is a defect in the gate, not an outcome for a run:
+    §1a's rule is that a transcript this study cannot attribute does not get a
+    denominator by default, so it refuses the whole scoring."""
+    bind_study_modules()
+    golden_path = batch.golden_path_for(pins)
+    try:
+        verdict = batch.transcript_verdict(slot_path, entry["arm"], pins,
+                                           golden_path)
+    except batch.transcript_check.UnclassifiedRefusal as error:
+        raise ScoreError(
+            "arm %s run-%03d: the transcript binding refused with a cause §1a "
+            "does not name (%s): a transcript this study cannot attribute does "
+            "not get a denominator by default"
+            % (entry["arm"], entry["slotIndex"], error))
+    except (OSError, ValueError) as error:
+        raise ScoreError(
+            "arm %s run-%03d: the transcript binding could not read the sealed "
+            "bytes (%s: %s)" % (entry["arm"], entry["slotIndex"],
+                                type(error).__name__, error))
+    sealed = None
+    sealed_path = os.path.join(slot_path, batch.TRANSCRIPT_NAME)
+    if os.path.isfile(sealed_path):
+        try:
+            sealed = load_json(sealed_path)
+        except (ValueError, OSError):
+            sealed = None
+    return {"admissible": verdict["admissible"], "reason": verdict["reason"],
+            "side": verdict["side"], "code": verdict["code"],
+            "sealedAdmissible": (sealed or {}).get("admissible"),
+            "sealedReason": (sealed or {}).get("reason"),
+            "agreesWithSeal": sealed is not None
+                              and sealed.get("reason") == verdict["reason"]}
 
 
 def require_distinct_sessions(slots: list) -> None:
@@ -604,6 +695,50 @@ def validate_shortfall(declaration: dict, slots: list, arms_root: str) -> dict:
             "global indices are %s" % (indices[:10] + (["..."] if count > 10
                                                        else [])))
     ledger_path = os.path.join(arms_root, batch.LEDGER_NAME)
+    # THE REGISTERED EMPTY PREFIX (round-2 finding R2-9). `SHORTFALL_SCHEMA`
+    # registers `ledgerSha256`, `ledgerHeadSha256` and `lastSlot` as nullable
+    # "only where a null is a fact (an empty prefix has no last slot)", and
+    # `declare_shortfall()` emits exactly that when the batch died before slot 1:
+    # no ledger file exists, so both digests are null and the inventory is empty.
+    # This function demanded `BATCH.json` unconditionally, so the one declaration
+    # the driver can write for the earliest failure was the one the scorer
+    # refused — the registered representation did not round-trip, and R1-7's
+    # branch to UNRESOLVED-BY-DESIGN was unreachable at zero. An empty prefix is
+    # now validated as what it is: the driver's own two checks over an empty
+    # ledger, plus the demand that no ledger file exist to contradict it.
+    if count == 0:
+        for member in ("ledgerSha256", "ledgerHeadSha256", "lastSlot"):
+            if declaration[member] is not None:
+                problems.append(
+                    "the declaration completes 0 slots and names %s %r: an "
+                    "empty prefix has no ledger, no chain head and no last slot"
+                    % (member, declaration[member]))
+        if declaration["slots"]:
+            problems.append(
+                "the declaration completes 0 slots and inventories %d"
+                % len(declaration["slots"]))
+        if os.path.isfile(ledger_path):
+            problems.append(
+                "the declaration declares an empty prefix with no ledger and %s "
+                "exists: the declaration and the tree disagree about whether any "
+                "slot ran" % batch.LEDGER_NAME)
+        try:
+            batch.verify_shortfall(declaration, [], None)
+        except batch.BatchError as error:
+            problems.append("the declaration against an empty ledger: %s"
+                            % error)
+        if problems:
+            raise ScoreError(
+                "%s does not declare this batch: %s"
+                % (SHORTFALL_FILE, "; ".join(sorted(problems))))
+        return {"declaredSlots": 0, "ledgerRecords": 0,
+                "reason": declaration["reason"],
+                "completedRounds": declaration["completedRounds"],
+                "verified": ["member set (batch.SHORTFALL_SCHEMA)",
+                             "batch.validate_shortfall",
+                             "batch.verify_shortfall (empty ledger)",
+                             "registered constants", "empty prefix",
+                             "no ledger file"]}
     if not os.path.isfile(ledger_path):
         problems.append("%s carries no %s, so the declaration's prefix answers "
                         "to nothing" % (relative(arms_root), batch.LEDGER_NAME))
@@ -1054,7 +1189,23 @@ def e4_endpoint(arm: str, runs: list, cut: dict, engine_supplied=None,
     runs are reported. They leave the high-kill numerator by not being
     high-kill, and they stay in the denominator: an identity-failing suite is a
     suite that did not pin the reference down, which is an authoring outcome and
-    not an apparatus failure."""
+    not an apparatus failure.
+
+    ROUND-2 FINDING R2-2, and it was a disagreement between two scorers about
+    one registered rule. §5 registers the denominator here — "identity-control
+    exclusions are reported, never silently dropped", over §1a's "attempted runs
+    whose apparatus succeeded" — and this is that rule: `len(runs)`. The pilot
+    scorer (`design/mutants/e4_score.py`) took the OTHER reading, dividing by the
+    identity-PASSING runs only, and the round-1 disposition wrote that reading
+    down; on a two-run arm with one identity-passing high-kill run the two rules
+    answer 1/2 and 1/1. The registered rule is this one, the pilot has been
+    changed to it, and the pilot's numbers moved (`design/mutants/E4-PILOT-v3.json`).
+
+    The per-run marker is published as well as the count: an identity-failing run
+    carries `highKill: null` — never `false` — because it was never asked, and it
+    is in the denominator all the same. `highKillRuns` names the numerator and
+    `identityFailedRuns` names the runs that are in the denominator without
+    having been asked, so the two published lists reconstruct the rate."""
     bind_study_modules()
     identity_pass = [run for run in runs if run.get("identityPass")]
     identity_fail = [run for run in runs if run.get("admitted")
@@ -1065,12 +1216,20 @@ def e4_endpoint(arm: str, runs: list, cut: dict, engine_supplied=None,
             if run.get("identityPass")
             and e4lib.is_high_kill(run["kill"]["killedPaired"],
                                    run["kill"]["paired"], cut["integerCut"])]
+    high_names = {run["run"] for run in high}
+    for run in runs:
+        run["highKill"] = (run["run"] in high_names
+                           if run.get("identityPass") else None)
     excluded_cases = sum(len(run.get("x1Excluded") or []) for run in runs)
     out_of_domain = sum(len(run.get("outOfDomainCases") or []) for run in runs)
     return {
         "arm": arm,
         "language": cut.get("language"),
         "denominator": len(runs),
+        "denominatorRule": "§1a/§5: admitted runs (attempted runs whose "
+                           "apparatus succeeded). Authoring outcomes stay in as "
+                           "not-high-kill and identity-control exclusions stay "
+                           "in and are reported; only apparatus codes leave.",
         "highKill": len(high),
         "highKillRate": stats.rate_block(
             len(high), len(runs),
@@ -1569,6 +1728,12 @@ def main(argv=None) -> int:
         return 2
     os.makedirs(attempt_root)
 
+    # Nothing an earlier invocation established carries into this one: the
+    # production path is one attempt per process, and a flag that survived would
+    # let a verified run license an unverified one (round-2 R2-8).
+    global _VERIFIED
+    _VERIFIED = False
+
     # The marker precedes the registry PARSE under every flag combination, and
     # carries the raw-byte digest of the registry it is about to trust. ONE
     # read: the bytes hashed are the bytes parsed.
@@ -1591,10 +1756,17 @@ def main(argv=None) -> int:
         # whole point of the restructure. The verdict is the registered row-1
         # text either way, and it is spelled from the table when the table is
         # available and from the registration's own words when it is not.
-        try:
+        #
+        # ROUND-2 R2-8: the guard is `_VERIFIED`, not a `try`. This block used to
+        # call `bind_study_modules()` unconditionally, so the EARLY terminal
+        # paths — an unreadable registry, a refused integrity gate — imported
+        # `batch` and the whole of `e4lib` in order to print a row-1 verdict
+        # whose text is a constant. The one path that exists because the tree
+        # cannot be trusted was the path that bound the untrusted tree.
+        if _VERIFIED:
             bind_study_modules()
             verdict = decision.decide({"pipelineProblems": [problem]})
-        except BaseException:                       # noqa: BLE001
+        else:
             verdict = {"row": "pipeline-invalid", "rowIndex": 1,
                        "verdict": "R1 inconclusive - pipeline-invalid",
                        "causes": [problem],
@@ -1622,6 +1794,29 @@ def main(argv=None) -> int:
         except ValueError as error:
             return terminal("the pin registry is not duplicate-free JSON: %s"
                             % error)
+        # ROUND-2 FINDING R2-8, and the ORDER is the whole of it. This block used
+        # to call `integrity.study_label()` and `integrity.unfilled_pins()` —
+        # study-local code — before `integrity.verify()` had established anything
+        # about the tree those functions live in, so the label rule and the
+        # null-pin guard both ran on unverified bytes. Verification is now the
+        # FIRST thing that happens after the registry is parsed, and nothing
+        # study-local is invoked above it.
+        #
+        # What this does NOT establish, stated rather than implied: `score.py`
+        # and `integrity.py` are themselves read and executed by the interpreter
+        # before either can check anything, so this is a gate against a tree that
+        # drifted under an honest operator and not a root of trust against a
+        # hostile one. `integrity.py` says the same about `-P`. Closing that gap
+        # needs an externally pinned bootstrap that authenticates these two files
+        # first, which this study does not have; the honest claim is the narrow
+        # one. (Owed to the registration lane: §7's stronger sentence.)
+        try:
+            integrity.verify(STUDY)
+        except integrity.IntegrityError as error:
+            return terminal("integrity: %s" % error)
+        _VERIFIED = True
+        bind_study_modules()
+
         label = integrity.study_label(pins)
         unfilled = integrity.unfilled_pins(pins)
         if arguments.include_reviewer_set and unfilled:
@@ -1644,22 +1839,24 @@ def main(argv=None) -> int:
 
         problems, refusals = [], {}
 
-        # ROUND-1 R1-9, and the ORDER is the finding. `verify()` runs the
-        # untracked-source and unreviewed-bytecode scan, the port chain, the
-        # interpreter and the exact-set manifest — and it runs BEFORE
-        # `bind_study_modules()` imports a single scoring module, so no byte of
-        # `batch.py` or `e4lib/` executes until something has established that
-        # the tree holds no untracked Python source shadowing a reviewed one and
-        # no compiled cache the reviewed sources did not produce.
-        #
-        # A refusal here is fatal and terminal: there is nothing to score
-        # against unverified bytes, and continuing in order to collect more
-        # problems would mean importing the modules the gate just refused.
-        try:
-            integrity.verify(STUDY)
-        except integrity.IntegrityError as error:
-            return terminal("integrity: %s" % error)
-        bind_study_modules()
+        # ROUND-2 FINDING R2-7: the sealed set is LOADED AND VALIDATED HERE, and
+        # a failure terminates. §1a registers it as "loaded and schema-checked
+        # before the attempt without any engine being invoked on it"; the load
+        # sat instead at the end of the run, after every endpoint, every gate,
+        # every contrast and the decision itself, with its failure caught into
+        # `refusals` and the attempt still exiting 0 with `pipelineInvalid:
+        # false`. A missing, malformed or digest-invalid mandatory holdout could
+        # therefore coexist with a published substantive verdict. It cannot now:
+        # nothing below this line runs if the set does not load.
+        sealed_set = None
+        if arguments.include_reviewer_set:
+            try:
+                sealed_set = reviewer_lib.load(
+                    os.path.join(STUDY, REVIEWER_SET_RELATIVE),
+                    (pins.get("reviewerMutantSet") or {}).get("sha256"))
+            except reviewer_lib.ReviewerSetError as error:
+                return terminal("the sealed reviewer mutant set is mandatory "
+                                "for this attempt and does not load: %s" % error)
 
         tools = engines.Toolchain(pins)
         problems.extend(tools.problems)
@@ -1680,7 +1877,8 @@ def main(argv=None) -> int:
         try:
             present = slots_present(arguments.batch_root)
             golden_pin = (pins.get("golden") or {}).get("sha256")
-            slots = [read_slot(entry, arguments.batch_root, present, golden_pin)
+            slots = [read_slot(entry, arguments.batch_root, present, golden_pin,
+                               pins)
                      for entry in entries]
             require_distinct_sessions(slots)
             shape = terminality(slots, arguments.batch_root)
@@ -1847,21 +2045,40 @@ def main(argv=None) -> int:
         outcome["contrasts"] = contrasts
         verdict = decision.decide(outcome)
 
+        # ROUND-2 R2-12, and this is the only place any interval is computed.
+        # §5: "No inferential quantity is computed, let alone published, at or
+        # above row 3." The marginal Clopper-Pearson bounds used to be computed
+        # inside each endpoint — before a single gate had been read — and printed
+        # whatever the row. The gate rows are evaluated above; the bounds are
+        # settled here, once, for every pending rate block in the whole result,
+        # and only when the outcome reached the substantive rows.
+        interval_licence = not gate_causes and not outcome["pipelineProblems"]
+        suppression = None
+        if not interval_licence:
+            suppression = (
+                "§5: no inferential quantity is computed at or above row 3; "
+                "%d gating row(s) matched (%s)"
+                % (len(gate_causes) + len(outcome["pipelineProblems"]),
+                   "; ".join(gate_causes + outcome["pipelineProblems"])))
+            refusals["intervals"] = suppression
+
         # ROUND-1 R1-10. Executed exactly once, here, at the primary attempt —
         # after every registered number is already fixed, so nothing it produces
         # can reach one. `outcome` above is the whole of the decision's input and
         # carries no member this block writes.
         reviewer_set = None
-        if arguments.include_reviewer_set:
+        if sealed_set is not None:
             try:
-                sealed = reviewer_lib.load(
-                    os.path.join(STUDY, REVIEWER_SET_RELATIVE),
-                    (pins.get("reviewerMutantSet") or {}).get("sha256"))
                 reviewer_set = reviewer_lib.execute(
-                    tools, sealed, per_arm_runs, context, batch.ARMS,
+                    tools, sealed_set, per_arm_runs, context, batch.ARMS,
                     LANGUAGE_OF_ARM, workspace)
             except reviewer_lib.ReviewerSetError as error:
-                refusals["reviewerMutantSet"] = str(error)
+                # R2-7: two-sided. The load is fatal above and the execution is
+                # fatal here, because "first executed at the primary attempt" is
+                # a promise about this attempt and an attempt that published
+                # without it is an attempt that did not keep it.
+                return terminal("the sealed reviewer mutant set did not execute "
+                                "at this attempt: %s" % error)
         results = {
             "study": STUDY_NAME,
             "attemptRoot": os.path.basename(os.path.normpath(attempt_root)),
@@ -1903,6 +2120,12 @@ def main(argv=None) -> int:
                 for arm in batch.ARMS for run in per_arm_runs[arm]],
             "reviewerSet": reviewer_set,
             "decision": verdict,
+        }
+        results["intervalsPublished"] = {
+            "licensed": interval_licence,
+            "settled": stats.fill_intervals(results, interval_licence,
+                                            suppression),
+            "reason": suppression,
         }
         write_json(os.path.join(attempt_root, "RESULTS.json"), results)
         write_text(os.path.join(attempt_root, "RESULTS.md"),

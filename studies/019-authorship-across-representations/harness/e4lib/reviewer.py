@@ -21,6 +21,21 @@ Five properties, each of them a line in that registration:
   registry pin. It runs no engine. That is what makes "first executed at the
   primary attempt" checkable rather than promised: the pre-attempt path has no
   execution in it to accidentally take.
+* **Validated against the schema that was AUTHORED, and BEFORE any endpoint.**
+  Round-2 finding R2-7, in two halves. The loader checked four member NAMES and
+  nothing else, so a set with two mutants, one language, an extra member, a
+  `.txt` payload or a filename naming another directory loaded clean — and its
+  containment check was `dirname(normpath(file)).startswith("..")`, which an
+  ABSOLUTE path passes, because `dirname("/x")` is `"/"` and
+  `os.path.join(root, "/x")` is `"/x"`. The round's own prompt registers 6–10
+  mutants with both languages represented, records of exactly
+  `{id, language, file, sha256}`, and filenames `rm-<language>-NN.<ext>`; all of
+  it is enforced here now, on real paths. And `harness/score.py` calls this
+  BEFORE it computes an endpoint, with any failure terminating the attempt as
+  pipeline-invalid: the load used to sit after the decision, with its refusal
+  caught into `refusals` and the attempt still exiting 0, so a missing or
+  digest-invalid mandatory holdout could coexist with a published substantive
+  verdict.
 * **Executed exactly once.** `execute()` refuses a second call on the same
   record. The attempt is a single process and the scorer calls it once, and the
   guard is there because "first executed at the primary attempt" is a claim
@@ -51,6 +66,16 @@ MANIFEST_NAME = "MANIFEST.json"
 SET_VERSION = 1
 LANGUAGES = ("jps", "rego")
 RECORD_MEMBERS = ("id", "language", "file", "sha256")
+
+# THE AUTHORED SCHEMA, as the round's own prompt registers it and as the
+# reviewer emitted it (round-2 finding R2-7). The loader used to check the four
+# member NAMES and nothing else, so a set with two mutants, one language, an
+# extra member, a `.txt` payload or a filename naming another directory loaded
+# clean — and the round-1 disposition's "loader validates" was true of a schema
+# nobody authored.
+MANIFEST_MEMBERS = ("reviewerSetVersion", "mutants")
+SET_MINIMUM, SET_MAXIMUM = 6, 10
+EXTENSION_OF_LANGUAGE = {"jps": ".json", "rego": ".rego"}
 
 
 class ReviewerSetError(Exception):
@@ -109,6 +134,20 @@ def load(root: str, pinned_sha256=None) -> dict:
             "REVIEWER-SET-SCHEMA the sealed manifest carries no non-empty "
             "`mutants` list; an empty sealed set is not a set the attempt can "
             "report as authored")
+    extra = sorted(set(manifest) - set(MANIFEST_MEMBERS))
+    if extra:
+        raise ReviewerSetError(
+            "REVIEWER-SET-SCHEMA the sealed manifest carries the member(s) %s "
+            "and the registered manifest is exactly %s: a sealed set is what "
+            "was authored, and an unregistered member is a member nothing "
+            "checked" % (", ".join(extra), ", ".join(MANIFEST_MEMBERS)))
+    if not SET_MINIMUM <= len(records) <= SET_MAXIMUM:
+        raise ReviewerSetError(
+            "REVIEWER-SET-SCHEMA the sealed manifest lists %d mutants and the "
+            "registered set is %d-%d: the cardinality is part of what was "
+            "authored, not a courtesy"
+            % (len(records), SET_MINIMUM, SET_MAXIMUM))
+    root_real = os.path.realpath(root)
     seen, loaded = set(), []
     for index, record in enumerate(records):
         if not isinstance(record, dict):
@@ -121,6 +160,12 @@ def load(root: str, pinned_sha256=None) -> dict:
             raise ReviewerSetError(
                 "REVIEWER-SET-SCHEMA record %d is missing the string member(s) "
                 "%s" % (index, ", ".join(missing)))
+        surplus = sorted(set(record) - set(RECORD_MEMBERS))
+        if surplus:
+            raise ReviewerSetError(
+                "REVIEWER-SET-SCHEMA record %d carries the member(s) %s and a "
+                "registered record is exactly %s"
+                % (index, ", ".join(surplus), ", ".join(RECORD_MEMBERS)))
         if record["language"] not in LANGUAGES:
             raise ReviewerSetError(
                 "REVIEWER-SET-SCHEMA %s names the language %r and the registered "
@@ -131,11 +176,23 @@ def load(root: str, pinned_sha256=None) -> dict:
                 "REVIEWER-SET-SCHEMA the id %r appears twice; a set with two "
                 "members of one name has no per-mutant result" % record["id"])
         seen.add(record["id"])
-        path = os.path.join(root, record["file"])
-        if os.path.dirname(os.path.normpath(record["file"])).startswith(".."):
+        # CONTAINMENT, on real paths (round-2 R2-7). The check was
+        # `dirname(normpath(file)).startswith("..")`, and `dirname("/x")` is
+        # `"/"` — so an ABSOLUTE path passed it, and `os.path.join(root, "/x")`
+        # is `"/x"`, which leaves the sealed directory entirely. A member is a
+        # bare filename inside the sealed directory or it is not a member.
+        registered_name = record["id"] + EXTENSION_OF_LANGUAGE[record["language"]]
+        if record["file"] != registered_name:
             raise ReviewerSetError(
-                "REVIEWER-SET-SCHEMA %s names a file outside the sealed "
-                "directory" % record["id"])
+                "REVIEWER-SET-SCHEMA %s names the file %r and the registered "
+                "filename for a %s mutant of that id is %r"
+                % (record["id"], record["file"], record["language"],
+                   registered_name))
+        path = os.path.join(root, record["file"])
+        if os.path.commonpath([root_real, os.path.realpath(path)]) != root_real:
+            raise ReviewerSetError(
+                "REVIEWER-SET-SCHEMA %s resolves outside the sealed directory"
+                % record["id"])
         if not os.path.isfile(path):
             raise ReviewerSetError(
                 "REVIEWER-SET-ABSENT %s names %s, which is not a file"
@@ -147,8 +204,14 @@ def load(root: str, pinned_sha256=None) -> dict:
                 "manifest records sha256:%s: the set is executed as sealed or "
                 "not at all" % (record["id"], actual, _bare(record["sha256"])))
         loaded.append({"id": record["id"], "language": record["language"],
-                       "path": path, "sha256": actual,
-                       "authoredBy": record.get("authoredBy")})
+                       "path": path, "sha256": actual})
+    languages = sorted({record["language"] for record in loaded})
+    if languages != sorted(LANGUAGES):
+        raise ReviewerSetError(
+            "REVIEWER-SET-SCHEMA the sealed set represents %s and the "
+            "registered set represents both languages: a set that reaches one "
+            "arm's language is not the holdout that was authored"
+            % (", ".join(languages) or "no language"))
     return {"version": SET_VERSION, "manifestSha256": _digest(manifest_path),
             "mutants": loaded, "count": len(loaded),
             "executed": False,

@@ -30,6 +30,20 @@ Out: the ADEQUACY DISPOSITION STAMP (`adequacy_search.py --manifests/--registry`
      adequacy gate is satisfied". The two claims are different and this file keeps them
      apart.
 
+**ROUND-2 FINDING R2-11, two defects, both closed here.** (1) The closure check read the
+COMMITTED tree while the byte-comparison read the scratch one, so a newly generated
+empty-witness mutant present only in the regenerated corpus could not be seen: the check
+is now evaluated under the scratch root (`undispositioned(root)`), which is the only root
+whose closure the run is entitled to assert. (2) A single-arm record was committed and
+read as a complete check; `build_report()` now stamps `armsCovered`/`coversBothArms`, ties
+`pass` to both arms, and `--check` REFUSES to write `REGENERATION-CHECK.json` at all
+unless both arms ran. Enforced by `harness/tests/test_design_regeneration.py`.
+
+The adequacy STAMP transition stays a separate, separately auditable command
+(`adequacy_search.py --manifests/--registry`), for the reason in the paragraph above: it
+needs hand-written drop prose per empty-witness mutant. This command only ever REPORTS the
+closure state, and reports it about the tree it built.
+
 Determinism: every step is RNG-free and timestamp-free; ids are assigned in class order
 and, within a class, in reference-file order; JSON is written with a fixed indent and
 sorted keys by the step that writes it.
@@ -49,9 +63,20 @@ overwrites it)
 * **Fix:** `refB/gen_mutants.py` now scrubs every directory it knows about out of the
   diagnostic before recording it (`<mutant-dir>`, `<work-dir>`, `<mutants-refB>`,
   `<design>`, `<scratch>`), keeping the diagnostic's meaning and dropping its address.
-* **2026-08-18, `--arm B --check` after the fix: 186/186 byte-identical.** That is the
-  `REGENERATION-CHECK.json` currently committed. A `--arm both --check` re-run (~30-45 min,
-  dominated by the dense census) is owed before the freeze so one file carries both arms.
+* **2026-08-18, `--arm B --check` after the fix: 186/186 byte-identical.** That single-arm
+  record was then COMMITTED, and round 2 read it as the complete check it is not (R2-11).
+  A record like it can no longer be written: see the both-arms rule above.
+* **2026-08-18, `--arm both --check` (round-2 response): 372/372 byte-identical, both
+  arms, with the closure read from the regenerated tree.** That is the committed
+  `REGENERATION-CHECK.json`, and it is the first record that carries both arms. Every
+  arm-A artifact (183 payloads + MANIFEST + REGISTRY + adequacy_engine_supplied.json) and
+  every arm-B artifact (185 payloads + MANIFEST) reproduced exactly, so the absolute-path
+  defect diagnosed above stays fixed under a full two-arm run.
+  `byteIdentical: true` is the reproducibility claim and it is the claim this file makes.
+  `pass` remains FALSE — the run exits 1 — because the adequacy gate is open: 37 arm-A and
+  34 arm-B empty-witness mutants are undispositioned. That is the honest state and not a
+  defect of this command; closing adequacy is round-2 finding R2-1's own work, it needs
+  hand-written drop prose per mutant, and this command may not invent it.
 """
 import argparse
 import hashlib
@@ -118,7 +143,20 @@ def run_chain(arm, root, jobs, env):
 
 
 def undispositioned(root):
-    """Empty-witness mutants with no adequacy disposition: the fail-closed condition."""
+    """Empty-witness mutants with no adequacy disposition: the fail-closed condition.
+
+    ROUND-2 FINDING R2-11. `root` is load-bearing and was wrong. The `--check`
+    path used to evaluate this against `DESIGN` — the COMMITTED tree — after
+    generating into a scratch copy, so the fail-closed condition described a
+    tree the check had not produced. Once the committed tree happened to be
+    green, a newly generated empty-witness mutant that exists only in the
+    regenerated corpus would have passed unseen: the check would have reported
+    "no undispositioned mutants" about the wrong bytes. Every caller must pass
+    the root whose closure it is asserting, and `--check` passes the SCRATCH
+    root. `tests/test_design_regeneration.py` builds a scratch tree carrying an
+    empty-witness mutant the committed tree does not have and asserts this
+    function and `build_report()` both see it.
+    """
     out = {}
     mana = json.load(open(os.path.join(root, "mutants", "refA", "MANIFEST.json")))
     out["A"] = sorted(m["id"] for m in mana
@@ -127,6 +165,44 @@ def undispositioned(root):
     out["B"] = sorted(m["id"] for m in manb["mutants"]
                       if m.get("notAdequate") and "adequacy" not in m)
     return out
+
+
+# Every committed record must speak for BOTH arms (R2-11): a B-only record was
+# committed and read as though it were the complete check. `pass` is false
+# unless both arms were regenerated AND compared AND closed, and `--check`
+# refuses to write the committed record at all for a single arm.
+BOTH_ARMS = ("A", "B")
+
+
+def build_report(arms, rows, undisp):
+    """The record `--check` commits, as a pure function of what the run saw.
+
+    `undisp` must be the closure of the REGENERATED tree (see `undispositioned`).
+    `armsCovered` is explicit so a partial record cannot be read as a complete
+    one, and `pass` requires reproduction and closure on both arms.
+    """
+    bad = [row for row in rows if not row["identical"]]
+    complete = sorted(arms) == sorted(BOTH_ARMS)
+    return {
+        "record": "end-to-end regeneration byte-comparison (R1-12, R2-11)",
+        "arms": sorted(arms),
+        "armsCovered": {arm: arm in arms for arm in BOTH_ARMS},
+        "coversBothArms": complete,
+        "closureEvaluatedUnder": "regenerated scratch tree",
+        "filesCompared": len(rows),
+        "identical": sum(1 for row in rows if row["identical"]),
+        "differing": bad,
+        "byteIdentical": not bad,
+        "adequacyStampPresent": {arm: not undisp[arm] for arm in arms},
+        "undispositionedEmptyWitnessMutants": {arm: undisp[arm] for arm in arms},
+        "pass": complete and (not bad)
+        and all(not undisp[arm] for arm in arms),
+        "note": "byteIdentical is the reproducibility claim; `pass` additionally "
+                "requires BOTH arms and the adequacy disposition stamp, which this "
+                "command may not invent (see the module docstring). The "
+                "undispositioned census is read from the regenerated tree, never "
+                "from the committed one (R2-11).",
+    }
 
 
 def main():
@@ -170,24 +246,17 @@ def main():
                              "identical": a is not None and a == b})
                 if a != b:
                     bad.append(rows[-1])
-        u = undispositioned(DESIGN)
-        report = {
-            "record": "end-to-end regeneration byte-comparison (R1-12)",
-            "arms": arms,
-            "filesCompared": len(rows),
-            "identical": sum(1 for r in rows if r["identical"]),
-            "differing": bad,
-            "byteIdentical": not bad,
-            "adequacyStampPresent": {arm: not u[arm] for arm in arms},
-            "undispositionedEmptyWitnessMutants": {arm: u[arm] for arm in arms},
-            "pass": (not bad) and all(not u[arm] for arm in arms),
-            "note": "byteIdentical is the reproducibility claim; `pass` additionally "
-                    "requires the adequacy disposition stamp, which this command may not "
-                    "invent (see the module docstring).",
-        }
-        with open(os.path.join(HERE, "REGENERATION-CHECK.json"), "w") as fh:
-            json.dump(report, fh, indent=1, sort_keys=True)
-            fh.write("\n")
+        # R2-11: the closure of the REGENERATED tree, not the committed one.
+        u = undispositioned(root)
+        report = build_report(arms, rows, u)
+        if report["coversBothArms"]:
+            with open(os.path.join(HERE, "REGENERATION-CHECK.json"), "w") as fh:
+                json.dump(report, fh, indent=1, sort_keys=True)
+                fh.write("\n")
+        else:
+            print("single-arm --check: the committed record is NOT written "
+                  "(a partial record has been read as a complete one; R2-11). "
+                  "Run --arm both --check to write it.")
         print("byte-comparison: %d/%d identical" % (report["identical"], report["filesCompared"]))
         for r in bad[:20]:
             print("  DIFFERS %s committed=%s regenerated=%s"

@@ -4,11 +4,14 @@
 (JPS pack on the pinned jpack 0.17.0; Rego on the pinned OPA 1.19.0) agree with this text
 cell-for-cell over the 2,540-cell design grid ([`reference/AGREEMENT.md`](reference/AGREEMENT.md)).
 v0.2 adjudicates the one cross-engine divergence the build surfaced (O2 under an
-indeterminate O3 — U1 now governs uniformly) and registers one narrow arm-A
-inexpressibility class the gold grid must exclude. v0, v0.1's panel findings, and the
-reference artifacts are retained beside this file. Not yet through: the clean-room second
-oracle, the calibration pilots, or any review round. The frozen version will live at
-`policy/POLICY.md`.**
+indeterminate O3 — U1 now governs uniformly) and registered one narrow arm-A
+inexpressibility class, **X1, which review round 1 retired: the exclusion set is empty,
+the arm-A reference was repaired, and the gold grid now carries rows in the former X1
+region rather than excluding them** (see the retirement note below). v0, v0.1's panel
+findings, and the reference artifacts are retained beside this file. Through since v0.2:
+the clean-room second oracle, the calibration pilots, and two RFC 0009 review rounds
+(`../PREREG-REVIEW.md`) — both returned DO NOT FREEZE, and this file is not frozen. The
+frozen version will live at `policy/POLICY.md`.**
 
 Three panel discoveries reshaped v0, all verified against a built runtime: (1) "unreported
 insurance → review" was inexpressible in Core's three-valued logic (a condition true on
@@ -266,10 +269,13 @@ counterfactual test (v0's "needed by" admitted two readings — three findings).
 - **V7**: re-derive the completeness argument mechanically over the gold grid (the
   reference build's 236,196-cell derived-space sweep is evidence, not the registered
   artifact), asserting exactly one governing clause per cell under the earliest-clause
-  tie-break, and asserting the X1 exclusion.
+  tie-break. **There is no exclusion left to assert**: X1 is retired and the registered
+  exclusion set is empty, so V7 must instead assert that the former X1 region is *covered*
+  — an exclusion that once existed stays falsifiable.
 - **V8**: re-derive the asymmetry ledger from the two reference implementations (three new
-  rows so far: X1, A1's uniform-U1 burden, the inert O3 conjunct; the panel re-signed two
-  of v0's rows).
+  rows so far: the former X1 region as an asymmetry-ledger row — expressing it costs a
+  derived region lemma the prose never states, which is a cost row and not a boundary —
+  A1's uniform-U1 burden, and the inert O3 conjunct; the panel re-signed two of v0's rows).
 - Gold rows are authored as reason sets, cite governing clauses under the earliest-clause
   tie-break, and deliberately include: every boundary literal in every band; the three U1
   worked examples plus at least one more per unreadable input; D6b's three insurance
