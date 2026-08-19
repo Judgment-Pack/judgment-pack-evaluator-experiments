@@ -1,14 +1,16 @@
 # Preregistration — Study 019: authorship across representations
 
-**Status: DRAFT, seventh major revision (post-round-5). Not frozen. Nothing citable has
-run. Five cross-vendor review rounds have read this study: rounds 1–3 and 5 returned
+**Status: DRAFT, eighth major revision (post-round-6). Not frozen. Nothing citable has
+run. Six cross-vendor review rounds have read this study: rounds 1–3, 5 and 6 returned
 DO NOT FREEZE, and round 4 returned FREEZABLE AFTER LISTED FIXES. Round 4's six findings
-are dispositioned and closed. This revision is the response to round 5, whose findings
-are recorded verbatim in [`reviews/round-5/`](reviews/round-5/) and dispositioned in
+are dispositioned and closed. This revision is the response to round 6, whose findings
+are recorded verbatim in [`reviews/round-6/`](reviews/round-6/) and dispositioned in
 [`PREREG-REVIEW.md`](PREREG-REVIEW.md) — which is where the per-round detail lives, so
 this covered header restates as little of it as the record allows; a round's findings are **open** only until the
-maintainer's written disposition per finding lands there. Every
-freeze pin is null; every execution before
+maintainer's written disposition per finding lands there, and a round whose prompt is
+committed while its review has not landed is open in the other direction — the round
+lifecycle is a state read from the round's own artifacts (round-6 findings R6-1 and R6-3).
+Every freeze pin is null; every execution before
 the freeze is a PILOT and supports no claim. Items marked `GATE(pre-freeze)` are work that
 must land before any review round can return `freezable as written` — which no round has
 returned, so this header does not describe a freezable study. (The revision ordinal is
@@ -18,7 +20,9 @@ round-3 finding R3-10 caught; round 4 then found the repaired headers stale agai
 R3-10's tests could not see, and round 5 found R4-3's repair positive but not per-round —
 so both front doors are now under tests that read the record's own tables and require every
 round to be NAMED with the verdict it returned, with a round counting as closed only when
-every one of its findings carries a disposition.)**
+every one of its findings carries a WRITTEN disposition, an empty or `PENDING` cell being
+the absence of one, and with a negated attribution attributing nothing at all — round 6
+defeated both of those readings.)**
 
 ## Design provenance (disclosed, because it shaped the registered claims)
 
@@ -436,7 +440,10 @@ Resolved values below were verified empirically on 2026-08-14/15
   `r-o1-wide-low`'s, both name `review`, and D5 suppresses them together, so a gold suite
   cannot see an edit that moves cells *within* the containing region — but only **six** of
   the nine are the repair's marginal price; the other three were already unkillable in the
-  pre-repair corpus. The one boundary edit that leaves the containing region, `m-a-076`, is
+  pre-repair corpus. In the labelled form every registered surface carries verbatim, rebuilt
+  by the harness suite from the derived artifact (round-6 finding R6-2):
+  **Gross class size: 9; marginal to the X1 repair: 6; already unkillable before it: 3**.
+  The one boundary edit that leaves the containing region, `m-a-076`, is
   killed. The split is derived in `design/mutants/adequacy_region_lemma_price.json`, not
   asserted. The reference is **not** changed for it; a second repair would re-open this
   gate, the off-gold certificate and the corpus.)

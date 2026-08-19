@@ -348,4 +348,84 @@ than as gold authoring, which is a heading correction and not a closure.
 
 ### Dispositions
 
-**Pending — no R6 finding has been dispositioned yet.**
+(Written 2026-08-19, after the response landed. Every python invocation in this response —
+pytest, the manifest check, integrity, the generators — ran under `PYTHONDONTWRITEBYTECODE=1`.)
+
+**The method this round changed, stated once because it is the answer to five of the six
+findings.** The reviewer has now defeated a prose-parsing currency guard three rounds
+running: R4-1's window, R5-2's noun-anchored count, R5-3's clause shape, R5-7's truncated
+read. The lesson is not that the regexes were too narrow. It is that a POSITIVE attestation
+must not be a search over free prose at all. So wherever a guard attested something this
+round, the guarded sentence became a machine-readable form the document reproduces from
+data — the lemma's three outcomes, the class split, the round's state — and where a guard
+still reads prose it reads a STRUCTURED surface (the disposition table's cells, a workflow's
+parsed job, a heading line) with a shape requirement and enclosing-negation rejection.
+Window searches are retained for BANNED-claim detection only, where a false negative costs
+a missed offender rather than a false attestation.
+
+| # | Sev | Disposition |
+|---|---|---|
+| R6-1 | BLOCKER | **Accepted in all three parts, and the third is a defect in the model rather than in the tree.** (a) The round-5 response's `ci.yml` correction was left unstaged by a study-path-only `git add`; it is committed with the round-6 record at `10b0f66`, which is why the false-rationale test the reviewer saw fail is green at the HEAD this response answers. (b) The suite of record is re-established by the archive method below and reported both ways. (c) The structural half: `_round_records()` decided a round was completed by raw directory equality against `reviews/`, so the regime's own opening move — commit round N's PROMPT, then let the reviewer read committed HEAD — made HEAD red by construction, and no wording of the front doors could have made it green. A round is now a STATE read from its four artifacts (prompt, verbatim review, record section, per-finding disposition cells): `complete`, `awaiting-review` (prompt only), `awaiting-response` (review landed, dispositions incomplete), or `malformed`. The lifecycle rule is that the rounds are 1..N contiguous, every round below N is COMPLETE, and N may additionally be in one of the two open states — so a round-opening commit is green when it carries the prompt and the open-state sentence in both front doors, and `_OPEN_STATE_SENTENCES` is where that sentence is registered. Nothing about a completed round is weakened; the requirements on completed rounds are strictly stronger than round 5's, because a pending cell is no longer a disposition (R6-3). `test_a_prompt_only_round_reads_as_open_and_not_as_a_broken_tree` builds the round-opening tree and runs the whole reading over it; `test_exactly_one_round_may_be_open_and_it_must_be_the_highest` is the lifecycle rule itself. |
+| R6-2 | MAJOR | **Accepted, both halves, and rebuilt by restructuring rather than by widening.** The measurement half: `m-a-183`'s three outcomes now travel as ONE labelled clause — `MEASURED — trace-live cells: … ; scored-surface differences (primary transcription): 0; scored-surface differences (second transcription): 0; pinned-engine differences: 0 of 120 sampled cells` — which `_measured_clause()` RENDERS from `adequacy_drops.json` and `adequacy_crosscheck.json` at test time and requires verbatim on both reader surfaces. `ADEQUACY.md` carries it, and on the generated surface it is stamped through `adequacy_search.py`'s `DROPS` table, so `refA/MANIFEST.json` was re-stamped by `--manifests` (one line of the manifest changed; the transform is deterministic and touched nothing else). A measurement that moves now moves the required sentence, which is the property a search can never have. The negative sweep is kept and widened to the two elliptical spellings the reviewer used — a count after a preposition ("0 from the second … transcription", "0 over the 120 …") and a count after a label — so a seven written any of four ways fails. The role half: the split travels as the labelled line `Gross class size: 9; marginal to the X1 repair: 6; already unkillable before it: 3`, rendered by `_split_price_line()` from `adequacy_region_lemma_price.json` and required verbatim on all three registered surfaces; the prose sweep is now DOCUMENT-WIDE (a false role claim need not mention the class size), reads the claim from the ROLE outwards rather than from a number forwards (a number-first reading is non-overlapping and the reviewer's "every one of the seven …" would have consumed its match at `one` and discarded the claim), and judges negation over the enclosing CLAUSE — an affirmative claim must state the true number and a NEGATED one must not deny it, which is what makes "six are not the repair's marginal price" a failure rather than something skipped. `were already` left the role vocabulary: it matched a sentence about a different class, and a vocabulary that needs sentence scoping cannot be swept document-wide. Both of the reviewer's constructions are named tests. |
+| R6-3 | MAJOR | **Accepted, and the false positive is the serious half.** A header that DENIES the record's verdicts satisfied the test whose whole purpose is to make the header state them; that is not a narrow clause shape, it is a guard that reads a denial as an assertion. `_header_verdict_map()` now works per sentence and rejects any attribution in a sentence carrying a negation — with the verdict PHRASES removed before the negation scan, because `DO NOT FREEZE` carries a `not` that means the opposite of a denial. `test_a_negated_verdict_sentence_is_not_an_attribution` runs the real header (which must still parse) and three negations of its own attribution clause (which must attribute nothing). The disposition-cell half: the table is parsed as a STRUCTURED surface — leading pipe, three cells, closing pipe — and a row whose disposition cell is empty, `PENDING`, a dash, or shorter than a written disposition is a PENDING ROW, not a disposition; stripping the row's pipe characters off both ends — the obvious reading — is called out in the code as the one that must not be used, because it eats BOTH trailing pipes of a row whose third cell is empty and turns it into a two-cell line — which reads as no row at all, so the finding stays undispositioned and the round stays open, fail-closed in the right direction. The severity column is now a fourth statement of the round's finding count and is compared to the verdict line's. The reviewer's construction is `test_a_pending_or_blank_disposition_cell_is_not_a_disposition`, which mutates the real record five ways and requires the round to reopen each time. The lifecycle half is R6-1's. |
+| R6-4 | MAJOR | **Accepted, and swept rather than corrected in place.** R5-5 corrected the false patch-pin rationale in `ci.yml` because `ci.yml` was the file the reviewer named, and left the same claim standing in `SCAFFOLD.md` — the page an operator reads at the freeze. The class is the CLAIM, not the file, so the check is a sweep with a derived scope: every live text surface of the study plus the workflow, discovered by walk, with the verbatim reviews and the append-only record out of scope by construction (a history must be able to quote a claim in order to record its correction). The rule is structural: the registry records a SERIES and no patch, so no true sentence needs to name the registry — or `verify_interpreter()` — and a full patch level together, and one that does is claiming an enforcement that does not exist. Claim units are paragraphs in Markdown prose, own-line for table rows, headings and every non-prose file, which is what stops a whole workflow reading as one sentence. `SCAFFOLD.md`'s §C paragraph is rewritten to what is true and names the finding. On the workflow: `_disabling_conditions()` forbids `if` and `continue-on-error` at the job level and on every step, and `test_the_registered_ci_job_carries_no_condition_that_disables_it` runs all four mutations — job-level `if: false`, job-level `continue-on-error`, step-level `if: false` on the suite step, step-level `continue-on-error` on the integrity step — against the real workflow and requires each to be reported. |
+| R6-5 | MAJOR | **Accepted; the closure is exact and derived from the manifests.** `payload_closure_problems()` reads both frozen mutant MANIFESTs, derives the expected payload filename per record by the same rule `e4lib/e4.py`'s `load_mutants()` uses — `<id>.json` for arm A, the record's own `file` for arm B — over EVERY record and not only the valid ones (arm B's dropped mutant has a payload on disk, and `test_the_expected_payload_names_are_the_ones_the_scorer_opens` asserts both corpora close that way in the design tree), and requires a bijection with the directory AND with the covered set. A named payload that is absent, a file the manifest does not name, and a covered set that is not exactly that set are three separate problems; all three are reported by `--check` and all three refuse `--freeze`. The reviewer's own sentinel construction is now a test that must REFUSE: `test_one_sentinel_per_payload_glob_does_not_close_the_freeze` builds the tree R5-6's residual test deliberately built, shows that R5-6's gate is satisfied by it, and requires the freeze to refuse it in both directions before repairing the closure and freezing successfully. |
+| R6-6 | MINOR | **Accepted; the guard read 300 lines of a document and banned a string in the other 700.** The R5-7 heading check truncated `POLICY-DRAFT.md` at its first `---`, which is above every section it was protecting. The document is now read whole, and the ban is moved onto a STRUCTURED surface rather than a window: the stale text is forbidden on any HEADING LINE, and the corrected heading is required verbatim — so the recorded sentence that says what the heading used to say is a sentence, and the heading is a heading. `test_restoring_the_stale_gold_authoring_heading_fails_the_guard` restores the stale heading and asserts both that the guard finds it and that the truncated read cannot, which is the whole content of the finding. The recorded judgment R6-6 explicitly does not reopen — V7 and V8 remain genuine verification work — stands unchanged. |
+
+**Post-revision state, and the suite of record — by the ARCHIVE method, which is the
+convention from here on.** ROUND-6 FINDING R6-1 is the second round running in which a
+suite-of-record claim failed to describe committed HEAD, and both times the working-tree run
+was true of the working tree and false of every checkout of it. A working-tree run cannot
+establish that property, so from this round on the suite of record is run from a
+RECONSTRUCTION of the tree, and every future claim of a suite of record must name the method
+that produced it. The procedure, run exactly as written here:
+
+1. copy the repository's index to a TEMPORARY index (`GIT_INDEX_FILE`), so nothing below
+   touches the real one;
+2. `git add -A` the study path and `.github/workflows/ci.yml` into that temporary index —
+   this is what makes the reconstruction the CURRENT TREE STATE (tracked plus staged plus
+   unstaged modifications) rather than HEAD, and it is exactly the step whose omission was
+   R6-1(a);
+3. `git write-tree` on the temporary index, `git archive` that tree object, extract;
+4. `git init` and `git add -A` inside the extraction, because the index-reading checks
+   (`tracked_bytecode()`, the untracked-source tripwire) must have an index to read;
+5. run `integrity.py` under `PYTHONSAFEPATH=1`, `make_manifest.py --check`, and the full
+   suite with `JPACK_BIN`/`OPA_BIN`/`OPA_CAPS` on the pinned binaries, all under
+   `PYTHONDONTWRITEBYTECODE=1`. The reconstruction is a scratch tree and is discarded with
+   whatever caches the run leaves in it; the working-tree run beside it is made with
+   `-p no:cacheprovider`, so neither run leaves a byte behind in the real tree — which is
+   SCAFFOLD item T4 and, one level up, the R5-1 blocker.
+
+Both counts, as required: **751 passed, 0 failed, 0 skipped** in the working tree and **751
+passed, 0 failed, 0 skipped** from the reconstruction, with `JPACK_BIN`, `OPA_BIN` and
+`OPA_CAPS` on the pinned binaries in both, so the engine-backed tests a sandbox has to skip
+ran here. In the reconstruction `integrity.py` verifies 7 ported files on CPython 3.12.11
+and `make_manifest.py --check` reports no problem — only the eleven registered documents
+that are pending pre-freeze. The suite grew from round 5's 739 by the twelve round-6 tests
+named in the dispositions above. The reconstruction's tree object is printed by the
+procedure at run time and is deliberately NOT transcribed into this paragraph: a tree
+cannot contain the sentence that names its own hash, which is the linear-anchor rule this
+study already applies to the manifest and the registry. Order of the reconciliation: code
+and prose first, then the design corpus re-derivation below, then `harness/PORTS.md`'s
+destination digest for the one ported file this response edited (`make_manifest.py`), then
+`ownPorts.sha256`, then `STUDY-MANIFEST.sha256` LAST.
+
+**The design corpus, re-derived rather than hand-patched.** R6-2's labelled clause reaches
+`refA/MANIFEST.json` through `adequacy_search.py`'s `DROPS` table, so the manifest was
+re-stamped by `adequacy_search.py --manifests` (exactly one line of the manifest moved) and
+the whole end-to-end chain was then re-run under `regenerate.py --arm both --check` against
+the pinned engines: **376/376 byte-identical**, both arms covered, the undispositioned
+empty-witness census empty on both sides, and `REGENERATION-CHECK.json` itself regenerated
+byte-identical to the committed record — so the one prose line that moved moved through the
+generator, and nothing else in the corpus moved with it.
+
+**Known-imperfect at this round's close, recorded rather than fixed:** the two front doors'
+verdict attribution is still parsed from an English clause shape (`round(s) N returned
+<verdict>`), now with enclosing-negation rejection — a header that states the true mapping in
+some other form, or that carries an unrelated negation in the same sentence as its
+attribution, will fail a true statement, and the answer if that happens is to widen the
+parser rather than to loosen it (this round already moved one sentence in `POLICY-DRAFT.md`
+for exactly that reason); the disposition-cell reading treats any cell shorter than 24
+characters as a placeholder, which is a length heuristic and not a semantic one; and V7 and
+V8 in `POLICY-DRAFT.md` remain open verification items, unchanged by R6-6, which was about
+the heading that describes them.

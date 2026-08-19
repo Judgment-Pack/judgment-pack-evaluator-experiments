@@ -612,6 +612,13 @@ transcription, 0 from the second independently written transcription
 (`adequacy_crosscheck.json`), and 0 across the **120 pinned-jpack samples** drawn from the
 live set and evaluated on both packs (`engineCheckedCells: 120`, `engineDifferences: []`).
 Three distinct metrics, all three published, and the third is the only engine-borne one.
+Each of the three carries its own label here and in `refA/MANIFEST.json`, in one clause the
+harness suite REBUILDS from those artifacts and requires verbatim on both surfaces — round-6
+finding **R6-2**, whose whole content was that only the first of the three zeros was bound
+to anything:
+MEASURED — trace-live cells: 419,904 of 419,904; scored-surface differences (primary
+transcription): 0; scored-surface differences (second transcription): 0; pinned-engine
+differences: 0 of 120 sampled cells (adequacy_drops.json, adequacy_crosscheck.json).
 
 Twelve edits of this rule are in the corpus and **nine of them are unkillable**. The
 boundary claim has to be narrower than the blanket one this section used to make — it is
@@ -816,9 +823,11 @@ policy, never in terms of what gold happens to contain. Per-mutant text is in
 Members: `m-a-016`, `m-a-017`, `m-a-018`, `m-a-075`, `m-a-077`, `m-a-078`, `m-a-079`,
 `m-a-080`, `m-a-183`
 
-**Gross class size 9; marginal to the X1 repair 6; already unkillable before it 3**
+**Gross class size: 9; marginal to the X1 repair: 6; already unkillable before it: 3**
 (`m-a-017`, `m-a-077`, `m-a-079` — the pre-repair `m-a-017`, `m-a-067`, `m-a-069`, dropped
-then as `same-outcome-overlap`). Derived, not asserted:
+then as `same-outcome-overlap`). That line is the labelled form every registered surface
+carries verbatim, rebuilt by the harness suite from the derived artifact (round-6 finding
+**R6-2**). Derived, not asserted:
 `adequacy_region_lemma_price.json`, written by `adequacy_search.py --region-lemma-price`
 inside the regeneration chain (round-4 finding R4-2).
 

@@ -69,6 +69,18 @@ registered set is pending while its root is absent OR its glob is empty; the
 scorer's own refusal (`score.py`) comes at attempt time, which is after the
 freeze it was supposed to gate.
 
+**ROUND-6 FINDING R6-5: a payload SET is closed, not merely non-empty.** R5-6's
+gate asked whether each registered glob matched at least one file, so a tree
+carrying one arbitrary file per payload directory froze successfully with the
+other several hundred mutants missing — the scorer discovers that at ATTEMPT
+time, which is again after the anchor. `payload_closure_problems()` derives the
+expected filenames from the two frozen mutant MANIFESTs — the same rule
+`e4lib/e4.py`'s `load_mutants()` uses, `<id>.json` for arm A and the record's
+`file` for arm B, over EVERY record and not only the valid ones — and requires a
+bijection with the directory and with the covered set: a named payload that is
+absent, a file the manifest does not name, and a covered set that is not exactly
+that set are three separate problems and all three refuse the freeze.
+
 **ROUND-5 FINDING R5-1: tracked bytecode is a manifest problem.** A `.pyc`
 committed beside a reviewed source is a byte that runs unreviewed, and it is
 invisible to an exact-set manifest that globs `*.py` and `*.sh`. The round-4
@@ -84,6 +96,7 @@ Run: <the pinned interpreter> harness/make_manifest.py [--check | --freeze]
 
 import argparse
 import hashlib
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -226,6 +239,111 @@ def pending_payload_sets(study=None):
     return pending
 
 
+# ROUND-6 FINDING R6-5: the payload sets are CLOSED against the manifests that
+# name them, file for file.
+#
+# R5-6 closed the empty root and stopped there: `pending_payload_sets()` asks
+# whether the glob matches anything, so one arbitrary file per directory froze a
+# tree whose mutants were almost all missing. The scorer discovers that at
+# ATTEMPT time (`e4lib/e4.py` raises `E4-MISSING-MUTANT` when it cannot open a
+# payload) — after the anchor the gate exists to hold.
+#
+# The expected filename is not invented here: it is the one `load_mutants()`
+# computes. Arm A's manifest is a LIST of records keyed by `id`, and the payload
+# is `<id>.json`; arm B's is a mapping with a `mutants` list whose records carry
+# `file`. EVERY record counts, not only the valid ones — arm B's dropped mutant
+# has a payload on disk, and a file the manifest does not name is as loud as one
+# it names and cannot find.
+PAYLOAD_MANIFESTS = (
+    ("mutants/jps", "*.json", "mutants/MANIFEST-jps.json", "id"),
+    ("mutants/rego", "*.rego", "mutants/MANIFEST-rego.json", "file"),
+)
+
+
+def _manifest_records(data):
+    if isinstance(data, list):
+        return data
+    if isinstance(data, dict) and isinstance(data.get("mutants"), list):
+        return data["mutants"]
+    return None
+
+
+def expected_payloads(study=None, directory=None):
+    """`{directory: sorted expected filenames}` derived from the frozen mutant
+    manifests, or an entry of None where the manifest cannot be read."""
+    root = Path(study) if study is not None else STUDY
+    out = {}
+    for where, _pattern, manifest, key in PAYLOAD_MANIFESTS:
+        if directory is not None and where != directory:
+            continue
+        path = root / manifest
+        if not path.is_file():
+            out[where] = None
+            continue
+        try:
+            records = _manifest_records(json.loads(path.read_text(encoding="utf-8")))
+        except (ValueError, UnicodeDecodeError):
+            records = None
+        if records is None:
+            out[where] = None
+            continue
+        names = []
+        for record in records:
+            if not isinstance(record, dict):
+                names = None
+                break
+            if key == "id":
+                value = record.get("id")
+                names.append("%s.json" % value if value else None)
+            else:
+                names.append(record.get("file"))
+        out[where] = None if names is None or None in names else sorted(names)
+    return out
+
+
+def payload_closure_problems(study=None):
+    """R6-5. Exact closure: manifest ↔ directory ↔ covered set.
+
+    Every payload the manifest names must exist, no other file may sit in the
+    directory, and the study manifest must cover exactly that set. A manifest
+    that cannot be read is a problem in itself — the whole point is that the
+    freeze may not anchor a payload tree nobody has counted.
+    """
+    root = Path(study) if study is not None else STUDY
+    problems = []
+    expected = expected_payloads(study)
+    covered = None
+    for where, pattern, manifest, _key in PAYLOAD_MANIFESTS:
+        here = root / where
+        if not (root / manifest).is_file() and not here.is_dir():
+            continue                     # both absent: pending, not unclosed
+        names = expected.get(where)
+        if names is None:
+            problems.append(
+                "payload manifest is absent or unreadable: " + manifest)
+            continue
+        on_disk = sorted(path.name for path in here.glob(pattern)) \
+            if here.is_dir() else []
+        for name in names:
+            if name not in on_disk:
+                problems.append("%s names %s and %s/%s does not exist"
+                                % (manifest, name, where, name))
+        for name in on_disk:
+            if name not in names:
+                problems.append("%s/%s is not named by %s"
+                                % (where, name, manifest))
+        if study is None or Path(study) == STUDY:
+            if covered is None:
+                covered = manifest_entries()
+            mine = sorted(entry.split("/")[-1] for entry in covered
+                          if entry.startswith(where + "/"))
+            if mine != sorted(names):
+                problems.append(
+                    "the study manifest covers %d file(s) under %s and the "
+                    "payload set is %d" % (len(mine), where, len(names)))
+    return problems
+
+
 def pending_documents(study=None):
     """Registered documents that do not exist yet, in registered order, and the
     registered payload SETS that nothing answers to (round-5 finding R5-6).
@@ -315,6 +433,10 @@ def manifest_problems():
     # and executable and matches no glob the manifest walks.
     for name in tracked_bytecode():
         problems.append("compiled bytecode is tracked in the study: " + name)
+    # ROUND-6 FINDING R6-5. Also not a digest mismatch: a payload set that does
+    # not close against the manifest naming it. Reported here so `--check` says
+    # it, and refused below so `--freeze` cannot anchor it.
+    problems.extend(payload_closure_problems())
     return problems
 
 
@@ -344,6 +466,15 @@ def main(argv=None):
         for name in pending:
             print("refused: registered document is absent: " + name)
         return 1
+    if arguments.freeze:
+        # ROUND-6 FINDING R6-5: the payload sets must CLOSE against the manifests
+        # that name them before anything is anchored. R5-6's gate asked only
+        # whether the glob matched a file, so one sentinel per directory froze.
+        closure = payload_closure_problems()
+        if closure:
+            for problem in closure:
+                print("refused: " + problem)
+            return 1
     MANIFEST_PATH.write_text(manifest_text(), encoding="utf-8")
     print("wrote %s (%d entries, %d registered documents pending)"
           % (MANIFEST_PATH.name, len(manifest_entries()), len(pending)))

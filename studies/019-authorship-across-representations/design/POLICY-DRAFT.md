@@ -9,13 +9,15 @@ inexpressibility class, **X1, which review round 1 retired: the exclusion set is
 the arm-A reference was repaired, and the gold grid now carries rows in the former X1
 region rather than excluding them** (see the retirement note below). v0, v0.1's panel
 findings, and the reference artifacts are retained beside this file. Through since v0.2:
-the clean-room second oracle, the calibration pilots, and **five** RFC 0009 review rounds
-(`../PREREG-REVIEW.md`) — rounds 1–3 and 5 returned DO NOT FREEZE, round 4 returned
-FREEZABLE AFTER LISTED FIXES, and this file is not frozen. (Round-5 finding **R5-7**: this
+the clean-room second oracle, the calibration pilots, and **six** RFC 0009 review rounds
+(`../PREREG-REVIEW.md`). Rounds 1–3, 5 and 6 returned DO NOT FREEZE, and round 4 returned
+FREEZABLE AFTER LISTED FIXES. This file is not frozen. (Round-5 finding **R5-7**: this
 paragraph said two rounds and one verdict for three rounds after it stopped being true, so
-the count and the per-round verdicts are now read out of `reviews/` and
-`../PREREG-REVIEW.md` by `harness/tests/test_prereg_currency.py`, under the same machinery
-as the two front doors.) The frozen version will live at `policy/POLICY.md`.**
+the count and the per-round verdicts are now read out of the rounds that have returned one
+and out of `../PREREG-REVIEW.md`, by `harness/tests/test_prereg_currency.py`, under the
+same machinery as the two front doors — which round-6 finding **R6-6** made read this
+whole file rather than its first section, and round-6 finding **R6-3** made reject a
+negated attribution.) The frozen version will live at `policy/POLICY.md`.**
 
 Three panel discoveries reshaped v0, all verified against a built runtime: (1) "unreported
 insurance → review" was inexpressible in Core's three-valued logic (a condition true on
@@ -294,7 +296,10 @@ authoring" after the authoring closed, which is round-5 finding **R5-7**'s class
   mutants of it are unkillable by any gold suite as a result, of which **six** are the
   repair's marginal price and three were already unkillable before it
   (`mutants/ADEQUACY.md`, `subsumed-region-lemma`; derived in
-  `mutants/adequacy_region_lemma_price.json`). Not every boundary edit of the rule is
+  `mutants/adequacy_region_lemma_price.json`). In the labelled form every registered
+  surface carries verbatim, rebuilt by the harness suite from that artifact (round-6
+  finding R6-2): **Gross class size: 9; marginal to the X1 repair: 6; already unkillable
+  before it: 3**. Not every boundary edit of the rule is
   invisible: the one that widens outside the containing region, `m-a-076`, is killed. A
   redundant rule contributes nothing
   while it is correct and can still do damage when it is wrong; the panel re-signed two of

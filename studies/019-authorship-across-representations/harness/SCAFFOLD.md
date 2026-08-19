@@ -547,9 +547,14 @@ Keep running the harness that way; the item is closed, not the requirement.
 `study-019-harness` is in `.github/workflows/ci.yml`, after `study-018-harness`
 and before the general `python` matrix, in the file's own idiom: pinned action
 SHAs copied from the sibling study jobs (`actions/checkout@3d3c42e5…`,
-`actions/setup-python@5fda3b95…`), the exact pinned interpreter
-`python-version: "3.12.11"` — not `"3.12"`; `harness/PINS.json` records the
-patch level and the scorer refuses anything else — pip-installs only pytest
+`actions/setup-python@5fda3b95…`), a fixed CI runtime named to the patch —
+`python-version: "3.12.11"` rather than `"3.12"` — which makes this job
+reproducible and refuses nothing. The registry registers the CPython **3.12
+series** and `verify_interpreter()` compares implementation and series only; the
+running patch level is reported and not required (Study 012's round 3, finding
+20), and the sentence this paragraph used to carry — that the registry records
+the patch and the scorer refuses anything else — was false when it was written
+and is round-6 finding **R6-4**. The job pip-installs only pytest
 (the harness, the design generators and the controls are stdlib-only), and runs
 with `working-directory: studies/019-authorship-across-representations`:
 

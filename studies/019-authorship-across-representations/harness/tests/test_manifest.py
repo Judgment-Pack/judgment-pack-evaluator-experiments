@@ -217,15 +217,43 @@ def test_a_payload_set_that_exists_is_covered_file_by_file(study, tmp_path):
 
 # --- ROUND-5 FINDING R5-6: an absent payload SET blocks the freeze -----------
 
+_SCRATCH_JPS = ("m-a-001", "m-a-002")
+_SCRATCH_REGO = ("m-b-001.rego", "m-b-002.rego")
+
+
 def _scratch_study(root):
     """A tree with every registered document present and nothing else, so a
-    freeze over it turns on exactly the payload sets."""
+    freeze over it turns on exactly the payload sets.
+
+    ROUND-6 FINDING R6-5: the two mutant MANIFESTs are written as REAL manifests
+    — arm A a list of records keyed by `id`, arm B a mapping with a `mutants`
+    list keyed by `file`, which is what `e4lib/e4.py` reads — because the freeze
+    gate now derives the expected payload set from them."""
+    import json
     for name in make_manifest.REGISTERED_DOCUMENTS:
         path = root / name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("scratch %s\n" % name, encoding="utf-8")
+    (root / "mutants" / "MANIFEST-jps.json").write_text(
+        json.dumps([{"id": name, "validates": True} for name in _SCRATCH_JPS]),
+        encoding="utf-8")
+    (root / "mutants" / "MANIFEST-rego.json").write_text(
+        json.dumps({"mutants": [{"id": name.split(".")[0], "file": name,
+                                 "status": "valid"} for name in _SCRATCH_REGO]}),
+        encoding="utf-8")
     (root / "harness").mkdir(parents=True, exist_ok=True)
     return root
+
+
+def _fill_payloads(root):
+    """Exactly the payloads the scratch manifests name, plus one sealed reviewer
+    file per registered control glob."""
+    for name in _SCRATCH_JPS:
+        _fill(root, "mutants/jps", "*.json", name + ".json")
+    for name in _SCRATCH_REGO:
+        _fill(root, "mutants/rego", "*.rego", name)
+    _fill(root, "controls/reviewer-mutants", "*.json", "rm-jps-01.json")
+    _fill(root, "controls/reviewer-mutants", "*.rego", "rm-rego-01.rego")
 
 
 def _fill(root, directory, pattern, name):
@@ -262,10 +290,7 @@ def test_the_freeze_refuses_a_registered_payload_set_that_is_absent_or_empty(
     assert make_manifest.main(["--freeze"]) == 1, (
         "an EMPTY registered payload set is as pending as an absent one")
 
-    for index, (directory, pattern) in enumerate(
-            make_manifest.REGISTERED_PAYLOAD_SETS):
-        _fill(root, directory, pattern,
-              "p%d%s" % (index, pattern.replace("*", "")))
+    _fill_payloads(root)
     assert make_manifest.pending_payload_sets(root) == []
     assert make_manifest.pending_documents(root) == []
     assert make_manifest.main(["--freeze"]) == 0
@@ -275,6 +300,78 @@ def test_the_freeze_refuses_a_registered_payload_set_that_is_absent_or_empty(
         assert directory + "/" in written, (
             "the frozen manifest must carry the %s payloads file by file"
             % directory)
+
+
+def test_one_sentinel_per_payload_glob_does_not_close_the_freeze(
+        tmp_path, monkeypatch):
+    """ROUND-6 FINDING R6-5, the reviewer's construction exactly: R5-6's residual
+    test deliberately wrote ONE arbitrary `{}` file per registered glob and then
+    expected `--freeze` to succeed. It did — the gate asked whether the glob
+    matched anything, and a tree missing every mutant but one matched.
+
+    The same tree is built here and the freeze must refuse it, naming both
+    directions: the payloads the manifests name and cannot find, and the file in
+    the directory the manifests do not name. Then the closure is repaired and the
+    freeze succeeds, so the refusal is closure and not obstruction."""
+    root = _scratch_study(tmp_path / "study")
+    monkeypatch.setattr(make_manifest, "STUDY", root)
+    monkeypatch.setattr(make_manifest, "MANIFEST_PATH",
+                        root / "harness" / "STUDY-MANIFEST.sha256")
+    for index, (directory, pattern) in enumerate(
+            make_manifest.REGISTERED_PAYLOAD_SETS):
+        _fill(root, directory, pattern,
+              "p%d%s" % (index, pattern.replace("*", "")))
+
+    # R5-6's gate is satisfied by exactly this tree, which is the finding
+    assert make_manifest.pending_payload_sets(root) == []
+    assert make_manifest.pending_documents(root) == []
+
+    problems = make_manifest.payload_closure_problems(root)
+    assert any("does not exist" in problem for problem in problems), problems
+    assert any("is not named by" in problem for problem in problems), problems
+    assert make_manifest.main(["--freeze"]) == 1
+    assert not (root / "harness" / "STUDY-MANIFEST.sha256").exists(), (
+        "a refused freeze must not write a manifest")
+
+    for index, (directory, pattern) in enumerate(
+            make_manifest.REGISTERED_PAYLOAD_SETS):
+        (root / directory / ("p%d%s" % (index, pattern.replace("*", "")))).unlink()
+    _fill_payloads(root)
+    assert make_manifest.payload_closure_problems(root) == []
+    assert make_manifest.main(["--freeze"]) == 0
+
+    # and closure bites in the other direction too: one extra file, one missing
+    _fill(root, "mutants/jps", "*.json", "m-a-999.json")
+    assert any("is not named by" in problem
+               for problem in make_manifest.payload_closure_problems(root))
+    (root / "mutants" / "jps" / "m-a-999.json").unlink()
+    (root / "mutants" / "jps" / (_SCRATCH_JPS[0] + ".json")).unlink()
+    assert any("does not exist" in problem
+               for problem in make_manifest.payload_closure_problems(root))
+    assert make_manifest.main(["--freeze"]) == 1
+
+
+def test_the_expected_payload_names_are_the_ones_the_scorer_opens(study):
+    """R6-5's binding to the scorer rather than to a convention: the filename the
+    freeze expects is the filename `e4lib/e4.py` builds when it loads a mutant —
+    `<id>.json` for arm A, the record's own `file` for arm B. Asserted against
+    the design corpus, which carries both manifests in their real shapes."""
+    import json
+    design = pathlib.Path(study) / "design" / "mutants"
+    arm_a = json.loads((design / "refA" / "MANIFEST.json").read_text(
+        encoding="utf-8"))
+    expected = sorted("%s.json" % record["id"] for record in arm_a)
+    on_disk = sorted(path.name for path in (design / "refA").glob("m-a-*.json"))
+    assert expected == on_disk, (
+        "arm A's design payloads are exactly `<id>.json` per manifest record")
+    arm_b = json.loads((design / "refB" / "MANIFEST.json").read_text(
+        encoding="utf-8"))
+    expected = sorted(record["file"] for record in arm_b["mutants"])
+    on_disk = sorted(path.name for path in (design / "refB").glob("*.rego"))
+    assert expected == on_disk, (
+        "arm B's design payloads are exactly the manifest's `file` members — "
+        "including the dropped mutant's, which is why closure counts every "
+        "record and not only the valid ones")
 
 
 # --- ROUND-5 FINDING R5-1: tracked bytecode is refused, from the INDEX -------
@@ -296,8 +393,7 @@ def test_tracked_bytecode_is_a_manifest_problem_and_refuses_the_freeze(
     without the disk delete — or the reverse — leaves behind, and the state a
     working-tree walk calls clean."""
     root = _scratch_study(tmp_path / "study")
-    for directory, pattern in make_manifest.REGISTERED_PAYLOAD_SETS:
-        _fill(root, directory, pattern, "p" + pattern.replace("*", ""))
+    _fill_payloads(root)
     _git(root, "init", "-q")
     cache = root / "harness" / "__pycache__"
     cache.mkdir(parents=True, exist_ok=True)

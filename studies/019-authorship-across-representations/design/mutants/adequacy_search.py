@@ -747,7 +747,13 @@ DROPS = {
    "419,904 of 419,904 cells — every cell of the dense space — and the scored surface is "
    "identical at all of them: 0 differences by this transcription, 0 by the second "
    "independently written transcription (adequacy_crosscheck.json), and 0 over the 120 "
-   "cells of the live set handed to the pinned jpack on both packs. The rule "
+   "cells of the live set handed to the pinned jpack on both packs. Each of the three "
+   "outcomes carries its own label, in the clause the harness suite rebuilds from those "
+   "artifacts and requires verbatim on this surface and in ADEQUACY.md (round-6 finding "
+   "R6-2): MEASURED — trace-live cells: 419,904 of 419,904; scored-surface differences "
+   "(primary transcription): 0; scored-surface differences (second transcription): 0; "
+   "pinned-engine differences: 0 of 120 sampled cells (adequacy_drops.json, "
+   "adequacy_crosscheck.json). The rule "
    "the repair made redundant cannot be missed by any single-edit probe — which is the "
    "sharpest statement of the redundancy this corpus can make."),
 
