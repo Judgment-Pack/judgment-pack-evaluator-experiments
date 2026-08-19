@@ -1406,9 +1406,14 @@ def test_the_blocks_own_refusals_bite():
     second_open = [dict(entry) for entry in rounds]
     second_open[0]["state"] = AWAITING_RESPONSE
     miscounted = [dict(entry) for entry in rounds]
-    miscounted[-1] = dict(miscounted[-1],
-                          findings={"first": 1,
-                                    "last": miscounted[-1]["findings"]["last"] + 1})
+    # The miscount lands on the last round that CARRIES findings — an open
+    # awaiting-review round holds none yet, and that is its correct shape.
+    countable = max(i for i, entry in enumerate(miscounted)
+                    if entry.get("findings"))
+    miscounted[countable] = dict(
+        miscounted[countable],
+        findings={"first": 1,
+                  "last": miscounted[countable]["findings"]["last"] + 1})
     for label, mutated in (("a repeated round number", duplicate),
                            ("two sections out of order", out_of_order),
                            ("a second open round", second_open),
@@ -1591,8 +1596,12 @@ def test_a_prompt_only_round_reads_as_open_and_not_as_a_broken_tree(tmp_path):
     for number in states:
         (reviews / ("round-%d" % number)).mkdir(parents=True)
         (reviews / ("round-%d" % number) / "PROMPT.md").write_text("p\n")
-        (reviews / ("round-%d" % number) / "REVIEW.md").write_text(
-            "R%d-1\n" % number)
+        # A review lands only where the record carries the round's section —
+        # the live tree may itself hold a prompt-only round, and giving it a
+        # scratch review would manufacture exactly the mismatch under test.
+        if states[number]["section"]:
+            (reviews / ("round-%d" % number) / "REVIEW.md").write_text(
+                "R%d-1\n" % number)
     opened = highest + 1
     (reviews / ("round-%d" % opened)).mkdir()
     (reviews / ("round-%d" % opened) / "PROMPT.md").write_text("prompt\n")

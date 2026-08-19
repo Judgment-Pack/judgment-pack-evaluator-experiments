@@ -121,6 +121,13 @@ mechanical.
     "first": 1,
     "last": 9
    }
+  },
+  {
+   "number": 8,
+   "state": "awaiting-review",
+   "verdict": null,
+   "severities": null,
+   "findings": null
   }
  ]
 }
