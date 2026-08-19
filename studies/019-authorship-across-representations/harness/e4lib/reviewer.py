@@ -175,10 +175,25 @@ def load(root: str, pinned_sha256=None) -> dict:
         raise ReviewerSetError(
             "REVIEWER-SET-SCHEMA the sealed manifest is a JSON %s and the "
             "registered shape is an object" % type(manifest).__name__)
-    if manifest.get("reviewerSetVersion") != SET_VERSION:
+    # ROUND-10 FINDING R10-3. TYPE-EXACT, not value-equal. The authored schema
+    # (`reviews/round-2/PROMPT.md`) specifies `"reviewerSetVersion": 1` — a JSON
+    # integer — and the check was `!= SET_VERSION`, which Python satisfies with
+    # `True`, `1.0` and `1e0` alike. The reviewer substituted each of them into
+    # the real sealed manifest, re-pinned it, and `load()` returned a set whose
+    # published `version` is the constant integer 1, so the loaded object hid
+    # the type its own source carried. `type(x) is int` and not
+    # `isinstance(x, int)`: `bool` is a subclass of `int`, and `True` is exactly
+    # one of the three constructions. Unlike round-9's R9-3 — the round-state
+    # block, review-support apparatus under §4b — this loader and the set it
+    # seals are REGISTERED surface: the digest is a freeze pin and the set is
+    # executed at the primary attempt and published.
+    version = manifest.get("reviewerSetVersion")
+    if type(version) is not int or version != SET_VERSION:
         raise ReviewerSetError(
-            "REVIEWER-SET-SCHEMA reviewerSetVersion is %r and this study "
-            "registers %d" % (manifest.get("reviewerSetVersion"), SET_VERSION))
+            "REVIEWER-SET-SCHEMA reviewerSetVersion is %r (a JSON %s) and this "
+            "study registers the integer %d: a sealed set is what was authored, "
+            "and a member of another type is another document"
+            % (version, type(version).__name__, SET_VERSION))
     records = manifest.get("mutants")
     if not isinstance(records, list) or not records:
         raise ReviewerSetError(

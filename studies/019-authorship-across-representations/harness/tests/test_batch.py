@@ -632,6 +632,152 @@ class PortedBytesGate(unittest.TestCase):
         self.assertEqual(str(caught.exception), "ported bytes")
 
 
+class CanonicalRegistry(unittest.TestCase):
+    """ROUND-10 FINDING R10-1 — `--pins` is not a production seam.
+
+    This class deliberately patches NOTHING. Every other calling case here runs
+    against the stand-in study, which is the surface `--pins` exists for; the
+    finding is about the surface an operator actually types at, so these cases
+    run with `batch.STUDY` as this study and reach the gate the stand-in cases
+    are exempt from.
+
+    The finding: `require_freeze()` judges the mapping it is HANDED, so an
+    alternate registry with every freeze pin filled and the real preregistration
+    digest carried the REGISTERED label into calls the canonical freeze never
+    anchored — slots authored before the freeze, surviving it, and scored after
+    it. `authoring_call.sh` excused the seam with a sentence about a scorer
+    check ("registry-mismatch") that exists nowhere in the tree.
+    """
+
+    def alternate_registered_registry(self) -> str:
+        """The reviewer's construction: the committed registry with every freeze
+        pin filled and `preregistration.sha256` equal to the REAL
+        `PREREGISTRATION.md`, so it is a complete, self-consistent REGISTERED
+        mapping — written somewhere else."""
+        with open(REGISTRY) as handle:
+            pins = json.load(handle)
+        for name, path in integrity.FREEZE_PINS:
+            node = pins
+            for key in path[:-1]:
+                node = node.setdefault(key, {})
+            node[path[-1]] = "sha256:" + hashlib.sha256(name.encode()).hexdigest()
+        pins["preregistration"]["sha256"] = _digest(
+            os.path.join(STUDY, "PREREGISTRATION.md"))
+        root = throwaway_root()
+        self.addCleanup(shutil.rmtree, root, True)
+        path = os.path.join(root, "ALTERNATE-PINS.json")
+        with open(path, "w") as handle:
+            json.dump(pins, handle, indent=2)
+        return path
+
+    def test_the_alternate_registry_is_registered_and_the_label_rule_admits_it(self):
+        """The finding itself, reproduced: the label rule is NOT what refuses
+        this mapping, and a repair that only hardened `require_freeze()` would
+        have left the seam open. `require_freeze()` accepts it — no unfilled
+        pin, and the preregistration digest is the real one."""
+        pins = json.load(open(self.alternate_registered_registry()))
+        self.assertEqual(integrity.study_label(pins), "REGISTERED")
+        self.assertEqual(integrity.ceremony_unfilled_pins(pins), [])
+        self.assertEqual(batch.require_freeze(pins),
+                         _digest(os.path.join(STUDY, "PREREGISTRATION.md")))
+
+    def test_a_registry_that_is_not_the_canonical_one_refuses_by_name(self):
+        refusal = self.refusal(batch.require_canonical_registry,
+                               self.alternate_registered_registry())
+        self.assertIn("R10-1", refusal)
+        self.assertIn("harness/PINS.json", refusal)
+
+    def test_the_canonical_registry_passes_however_it_is_spelled(self):
+        """Exactness that is not brittleness: the default, the same file by a
+        relative spelling, and the same file through a symlinked directory are
+        one registry, and the gate compares real paths."""
+        self.assertEqual(batch.require_canonical_registry(batch.DEFAULT_PINS),
+                         batch.DEFAULT_PINS)
+        indirect = os.path.join(HARNESS, "..", "harness", "PINS.json")
+        self.assertEqual(batch.require_canonical_registry(indirect), indirect)
+        root = throwaway_root()
+        self.addCleanup(shutil.rmtree, root, True)
+        alias = os.path.join(root, "harness-alias")
+        os.symlink(HARNESS, alias)
+        aliased = os.path.join(alias, "PINS.json")
+        self.assertEqual(batch.require_canonical_registry(aliased), aliased)
+
+    def test_every_command_that_takes_pins_refuses_the_alternate_registry(self):
+        """Not `run` alone. Each of these loads a registry and each of them
+        writes something into the study — a golden capture, a control record, a
+        shortfall, slots — so a seam left open in any one of them is the same
+        seam."""
+        import contextlib
+        import io
+        alternate = self.alternate_registered_registry()
+        scratch = throwaway_root()
+        self.addCleanup(shutil.rmtree, scratch, True)
+        for argv in (
+                ["batch.py", "run", "--scratch-parent", scratch],
+                ["batch.py", "capture", "--scratch-parent", scratch],
+                ["batch.py", "capture-isolation-negative",
+                 "--scratch-parent", scratch],
+                ["batch.py", "capture-golden", "--slots", scratch,
+                 "--out", os.path.join(scratch, "GOLDEN.json")],
+                ["batch.py", "shortfall", "--reason", "a reason"]):
+            stderr = io.StringIO()
+            with contextlib.redirect_stderr(stderr):
+                code = batch.main(argv + ["--pins", alternate])
+            self.assertEqual(code, 1, argv[1])
+            self.assertIn("R10-1", stderr.getvalue(), argv[1])
+            self.assertIn("not harness/PINS.json", stderr.getvalue(), argv[1])
+        self.assertEqual(os.listdir(scratch), [], "no command may have run")
+
+    def test_the_stand_in_surface_keeps_the_flag(self):
+        """The other direction. The gate distinguishes the two surfaces by the
+        STUDY in effect and by nothing else, so the harness's stand-in study —
+        which is what the rest of this file drives — still names its own
+        registry. Without this the repair would be a deletion of the test
+        surface rather than a closure of the production one."""
+        alternate = self.alternate_registered_registry()
+        with mock.patch.object(batch, "STUDY", os.path.dirname(alternate)):
+            self.assertEqual(batch.require_canonical_registry(alternate),
+                             alternate)
+
+    def test_the_wrappers_claim_about_the_scorer_is_now_a_check_that_exists(self):
+        """The sentence that excused the seam, and what became of it.
+
+        `authoring_call.sh` said the scorer scores any slot whose registry stamp
+        differs pipeline-invalid, under the code `registry-mismatch`. When that
+        sentence was written no such code existed anywhere in the harness and
+        the scorer compared the stamp with nothing — the round-10 finding — and
+        the wrapper's comment records both halves: what it used to claim, and
+        the two ends that are built now. This asserts the SECOND half is not a
+        promise either: the code is in §1a's partition on the apparatus side,
+        and the scorer's reader is what returns it.
+
+        The comment is held to the same standard the study holds every other
+        comment to. A tree in which `registry-mismatch` is described and absent
+        is the exact defect this class exists for, whichever direction the
+        description points."""
+        with open(batch.SCRIPT, encoding="utf-8") as handle:
+            # flattened, because the correction is a wrapped comment and a
+            # sentence split over two `#` lines is the same sentence
+            wrapper = " ".join(handle.read().replace("#", " ").split())
+        self.assertIn("R10-1", wrapper)
+        self.assertIn("The scorer does no such thing", wrapper)
+        self.assertIn("require_canonical_registry", wrapper)
+        self.assertIn("score.read_slot()", wrapper)
+        self.assertIn("registry-mismatch", wrapper)
+        # the calling end, unchanged: the flag is refused in the production tree
+        self.assertTrue(callable(batch.require_canonical_registry))
+        # the scoring end, which the sentence now describes truthfully
+        self.assertEqual(batch.CODE_PARTITION["registry-mismatch"],
+                         ("apparatus", "registry mismatch"))
+        self.assertIn('"registry-mismatch"', open(
+            os.path.join(HARNESS, "score.py"), encoding="utf-8").read())
+
+    def refusal(self, callable_, *args, **kwargs) -> str:
+        with self.assertRaises(batch.BatchError) as caught:
+            callable_(*args, **kwargs)
+        return str(caught.exception)
+
+
 class PreflightGates(StandInStudy):
     """D2 — every refusal that must land before a single invocation."""
 
@@ -1311,6 +1457,11 @@ class WrapperDriven(StandInStudy):
             self.assertEqual(call["position"], entry["position"])
             self.assertEqual(call["slotIndex"], entry["slotIndex"])
             self.assertEqual(call["goldenSha256"], self.pins["golden"]["sha256"])
+            # ROUND-10 FINDING R10-1: the registry stamp is the scorer's input,
+            # so the wrapper's own writing of it is asserted here rather than
+            # assumed by the score-side fixtures that read it. Deleting the
+            # member from `authoring_call.sh` fails this line.
+            self.assertEqual(call["pinsSha256"], _digest(self.pins_path))
             self.assertEqual(call["timeoutSeconds"], batch.CALL_TIMEOUT_SECONDS)
             self.assertFalse(call["timedOut"])
             # …and it is sealed, and the seal recomputes
@@ -2042,12 +2193,19 @@ class TranscriptBindingReachesThePopulation(TranscriptBindingAtTheSeal):
 
     def scored(self, index=0):
         """`(scorer record, sealed verdict)` for one slot of the batch just
-        run, read through the production path with the stand-in registry."""
+        run, read through the production path with the stand-in registry.
+
+        ROUND-10 FINDING R10-1: the registry digest travels too, because this is
+        the one class that runs the REAL wrapper and then asks the scorer. The
+        stamp the scorer compares is written by `authoring_call.sh` here rather
+        than by a fixture, so wrapper and scorer are held to one reading of one
+        registry — a fixture that computed the stamp the way the scorer computes
+        it could agree with the scorer while the wrapper disagreed with both."""
         verdict, _slot, _record = self.bound(index)
         present = score.slots_present(self.arms_root)
         record = score.read_slot(ENTRIES[index], self.arms_root, present,
                                  (self.pins.get("golden") or {}).get("sha256"),
-                                 self.pins)
+                                 self.pins, _digest(self.pins_path))
         return record, verdict
 
     def test_a_clean_transcript_leaves_the_slot_in_the_population(self):
@@ -2119,7 +2277,7 @@ class TranscriptBindingReachesThePopulation(TranscriptBindingAtTheSeal):
         present = score.slots_present(self.arms_root)
         golden_pin = (self.pins.get("golden") or {}).get("sha256")
         slots = [score.read_slot(entry, self.arms_root, present, golden_pin,
-                                 self.pins)
+                                 self.pins, _digest(self.pins_path))
                  for entry in ENTRIES[:ROUND]]
         codes = sorted(slot["code"] for slot in slots
                        if slot["code"] is not None)

@@ -1,6 +1,6 @@
 # Preregistration — Study 019: authorship across representations
 
-**Status: DRAFT, tenth major revision (post-round-9). Not frozen. Nothing citable has
+**Status: DRAFT, eleventh major revision (post-round-10). Not frozen. Nothing citable has
 run. The cross-vendor review rounds are recorded in [`PREREG-REVIEW.md`](PREREG-REVIEW.md),
 each verbatim under [`reviews/`](reviews/), and that record's round-state block is the
 single machine-readable source for round counts, verdicts and open state. The rendered
@@ -24,7 +24,7 @@ states nothing a test parses out of English: it carries a rendered sentence, the
 it is the record's block, and the truth of the surrounding prose rests on review.)**
 
 <!-- round-status:begin -->
-ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 10 review rounds are on the record, 9 have returned a verdict — rounds 1-3 and 5-9 returned DO NOT FREEZE; round 4 returned FREEZABLE AFTER LISTED FIXES — and round 10 is open, awaiting the reviewer's answer.
+ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 11 review rounds are on the record, 10 have returned a verdict — rounds 1-3 and 5-10 returned DO NOT FREEZE; round 4 returned FREEZABLE AFTER LISTED FIXES — and round 11 is open, awaiting the reviewer's answer.
 <!-- round-status:end -->
 
 
@@ -208,7 +208,8 @@ calibration pilots are non-citable and outside every population.
 per-arm rate is attempted runs whose **apparatus** succeeded. Apparatus failures — slot
 shape, call nonzero-exit, **call timeout at the registered ceiling**, pre-call refusal,
 post-call wrapper failure, golden-context
-mismatch, binary digest mismatch, transcript refusal — are pipeline-invalid, excluded, and
+mismatch, binary digest mismatch, **registry mismatch**, transcript refusal — are
+pipeline-invalid, excluded, and
 reported with their own rate and interval. Every failure attributable to what the author
 emitted — no extractable marker block, unparseable artifact, schema-invalid pack,
 `opa check` failure, v0-syntax, unreadable output shape — is an **authoring outcome**:
@@ -233,6 +234,18 @@ counted. (Round-1 lesson, recorded: the driver emitted two codes, `preflight-ref
 only codes it recognised as apparatus, so both entered every per-arm denominator as
 ordinary authoring runs. Exhaustiveness is therefore checked at import and enforced at
 every write, not asserted in this paragraph.)
+
+**Every scored slot was made under the registry this attempt reads.** The wrapper stamps
+the pin registry each call ran under into that call's retained `CALL.json`; the scorer
+hashes the registry it is itself about to trust, records that digest in `ATTEMPT.json`, and
+requires **every admitted slot's stamp to equal it**. A slot whose stamp differs is
+`registry mismatch` — apparatus, excluded, reported with the other apparatus codes — and a
+slot carrying no stamp at all is the same code, because the absence of the evidence is not
+evidence of agreement. (Round-10 lesson, recorded: the driver accepted an alternate
+registry by flag; a comment in the wrapper asserted that the scorer refused any slot whose
+stamp differed, under this exact name; no such check existed, so a slot authored before the
+freeze under a substitute complete registry would have survived the freeze and been scored
+as registered. The flag is closed at the driver and the check exists here.)
 
 **Terminality, and what a declared shortfall costs.** The registered batch is 150 slots and
 the registered population is that batch. A batch that does not complete may be **declared

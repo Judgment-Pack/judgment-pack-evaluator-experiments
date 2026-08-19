@@ -721,6 +721,35 @@ Each step fills exactly one link, and every link is checkable before the next.
    path under `results/` in the **index**, because the freeze anchors a commit
    and a working tree can be clean of a directory HEAD still carries.
    `harness/tests/test_manifest.py` seeds all four.
+5e. **Confirm no AUTHORING RUN exists** — round-10 finding **R10-1**, and it is
+   5d's condition one step earlier. `PREREGISTRATION.md` §1a registers the
+   study's prospective content as "the 150 post-freeze runs — **no authoring run
+   exists at freeze time**", and until this round the only thing any gate looked
+   for was the ATTEMPT root: a tree holding a hundred and fifty authored slots
+   and their ledger, with no rate yet computed over them, passed 5d and would
+   have been anchored by the freeze commit. That is not hypothetical — it is the
+   state the round-10 reviewer reached through the alternate-registry seam, by
+   authoring slots under a substitute complete registry before the canonical
+   freeze.
+
+   `make_manifest.prior_authoring_problems()` is that condition at that moment,
+   and it runs inside `--freeze-gates` with the other three:
+
+       <the pinned interpreter> harness/make_manifest.py --freeze-gates
+
+   It refuses on any `arms/<ARM>/authoring` slot root (by `lexists`, so a
+   dangling symlink of that name refuses too, and empty counts — an empty slot
+   root is a batch that started), on any of the three ledger files the driver
+   owns under `arms/` (`arms/BATCH.json`, its atomic-write temporary
+   `arms/BATCH.json.partial`, and the shortfall declaration
+   `arms/SHORTFALL.json`), and on any of those paths in the **index**, with the same
+   fail-closed reading of an unobservable index as 5d. The paths are DERIVED
+   from `harness/batch.py`'s own constants and `slot_path()`
+   (`make_manifest.authoring_state_paths()`), so the gate cannot go on checking
+   a spelling the driver has stopped writing. `arms/<ARM>/PROMPT.txt` is
+   untouched by it: an arm prompt is a registered input that must EXIST before
+   the freeze, and the authoring tree beneath it is what must not.
+   `harness/tests/test_manifest.py` seeds every one of these states.
 6. **Regenerate `harness/PORTS.md`'s destination digests** for every file the
    remaining ports touched, then re-pin `ownPorts.sha256`. `PORTS.md` before
    `PINS.json`, always: the registry pins the ports table and never the reverse.

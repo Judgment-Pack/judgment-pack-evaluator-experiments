@@ -317,6 +317,47 @@ def test_a_duplicate_member_in_the_sealed_manifest_refuses(tmp_path, injection,
     assert "duplicate-free" in str(raised.value), where
 
 
+# --- ROUND-10 FINDING R10-3: the version is TYPE-exact, not value-equal -----
+
+@pytest.mark.parametrize("literal", ["true", "1.0", "1e0", "1E0", '"1"'])
+def test_a_mistyped_reviewer_set_version_refuses(tmp_path, literal):
+    """R10-3. The authored schema (`reviews/round-2/PROMPT.md`) specifies
+    `"reviewerSetVersion": 1` — a JSON integer — and the loader asked only
+    `!= SET_VERSION`, which Python satisfies with `True`, `1.0` and `1e0`
+    alike. The reviewer substituted each of them into the REAL sealed manifest,
+    re-pinned it, and `load()` returned a set whose published `version` is the
+    constant integer 1, so the object hid the type its own source carried.
+
+    The literals are written as TEXT, not through `json.dumps`: `1e0` and `1E0`
+    are JSON numbers that no Python value round-trips to, and the finding is
+    about what a sealed FILE may say. `true` is the one a bare
+    `isinstance(x, int)` would still admit, because `bool` subclasses `int`."""
+    sealed = sealed_tree(tmp_path / "reviewer-mutants")
+    manifest = sealed / reviewer.MANIFEST_NAME
+    text = manifest.read_text()
+    original = '"reviewerSetVersion": 1'
+    assert original in text, text[:120]
+    manifest.write_text(text.replace(original,
+                                     '"reviewerSetVersion": %s' % literal, 1))
+
+    # the digest pin moves with the edit, exactly as the reviewer moved it, so
+    # nothing but the type check can be what refuses
+    pinned = "sha256:" + hashlib.sha256(manifest.read_bytes()).hexdigest()
+    with pytest.raises(reviewer.ReviewerSetError) as raised:
+        reviewer.load(str(sealed), pinned)
+    assert str(raised.value).startswith("REVIEWER-SET-SCHEMA")
+    assert "reviewerSetVersion" in str(raised.value)
+
+
+def test_the_registered_integer_version_still_loads(tmp_path):
+    """The other direction: `1` as an integer is the authored member and loads,
+    so R10-3's check is exactness and not obstruction."""
+    sealed = sealed_tree(tmp_path / "reviewer-mutants")
+    assert '"reviewerSetVersion": 1,' in \
+        (sealed / reviewer.MANIFEST_NAME).read_text()
+    assert reviewer.load(str(sealed))["version"] == reviewer.SET_VERSION
+
+
 def test_an_absent_set_refuses_rather_than_scoring_zero_reviewer_mutants(
         tmp_path):
     with pytest.raises(reviewer.ReviewerSetError) as raised:

@@ -330,6 +330,14 @@ def _scratch_study(root):
     (root / "gold" / "GOLD.json").write_text(json.dumps(_SCRATCH_GRID),
                                              encoding="utf-8")
     (root / "harness").mkdir(parents=True, exist_ok=True)
+    # ROUND-10 FINDING R10-2. The scratch study is a CHECKOUT, because the module
+    # under test reads the INDEX twice — R5-1's tracked bytecode and R9-2's prior
+    # attempt root — and both of those checks now refuse a tree whose index they
+    # cannot observe. A fixture that is not a repository would exercise the
+    # refusal in every case instead of the case it belongs to, and before this
+    # round it silently exercised neither check at all: `tracked_paths()`
+    # returned `None` here and both callers read that as "nothing is indexed".
+    _git(root, "init", "-q")
     return root
 
 
@@ -699,6 +707,28 @@ def test_the_freeze_invokes_the_sealed_sets_loader_and_not_only_its_filenames(
     assert any("REVIEWER-SET-SCHEMA" in problem for problem in problems), problems
     assert make_manifest.main(["--freeze"]) == 1
 
+    # 5. ROUND-10 FINDING R10-3: a MISTYPED version, through all three freeze
+    #    paths. The authored schema specifies the integer 1 and the loader asked
+    #    only for value equality, so `true`, `1.0` and `1e0` each loaded clean —
+    #    every filename unchanged, closure clean, and the published version the
+    #    constant integer the loader returns rather than the one the file says.
+    for literal in ("true", "1.0", "1e0"):
+        _write_sealed_set(root)
+        text = manifest.read_text(encoding="utf-8")
+        original_member = '"reviewerSetVersion": 1'
+        assert original_member in text, text[:120]
+        manifest.write_text(
+            text.replace(original_member,
+                         '"reviewerSetVersion": %s' % literal, 1),
+            encoding="utf-8")
+        assert make_manifest.reviewer_set_closure_problems(root) == [], literal
+        problems = make_manifest.reviewer_load_problems(root)
+        assert any("reviewerSetVersion" in problem
+                   for problem in problems), (literal, problems)
+        assert make_manifest.main(["--freeze"]) == 1, literal
+        assert make_manifest.main(["--freeze-gates"]) == 1, literal
+        assert make_manifest.main(["--check"]) == 1, literal
+
     manifest.write_text(original, encoding="utf-8")
     _write_sealed_set(root)
     assert make_manifest.reviewer_load_problems(root) == []
@@ -851,6 +881,282 @@ def test_a_prior_attempt_root_refuses_the_freeze(tmp_path, monkeypatch):
     assert make_manifest.prior_attempt_problems(root) == []
     assert make_manifest.main(["--freeze"]) == 0
     assert manifest.exists()
+
+
+# --- ROUND-10 FINDING R10-2: an index that cannot be read FAILS CLOSED ------
+
+def _unreadable_index(root, tmp_path, monkeypatch, kind):
+    """The two ways `git ls-files` stops being observable, reached the way an
+    operator reaches them and not by patching the function under test: git gone
+    from PATH, so the call raises `OSError`; and the tree not a checkout, so git
+    is found and exits nonzero. A mock of `tracked_paths()` would assert this
+    file's own fixture instead of the module's behaviour."""
+    import shutil
+    if kind == "no-git":
+        empty = tmp_path / "empty-bin"
+        empty.mkdir(exist_ok=True)
+        monkeypatch.setenv("PATH", str(empty))
+        assert shutil.which("git") is None
+    else:
+        shutil.rmtree(root / ".git")
+
+
+@pytest.mark.parametrize("kind", ["no-git", "nonzero"])
+def test_an_unobservable_index_refuses_instead_of_reporting_a_clean_tree(
+        tmp_path, monkeypatch, kind):
+    """R10-2. R9-2's index check FAILED OPEN. `tracked_paths()` returned `None`
+    when git could not be run or exited nonzero, and `prior_attempt_problems()`
+    read `None` exactly as it read `[]` — so the one state in which the check
+    can see nothing was a state in which it passed.
+
+    The reviewer's construction, run here: stage
+    `results/primary-attempt-001/RESULTS.json`, delete it from disk, make git
+    unavailable, and `--freeze` returned SUCCESS over a tree whose index carried
+    a prior attempt. Both observation failures are constructed — git absent from
+    PATH, and git exiting nonzero — and each must refuse through all three
+    paths: `--check`, `--freeze-gates` and `--freeze`. A gate that cannot read
+    the index refuses with a named problem; it never concludes emptiness."""
+    import shutil
+    root = _scratch_study(tmp_path / "study")
+    _fill_payloads(root)
+    monkeypatch.setattr(make_manifest, "STUDY", root)
+    monkeypatch.setattr(make_manifest, "MANIFEST_PATH",
+                        root / "harness" / "STUDY-MANIFEST.sha256")
+    manifest = root / "harness" / "STUDY-MANIFEST.sha256"
+
+    # a clean tree freezes, so every refusal below is the finding and not the
+    # fixture — and the anchored bytes are what a refused freeze must not touch
+    assert make_manifest.main(["--freeze"]) == 0
+    anchored = manifest.read_bytes()
+
+    # the reviewer's tree: indexed, then deleted from disk, so the working tree
+    # is clean of the attempt and only the INDEX still carries it. While git can
+    # be asked, R9-2 catches exactly this.
+    attempt = root / make_manifest.PRIMARY_ATTEMPT_ROOT
+    attempt.mkdir(parents=True)
+    (attempt / "RESULTS.json").write_text('{"decision": "R1"}', encoding="utf-8")
+    _git(root, "add", "-A", "-f")
+    shutil.rmtree(root / make_manifest.RESULTS_DIR)
+    assert make_manifest.main(["--freeze"]) == 1, (
+        "R9-2, with the index observable: the freeze anchors a commit")
+
+    _unreadable_index(root, tmp_path, monkeypatch, kind)
+    with pytest.raises(make_manifest.IndexUnreadable):
+        make_manifest.tracked_paths(root)
+    with pytest.raises(make_manifest.IndexUnreadable):
+        make_manifest.tracked_bytecode(root)
+
+    problems = make_manifest.prior_attempt_problems(root)
+    assert any("could not be read" in problem for problem in problems), problems
+    assert any("could not be read" in problem
+               for problem in make_manifest.freeze_gate_problems(root)), (
+        "the freeze gates are where the ceremony reads this")
+    assert any("could not be read" in problem
+               for problem in make_manifest.manifest_problems()), (
+        "--check must say it too")
+    assert make_manifest.main(["--check"]) == 1
+    assert make_manifest.main(["--freeze-gates"]) == 1
+    assert make_manifest.main(["--freeze"]) == 1
+    assert manifest.read_bytes() == anchored, (
+        "a refused freeze must not rewrite the manifest")
+    assert make_manifest.main([]) == 1, (
+        "and the bare regeneration writes nothing either: the manifest "
+        "describes a commit")
+    assert manifest.read_bytes() == anchored
+
+
+def test_the_index_check_is_not_satisfied_by_an_empty_answer(tmp_path,
+                                                             monkeypatch):
+    """The other direction, without which the case above proves only that
+    something refuses: git present, the tree a real checkout, the index simply
+    empty of `results/`. That is an OBSERVATION of emptiness and it passes."""
+    root = _scratch_study(tmp_path / "study")
+    _fill_payloads(root)
+    monkeypatch.setattr(make_manifest, "STUDY", root)
+    monkeypatch.setattr(make_manifest, "MANIFEST_PATH",
+                        root / "harness" / "STUDY-MANIFEST.sha256")
+    assert make_manifest.tracked_paths(root) == []
+    assert make_manifest.prior_attempt_problems(root) == []
+    assert make_manifest.main(["--freeze-gates"]) == 0
+    assert make_manifest.main(["--freeze"]) == 0
+
+
+# --- ROUND-10 FINDING R10-1: pre-existing AUTHORING state refuses the freeze --
+
+def test_the_authoring_paths_are_the_drivers_own_and_not_a_second_spelling(
+        monkeypatch):
+    """The gate reads `harness/batch.py`'s constants and `slot_path()`, so it
+    cannot go on checking a directory the driver has stopped writing. Asserted
+    against the driver rather than against a literal, for the same reason
+    `PRIMARY_ATTEMPT_ROOT` is asserted against `batch.ATTEMPT_ROOT`.
+
+    Comparing today's values against today's driver cannot tell derivation from
+    a literal that happens to agree, so the second half MOVES the driver's own
+    names and requires the answer to move with them. That is the property the
+    round's finding is about: a gate whose spelling is its own is a gate that
+    goes on holding after the thing it guards has been renamed."""
+    import batch
+    directories, files = make_manifest.authoring_state_paths()
+    monkeypatch.setattr(batch, "LEDGER_NAME", "MOVED-LEDGER.json")
+    monkeypatch.setattr(batch, "ARMS", ("Z",))
+    moved_dirs, moved_files = make_manifest.authoring_state_paths()
+    assert moved_files[0].endswith("/MOVED-LEDGER.json"), moved_files
+    assert moved_dirs == (os.path.dirname(
+        batch.slot_path({"arm": "Z", "slotIndex": 1})).replace(
+            batch.STUDY + os.sep, "").replace(os.sep, "/"),), moved_dirs
+    monkeypatch.undo()
+    assert make_manifest.authoring_state_paths() == (directories, files)
+    assert len(directories) == len(batch.ARMS)
+    for arm, relative in zip(batch.ARMS, directories):
+        expected = os.path.dirname(batch.slot_path({"arm": arm, "slotIndex": 1}))
+        assert os.path.join(batch.STUDY, relative.replace("/", os.sep)) == \
+            expected
+    assert files == tuple(
+        "arms/" + name for name in (batch.LEDGER_NAME, batch.LEDGER_TEMP_NAME,
+                                    batch.SHORTFALL_NAME))
+    # …and the arm PROMPTS are not reachable from it: a prompt is a registered
+    # input that must exist before the freeze, and only the tree beneath it is
+    # the state this gate refuses.
+    for arm in batch.ARMS:
+        assert "arms/%s/PROMPT.txt" % arm not in directories + files
+
+
+def test_pre_existing_authoring_state_refuses_the_freeze(tmp_path, monkeypatch):
+    """R10-1's second half. §1a registers the study's prospective content as
+    "the 150 post-freeze runs — no authoring run exists at freeze time", and the
+    only thing any gate looked for was the ATTEMPT root (R9-2). A tree holding
+    authored slots and their ledger, with no rate computed over them yet, passed
+    every gate and would have been anchored by the freeze commit — which is
+    exactly the state the round-10 reviewer reached by authoring under a
+    substitute registry before the canonical freeze.
+
+    Every state is seeded: a slot root, an EMPTY slot root (a batch that
+    started), a dangling symlink of that name, each of the three ledger files
+    the driver owns, and the index carrying an authoring path the working tree
+    no longer has."""
+    import shutil
+    import batch
+    root = _scratch_study(tmp_path / "study")
+    _fill_payloads(root)
+    monkeypatch.setattr(make_manifest, "STUDY", root)
+    monkeypatch.setattr(make_manifest, "MANIFEST_PATH",
+                        root / "harness" / "STUDY-MANIFEST.sha256")
+    manifest = root / "harness" / "STUDY-MANIFEST.sha256"
+    directories, files = make_manifest.authoring_state_paths()
+
+    # the tree without authoring state freezes, so every refusal below is the
+    # registered condition and not the fixture
+    assert make_manifest.prior_authoring_problems(root) == []
+    assert make_manifest.main(["--freeze"]) == 0
+    anchored = manifest.read_bytes()
+
+    # 1. a slot tree with a slot in it — the state the finding describes
+    slots = root / directories[0]
+    (slots / "run-001").mkdir(parents=True)
+    (slots / "run-001" / "CALL.json").write_text("{}", encoding="utf-8")
+    problems = make_manifest.prior_authoring_problems(root)
+    assert any(directories[0] in problem for problem in problems), problems
+    assert make_manifest.main(["--freeze"]) == 1
+    assert manifest.read_bytes() == anchored, (
+        "a refused freeze must not rewrite the manifest")
+    assert make_manifest.main(["--freeze-gates"]) == 1
+    assert make_manifest.main(["--check"]) == 1
+    assert any(directories[0] in problem
+               for problem in make_manifest.manifest_problems()), (
+        "the gate must reach --check, not only --freeze")
+
+    # 2. the slot deleted and the ROOT left: an empty authoring root is a batch
+    #    that started, and the directory is the condition rather than its
+    #    contents
+    shutil.rmtree(slots / "run-001")
+    assert make_manifest.prior_authoring_problems(root) != []
+    assert make_manifest.main(["--freeze"]) == 1
+    shutil.rmtree(slots)
+
+    # 3. a DANGLING symlink of that name: `exists()` and `isdir()` both call it
+    #    absent, exactly as at the attempt root
+    slots.parent.mkdir(parents=True, exist_ok=True)
+    slots.symlink_to("authoring-that-moved")
+    assert slots.is_symlink() and not slots.exists()
+    assert make_manifest.prior_authoring_problems(root) != []
+    assert make_manifest.main(["--freeze"]) == 1
+    slots.unlink()
+    shutil.rmtree(root / "arms")
+    assert make_manifest.prior_authoring_problems(root) == []
+
+    # 4. each ledger file the driver owns, one at a time
+    for relative in files:
+        here = root / relative
+        here.parent.mkdir(parents=True, exist_ok=True)
+        here.write_text('{"records": []}', encoding="utf-8")
+        problems = make_manifest.prior_authoring_problems(root)
+        assert any(relative in problem for problem in problems), (relative,
+                                                                  problems)
+        assert make_manifest.main(["--freeze"]) == 1, relative
+        here.unlink()
+    assert make_manifest.prior_authoring_problems(root) == []
+
+    # 5. an arm PROMPT is NOT authoring state: it is a registered input that
+    #    must exist before the freeze, and refusing it would refuse the freeze
+    #    the study is walking toward
+    for arm in batch.ARMS:
+        prompt = root / "arms" / arm / "PROMPT.txt"
+        prompt.parent.mkdir(parents=True, exist_ok=True)
+        prompt.write_text("arm %s\n" % arm, encoding="utf-8")
+    assert make_manifest.prior_authoring_problems(root) == []
+    assert make_manifest.main(["--freeze"]) == 0
+
+    # 6. gone from disk, still in the index — the freeze anchors a COMMIT
+    (slots / "run-001").mkdir(parents=True)
+    (slots / "run-001" / "CALL.json").write_text("{}", encoding="utf-8")
+    (root / files[0]).write_text('{"records": []}', encoding="utf-8")
+    _git(root, "add", "-A", "-f")
+    shutil.rmtree(slots)
+    (root / files[0]).unlink()
+    assert not slots.exists() and not (root / files[0]).exists()
+    problems = make_manifest.prior_authoring_problems(root)
+    assert any("the index carries" in problem for problem in problems), problems
+    assert make_manifest.main(["--freeze"]) == 1
+
+    # …and with the tree clean of it in both places, the freeze closes
+    _git(root, "rm", "-q", "-r", "--cached", directories[0], files[0])
+    assert make_manifest.prior_authoring_problems(root) == []
+    assert make_manifest.main(["--freeze"]) == 0
+
+
+@pytest.mark.parametrize("kind", ["no-git", "nonzero"])
+def test_the_authoring_gate_fails_closed_on_an_unobservable_index(
+        tmp_path, monkeypatch, kind):
+    """R10-1 inherits R10-2's semantics rather than restating them: the index
+    half of this gate makes a claim about a COMMIT, and a check that cannot ask
+    git refuses instead of reporting a tree it never saw."""
+    root = _scratch_study(tmp_path / "study")
+    _fill_payloads(root)
+    monkeypatch.setattr(make_manifest, "STUDY", root)
+    monkeypatch.setattr(make_manifest, "MANIFEST_PATH",
+                        root / "harness" / "STUDY-MANIFEST.sha256")
+    assert make_manifest.prior_authoring_problems(root) == []
+    _unreadable_index(root, tmp_path, monkeypatch, kind)
+    problems = make_manifest.prior_authoring_problems(root)
+    assert any("could not be read" in problem for problem in problems), problems
+    assert make_manifest.main(["--freeze-gates"]) == 1
+    assert make_manifest.main(["--freeze"]) == 1
+    assert make_manifest.main(["--check"]) == 1
+
+
+def test_the_freeze_fill_step_names_the_authoring_condition(study):
+    """R10-1's procedural half, in the idiom step 5d's test uses: the ceremony
+    an operator reads must name the gate, or the runbook and the code disagree
+    about what the freeze checks."""
+    path = pathlib.Path(study) / "harness" / "SCAFFOLD.md"
+    if not path.is_file():
+        pytest.skip("SCAFFOLD.md is deleted in the first post-freeze commit")
+    text = " ".join(path.read_text(encoding="utf-8").split())
+    assert "R10-1" in text
+    assert "prior_authoring_problems()" in text
+    directories, files = make_manifest.authoring_state_paths()
+    assert files[0] in text, (
+        "the freeze-fill procedure must name the ledger whose absence it checks")
 
 
 def test_the_freeze_fill_step_names_the_prior_attempt_condition(study):

@@ -152,6 +152,19 @@ mechanical.
   },
   {
    "number": 10,
+   "state": "complete",
+   "verdict": "DO NOT FREEZE",
+   "severities": {
+    "BLOCKER": 1,
+    "MAJOR": 2
+   },
+   "findings": {
+    "first": 1,
+    "last": 3
+   }
+  },
+  {
+   "number": 11,
    "state": "awaiting-review",
    "verdict": null,
    "severities": null,
@@ -751,3 +764,31 @@ fix added its test.)
 register exists and is excluded from the covered set by named constant with its asserting
 test; the freeze gate gains the prior-attempt refusal. Round 10 is asked for its verdict
 on the registered surface under the declared threat model.
+
+## Round 10 — 2026-08-19
+
+- Reviewer: codex-cli 0.145.0 / gpt-5.6-sol (OpenAI), reasoning effort ultra, read-only
+  sandbox. **First attempt produced no verdict** — the provider's cybersecurity
+  false-positive again, 203,404 tokens, recorded as round history; the retry, same
+  committed prompt, completed.
+- Verbatim record: [`reviews/round-10/PROMPT.md`](reviews/round-10/PROMPT.md),
+  [`reviews/round-10/REVIEW.md`](reviews/round-10/REVIEW.md).
+- Verdict: **DO NOT FREEZE** — 1 BLOCKER, 2 MAJOR (R10-1 … R10-3), the first round
+  scored under the §4b two-tier registration: every finding is registered-surface, all
+  four standing advisories verified as accurately recorded, R9-1 and R9-4 hold.
+
+### Dispositions
+
+(Written 2026-08-19 at round close. Suite of record 829/829, working tree and archive
+reconstruction both; fifteen mutation checks run and killed, one test rewritten when the
+response itself caught it unable to discriminate a hardcoded literal.)
+
+| # | Sev | Disposition |
+|---|---|---|
+| R10-1 | BLOCKER | **Accepted in full — the seam, and both halves of the reviewer's proposed depth.** The production run path refuses any non-canonical registry at the argument surface and the load surface (six named cases, including proof the label rule alone would still admit the substitute — the repair is visibly the seam). The scorer now requires every admitted slot's wrapper-stamped registry digest to equal the attempt's own, fail-closed on absence and type, ordered before the golden comparison because the golden pin lives in the registry under dispute; `registry-mismatch` is registered in §1a's apparatus list, and the wrapper's stamp is held to the same reading at both ends so deleting it fails a test. The freeze refuses pre-existing authoring state — slot roots, ledgers, temp and shortfall files — derived from the driver's own constants, with a test that moves the constants and requires the answer to move. One correction of the response's own instruction is recorded: the wrapper, not the driver's slot-stamper, writes the registry stamp, and the fix honours that reality rather than masking it. |
+| R10-2 | MAJOR | **Accepted.** An unreadable index is a named refusal everywhere it is consumed — never emptiness; writing paths refuse outright, checking paths report. The scratch fixtures now `git init`, because both index checks had been silently inert in every non-repo scratch tree — the finding's reach was wider than its text. |
+| R10-3 | MAJOR | **Accepted on the registered surface; the apparatus half stays an advisory.** The sealed manifest's version member is `type(x) is int` — `1.0`, `1e0`, `true`, `"1"` all refuse by name with the manifest pin recomputed per case. The block reader shares the float defect and was re-verified off the registered read path: that is R9-3, and its advisory entry now carries the round-10 re-verification line. |
+
+**Post-revision state.** Suite 815 → 829 both ways; the substitute-registry attack is
+closed at the argument surface, the load surface, and the scoring comparison; the freeze
+gate refuses prior attempts and prior authoring state alike.

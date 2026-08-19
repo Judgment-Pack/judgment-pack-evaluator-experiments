@@ -205,11 +205,29 @@ if [ -z "$PINNED_MODEL" ] || [ "$PINNED_MODEL" = "None" ] || [ "$PINNED_MODEL" =
   exit 1
 fi
 
-# The registry this run was made under, stamped into CALL.json below. The
-# scorer computes the committed harness/PINS.json digest itself and scores any
-# slot whose stamp differs pipeline-invalid (registry-mismatch), so --pins can
-# serve the harness tests without letting an alternate registry redefine the
-# study's cell.
+# The registry this run was made under, stamped into CALL.json below.
+#
+# ROUND-10 FINDING R10-1, and the CORRECTION of what these lines used to say.
+# They said the scorer computes the committed harness/PINS.json digest itself
+# and scores any slot whose stamp differs pipeline-invalid
+# ("registry-mismatch"), so `--pins` could serve the harness tests without
+# letting an alternate registry redefine the study's cell. The scorer does no
+# such thing — it records `pinsRawSha256` in ATTEMPT.json and compares it with
+# nothing — and no code anywhere named `registry-mismatch`. BOTH ENDS ARE NOW
+# BUILT, and neither of them is this comment:
+#
+#   the calling end — `batch.require_canonical_registry()` refuses a `--pins`
+#   that is not harness/PINS.json whenever the production study is the study in
+#   effect, so a slot authored under an alternate registry is not reachable from
+#   this tree; and
+#
+#   the scoring end — `score.read_slot()` requires this stamp to equal the
+#   digest the attempt took of the registry it reads, and codes any slot that
+#   differs, or carries no stamp at all, §1a's `registry-mismatch`: an apparatus
+#   code the population rule now names.
+#
+# The stamp is therefore what the scoring end reads, and the sentence that used
+# to describe it is a check that exists rather than one that was promised.
 PINS_DIGEST="sha256:$(sha256sum "$PINS" | cut -d' ' -f1)"
 # The golden capture the driver verified at preflight, stamped per slot so the
 # golden-before-slots ordering is checkable per run rather than asserted. Empty

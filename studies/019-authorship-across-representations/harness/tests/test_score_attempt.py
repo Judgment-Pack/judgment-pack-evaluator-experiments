@@ -115,6 +115,36 @@ def test_the_pins_digest_is_over_the_exact_bytes_that_are_parsed(tmp_path,
         assert marker["pinsRawSha256"] == score.sha256_bytes(handle.read())
 
 
+def test_the_attempt_hands_its_own_registry_digest_to_every_slot_read(
+        tmp_path, monkeypatch):
+    """ROUND-10 FINDING R10-1, at the seam the per-slot cases cannot reach.
+
+    `read_slot()` compares the slot's stamp to the digest it is GIVEN, and every
+    case that exercises that comparison calls it directly. So the one thing none
+    of them can fail on is `main()` forgetting to pass the digest at all — which
+    would restore the finding exactly, silently, and with every registry test
+    still green. This runs the production entry point and records what it
+    handed the reader: the value must be the same `pinsRawSha256` the attempt
+    wrote into `ATTEMPT.json` before it parsed anything, and it must not be
+    `None`."""
+    seen = []
+    original = score.read_slot
+
+    def recording(entry, arms_root, present=None, golden_pin=None, pins=None,
+                  pins_raw_sha256=None):
+        seen.append(pins_raw_sha256)
+        return original(entry, arms_root, present, golden_pin, pins,
+                        pins_raw_sha256)
+
+    monkeypatch.setattr(score, "read_slot", recording)
+    root = tmp_path / "primary-attempt-001"
+    score.main(["--attempt-root", str(root)])
+    marker = json.loads(read(root / "ATTEMPT.json"))
+    assert seen, "the attempt read no slot at all; this test asserts nothing"
+    assert set(seen) == {marker["pinsRawSha256"]}
+    assert marker["pinsRawSha256"] is not None
+
+
 def test_the_reviewer_set_is_refused_while_any_pin_is_null(tmp_path,
                                                            monkeypatch):
     """`harness/PINS.json`'s own rule: `--include-reviewer-set` refuses while
@@ -557,8 +587,27 @@ class DriverBuiltSlots(test_batch.StandInStudy):
     `call-timeout` be scored as `slot-shape` and a moved byte be scored at all.
     """
 
+    #: ROUND-10 FINDING R10-1. Two sentinels, because three states have to be
+    #: distinguishable and `None` is one of the states rather than a spare: the
+    #: fixture's DEFAULT stamp (the stand-in registry's own digest), the member
+    #: ABSENT from `CALL.json` entirely, and the member present and `null` —
+    #: which is what a half-written stamp looks like and is a case of its own.
+    DEFAULT = object()
+    ABSENT = object()
+
+    def registry_stamp(self):
+        """The digest the WRAPPER stamps into `CALL.json.pinsSha256`: the raw
+        bytes of the registry the call was made under, hashed.
+
+        `authoring_call.sh` computes `sha256sum "$PINS"`, `score.main()` computes
+        `sha256_bytes()` over the same file's bytes, and this is the fixture's
+        one reading of both — taken from `self.pins_path`, the stand-in registry
+        the driver would have been handed, and never from a literal."""
+        return test_batch._digest(self.pins_path)
+
     def build(self, entry, *, refusal=None, completion="PACK:\n```json\n{}\n```\n",
-              golden=None, session=None, seal=True, timed_out=False):
+              golden=None, session=None, seal=True, timed_out=False,
+              registry=DEFAULT):
         slot = batch.slot_path(entry)
         os.makedirs(slot)
         call = {"slot": os.path.basename(slot), "slotIndex": entry["slotIndex"],
@@ -568,10 +617,19 @@ class DriverBuiltSlots(test_batch.StandInStudy):
                 "durationSeconds": 12.5,
                 "timeoutSeconds": batch.CALL_TIMEOUT_SECONDS,
                 "timedOut": bool(timed_out),
+                # ROUND-10 FINDING R10-1: the registry stamp is part of the slot
+                # shape now, because the scorer reads it. Every fixture carries
+                # the stand-in registry's own digest unless a case is ABOUT the
+                # stamp, so the check is exercised by every case here rather than
+                # skipped by all of them.
+                "pinsSha256": (self.registry_stamp()
+                               if registry is self.DEFAULT else registry),
                 "goldenSha256": (self.pins["golden"]["sha256"] if golden is None
                                  else golden),
                 "cwd": os.path.join(self.scratch, "cwd"),
                 "home": os.path.join(self.scratch, "home")}
+        if registry is self.ABSENT:
+            del call["pinsSha256"]
         if refusal is None or timed_out:
             with open(os.path.join(slot, "CALL.json"), "w") as handle:
                 json.dump(call, handle)
@@ -591,9 +649,14 @@ class DriverBuiltSlots(test_batch.StandInStudy):
         return slot
 
     def read(self, entry):
+        """The scorer's reader, given what `main()` gives it: the golden pin out
+        of the registry, and (round-10 R10-1) the digest of the registry's own
+        raw bytes — the value `main()` writes to `ATTEMPT.json.pinsRawSha256`
+        before it parses anything."""
         return score.read_slot(entry, self.arms_root,
                                score.slots_present(self.arms_root),
-                               self.pins["golden"]["sha256"])
+                               self.pins["golden"]["sha256"],
+                               pins_raw_sha256=self.registry_stamp())
 
     def refusal(self, callable_, *args, **kwargs):
         with self.assertRaises(score.ScoreError) as caught:
@@ -739,6 +802,121 @@ class DriverBuiltSlots(test_batch.StandInStudy):
         entry = test_batch.ENTRIES[0]
         self.build(entry)
         self.assertIsNone(self.read(entry)["code"])
+
+    # -- the registry (round-10 finding R10-1) ------------------------------
+
+    def test_a_slot_authored_under_a_substitute_registry_is_registry_mismatch(
+            self):
+        """THE ROUND-10 REVIEWER'S CONSTRUCTION, as a named failing case.
+
+        `authoring_call.sh` stamped the registry each call was made under into
+        `CALL.json.pinsSha256` and carried a sentence saying the scorer refused
+        any slot whose stamp differed, "registry-mismatch". No such code existed
+        and no such comparison existed: the scorer hashed `harness/PINS.json`
+        into `ATTEMPT.json.pinsRawSha256` and compared it with nothing. So a slot
+        authored under a SUBSTITUTE complete registry — the reviewer reached one
+        through `--pins`, and a direct file edit reaches the same slot without
+        any driver at all — was read as an ordinary registered run: authored
+        before the freeze, surviving it, and scored after it as this study's
+        prospective content.
+
+        The substitute here is a real alternate registry on disk, hashed the way
+        the wrapper hashes the one it was handed, so the stamp is a stamp some
+        run could genuinely carry and not an invented string."""
+        self.write_golden()
+        substitute = self.alternate_registry(
+            "SUBSTITUTE-PINS.json",
+            note="an alternate complete registry, every freeze pin filled")
+        self.assertNotEqual(test_batch._digest(substitute),
+                            self.registry_stamp())
+        entry = test_batch.ENTRIES[0]
+        self.build(entry, registry=test_batch._digest(substitute))
+        record = self.read(entry)
+        self.assertEqual(record["code"], "registry-mismatch")
+        self.assertEqual(batch.CODE_PARTITION[record["code"]][0], "apparatus")
+        self.assertNotIn(record["code"], score.AUTHORING_SIDE)
+
+    def test_a_slot_carrying_no_registry_stamp_at_all_is_registry_mismatch(self):
+        """FAIL-CLOSED on the evidence's absence. A `CALL.json` with no
+        `pinsSha256` is not a slot this wrapper wrote — the member is
+        unconditional there — and "the stamp is missing" is not "the stamp
+        agrees". Reading the absence as agreement would make deleting one line
+        from the wrapper the way past the whole check."""
+        self.write_golden()
+        entry = test_batch.ENTRIES[0]
+        self.build(entry, registry=self.ABSENT)
+        self.assertEqual(self.read(entry)["code"], "registry-mismatch")
+
+    def test_a_registry_stamp_of_the_wrong_type_is_registry_mismatch(self):
+        """The same rule at the type. `None`, an integer and a mapping are not
+        digests; comparing them by value would leave `null` — the shape a
+        half-written stamp takes — passing whenever the attempt's own digest
+        were unreadable."""
+        self.write_golden()
+        for index, stamp in enumerate((None, 0, ["sha256:" + "a" * 64],
+                                       {"sha256": "a" * 64})):
+            entry = test_batch.ENTRIES[index]
+            self.build(entry, registry=stamp)
+            self.assertEqual(self.read(entry)["code"], "registry-mismatch",
+                             stamp)
+
+    def test_the_registry_stamp_is_compared_with_or_without_its_prefix(self):
+        """`sha256:<hex>` and the bare hex are one digest, as everywhere else in
+        this scorer: the wrapper writes the prefixed form and a bare stamp is
+        not a different registry."""
+        self.write_golden()
+        entry = test_batch.ENTRIES[0]
+        self.build(entry, registry=self.registry_stamp().split(":", 1)[1])
+        self.assertIsNone(self.read(entry)["code"])
+
+    def test_a_run_made_under_the_attempts_own_registry_is_admitted(self):
+        """The other direction, without which the cases above prove only that
+        something refuses."""
+        self.write_golden()
+        entry = test_batch.ENTRIES[0]
+        self.build(entry)
+        record = self.read(entry)
+        self.assertIsNone(record["code"])
+        call = json.load(open(os.path.join(batch.slot_path(entry), "CALL.json")))
+        self.assertEqual(call["pinsSha256"], self.registry_stamp())
+
+    def test_a_reader_that_is_not_an_attempt_compares_no_registry(self):
+        """The documented seam, asserted rather than assumed: `read_slot()` with
+        no `pins_raw_sha256` recomputes nothing, exactly as it recomputes no
+        transcript verdict without `pins`. The PRODUCTION path passes it — the
+        case above is what shows that — so this is the reader's contract and not
+        an exemption anything in an attempt can reach."""
+        self.write_golden()
+        substitute = self.alternate_registry("OTHER-PINS.json", note="other")
+        entry = test_batch.ENTRIES[0]
+        self.build(entry, registry=test_batch._digest(substitute))
+        record = score.read_slot(entry, self.arms_root,
+                                 score.slots_present(self.arms_root),
+                                 self.pins["golden"]["sha256"])
+        self.assertIsNone(record["code"])
+
+    def test_the_registry_disagreement_is_named_before_the_golden_one(self):
+        """Order, and it is a fact about the apparatus rather than a preference:
+        the golden pin is read out of the registry under dispute, so a slot made
+        under another registry usually fails the golden comparison too. Filing
+        it as a golden-context mismatch would name the wrong disagreement. Both
+        codes are apparatus, so no denominator moves either way."""
+        self.write_golden()
+        substitute = self.alternate_registry("BOTH-WRONG-PINS.json", note="both")
+        entry = test_batch.ENTRIES[0]
+        self.build(entry, registry=test_batch._digest(substitute),
+                   golden="sha256:" + "b" * 64)
+        self.assertEqual(self.read(entry)["code"], "registry-mismatch")
+
+    def test_a_refused_slot_keeps_its_wrapper_code_over_the_registry_check(self):
+        """A slot the wrapper already refused carries no `CALL.json`, and its
+        wrapper status is the honest account of it. The registry comparison runs
+        after the wrapper's own code exactly as the golden one does, so a
+        timeout does not become a registry mismatch."""
+        self.write_golden()
+        entry = test_batch.ENTRIES[0]
+        self.build(entry, refusal=(12, "call-timeout"), timed_out=True)
+        self.assertEqual(self.read(entry)["code"], "call-timeout")
 
     # -- the session identity ---------------------------------------------
 

@@ -126,3 +126,8 @@ writing any.
 **Why recorded:** the failure mode is a partially re-rendered set of status sentences after
 a refused ceremony command, repaired by running the command again once the markers are
 fixed. It cannot reach an artifact the manifest covers.
+
+- **R9-3 re-verified in round 10** (R10-3's second half): `blockVersion: 1.0` and `1e0`
+  still parse in `render_round_status.py`'s block reader. Confirmed off the registered
+  read path (the block feeds no freeze gate, no pin, no published rate). Remains open as
+  recorded.

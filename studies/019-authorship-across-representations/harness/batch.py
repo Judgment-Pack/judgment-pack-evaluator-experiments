@@ -208,6 +208,15 @@ DEFAULT_CAPTURES = os.path.join(STUDY, "controls", "recapture")
 DEFAULT_NEGATIVE = os.path.join(STUDY, "controls", "isolation-negative")
 DEFAULT_GOLDEN = os.path.join(STUDY, "transcription", "GOLDEN-CONTEXT.json")
 PROBE_PROMPT = os.path.join(STUDY, "transcription", "PROBE-PROMPT.txt")
+# ROUND-10 FINDING R10-1. The production study and its ONE registry, captured
+# from this file's own location at import and never patched. The harness tests
+# run every calling case against a STAND-IN study — a directory of production's
+# shape with the committed harness symlinked in — by patching `STUDY` and the
+# roots derived from it; `CANONICAL_STUDY` is the value `STUDY` had before any
+# of that, so `require_canonical_registry()` below can tell the two surfaces
+# apart without a flag, an environment variable or a test hook of its own.
+CANONICAL_STUDY = STUDY
+CANONICAL_PINS = DEFAULT_PINS
 # Change 7: the marker whose existence means a rate has been computed. The
 # scorer takes `--attempt-root results/primary-attempt-001` and refuses if it
 # exists (SCAFFOLD S1), so that directory is what "after a rate" names here.
@@ -382,6 +391,18 @@ APPARATUS_CODES = (
     ("post-call-failure", "post-call wrapper failure"),
     ("golden-context-mismatch", "golden-context mismatch"),
     ("binary-digest-mismatch", "binary digest mismatch"),
+    # ROUND-10 FINDING R10-1, second half. The wrapper stamps the registry every
+    # call was made under into `CALL.json` (`pinsSha256`), and the sentence that
+    # excused `--pins` claimed the scorer refused any slot whose stamp differed
+    # — under this very name, "registry-mismatch". Nothing named it and nothing
+    # checked it: `score.py` recorded the canonical registry's digest in
+    # ATTEMPT.json and compared it with nothing. The code is registered here now
+    # and `score.read_slot()` returns it, so a slot authored under a substitute
+    # registry is pipeline-invalid rather than an ordinary authoring run. It is
+    # APPARATUS because it is a fact about which bytes the apparatus ran under
+    # and never a statement about what the author emitted — the same reason
+    # `golden-context-mismatch` above is apparatus.
+    ("registry-mismatch", "registry mismatch"),
     ("transcript-refused", "transcript refusal"),
 )
 # The six ADMISSION codes: what `admit()` reads off the retained artifact.
@@ -1097,6 +1118,63 @@ def resolve_cli(cli_override: str) -> str:
     return os.environ.get(STANDIN_ENV) or None
 
 
+def require_canonical_registry(pins_path: str) -> str:
+    """ROUND-10 FINDING R10-1. In the PRODUCTION tree, `harness/PINS.json` and
+    nothing else.
+
+    `--pins` existed so the harness tests could drive the whole calling half
+    against a stand-in registry, and `authoring_call.sh` carried a sentence
+    saying that was safe because the scorer would refuse a slot stamped with any
+    other registry's digest. The scorer did no such thing when that sentence was
+    written: it recorded `pinsRawSha256` in `ATTEMPT.json` and compared it to
+    nothing. (`score.read_slot()` makes the comparison now, and a slot whose
+    stamp differs is §1a's `registry-mismatch` — but a scoring-time code is a
+    reading of runs that were already made, and the runs are what the
+    preregistration says may not exist before the freeze. The two halves are
+    complements: this one keeps the slot from being made, that one keeps a slot
+    made another way from being scored as registered.)
+    So `--pins` was a live seam on the production path, and the round-10
+    reviewer walked through it — an alternate mapping with every freeze pin
+    filled and the real preregistration digest passed `require_freeze()`, which
+    judges the mapping it is HANDED. Slots authored that way are authored before
+    the canonical freeze, survive it, and are then scored as registered, which
+    is exactly what "150 post-freeze runs — no authoring run exists at freeze
+    time" forbids.
+
+    The seam is closed here rather than deleted, because deleting the flag would
+    delete the stand-in surface with it. The two surfaces are distinguished by
+    the thing that actually differs: the stand-in study is not this study.
+    Under the production tree — `STUDY` still the directory this file lives in —
+    a registry that is not `CANONICAL_PINS` is refused by name, whatever it
+    contains and whatever label it would carry; under a patched `STUDY` the
+    tests keep the flag they need. There is no environment variable and no
+    opt-out: an operator who wants a different registry edits the registered
+    one, in the open, where the manifest and the freeze see it."""
+    if os.path.realpath(STUDY) != os.path.realpath(CANONICAL_STUDY):
+        return pins_path
+    if os.path.realpath(pins_path) != os.path.realpath(CANONICAL_PINS):
+        raise BatchError(
+            "--pins %s names a registry that is not harness/PINS.json, and the "
+            "production tree is judged against harness/PINS.json alone (round-10 "
+            "finding R10-1): a substitute registry with every freeze pin filled "
+            "would carry the REGISTERED label into calls the canonical freeze "
+            "never anchored" % pins_path)
+    return pins_path
+
+
+def load_registry(pins_path: str) -> dict:
+    """The registry every command runs under: the canonical one (R10-1), read,
+    and holding the registered label rule (change 6).
+
+    One function, so that no command can acquire a registry by a path that skips
+    either half — the five call sites were five copies of two lines, and a sixth
+    copy is how a seam like R10-1's returns."""
+    require_canonical_registry(pins_path)
+    pins = _load_json(pins_path)
+    require_freeze(pins)
+    return pins
+
+
 def require_freeze(pins: dict) -> str:
     """The registered label rule, before anything is called (change 6).
 
@@ -1263,8 +1341,7 @@ def preflight(entries: list, slots: list, scratch_parent: str, pins_path: str,
         raise BatchError("no authoring wrapper at %s" % SCRIPT)
     if not os.path.isdir(scratch_parent):
         raise BatchError("scratch parent %s is not a directory" % scratch_parent)
-    pins = _load_json(pins_path)
-    require_freeze(pins)
+    pins = load_registry(pins_path)
     if prompt_kind == "registered":
         if not entries:
             raise BatchError("a batch of the registered order is planned from the "
@@ -2153,8 +2230,7 @@ def run_batch(runs: int, resume: bool, scratch_parent: str, pins_path: str,
                     "has been computed, any more than a slot may be created"
                     % os.path.relpath(ATTEMPT_ROOT, STUDY))
             verify_ported_bytes()
-            recovery_pins = _load_json(pins_path)
-            require_freeze(recovery_pins)
+            recovery_pins = load_registry(pins_path)
             write_ledger(records, recovery_pins, cli_override)
         print("%s the ledger record for global index %d from its seal: the slot "
               "ran and only the append was interrupted"
@@ -2368,8 +2444,7 @@ def capture_golden(slots_dir: str, out_path: str, min_slots: int,
             "pre-prompt context reproduces, and a context that might vary is not "
             "an allowlist" % (MIN_CAPTURE_SLOTS, min_slots))
     verify_ported_bytes()
-    pins = _load_json(pins_path)
-    require_freeze(pins)
+    pins = load_registry(pins_path)
     probe_pin = (pins.get("probePrompt") or {}).get("sha256")
     if not probe_pin:
         raise BatchError("%s pins no probePrompt.sha256: a capture is derived "
@@ -2535,8 +2610,7 @@ def capture_isolation_negative(out_dir: str, scratch_parent: str, pins_path: str
     no denominator, and the chain is over the batch."""
     cli_override = resolve_cli(cli_override)
     verify_ported_bytes()
-    pins = _load_json(pins_path)
-    require_freeze(pins)
+    pins = load_registry(pins_path)
     assent = (pins.get("isolationNegative") or {}).get("assent")
     if assent != "granted":
         raise BatchError(
@@ -2928,8 +3002,7 @@ def declare_shortfall(reason: str, pins_path: str) -> int:
         raise BatchError("%s already exists" % out_path)
     if not reason:
         raise BatchError("--reason is required: a shortfall without a reason is a gap")
-    pins = _load_json(pins_path)
-    require_freeze(pins)
+    pins = load_registry(pins_path)
     entries = schedule_entries()
     records = load_ledger()
     verify_prefix(records, entries)
@@ -3051,7 +3124,12 @@ USAGE = (
     "       batch.py capture-golden --slots DIR --out PATH [--min-slots N]\n"
     "       batch.py capture-isolation-negative --scratch-parent DIR [--out DIR]\n"
     "                    [--pins PATH] [--golden PATH] [--cli-override PATH]\n"
-    "       batch.py shortfall --reason TEXT [--pins PATH]")
+    "       batch.py shortfall --reason TEXT [--pins PATH]\n"
+    "\n"
+    "--pins names a registry only under the stand-in study of the harness\n"
+    "tests. In this tree it is refused unless it names harness/PINS.json:\n"
+    "the production run path is judged against the canonical registry alone\n"
+    "(round-10 finding R10-1).")
 
 COMMANDS = ("plan", "run", "capture", "capture-golden",
             "capture-isolation-negative", "shortfall")
@@ -3095,6 +3173,11 @@ def main(argv: list) -> int:
     command = argv[1]
     try:
         pins_path = _argument(argv, "--pins", DEFAULT_PINS)
+        # ROUND-10 FINDING R10-1, at the argument surface as well as at the load
+        # surface: the operator who types `--pins` at the production tree is
+        # answered by the registry rule and not by whichever gate the command
+        # happens to reach first.
+        require_canonical_registry(pins_path)
         if command in ("run", "shortfall"):
             for flag, why in REMOVED.items():
                 if flag in argv:

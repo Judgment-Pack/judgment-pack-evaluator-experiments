@@ -31,7 +31,10 @@ THE REGIME (inherited from Studies 014-018, and each clause is enforced here)
   bytes, computed before the parse, over the exact bytes that are then parsed
   (Study 016's round-1 R1-12 and its round-2 residual: one read, no
   hash/parse divergence window). Even an attempt that dies on a malformed
-  registry leaves a record tied to the registry bytes it saw.
+  registry leaves a record tied to the registry bytes it saw. ROUND-10 FINDING
+  R10-1: that digest is now COMPARED as well as recorded — every admitted slot's
+  `CALL.json.pinsSha256` must equal it, and a slot made under any other registry
+  is §1a's `registry-mismatch`.
 * Every later failure path persists a terminal pipeline-invalid `RESULTS.json`.
   `SystemExit`, `KeyboardInterrupt` and every other `BaseException` are
   RECORDED and then re-raised.
@@ -421,7 +424,8 @@ def slots_present(arms_root: str) -> dict:
 
 
 def read_slot(entry: dict, arms_root: str, present: dict = None,
-              golden_pin=None, pins: dict = None) -> dict:
+              golden_pin=None, pins: dict = None,
+              pins_raw_sha256=None) -> dict:
     """One registered slot, read into the record the population rule works on —
     through the DRIVER's readers and no second reading of its own.
 
@@ -442,6 +446,29 @@ def read_slot(entry: dict, arms_root: str, present: dict = None,
     made against another capture is the apparatus code
     `golden-context-mismatch` — which the partition has always named and the
     scorer's own reduced reader could never return.
+
+    `pins_raw_sha256` IS THE ATTEMPT'S OWN REGISTRY DIGEST (round-10 finding
+    R10-1), and the check it enables is the one `authoring_call.sh` claimed
+    existed here and did not. The wrapper stamps the registry every call was made
+    under into `CALL.json.pinsSha256`; `main()` hashes `harness/PINS.json`'s raw
+    bytes before it parses them and records the digest in `ATTEMPT.json`; and
+    until this round nothing compared the two, so a slot authored under a
+    SUBSTITUTE registry — the round-10 reviewer's construction, an alternate
+    complete mapping with every freeze pin filled and the real preregistration
+    digest — was read as an ordinary registered run. It is `registry-mismatch`
+    now: apparatus, excluded from every denominator, reported with its own count.
+
+    The check is FAIL-CLOSED on the stamp's absence and on its type. A CALL.json
+    with no `pinsSha256`, or one carrying a number or a null, is not a slot this
+    wrapper wrote under this registry, and "the evidence is missing" is not
+    "the evidence agrees". It runs BEFORE the golden comparison because the
+    golden pin is read out of the very registry under dispute: a slot made under
+    another registry would usually fail the golden check too, and filing it as a
+    golden-context mismatch would name the wrong disagreement. Both codes are
+    apparatus, so no denominator moves either way.
+
+    Passing no `pins_raw_sha256` compares nothing and is for the readers that are
+    not an attempt, exactly as passing no `golden_pin` is.
 
     THE TRANSCRIPT VERDICT IS RECOMPUTED HERE (round-2 finding R2-5), and `pins`
     is what it needs. R1-5's repair built the whole binding and sealed its
@@ -490,6 +517,12 @@ def read_slot(entry: dict, arms_root: str, present: dict = None,
             record["sessionId"] = None
     if code is not None:
         return record
+    if pins_raw_sha256 is not None:
+        stamped = (call or {}).get("pinsSha256")
+        if not isinstance(stamped, str) or \
+                _bare(stamped) != _bare(pins_raw_sha256):
+            record["code"] = "registry-mismatch"
+            return record
     if golden_pin is not None:
         stamped = (call or {}).get("goldenSha256")
         if _bare(stamped) != _bare(golden_pin):
@@ -1955,7 +1988,7 @@ def main(argv=None) -> int:
             present = slots_present(arguments.batch_root)
             golden_pin = (pins.get("golden") or {}).get("sha256")
             slots = [read_slot(entry, arguments.batch_root, present, golden_pin,
-                               pins)
+                               pins, pins_raw_sha256)
                      for entry in entries]
             require_distinct_sessions(slots)
             shape = terminality(slots, arguments.batch_root)

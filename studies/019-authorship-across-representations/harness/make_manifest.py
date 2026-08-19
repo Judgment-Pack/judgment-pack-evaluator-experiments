@@ -252,6 +252,44 @@ EXCLUDED_DOCUMENTS = {
 RESULTS_DIR = "results"
 PRIMARY_ATTEMPT_ROOT = RESULTS_DIR + "/primary-attempt-001"
 
+
+def authoring_state_paths():
+    """ROUND-10 FINDING R10-1. `(slot directories, ledger files)` — the places
+    an AUTHORING RUN leaves bytes, study-relative posix.
+
+    DERIVED from `harness/batch.py`'s own constants and its own `slot_path()`,
+    never spelled again here. `arms/<ARM>/authoring` and `arms/BATCH.json` are
+    the driver's spellings; a second copy of them in this file is a second thing
+    to keep in step with the module that writes them, and this gate exists
+    precisely because a gate can be true of a path nobody writes any more.
+
+    The ledger names are the three files the driver owns under `arms/`: the
+    ledger itself, its registered atomic-write temporary, and the shortfall
+    declaration. `arms/<ARM>/PROMPT.txt` is deliberately NOT reachable from
+    here — an arm prompt is a registered input that must exist before the
+    freeze, and the authoring TREE beneath it is what must not.
+    """
+    import batch                          # local: batch imports this module
+    study = Path(batch.STUDY)
+    directories, files = [], []
+    for arm in batch.ARMS:
+        slot = Path(batch.slot_path({"arm": arm, "slotIndex": 1}))
+        directories.append(slot.parent)
+    for name in (batch.LEDGER_NAME, batch.LEDGER_TEMP_NAME,
+                 batch.SHORTFALL_NAME):
+        files.append(Path(batch.ARMS_ROOT) / name)
+    def relative(path):
+        try:
+            return path.relative_to(study).as_posix()
+        except ValueError:
+            raise ValueError(
+                "harness/batch.py places %s outside %s: this gate reads the "
+                "driver's own constants, and a driver whose roots have left the "
+                "study is not a tree this module can make a claim about"
+                % (path, study))
+    return (tuple(relative(path) for path in directories),
+            tuple(relative(path) for path in files))
+
 # Files this module and its neighbours WRITE, which therefore cannot be covered:
 # the manifest cannot contain its own digest, and a scratch temporary is not a
 # reviewed byte.
@@ -268,21 +306,47 @@ def _excluded(relative):
 BYTECODE_SUFFIXES = (".pyc", ".pyo")
 
 
+class IndexUnreadable(Exception):
+    """ROUND-10 FINDING R10-2. The index could not be OBSERVED — git missing
+    from PATH, git exiting nonzero, or its output not decodable as UTF-8.
+
+    A named exception rather than a `None` return, because `None` was read by
+    both callers as "nothing is indexed", and a gate that cannot read the index
+    concluding emptiness is the failure mode R9-2's check existed to prevent: in
+    a scratch repository the reviewer staged
+    `results/primary-attempt-001/RESULTS.json`, deleted it from disk, made git
+    unavailable, and `--freeze` returned success over a tree whose index carried
+    a prior attempt. Every consumer turns this into a named problem instead.
+    """
+
+
 def tracked_paths(study=None):
     """Every path git has in the INDEX under the study, study-relative posix.
 
-    Returns None when the study is not inside a git checkout — the caller then
-    has nothing to check rather than a false clean bill.
+    Raises `IndexUnreadable` when the index cannot be observed (R10-2). It does
+    NOT return an empty list for that state: "git said nothing is indexed" and
+    "git could not be asked" are different facts and only one of them is a clean
+    bill.
     """
     root = Path(study) if study is not None else STUDY
     try:
         completed = subprocess.run(["git", "ls-files", "-z", "--", "."],
                                    cwd=str(root), capture_output=True)
-    except OSError:
-        return None
+    except OSError as error:
+        raise IndexUnreadable("`git ls-files` could not be run in %s (%s: %s)"
+                              % (root, type(error).__name__, error))
     if completed.returncode != 0:
-        return None
-    return [name for name in completed.stdout.decode("utf-8").split("\0") if name]
+        raise IndexUnreadable(
+            "`git ls-files` exited %d in %s (%s)"
+            % (completed.returncode, root,
+               completed.stderr.decode("utf-8", "replace").strip()
+               or "no stderr"))
+    try:
+        listing = completed.stdout.decode("utf-8")
+    except UnicodeDecodeError as error:
+        raise IndexUnreadable("`git ls-files` output is not UTF-8 in %s (%s)"
+                              % (root, error))
+    return [name for name in listing.split("\0") if name]
 
 
 def tracked_bytecode(study=None):
@@ -292,10 +356,12 @@ def tracked_bytecode(study=None):
     without the disk delete, and a disk delete without the `git rm`, are both
     states where one of the two lies about the other. The manifest's job is to
     describe what is COMMITTED.
+
+    ROUND-10 FINDING R10-2: `IndexUnreadable` propagates. This function used to
+    swallow it into `[]`, which is the same fail-open the finding is about, one
+    check over.
     """
     tracked = tracked_paths(study)
-    if tracked is None:
-        return []
     found = []
     for name in tracked:
         parts = name.split("/")
@@ -618,7 +684,20 @@ def prior_attempt_problems(study=None):
                 "%s exists: an attempt root under a second name is the same "
                 "fact the freeze forbids, and `results/` holds attempt roots "
                 "and nothing else" % relative)
-    tracked = tracked_paths(study)
+    # ROUND-10 FINDING R10-2. The index check FAILS CLOSED. It used to read a
+    # `None` from `tracked_paths()` — git absent, or git nonzero — as "no
+    # indexed paths", so the one state in which the check cannot see anything
+    # was the state in which it passed. A gate that cannot read the index
+    # refuses with a named problem; it does not conclude emptiness.
+    try:
+        tracked = tracked_paths(study)
+    except IndexUnreadable as error:
+        problems.append(
+            "the index under %s could not be read (%s): the freeze anchors a "
+            "commit, so the absence of a prior attempt is a claim about the "
+            "INDEX, and a check that cannot observe the index refuses rather "
+            "than reporting a tree it never saw" % (root, error))
+        tracked = []
     if tracked:
         indexed = sorted(name for name in tracked
                          if name.split("/")[0] == RESULTS_DIR)
@@ -631,14 +710,89 @@ def prior_attempt_problems(study=None):
     return problems
 
 
+def prior_authoring_problems(study=None):
+    """ROUND-10 FINDING R10-1. The freeze condition one step EARLIER than R9-2's:
+    at the freeze no authoring run exists at all, not merely no rate.
+
+    `PREREGISTRATION.md` §1a registers the study's prospective content as "the
+    150 post-freeze runs — no authoring run exists at freeze time", and the
+    registry's own rule keeps every freeze pin null until the freeze so that no
+    run CAN be made before it. `prior_attempt_problems()` above enforces the
+    later half of the same sentence — no attempt ROOT — and enforcing only that
+    half leaves the state the round-10 reviewer actually constructed freezable:
+    slots authored under a substitute complete registry, sitting in
+    `arms/<ARM>/authoring/` with their ledger beside them, and no rate computed
+    over them yet. That tree would have been anchored by the freeze commit and
+    the runs inside it scored afterwards as the study's prospective content.
+
+    Three ways authoring state is present, and each of them refuses:
+
+    * an authoring slot ROOT exists as a NAME — `lexists`, not `isdir`, for
+      R9-2's reason: a dangling symlink named `arms/A/authoring` is a tree that
+      exists and that `isdir`/`exists` both call absent. The DIRECTORY is the
+      condition and not its contents, because an empty `arms/A/authoring` is a
+      batch that started;
+    * a ledger FILE exists — `arms/BATCH.json`, its atomic-write temporary or a
+      shortfall declaration. A ledger without slots is a batch whose slots were
+      deleted, which is a stronger reason to refuse and not a weaker one;
+    * the INDEX carries either — read exactly as `prior_attempt_problems()`
+      reads it, and FAIL-CLOSED on an index that cannot be observed (R10-2),
+      because the freeze anchors a COMMIT and a working tree can be clean of an
+      authoring tree HEAD still carries.
+
+    None of this reaches `arms/<ARM>/PROMPT.txt`: the arm prompts are registered
+    inputs that must EXIST before the freeze. `authoring_state_paths()` is where
+    that boundary is drawn, from the driver's own constants.
+    """
+    root = Path(study) if study is not None else STUDY
+    directories, files = authoring_state_paths()
+    problems = []
+    for relative in directories:
+        here = root / relative
+        if here.is_symlink() or here.exists():
+            problems.append(
+                "%s exists and the preregistration registers that NO authoring "
+                "run exists at the freeze: the study's prospective content is "
+                "the 150 post-freeze runs, and a slot tree that is already "
+                "there is a run the freeze did not anchor" % relative)
+    for relative in files:
+        here = root / relative
+        if here.is_symlink() or here.exists():
+            problems.append(
+                "%s exists and the preregistration registers that NO authoring "
+                "run exists at the freeze: a ledger is the record of calls "
+                "already made" % relative)
+    try:
+        tracked = tracked_paths(study)
+    except IndexUnreadable as error:
+        problems.append(
+            "the index under %s could not be read (%s): the freeze anchors a "
+            "commit, so the absence of pre-freeze authoring is a claim about "
+            "the INDEX, and a check that cannot observe the index refuses "
+            "rather than reporting a tree it never saw" % (root, error))
+        tracked = []
+    indexed = sorted(
+        name for name in tracked
+        if name in files
+        or any(name == where or name.startswith(where + "/")
+               for where in directories))
+    if indexed:
+        problems.append(
+            "the index carries %d authoring path(s) (%s): the freeze anchors a "
+            "commit, and a working tree clean of an authoring run the index "
+            "still has is not a tree without one"
+            % (len(indexed), ", ".join(indexed[:3])))
+    return problems
+
+
 def freeze_gate_problems(study=None):
     """The registered validators that are not filename comparisons, in one
     list: the sealed set's loader (R8-2), the canonical grid's freeze-time
-    assertion (R8-8) and the absence of a prior attempt root (R9-2). `--check`
-    reports them, `--freeze` refuses on them, and `--freeze-gates` runs exactly
-    these."""
+    assertion (R8-8), the absence of a prior attempt root (R9-2) and the absence
+    of any pre-existing authoring state (R10-1). `--check` reports them,
+    `--freeze` refuses on them, and `--freeze-gates` runs exactly these."""
     return (reviewer_load_problems(study) + grid_assertion_problems(study)
-            + prior_attempt_problems(study))
+            + prior_attempt_problems(study) + prior_authoring_problems(study))
 
 
 def payload_closure_problems(study=None):
@@ -822,18 +976,28 @@ def manifest_problems():
     # ROUND-5 FINDING R5-1. Not a digest mismatch — a covered-set one, in the
     # only direction an exact-set manifest cannot see: a file that is committed
     # and executable and matches no glob the manifest walks.
-    for name in tracked_bytecode():
+    # ROUND-10 FINDING R10-2: and an index that cannot be read is a problem
+    # here too, not an empty bytecode list.
+    try:
+        bytecode = tracked_bytecode()
+    except IndexUnreadable as error:
+        bytecode = []
+        problems.append("the index could not be read (%s): tracked bytecode is "
+                        "a claim about the index and this check did not make it"
+                        % error)
+    for name in bytecode:
         problems.append("compiled bytecode is tracked in the study: " + name)
     # ROUND-6 FINDING R6-5. Also not a digest mismatch: a payload set that does
     # not close against the manifest naming it. Reported here so `--check` says
     # it, and refused below so `--freeze` cannot anchor it.
     problems.extend(payload_closure_problems())
-    # ROUND-8 FINDINGS R8-2 AND R8-8, AND ROUND-9 FINDING R9-2. None of the
-    # three is a digest mismatch either: a sealed set that its own loader
-    # refuses, a canonical grid that fails the assertion two design documents
-    # register for the freeze, and a prior attempt root the preregistration
-    # registers as absent at this moment. `--check` says all three, and
-    # `--freeze` refuses on all three.
+    # ROUND-8 FINDINGS R8-2 AND R8-8, ROUND-9 FINDING R9-2 AND ROUND-10 FINDING
+    # R10-1. None of the four is a digest mismatch either: a sealed set that its
+    # own loader refuses, a canonical grid that fails the assertion two design
+    # documents register for the freeze, a prior attempt root the preregistration
+    # registers as absent at this moment, and any authoring slot tree or ledger,
+    # which the same document registers as absent one step earlier. `--check`
+    # says all four, and `--freeze` refuses on all four.
     problems.extend(freeze_gate_problems())
     return problems
 
@@ -847,11 +1011,23 @@ def main(argv=None):
     parser.add_argument("--freeze-gates", dest="gates", action="store_true",
                         help="run the registered freeze-time validators alone: "
                              "the sealed reviewer set's loader (R8-2), the "
-                             "canonical grid's assertion (R8-8) and the "
-                             "absence of a prior attempt root (R9-2)")
+                             "canonical grid's assertion (R8-8), the absence of "
+                             "a prior attempt root (R9-2) and the absence of any "
+                             "pre-existing authoring state (R10-1)")
     arguments = parser.parse_args(argv)
     pending = pending_documents()
-    bytecode = tracked_bytecode()
+    # ROUND-10 FINDING R10-2. An unreadable index is a REFUSAL of every writing
+    # path, not an empty bytecode list: the two checks that read the index —
+    # R5-1's tracked bytecode and R9-2's prior attempt — both make claims about
+    # a commit, and neither can be made from a tree git cannot be asked about.
+    # `--check` and `--freeze-gates` report it through `manifest_problems()` and
+    # `prior_attempt_problems()`; this is the same fact at the one place that
+    # WRITES.
+    try:
+        bytecode = tracked_bytecode()
+        index_unreadable = None
+    except IndexUnreadable as error:
+        bytecode, index_unreadable = [], str(error)
     if arguments.gates:
         # ROUND-8 FINDINGS R8-2 AND R8-8, as a step an operator can run and a
         # CI job can call. Reported before the manifest work below, and on its
@@ -862,8 +1038,8 @@ def main(argv=None):
             print("refused: " + problem)
         if not gates:
             print("freeze gates hold: the sealed reviewer set loads, the "
-                  "canonical grid assertion holds, and no prior attempt root "
-                  "exists")
+                  "canonical grid assertion holds, no prior attempt root "
+                  "exists, and no authoring slot tree or ledger exists")
         if not (arguments.check or arguments.freeze):
             return 1 if gates else 0
         if gates:
@@ -875,6 +1051,15 @@ def main(argv=None):
         for name in pending:
             print("pending pre-freeze obligation (not satisfied yet): " + name)
         return 1 if problems else 0
+    if index_unreadable is not None:
+        # ROUND-10 FINDING R10-2: nothing is WRITTEN over a tree whose index
+        # could not be observed. `--check` above has already reported it as a
+        # problem; every path below this line either anchors the freeze or
+        # rewrites the manifest, and both of them describe a commit.
+        print("refused: the index could not be read (%s): the manifest and the "
+              "freeze both describe a COMMIT, and a tree git cannot be asked "
+              "about is not a tree this module may write over" % index_unreadable)
+        return 1
     if arguments.freeze and bytecode:
         # ROUND-5 FINDING R5-1: the freeze must not anchor a tree that carries
         # bytecode the reviewed sources did not produce.
@@ -900,13 +1085,16 @@ def main(argv=None):
             for problem in closure:
                 print("refused: " + problem)
             return 1
-        # ROUND-8 FINDINGS R8-2 AND R8-8 AND ROUND-9 FINDING R9-2: and the
-        # registered VALIDATORS, which closure is not. A set whose loader
-        # refuses it, a grid that fails the assertion registered for this
-        # moment, and a tree carrying a prior attempt root are all three
-        # anchorable without this call — the first is exactly what the round-8
-        # reviewer constructed, and the third is a condition the preregistration
-        # states about the freeze and the scorer checked one step too late.
+        # ROUND-8 FINDINGS R8-2 AND R8-8, ROUND-9 FINDING R9-2 AND ROUND-10
+        # FINDING R10-1: and the registered VALIDATORS, which closure is not. A
+        # set whose loader refuses it, a grid that fails the assertion registered
+        # for this moment, a tree carrying a prior attempt root, and a tree
+        # carrying authoring slots or a ledger are all four anchorable without
+        # this call — the first is exactly what the round-8 reviewer
+        # constructed, the third is a condition the preregistration states about
+        # the freeze and the scorer checked one step too late, and the fourth is
+        # the state the round-10 reviewer reached through the alternate-registry
+        # seam: runs made before the freeze, which no gate looked for.
         gates = freeze_gate_problems()
         if gates:
             for problem in gates:

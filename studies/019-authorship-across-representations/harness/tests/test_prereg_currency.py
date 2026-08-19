@@ -1120,7 +1120,8 @@ def test_the_scorer_publishes_no_x1_member_under_any_spelling():
 
 _ROUND = re.compile(r"^## Round (\d+) — ", re.MULTILINE)
 _REVISIONS = ("first", "second", "third", "fourth", "fifth", "sixth",
-              "seventh", "eighth", "ninth", "tenth")
+              "seventh", "eighth", "ninth", "tenth",
+              "eleventh", "twelfth", "thirteenth", "fourteenth", "fifteenth")
 
 # ROUND-8 FINDINGS R8-5 AND R8-7: ONE reading of what a Markdown document
 # actually presents, shared by the two structural readers that needed it.
