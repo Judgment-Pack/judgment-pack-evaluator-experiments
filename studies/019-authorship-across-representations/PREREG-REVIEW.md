@@ -129,3 +129,37 @@ regenerations. Recorded so the determinism claim stays measured rather than assu
 three failures both lanes deliberately left for the maintainer's ordered
 manifest/ownPorts step). The sealed reviewer set remains exactly as authored, defects and
 all — its repair is the reviewer's, in round 3.
+
+## Round 3 — 2026-08-18
+
+- Reviewer: codex-cli 0.145.0 / gpt-5.6-sol (OpenAI), reasoning effort ultra, read-only
+  sandbox, same invocation shape.
+- Verbatim record: [`reviews/round-3/PROMPT.md`](reviews/round-3/PROMPT.md),
+  [`reviews/round-3/REVIEW.md`](reviews/round-3/REVIEW.md).
+- Verdict: **DO NOT FREEZE** — 3 BLOCKER, 6 MAJOR, 1 MINOR (R3-1 … R3-10).
+- Disposition verification: **7 of 14 round-2 dispositions hold** (several
+  execution-qualified — the reviewer's read-only sandbox cannot run writable-tree tests);
+  six over-claim, spawning the R3 findings. The three blockers, plainly: **R3-1** the
+  round-2 record's "suite of record 669/669" is false *for the committed tree* — the
+  maintainer's own dispositions edit re-staled the manifest a third time (the structural
+  cause: `PREREG-REVIEW.md` is appendable by design yet manifest-covered — the exact
+  ADR 0004 class, whose root fix belongs to the response); **R3-2** the round-2 "adequacy:
+  accepted, both halves" over-claimed — the reference repair regenerated the mutant
+  corpora and left **71 new empty-witness mutants (37 JPS, 34 Rego) undispositioned**, so
+  the adequacy gate is genuinely re-open and the regeneration record's `pass:false` says
+  so; **R3-3** mixed OPA failure lists stop adjudicating at the first genuine assertion
+  failure, so a fault later in the list still kills — with the existing test blessing the
+  early stop.
+- **The sealed set is repaired, by the reviewer, as the record required**: the re-issued
+  `rm-jps-03.json` (16,700 bytes) hashes to the reviewer's *original* round-2 attestation
+  — establishing that the round-2 digest was correct and the pasted payload was a
+  pre-final draft — validates against the pinned jpack, and per the reviewer's dated
+  statement preserves the registered probe intent exactly (optional insurance made
+  globally required, nothing else). The corrected `MANIFEST.json` re-attests all six
+  payloads; **all six digests now verify**, and `rm-rego-01`'s attestation is corrected to
+  its emitted bytes. The maintainer extracted both byte-for-byte; nothing else in the set
+  changed.
+
+### Dispositions
+
+**Pending — no R3 finding has been dispositioned yet.**
