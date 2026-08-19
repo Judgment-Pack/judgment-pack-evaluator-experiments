@@ -536,6 +536,21 @@ def verify_bytecode(study: str = STUDY) -> None:
         ["git", "ls-files", "-z", "--", "."],
         cwd=study, capture_output=True, check=True
     ).stdout.decode("utf-8").split("\0"))
+    # A TRACKED cache is refused unconditionally, before any freshness question
+    # is asked (round 5, finding 1). The validating gate below admits a cache
+    # that provably compiles from the source beside it, which is the right rule
+    # for a working tree and the wrong one for the index: a `.pyc` is fresh on
+    # the machine that wrote it and stale on every checkout after, so a
+    # committed one passes here and refuses everywhere else — which is exactly
+    # what happened, and what made a green suite describe a tree HEAD was not.
+    # Read from the index, so a cache deleted from disk but still committed is
+    # still refused.
+    for name in sorted(tracked):
+        if not name:
+            continue
+        parts = name.split("/")
+        if "__pycache__" in parts or name.endswith((".pyc", ".pyo")):
+            bad.append((name, "tracked bytecode (committed, not merely present)"))
     for base, directories, files in os.walk(study):
         for name in files:
             if not name.endswith(".py"):

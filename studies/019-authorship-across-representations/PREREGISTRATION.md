@@ -1,10 +1,10 @@
 # Preregistration — Study 019: authorship across representations
 
-**Status: DRAFT, sixth major revision (post-round-4). Not frozen. Nothing citable has
-run. Four cross-vendor review rounds have read this study: rounds 1–3 returned
-DO NOT FREEZE, and round 4 returned FREEZABLE AFTER LISTED FIXES. Round 3's ten findings
-are dispositioned and closed. This revision is the response to round 4, whose findings
-are recorded verbatim in [`reviews/round-4/`](reviews/round-4/) and dispositioned in
+**Status: DRAFT, seventh major revision (post-round-5). Not frozen. Nothing citable has
+run. Five cross-vendor review rounds have read this study: rounds 1–3 and 5 returned
+DO NOT FREEZE, and round 4 returned FREEZABLE AFTER LISTED FIXES. Round 4's six findings
+are dispositioned and closed. This revision is the response to round 5, whose findings
+are recorded verbatim in [`reviews/round-5/`](reviews/round-5/) and dispositioned in
 [`PREREG-REVIEW.md`](PREREG-REVIEW.md) — which is where the per-round detail lives, so
 this covered header restates as little of it as the record allows; a round's findings are **open** only until the
 maintainer's written disposition per finding lands there. Every
@@ -15,8 +15,10 @@ returned, so this header does not describe a freezable study. (The revision ordi
 stated honestly rather than continuously: the fourth revision — the round-2 response — left
 this header naming the third revision and the first review round, which is the drift
 round-3 finding R3-10 caught; round 4 then found the repaired headers stale again in a way
-R3-10's tests could not see, so both front doors are now under tests that read the latest
-round, its state and every verdict on record out of the review record itself.)**
+R3-10's tests could not see, and round 5 found R4-3's repair positive but not per-round —
+so both front doors are now under tests that read the record's own tables and require every
+round to be NAMED with the verdict it returned, with a round counting as closed only when
+every one of its findings carries a disposition.)**
 
 ## Design provenance (disclosed, because it shaped the registered claims)
 
@@ -651,13 +653,24 @@ repair needed: while stamping was a separate hand-run step, regenerating the cor
 each MANIFEST without a stamp, so `pass` was structurally unreachable and the stamp was
 never byte-compared — which is how a pre-repair drop table survived a corpus regeneration
 unread. `byteIdentical` is the reproducibility claim; `pass` additionally requires both
-arms and both adequacy stamps. At this revision the check is **375/375 byte-identical with
-`pass: true`**, for the first time in its history. Enforced by
-`tests/test_design_regeneration.py`.
+arms and both adequacy stamps. At this revision the check is **376/376 byte-identical with
+`pass: true`** (round-5 finding **R5-7**: this sentence said 375, the count before the
+round-4 response added the derived `adequacy_region_lemma_price.json` to the chain, and the
+count is now read out of the record by `tests/test_prereg_currency.py` rather than typed).
+Enforced by `tests/test_design_regeneration.py`.
 
-`GATE(pre-freeze)` in this section is now narrow and named: the untracked `design/` sources
-and stale bytecode caches that `integrity.verify_bytecode()` refuses must be committed.
-§4's adequacy gate, which this sentence used to name beside them, is re-closed.
+`GATE(pre-freeze)` in this section is now **closed**, and closing it is what round-5
+finding **R5-1** cost. The `design/` sources it used to name are committed (scaffold item
+T3, round-4 finding R4-6). Compiled bytecode is the other half and it is not a thing to be
+committed but a thing that must not be: a `.pyc` beside a reviewed source is a byte that
+runs unreviewed, so `integrity.verify_bytecode()` refuses any cache the running sources did
+not produce **and refuses a tracked one outright**, `make_manifest.py` reports it as a
+manifest problem and refuses `--freeze` on it, the study root carries the repository's
+house `.gitignore`, and a currency test reads `git ls-files` so the property binds the
+INDEX rather than the working tree. The round-4 response committed one and reported a green
+suite over a tree that `integrity.py` refused on the next checkout; that is the whole
+reason the enforcement is now in four places rather than one. §4's adequacy gate, which
+this sentence used to name beside them, is re-closed.
 
 ## 8. What is enforced, what is recorded, what is not prevented
 

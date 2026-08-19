@@ -465,7 +465,11 @@ def drop_forensics(arm, dropped):
 def pilot_anchor(path):
     """
     Empirical p_A / p_B / p_C from the non-citable calibration pilot: fraction of
-    scored runs whose paired-subset kill rate is >= tau.
+    ADMITTED runs whose paired-subset kill rate is >= tau.  Admitted, not scored:
+    the registered denominator is Sec. 1a/Sec. 5's admitted runs, an identity
+    failure stays in it carrying `highKill: null`, and calling it "scored runs"
+    is the denominator-OUT reading this function stopped taking three findings
+    ago (round-5 finding R5-4; the sentence outlived the code).
 
     ROUND-2 FINDING R2-13. Every arm is now read from `perArm`, the registered
     surface. The earlier issue special-cased arm A, reading it from
@@ -475,16 +479,23 @@ def pilot_anchor(path):
     X1 has since been RETIRED at the cause (round-1 R1-2): the arm-A reference
     was repaired, the registered exclusion registry is empty, and the pilot issue
     current WHEN THAT WAS WRITTEN (v3) recorded `identityFail: 0` in all three
-    arms. It is no longer true of any arm — see the next paragraph, and read the
-    live counts off `perArm.<arm>.identityFail` rather than out of this
-    docstring (round-4 finding R4-4). The off-protocol diagnostic is in any case
-    no longer a source of anchor numbers.
+    arms. It is no longer true of EVERY arm: A and B still record zero identity
+    failures and arm C is the one that moved, so the claim this sentence used to
+    make about all three said the opposite of the artifact about two of them
+    (round-5 finding R5-4). Read the live counts off `perArm.<arm>.identityFail`
+    rather than out of this docstring (round-4 finding R4-4). The off-protocol
+    diagnostic is in any case no longer a source of anchor numbers.
 
     The special case is not deleted but INVERTED into a guard: if a future pilot
-    records an identity failure, the arm's registered E4 denominator is smaller
-    than its scored-run count and this function says so through `identityFail`
-    rather than silently substituting a diagnostic surface for the registered
-    one. Reading a diagnostic as an anchor is exactly what round 1 caught.
+    records an identity failure, the arm's registered E4 denominator is LARGER
+    than its identity-passing count — admitted = identity-passing + identity
+    failures, so the denominator can only grow relative to the runs that were
+    actually asked — and this function says so through `identityFail` rather
+    than silently substituting a diagnostic surface for the registered one.
+    (Round-5 finding R5-4 again: this sentence had the inequality the wrong way
+    round, which is the denominator-out arithmetic and the exact confusion R4-4
+    was raised over.)
+    Reading a diagnostic as an anchor is exactly what round 1 caught.
 
     ROUND-3 FINDINGS R3-4 and R3-6, and the guard above went off: `E4-PILOT-v4`
     records four arm-C identity failures, because §4's per-case domain check is
@@ -514,7 +525,18 @@ def pilot_anchor(path):
     Anything
     that says "the admitted run" in the singular about an arm with one PASSING
     run is naming the wrong cohort; the counts are `highKill.admittedRuns` and
-    `len(perRun) - identityFail`, and neither is ever spelled in prose.
+    `len(perRun) - identityFail`.
+
+    ROUND-5 FINDING R5-4 — the three corrections above were all one mistake, so
+    the arithmetic is stated once, in the only form that cannot be spelled
+    wrong: ADMITTED = IDENTITY-PASSING + IDENTITY FAILURES, in every arm, always.
+    The current pilot's own three rows, which
+    `tests/test_prereg_currency.py` rebuilds from the artifact and requires to be
+    this sentence, so a pilot reissue that moves them fails the suite rather than
+    leaving a docstring describing a superseded issue:
+    A 5 admitted, 0 identity failures, 5 identity-passing;
+    B 5 admitted, 0 identity failures, 5 identity-passing;
+    C 5 admitted, 4 identity failures, 1 identity-passing.
     """
     with open(path) as fh:
         d = json.load(fh)

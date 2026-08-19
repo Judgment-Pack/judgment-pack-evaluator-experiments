@@ -60,11 +60,31 @@ discovered by globbing at freeze time is not a registered set.
 while they are absent, and `--freeze` REFUSES while any is pending — which is
 the freeze-fill procedure's own gate rather than an operator's memory.
 
+**ROUND-5 FINDING R5-6: a registered payload SET is pending like a registered
+document.** `pending_documents()` used to walk `REGISTERED_DOCUMENTS` only, so
+`--freeze` returned success over a tree with both mutant payload roots absent
+and wrote a manifest with zero mutant payload entries — the exact hole the
+per-file hashes exist to close, opened one level up at the directory. A
+registered set is pending while its root is absent OR its glob is empty; the
+scorer's own refusal (`score.py`) comes at attempt time, which is after the
+freeze it was supposed to gate.
+
+**ROUND-5 FINDING R5-1: tracked bytecode is a manifest problem.** A `.pyc`
+committed beside a reviewed source is a byte that runs unreviewed, and it is
+invisible to an exact-set manifest that globs `*.py` and `*.sh`. The round-4
+response committed one; `integrity.verify_bytecode()` refused the tree on the
+next checkout and the suite of record described a tree that HEAD was not.
+`tracked_bytecode()` reads the INDEX (`git ls-files`) rather than the working
+tree, because the failure is a committed byte and a working tree can be clean
+of it while the index is not; `manifest_problems()` reports it and `--freeze`
+refuses on it.
+
 Run: <the pinned interpreter> harness/make_manifest.py [--check | --freeze]
 """
 
 import argparse
 import hashlib
+import subprocess
 import sys
 from pathlib import Path
 
@@ -145,10 +165,80 @@ def _excluded(relative):
     return relative in EXCLUDED_DOCUMENTS or relative in EXCLUDED_ARTIFACTS
 
 
-def pending_documents():
-    """Registered documents that do not exist yet, in registered order."""
-    return [name for name in REGISTERED_DOCUMENTS
-            if not (STUDY / name).is_file()]
+# Bytecode, by the two names it can be committed under. `__pycache__/` catches
+# the directory whatever the interpreter tag; the suffixes catch a sourceless
+# cache dropped anywhere else.
+BYTECODE_SUFFIXES = (".pyc", ".pyo")
+
+
+def tracked_paths(study=None):
+    """Every path git has in the INDEX under the study, study-relative posix.
+
+    Returns None when the study is not inside a git checkout — the caller then
+    has nothing to check rather than a false clean bill.
+    """
+    root = Path(study) if study is not None else STUDY
+    try:
+        completed = subprocess.run(["git", "ls-files", "-z", "--", "."],
+                                   cwd=str(root), capture_output=True)
+    except OSError:
+        return None
+    if completed.returncode != 0:
+        return None
+    return [name for name in completed.stdout.decode("utf-8").split("\0") if name]
+
+
+def tracked_bytecode(study=None):
+    """ROUND-5 FINDING R5-1. Tracked compiled bytecode, sorted.
+
+    Read from the index and not from the working tree: `git rm --cached`
+    without the disk delete, and a disk delete without the `git rm`, are both
+    states where one of the two lies about the other. The manifest's job is to
+    describe what is COMMITTED.
+    """
+    tracked = tracked_paths(study)
+    if tracked is None:
+        return []
+    found = []
+    for name in tracked:
+        parts = name.split("/")
+        if "__pycache__" in parts or name.endswith(BYTECODE_SUFFIXES):
+            found.append(name)
+    return sorted(found)
+
+
+def pending_payload_sets(study=None):
+    """ROUND-5 FINDING R5-6. Registered payload sets that no file answers to.
+
+    A set is pending while its root is absent or its glob matches nothing. The
+    two states are reported separately because they are different mistakes —
+    the directory was never created, or it was created and never filled — and
+    both must block the freeze, exactly as an absent registered document does.
+    """
+    root = Path(study) if study is not None else STUDY
+    pending = []
+    for directory, pattern in REGISTERED_PAYLOAD_SETS:
+        here = root / directory
+        if not here.is_dir():
+            pending.append(("%s/%s" % (directory, pattern), "directory absent"))
+        elif not sorted(here.glob(pattern)):
+            pending.append(("%s/%s" % (directory, pattern), "no file matches"))
+    return pending
+
+
+def pending_documents(study=None):
+    """Registered documents that do not exist yet, in registered order, and the
+    registered payload SETS that nothing answers to (round-5 finding R5-6).
+
+    One list, because `--freeze`'s gate is one question: is every registered
+    thing here? A set named `mutants/jps/*.json` is registered as exactly as
+    `gold/GOLD.json` is, and an absent one used to pass.
+    """
+    root = Path(study) if study is not None else STUDY
+    pending = [name for name in REGISTERED_DOCUMENTS if not (root / name).is_file()]
+    pending.extend("%s (%s)" % (glob, why)
+                   for glob, why in pending_payload_sets(study))
+    return pending
 
 
 def manifest_entries():
@@ -220,6 +310,11 @@ def manifest_problems():
             problems.append("study manifest lists an absent file: " + relative)
         elif actual[relative] != committed[relative]:
             problems.append("study manifest digest does not match: " + relative)
+    # ROUND-5 FINDING R5-1. Not a digest mismatch — a covered-set one, in the
+    # only direction an exact-set manifest cannot see: a file that is committed
+    # and executable and matches no glob the manifest walks.
+    for name in tracked_bytecode():
+        problems.append("compiled bytecode is tracked in the study: " + name)
     return problems
 
 
@@ -231,6 +326,7 @@ def main(argv=None):
                              "document is still pending")
     arguments = parser.parse_args(argv)
     pending = pending_documents()
+    bytecode = tracked_bytecode()
     if arguments.check:
         problems = manifest_problems()
         for problem in problems:
@@ -238,6 +334,12 @@ def main(argv=None):
         for name in pending:
             print("pending registered document (not covered yet): " + name)
         return 1 if problems else 0
+    if arguments.freeze and bytecode:
+        # ROUND-5 FINDING R5-1: the freeze must not anchor a tree that carries
+        # bytecode the reviewed sources did not produce.
+        for name in bytecode:
+            print("refused: compiled bytecode is tracked in the study: " + name)
+        return 1
     if arguments.freeze and pending:
         for name in pending:
             print("refused: registered document is absent: " + name)

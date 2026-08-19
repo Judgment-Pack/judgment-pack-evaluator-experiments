@@ -9,9 +9,13 @@ inexpressibility class, **X1, which review round 1 retired: the exclusion set is
 the arm-A reference was repaired, and the gold grid now carries rows in the former X1
 region rather than excluding them** (see the retirement note below). v0, v0.1's panel
 findings, and the reference artifacts are retained beside this file. Through since v0.2:
-the clean-room second oracle, the calibration pilots, and two RFC 0009 review rounds
-(`../PREREG-REVIEW.md`) — both returned DO NOT FREEZE, and this file is not frozen. The
-frozen version will live at `policy/POLICY.md`.**
+the clean-room second oracle, the calibration pilots, and **five** RFC 0009 review rounds
+(`../PREREG-REVIEW.md`) — rounds 1–3 and 5 returned DO NOT FREEZE, round 4 returned
+FREEZABLE AFTER LISTED FIXES, and this file is not frozen. (Round-5 finding **R5-7**: this
+paragraph said two rounds and one verdict for three rounds after it stopped being true, so
+the count and the per-round verdicts are now read out of `reviews/` and
+`../PREREG-REVIEW.md` by `harness/tests/test_prereg_currency.py`, under the same machinery
+as the two front doors.) The frozen version will live at `policy/POLICY.md`.**
 
 Three panel discoveries reshaped v0, all verified against a built runtime: (1) "unreported
 insurance → review" was inexpressible in Core's three-valued logic (a condition true on
@@ -266,7 +270,12 @@ counterfactual test (v0's "needed by" admitted two readings — three findings).
   *behaviorally inert* in a Rego ladder (the P1 rung short-circuits first): a prose
   sentence that exists solely to make a correct JPS pack reachable.
 
-### Still open for gold authoring
+### Still open at this revision — verification items, not authoring
+
+Gold IS authored: the suite is committed at `design/gold/gold.json` and both engines and
+the clean-room oracle reproduce it. What these two rows name is the verification work that
+was scoped to the gold-authoring step and has not landed; the heading said "open for gold
+authoring" after the authoring closed, which is round-5 finding **R5-7**'s class.
 
 - **V7**: re-derive the completeness argument mechanically over the gold grid (the
   reference build's 236,196-cell derived-space sweep is evidence, not the registered

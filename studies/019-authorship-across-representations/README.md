@@ -1,11 +1,14 @@
 # Study 019 — authorship across representations
 
-**Status: PREREGISTRATION DRAFT, sixth major revision. Not frozen, and nothing citable has
-run — every freeze pin is null and every execution so far is a non-citable pilot. Four
+**Status: PREREGISTRATION DRAFT, seventh major revision. Not frozen, and nothing citable has
+run — every freeze pin is null and every execution so far is a non-citable pilot. Five
 cross-vendor review rounds have read this study under the RFC 0009 interim review regime.
-Rounds 1–3 returned DO NOT FREEZE; **round 4 returned FREEZABLE AFTER LISTED FIXES**, the
-first verdict of the regime that is not a refusal. Round 3's ten findings are dispositioned
-and closed; this revision is the response to round 4, and its findings are dispositioned
+Rounds 1–3 and 5 returned DO NOT FREEZE; round 4 returned FREEZABLE AFTER LISTED FIXES, the
+first verdict of the regime that was not a refusal — and **round 5 took it back**, on a
+blocker that was the maintainer's own commit hygiene: a bytecode cache committed with the
+round-4 response, which made `integrity.py` refuse the committed tree and the round-4 suite
+claim describe a tree that HEAD was not. Round 4's six findings are dispositioned and
+closed; this revision is the response to round 5, and its seven findings are dispositioned
 too. That is not the freeze condition: the freeze requires a round verdict of exactly
 `freezable as written`, which no round has returned, so the next round reads this response.
 The record is [`PREREG-REVIEW.md`](PREREG-REVIEW.md), with each round verbatim under

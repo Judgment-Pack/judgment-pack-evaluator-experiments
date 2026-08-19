@@ -264,6 +264,25 @@ def test_the_gates_say_what_they_are(flat):
     assert "undispositioned" in flat
 
 
+def test_the_registration_states_the_regeneration_count_the_record_measured(flat):
+    """ROUND-5 FINDING R5-7. §7 said the check was 375/375 while the record and the
+    round-4 post-state both said 376/376 — the round-4 response added a derived file to
+    the chain and updated two of the three surfaces. The count is read from the record
+    here, in both of the forms the registration uses it."""
+    record = _load("design/mutants/REGENERATION-CHECK.json")
+    compared, identical = record["filesCompared"], record["identical"]
+    assert compared == identical, (
+        "the record reports %d/%d; a non-identical run is not a state this "
+        "sentence can describe" % (identical, compared))
+    assert "%d/%d byte-identical" % (identical, compared) in flat, (
+        "the registration must state the regeneration check as the record "
+        "measured it (%d/%d)" % (identical, compared))
+    stale = re.findall(r"(\d+)/(\d+) byte-identical", flat)
+    assert all(pair == (str(identical), str(compared)) for pair in stale), (
+        "the registration states a byte-identical count the record denies: %s "
+        "against %d/%d" % (stale, identical, compared))
+
+
 def test_the_harness_is_described_as_existing(flat):
     assert "The harness exists and is under test." in flat
     assert "does not exist yet" not in flat
@@ -1059,7 +1078,8 @@ def test_the_scorer_publishes_no_x1_member_under_any_spelling():
 
 _ROUND = re.compile(r"^## Round (\d+) — ", re.MULTILINE)
 _ORDINALS = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six"}
-_REVISIONS = ("first", "second", "third", "fourth", "fifth", "sixth")
+_REVISIONS = ("first", "second", "third", "fourth", "fifth", "sixth",
+              "seventh", "eighth", "ninth", "tenth")
 
 
 def _review_record():
@@ -1070,16 +1090,28 @@ def _review_record():
 _VERDICT = re.compile(r"^- Verdict: \*\*(.+?)\*\*", re.MULTILINE)
 
 
+_SEVERITY_COUNTS = re.compile(r"(\d+)\s+(BLOCKER|MAJOR|MINOR)")
+_ID_RANGE = re.compile(r"\(R(\d+)-(\d+)\s*(?:…|\.\.\.)\s*R(\d+)-(\d+)\)")
+
+
 def _round_records():
-    """`{round number: {"dispositioned": bool, "verdict": str}}`, read from the
-    review record itself.
+    """`{round number: {...}}`, read from the review record itself.
 
     A round is DISPOSITIONED when its section carries a disposition table row
     for its own findings (`| R3-1 |`); the record spells the other state out as
     "no R3 finding has been dispositioned yet". ROUND-4 FINDING R4-3 adds the
     VERDICT, because round 4's is the first that is not DO NOT FREEZE and both
     front doors said "all three returned DO NOT FREEZE" while a fourth round
-    with a different verdict sat on the record beneath them."""
+    with a different verdict sat on the record beneath them.
+
+    ROUND-5 FINDING R5-3 adds the FINDINGS, in both directions. `dispositioned`
+    used to be true on finding any one `R<n>-<m>` row, while the regime's
+    requirement (this record's own opening paragraph) is a written disposition
+    PER FINDING — so a two-finding round with one row read as closed. The
+    registered id set comes from the round's own verdict line, whose severity
+    counts and id range are two independent statements of the same number, and
+    is cross-checked against the round's verbatim review in `reviews/round-N/`
+    where that file names its findings."""
     text = _review_record()
     numbers = [int(match.group(1)) for match in _ROUND.finditer(text)]
     assert numbers == sorted(numbers) and numbers, numbers
@@ -1092,11 +1124,43 @@ def _round_records():
         assert len(verdicts) == 1, (
             "round %d's section must record exactly one verdict line, found %s"
             % (number, verdicts))
+        bullet = re.search(r"^- Verdict:.*?(?=\n- |\n\n|\n#)", body,
+                           re.MULTILINE | re.DOTALL)
+        assert bullet, "round %d has no verdict bullet" % number
+        line = " ".join(bullet.group(0).split())
+        severities = {name: int(count)
+                      for count, name in _SEVERITY_COUNTS.findall(line)}
+        span = _ID_RANGE.search(line)
+        assert span, (
+            "round %d's verdict line must name its finding-id range as "
+            "`(R%d-1 … R%d-N)`: %r" % (number, number, number, line))
+        first, last = int(span.group(2)), int(span.group(4))
+        assert int(span.group(1)) == int(span.group(3)) == number and first == 1, line
         state[number] = {
-            "dispositioned": bool(re.search(r"\|\s*R%d-\d+\s*\|" % number, body)),
             "verdict": verdicts[0].split(" —")[0].split(" --")[0].strip(),
+            "severities": severities,
+            "findings": ["R%d-%d" % (number, n) for n in range(first, last + 1)],
+            "dispositionedIds": sorted(
+                set(re.findall(r"\|\s*(R%d-\d+)\s*\|" % number, body)),
+                key=lambda name: int(name.split("-")[1])),
         }
+        state[number]["dispositioned"] = bool(state[number]["dispositionedIds"])
     return state
+
+
+def _review_finding_ids(number):
+    """The finding ids the round's verbatim review actually carries, or None
+    when the review states them in a form this cannot read. Rounds 1, 3 and 4
+    head their findings with bold runs rather than markdown headings, so the ids
+    are collected from the whole file and filtered to the round's own."""
+    path = os.path.join(_study(), "reviews", "round-%d" % number, "REVIEW.md")
+    if not os.path.isfile(path):
+        return None
+    with open(path, "rb") as handle:
+        text = handle.read().decode("utf-8")
+    found = {name for name in re.findall(r"\bR%d-(\d+)\b" % number, text)}
+    return sorted(("R%d-%d" % (number, int(name)) for name in found),
+                  key=lambda name: int(name.split("-")[1]))
 
 
 def _rounds():
@@ -1225,6 +1289,140 @@ def test_both_headers_state_the_open_or_closed_state_of_every_round():
                     "must say its findings are open" % (relative, number))
 
 
+# --- ROUND-5 FINDING R5-3: per ROUND and per FINDING, not per round ---------
+
+def test_every_rounds_finding_count_is_stated_three_ways_and_they_agree():
+    """R5-3's first half. The record's verdict line states each round's findings
+    twice over — as severity counts and as an id range — and the round's verbatim
+    review states them a third time by naming them. All three must agree, or the
+    count every other test derives is a number somebody typed."""
+    for number, record in sorted(_round_records().items()):
+        total = sum(record["severities"].values())
+        assert record["severities"], (
+            "round %d's verdict line must state its severity counts" % number)
+        assert total == len(record["findings"]), (
+            "round %d's verdict line says %d findings by severity (%s) and "
+            "%d by id range" % (number, total, record["severities"],
+                                len(record["findings"])))
+        from_review = _review_finding_ids(number)
+        if from_review is None:
+            continue
+        assert from_review == record["findings"], (
+            "round %d's verbatim review names %s and the record registers %s"
+            % (number, from_review, record["findings"]))
+
+
+def test_a_round_is_closed_only_when_every_one_of_its_findings_is_dispositioned():
+    """R5-3's second half, and the property the regime states in this record's
+    own opening paragraph: a written maintainer disposition PER FINDING. The R4-3
+    reading marked a round closed on finding any one `R<n>-<m>` row, so a
+    two-finding round with only `R5-1` dispositioned passed as closed and its
+    second finding vanished between the tables."""
+    for number, record in sorted(_round_records().items()):
+        dispositioned = record["dispositionedIds"]
+        if not dispositioned:
+            continue
+        assert dispositioned == record["findings"], (
+            "round %d dispositions %s and its findings are %s — a partly "
+            "dispositioned round is an OPEN round, and the headers read this"
+            % (number, dispositioned, record["findings"]))
+
+
+_HEADER_ATTRIBUTION = r"\brounds?\s+([0-9][0-9\s,–—\-]*(?:and\s+[0-9]+\s*)?)returned\s+"
+
+
+def _header_verdict_map(header, verdicts):
+    """`{round number: verdict}` as a HEADER states it, parsed from affirmative
+    "round(s) N … returned <verdict>" clauses. A verdict that merely occurs in
+    the header attributes itself to nothing, which is how a synthetic round 5
+    repeating an earlier verdict passed R4-3's test while the header never said
+    round 5 returned anything."""
+    mapping = {}
+    for verdict in verdicts:
+        for match in re.finditer(_HEADER_ATTRIBUTION + re.escape(verdict), header):
+            for number in _expand_round_list(match.group(1)):
+                assert number not in mapping or mapping[number] == verdict, (
+                    "the header attributes two verdicts to round %d" % number)
+                mapping[number] = verdict
+    return mapping
+
+
+def _expand_round_list(text):
+    """"1-3", "1–3 and 5", "4" → the round numbers they name."""
+    numbers = set()
+    for part in re.split(r",|\band\b", text):
+        part = part.strip()
+        if not part:
+            continue
+        span = re.match(r"^(\d+)\s*[–—\-]\s*(\d+)$", part)
+        if span:
+            numbers.update(range(int(span.group(1)), int(span.group(2)) + 1))
+        elif part.isdigit():
+            numbers.add(int(part))
+    return numbers
+
+
+def test_both_headers_attribute_every_round_to_the_verdict_it_returned():
+    """R5-3's third half. R4-3 required every DISTINCT verdict to appear in both
+    headers, which a header satisfies without saying which round returned which —
+    a synthetic round 5 repeating round 1's verdict passed it while the header
+    attributed nothing to round 5. This parses the header's own attribution
+    clauses and requires the mapping to be the record's, round by round."""
+    records = _round_records()
+    expected = {number: record["verdict"].lower()
+                for number, record in records.items()}
+    verdicts = sorted(set(expected.values()))
+    for relative, header in _status_headers().items():
+        mapping = _header_verdict_map(header, verdicts)
+        assert mapping == expected, (
+            "%s's status header attributes %s and the record says %s — every "
+            "round must be named with the verdict it returned, in the form "
+            "\"round(s) N returned <verdict>\"" % (relative, mapping, expected))
+
+
+def test_the_policy_drafts_lifecycle_paragraph_is_the_records_lifecycle():
+    """ROUND-5 FINDING R5-7, under the same machinery as the two front doors.
+
+    `POLICY-DRAFT.md` is a frozen reader's document — the freeze procedure copies
+    it wholesale to `policy/POLICY.md` — and its status paragraph said two review
+    rounds had run and both had returned DO NOT FREEZE, through rounds 3, 4 and 5.
+    Round 4 explicitly ordered it reconciled and it was not. The class has
+    recurred, so the sentence stops being a sentence somebody remembers: the round
+    COUNT is derived from `reviews/`, and the per-round verdicts are parsed by the
+    header parser and compared to the record."""
+    records = _round_records()
+    expected = {number: record["verdict"].lower()
+                for number, record in records.items()}
+    on_disk = sorted(int(name.split("-")[1])
+                     for name in os.listdir(os.path.join(_study(), "reviews"))
+                     if re.fullmatch(r"round-\d+", name))
+    with open(os.path.join(_study(), "design", "POLICY-DRAFT.md"), "rb") as handle:
+        status = flatten(handle.read().decode("utf-8").split("\n---", 1)[0]).lower()
+
+    count = len(on_disk)
+    assert ("%s rfc 0009 review rounds" % _ORDINALS[count] in status
+            or "%d rfc 0009 review rounds" % count in status), (
+        "reviews/ carries %d rounds and the policy draft's status paragraph must "
+        "say so" % count)
+    mapping = _header_verdict_map(status, sorted(set(expected.values())))
+    assert mapping == expected, (
+        "POLICY-DRAFT.md attributes %s and the record says %s" % (mapping, expected))
+    assert "still open for gold authoring" not in status
+
+
+def test_the_review_directory_and_the_record_carry_the_same_rounds():
+    """The round count derived from the tree rather than from a sentence. A round
+    whose verbatim record landed under `reviews/` without a section here — or the
+    reverse — is the drift R3-10, R4-3 and R5-3 have each caught one spelling
+    of."""
+    on_disk = sorted(int(name.split("-")[1])
+                     for name in os.listdir(os.path.join(_study(), "reviews"))
+                     if re.fullmatch(r"round-\d+", name))
+    assert on_disk == sorted(_round_records()), (
+        "reviews/ carries rounds %s and PREREG-REVIEW.md carries %s"
+        % (on_disk, sorted(_round_records())))
+
+
 def test_the_review_records_own_round_sections_do_not_contradict_their_tables():
     """R4-3 on the record itself. The round-4 section said "no R4 finding has
     been dispositioned yet" as a heading line; if a disposition table is then
@@ -1331,39 +1529,130 @@ def test_no_adequacy_prose_claims_zero_live_cells_the_measurement_denies(
     assert offenders == [], "\n  ".join([""] + offenders)
 
 
-def test_the_deletion_lemma_publishes_all_three_of_its_measured_metrics(
-        adequacy_text):
-    """R4-1's positive half. Three DISTINCT metrics were measured for `m-a-183` and the
-    description must carry all three, because each answers a different question: how much
-    of the space the edit touches (trace-live cells), how much of it the transcriptions
-    agreed on (scored-surface differences), and how much of it an ENGINE saw (the pinned
-    sample). Every expected value is read out of the measurement here."""
+def _lemma_measurements():
+    """`m-a-183`'s four measured quantities, each read from the artifact that
+    measured it. Returned together because the reader-facing guards below check
+    every one of them against every surface, and a guard that reads three of the
+    four is how round 5's R5-2 happened."""
     record = _drop_measurements()["m-a-183"]
     search = _load("design/mutants/adequacy_search.json")
     crosscheck = {row["id"]: row
                   for row in _load("design/mutants/adequacy_crosscheck.json")}
+    return {
+        "liveCells": record["liveCells"],
+        "engineCheckedCells": record["engineCheckedCells"],
+        "engineDifferences": len(record["engineDifferences"]),
+        "scoredDifferences": search["armA"]["m-a-183"]["diffCellsOutsideX1"],
+        "secondTranscriptionDifferences":
+            crosscheck["m-a-183"]["differingCellsSecondTranscription"],
+        "space": search["space"]["cells"],
+        "sampleSize": _load(
+            "design/mutants/adequacy_drops.json")["liveCellSampleSize"],
+    }
+
+
+# A stated difference count, in either spelling a document uses. Non-overlapping
+# by construction, so "0 differences from the primary transcription" yields one
+# reading of one number and not a second from the words after it.
+_STATED_DIFFERENCES = re.compile(
+    r"\b(?:(\d[\d,]*)|(zero|no))\s+(?:[a-z-]+\s+){0,4}?differences?\b",
+    re.IGNORECASE)
+
+
+def _stated_difference_counts(text):
+    counts = []
+    for match in _STATED_DIFFERENCES.finditer(text):
+        digits, word = match.group(1), match.group(2)
+        counts.append((0 if digits is None else int(digits.replace(",", "")),
+                       match.group(0)))
+    return counts
+
+
+def _mentioning_paragraphs(text, needle):
+    """The paragraphs of a markdown document that mention `needle`, flattened.
+    A paragraph is the unit a claim is made in; a fixed-width window around the
+    id cuts the sentence that carries the metrics in half."""
+    return [" ".join(block.split())
+            for block in re.split(r"\n\s*\n", text)
+            if needle in block]
+
+
+def test_the_deletion_lemma_publishes_all_three_of_its_measured_metrics(
+        adequacy_text):
+    """R4-1's positive half, and ROUND-5 FINDING R5-2 is why it now reads five
+    numbers rather than two.
+
+    Three DISTINCT metrics were measured for `m-a-183`, because each answers a
+    different question: how much of the space the edit touches (trace-live cells),
+    how much of it the two independent transcriptions agreed on (scored-surface
+    differences, twice), and how much of it an ENGINE saw (the pinned sample and
+    its differences). The R4-1 guard required only the live-cell count and the
+    sample size, so replacing both reader surfaces with "seven scored and seven
+    engine differences" passed every one of its three assertions — the zero that
+    the whole lemma rests on was the number nothing bound.
+
+    Every expected value is read out of the measurement at test time, and the
+    zero-difference claims are bound in both directions: each surface must state
+    them, and no surface may state a count the measurement denies."""
+    measured = _lemma_measurements()
 
     # the measurement itself, first: a description can only be checked against a
     # measurement that says what it is thought to say.
-    assert record["liveCells"] == search["space"]["cells"] == 419904, (
+    assert measured["liveCells"] == measured["space"] == 419904, (
         "the deletion's edit is live at every cell of the dense space; if that "
         "changed, every sentence below has to change with it")
-    assert record["engineCheckedCells"] == \
-        _load("design/mutants/adequacy_drops.json")["liveCellSampleSize"]
-    assert record["engineDifferences"] == []
-    assert search["armA"]["m-a-183"]["diffCellsOutsideX1"] == 0
-    assert crosscheck["m-a-183"]["differingCellsSecondTranscription"] == 0
+    assert measured["engineCheckedCells"] == measured["sampleSize"]
+    difference_metrics = ("scoredDifferences", "secondTranscriptionDifferences",
+                          "engineDifferences")
+    assert [measured[name] for name in difference_metrics] == [0, 0, 0], (
+        "this test's shape assumes the lemma holds on all three surfaces; if a "
+        "future measurement finds a difference, the documents must state ITS "
+        "count and this assertion is the place to say so")
 
-    live = "{:,}".format(record["liveCells"])
-    checked = str(record["engineCheckedCells"])
+    live = "{:,}".format(measured["liveCells"])
+    checked = str(measured["engineCheckedCells"])
     mechanism = _manifest_a_by_id()["m-a-183"]["adequacy"]["dropMechanism"]
-    flat_text = " ".join(adequacy_text.split())
-    for surface, text in (("refA/MANIFEST.json's dropMechanism", mechanism),
-                          ("ADEQUACY.md", flat_text)):
-        assert live in text, (
-            "%s must state the measured live-cell count (%s)" % (surface, live))
-        assert checked in text, (
-            "%s must state the pinned-engine sample size (%s)" % (surface, checked))
+    surfaces = [("refA/MANIFEST.json's dropMechanism",
+                 [" ".join(mechanism.split())]),
+                ("ADEQUACY.md",
+                 _mentioning_paragraphs(adequacy_text, "m-a-183"))]
+
+    for surface, blocks in surfaces:
+        assert blocks, "%s says nothing about m-a-183" % surface
+        # NEGATIVE, over every block: no stated difference count may be one the
+        # measurement denies. This is what the seven-difference mutation trips.
+        for block in blocks:
+            for count, phrase in _stated_difference_counts(block):
+                assert count in set(measured[name]
+                                    for name in difference_metrics), (
+                    "%s states %r about m-a-183 and the measured differences "
+                    "are %s" % (surface, phrase,
+                                [measured[name] for name in difference_metrics]))
+        # POSITIVE: at least one block must carry the WHOLE description — all
+        # three metrics, each with its own anchor, so a surface cannot publish
+        # the live count and quietly drop the zeros.
+        complete = []
+        for block in blocks:
+            lowered = block.lower()
+            counts = [count for count, _ in _stated_difference_counts(block)]
+            if live not in block or checked not in block:
+                continue
+            if "scored surface" not in lowered:
+                continue
+            if not re.search(r"\b(second|both)\b[^.]{0,90}transcriptions?",
+                             lowered) and "adequacy_crosscheck" not in lowered:
+                continue
+            if "pinned" not in lowered:
+                continue
+            if counts.count(measured["scoredDifferences"]) < 1:
+                continue
+            complete.append(block)
+        assert complete, (
+            "%s must state m-a-183's three measured metrics together — %s "
+            "trace-live cells, the scored surface identical on both "
+            "transcriptions, and %s differences over the %s pinned-engine "
+            "samples — in one block; no block does"
+            % (surface, live, measured["engineDifferences"], checked))
 
 
 def test_the_region_lemma_price_separates_the_class_from_the_repairs_cost():
@@ -1403,25 +1692,139 @@ def test_the_region_lemma_price_separates_the_class_from_the_repairs_cost():
         assert row["preRepairDisposition"] == "dropped"
 
 
+_NUMBER_WORDS = {0: "zero", 1: "one", 2: "two", 3: "three", 4: "four",
+                 5: "five", 6: "six", 7: "seven", 8: "eight", 9: "nine",
+                 10: "ten", 11: "eleven", 12: "twelve"}
+
+# The two ROLES the split assigns, as the documents phrase them. A number in a
+# role is the claim; the number alone is not.
+_MARGINAL_ROLE = (r"the repair's (?:marginal )?price"
+                  r"|marginally because of the repair"
+                  r"|exist only because of the repair"
+                  r"|are the repair's marginal"
+                  r"|marginal to the repair")
+_PRE_EXISTING_ROLE = (r"already unkillable"
+                      r"|already dropped"
+                      r"|corpus had already"
+                      r"|were already"
+                      r"|already before it")
+
+
+_NUMBER_TOKEN = r"(?<![\w-])(\d+|%s)\b" % "|".join(_NUMBER_WORDS.values())
+
+
+def _claim_sentences(text, gross):
+    """The sentences that make a claim about THIS class: the ones that state its
+    size. Scoping matters — "whose round-1 counterparts were already drops" is a
+    sentence about a different class entirely, and a document-wide role search
+    reads its `1` as an attribution."""
+    return [sentence for sentence in re.split(r"(?<=\.)\s+", text)
+            if re.search(r"(?<![\w-])(%s|%d)\b" % (_NUMBER_WORDS[gross], gross),
+                         sentence)]
+
+
+def _role_numbers(sentences, role, gross):
+    """Every number stated IN a role, with the phrase that carries it.
+
+    The gap may not cross a sentence boundary, carry a negation, or contain
+    another number: "three ... and are not the repair's price" is a denial and
+    "six of the nine are the repair's marginal price" is one claim about six,
+    not two claims — so the partitive is stripped first, per sentence, after the
+    sentence has been selected by it."""
+    partitive = re.compile(r"\bof (?:the )?(?:%s|%d)\b"
+                           % (_NUMBER_WORDS[gross], gross))
+    pattern = re.compile(r"%s([^.;:]{0,40}?)(%s)" % (_NUMBER_TOKEN, role))
+    out = []
+    for sentence in sentences:
+        stripped = partitive.sub(" ", sentence)
+        for match in pattern.finditer(stripped):
+            gap = match.group(2)
+            if " not " in gap or gap.strip().startswith("not "):
+                continue
+            if re.search(_NUMBER_TOKEN, gap):
+                continue
+            token = match.group(1)
+            value = (int(token) if token.isdigit()
+                     else [k for k, v in _NUMBER_WORDS.items() if v == token][0])
+            out.append((value, " ".join(match.group(0).split())))
+    return out
+
+
 def test_the_documents_state_the_marginal_price_and_not_only_the_class_size(
         adequacy_text, flat):
-    """R4-2 on the reader-facing surfaces. The class size and the repair's price are
-    different quantities, and every document that attributes the class to the repair
-    must publish both."""
+    """R4-2 on the reader-facing surfaces, rebuilt for ROUND-5 FINDING R5-2.
+
+    The class size and the repair's price are different quantities, and every
+    registered surface must publish both, in their roles. The R4-2 guard searched
+    each document for the two NUMBERS and skipped any document that did not quote
+    the class at all — so "nine marginal, none pre-existing" plus an unrelated six
+    somewhere in the file passed it, which is the false attribution the finding
+    exists to forbid.
+
+    So: no surface is skipped, and each number is required in its ROLE — the
+    marginal count attributed to the repair, the pre-existing count withheld from
+    it — with every role statement in the document checked, not just one."""
     price = _load("design/mutants/adequacy_region_lemma_price.json")
-    gross, marginal = price["grossClassSize"], price["marginalToRepairCount"]
-    words = {6: "six", 9: "nine", 3: "three"}
+    gross = price["grossClassSize"]
+    marginal = price["marginalToRepairCount"]
+    pre_existing = price["preExistingDropCount"]
+    assert gross == marginal + pre_existing and pre_existing, price
+
     with open(os.path.join(_study(), "design", "POLICY-DRAFT.md"), "rb") as handle:
         policy = flatten(handle.read().decode("utf-8"))
-    for name, text in (("ADEQUACY.md", " ".join(adequacy_text.split())),
-                       ("PREREGISTRATION.md", flat),
-                       ("POLICY-DRAFT.md", policy)):
+    surfaces = (("ADEQUACY.md", " ".join(adequacy_text.split())),
+                ("PREREGISTRATION.md", flat),
+                ("POLICY-DRAFT.md", policy))
+    for name, text in surfaces:
         lowered = text.lower()
-        if words[gross] not in lowered and str(gross) not in text:
-            continue                      # the document does not quote the class at all
-        assert words[marginal] in lowered or str(marginal) in text, (
-            "%s quotes the %d-member class as the repair's price and must also state "
-            "the marginal %d (round-4 finding R4-2)" % (name, gross, marginal))
+        assert price["class"] in lowered, (
+            "%s must name the %s class it is attributing" % (name, price["class"]))
+        sentences = _claim_sentences(lowered, gross)
+        assert sentences, (
+            "%s must state the class size (%d) where it attributes the class"
+            % (name, gross))
+
+        stated_marginal = _role_numbers(sentences, _MARGINAL_ROLE, gross)
+        assert stated_marginal, (
+            "%s attributes the %s class to the repair and never says how much of "
+            "it the repair actually bought (%d)" % (name, price["class"], marginal))
+        for value, phrase in stated_marginal:
+            assert value == marginal, (
+                "%s says %r; the repair's marginal price is %d, not %d"
+                % (name, phrase, marginal, value))
+
+        stated_pre = _role_numbers(sentences, _PRE_EXISTING_ROLE, gross)
+        assert stated_pre, (
+            "%s must state that %d of the %d were already unkillable before the "
+            "repair; without it the class reads as the repair's whole price"
+            % (name, pre_existing, gross))
+        for value, phrase in stated_pre:
+            assert value == pre_existing, (
+                "%s says %r; %d members predate the repair, not %d"
+                % (name, phrase, pre_existing, value))
+
+
+def test_the_adequacy_record_names_the_members_of_both_halves_of_the_split():
+    """R5-2's other half: the IDENTITIES, not only the counts. The published
+    split is only checkable by a reader who can see which mutants are on each
+    side, and `ADEQUACY.md` is the document that carries the class table — so the
+    six marginal ids and the three pre-existing ones are read out of the derived
+    artifact and required in it, with each pre-existing member's PRE-REPAIR id
+    beside it (the whole content of "the repair did not buy this one")."""
+    price = _load("design/mutants/adequacy_region_lemma_price.json")
+    with open(os.path.join(_study(), "design", "mutants", "ADEQUACY.md"),
+              "rb") as handle:
+        text = " ".join(handle.read().decode("utf-8").split())
+    for mid in price["marginalToRepair"]:
+        assert mid in text, (
+            "ADEQUACY.md must name the marginal member %s" % mid)
+    for row in price["preExistingDrops"]:
+        assert row["current"] in text, (
+            "ADEQUACY.md must name the pre-existing member %s" % row["current"])
+        assert row["preRepairId"] in text, (
+            "%s was %s before the repair and ADEQUACY.md must say so — the "
+            "match is by edit, and the pre-repair id is what makes it readable"
+            % (row["current"], row["preRepairId"]))
 
 
 def test_no_document_claims_every_boundary_edit_of_the_rule_is_invisible(
@@ -1477,6 +1880,64 @@ def test_the_pilot_banner_names_both_cohorts_with_the_arms_own_counts():
     # the counts the banner quotes must be the ones the arm publishes, not a memory
     assert len(block["perRun"]) == admitted
     assert block["identityFail"] + passing == admitted
+
+
+def test_the_pilot_anchors_docstring_states_the_arms_the_artifact_publishes():
+    """ROUND-5 FINDING R5-4. R4-4 fixed the banner and said it had fixed
+    `pilot_anchor()`'s docstring with it; the docstring still called the rate a
+    fraction of "scored runs" (the denominator-OUT reading the function stopped
+    taking in round 3), still said zero identity failures were "no longer true of
+    any arm" while A and B record zero, and still said an identity failure makes
+    the registered denominator SMALLER than the identity-passing count when it
+    makes it larger. Three sentences, one mistake, and all three survived because
+    nothing read the docstring against the artifact.
+
+    So the docstring's per-arm sentence is REBUILT here from the pilot and
+    required verbatim: a reissued pilot that moves any arm fails this rather than
+    leaving a generator describing a superseded issue. The relation itself is
+    asserted as prose because it is the thing that must never be spelled wrong
+    again."""
+    module = _oc_module()
+    pilot = _load("design/mutants/%s" % module.PILOT_FILE)
+    doc = " ".join(module.pilot_anchor.__doc__.split())
+
+    expected = "; ".join(
+        "%s %d admitted, %d identity failures, %d identity-passing" % (
+            arm,
+            pilot["perArm"][arm]["highKill"]["admittedRuns"],
+            pilot["perArm"][arm]["identityFail"],
+            pilot["perArm"][arm]["identityPass"])
+        for arm in "ABC") + "."
+    assert expected in doc, (
+        "pilot_anchor()'s docstring must state the current pilot's cohorts as "
+        "the artifact publishes them:\n  %s\ngot:\n  %s" % (expected, doc))
+
+    for arm in "ABC":
+        block = pilot["perArm"][arm]
+        assert block["highKill"]["admittedRuns"] == \
+            block["identityPass"] + block["identityFail"], arm
+    assert "ADMITTED = IDENTITY-PASSING + IDENTITY FAILURES" in doc, (
+        "the docstring must state the relation, not only the numbers")
+
+    # the three false sentences, each forbidden against what the artifact says
+    zero_failure_arms = sorted(arm for arm in "ABC"
+                               if not pilot["perArm"][arm]["identityFail"])
+    if zero_failure_arms:
+        assert "no longer true of any arm" not in doc, (
+            "arms %s record zero identity failures and the docstring says that "
+            "is true of no arm" % zero_failure_arms)
+    failing_arms = sorted(arm for arm in "ABC"
+                          if pilot["perArm"][arm]["identityFail"])
+    if failing_arms:
+        assert "denominator is smaller" not in doc, (
+            "an identity failure makes the registered denominator LARGER than "
+            "the identity-passing count (arms %s); the docstring says smaller"
+            % failing_arms)
+    anchor_sentence = doc.split(".")[0].lower()
+    assert "admitted" in anchor_sentence and "scored runs" not in anchor_sentence, (
+        "the anchor's denominator is admitted runs (§1a/§5), and naming it "
+        "\"scored runs\" is the reading round 3 removed from the code: %r"
+        % anchor_sentence)
 
 
 def test_no_document_calls_arm_c_a_single_admitted_run():
@@ -1537,41 +1998,265 @@ def _workflow():
         return handle.read().decode("utf-8")
 
 
+def _parse_workflow_jobs(text):
+    """The workflow's `jobs:` mapping, parsed structurally.
+
+    ROUND-5 FINDING R5-5: the R4-6 test was raw substring matching over the file,
+    and a COMMENT block carrying the expected strings passed it without defining
+    an executable job. A comment cannot run the controls, so comments are
+    stripped before anything here is believed — while the raw block is kept
+    beside it, because one of the job's requirements (that it says in the file
+    the matrix adjudication is an attempt) is a comment by design.
+
+    Deliberately small: two-space-indented job keys under `jobs:`, four-space
+    keys inside a job, a `steps:` list at six spaces with eight-space keys and
+    ten-space `env:` members. That is this file's whole shape, and anything
+    outside it reads as absent rather than as accepted."""
+    lines = text.split("\n")
+    live = []
+    for line in lines:
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            live.append(None)               # keep the index, drop the content
+            continue
+        live.append(line)
+    start = None
+    for index, line in enumerate(live):
+        if line is not None and re.match(r"^jobs:\s*$", line):
+            start = index
+            break
+    if start is None:
+        return {}
+    jobs, current, raw_start = {}, None, None
+    for index in range(start + 1, len(live)):
+        line = live[index]
+        if line is None:
+            continue
+        if re.match(r"^\S", line):
+            break                            # left the jobs mapping
+        name = re.match(r"^  (\S[^:]*):\s*$", line)
+        if name:
+            if current is not None:
+                jobs[current]["rawEnd"] = index
+            current = name.group(1)
+            jobs[current] = {"lines": [], "rawStart": index, "rawEnd": len(lines)}
+            continue
+        if current is not None:
+            jobs[current]["lines"].append(line)
+    for name, job in jobs.items():
+        job["raw"] = "\n".join(lines[job["rawStart"]:job["rawEnd"]])
+        job["steps"] = _parse_steps(job["lines"])
+        job["keys"] = {match.group(1): match.group(2).strip()
+                       for match in (re.match(r"^    ([\w-]+):\s*(.*)$", line)
+                                     for line in job["lines"]) if match}
+    return jobs
+
+
+def _parse_steps(lines):
+    """The `steps:` list of one job: each item's eight-space scalar keys, its
+    `env:` members, and the body of a block scalar `run:`."""
+    steps, step, key = [], None, None
+    for line in lines:
+        item = re.match(r"^      - ([\w-]+):\s*(.*)$", line)
+        if item:
+            step = {"env": {}}
+            steps.append(step)
+            step[item.group(1)] = item.group(2).strip()
+            key = item.group(1)
+            continue
+        if step is None:
+            continue
+        scalar = re.match(r"^        ([\w-]+):\s*(.*)$", line)
+        if scalar:
+            key = scalar.group(1)
+            value = scalar.group(2).strip()
+            if key == "env" and not value:
+                continue                     # the mapping opened above stands
+            step[key] = value
+            continue
+        member = re.match(r"^          ([\w-]+):\s*(.*)$", line)
+        if member:
+            if key == "env":
+                step["env"][member.group(1)] = member.group(2).strip().strip('"')
+            else:
+                step.setdefault(key + "Members", {})[member.group(1)] = \
+                    member.group(2).strip()
+            continue
+        block = re.match(r"^        (\S.*)$", line)
+        if block and key in ("run",):
+            step[key] = (step.get(key, "") + " " + block.group(1)).strip()
+    return steps
+
+
+def _study_019_job():
+    """The Study 019 job as a structure, or a skip reason."""
+    workflow = _workflow()
+    if workflow is None:
+        return None, "the study tree is not inside the repository carrying ci.yml"
+    jobs = _parse_workflow_jobs(workflow)
+    if "study-019-harness" not in jobs:
+        return None, None
+    return jobs["study-019-harness"], None
+
+
 def test_the_registered_ci_job_exists_and_runs_the_deterministic_controls(flat):
     """R4-6. §7 says CI runs the deterministic controls; the scaffold specified the job
     to add after T3; T3 closed and the job never landed, so the registration described
     enforcement that did not exist. This asserts the job the registration claims — by
-    shape, not by a whole-file comparison, because the workflow carries other studies."""
+    shape, not by a whole-file comparison, because the workflow carries other studies.
+
+    ROUND-5 FINDING R5-5 makes the shape a PARSED one. This test reads `ci.yml`
+    directly and depends on no other file, so the scaffold's registered deletion
+    at the freeze cannot take the requirement with it."""
     assert "CI runs the deterministic controls only" in flat, (
         "§7 must still register what CI does; if that claim is withdrawn, this test "
         "goes with it rather than the other way round")
     workflow = _workflow()
     if workflow is None:
         pytest.skip("the study tree is not inside the repository carrying ci.yml")
-    assert "study-019-harness:" in workflow, (
-        "the registration says CI runs the deterministic controls and no Study 019 "
-        "job exists in .github/workflows/ci.yml")
-    job = workflow.split("study-019-harness:", 1)[1].split("\n  python:", 1)[0]
-    assert 'python-version: "3.12.11"' in job, (
-        "the job must name the exact pinned interpreter, not a minor series")
-    assert job.count(
-        "working-directory: studies/019-authorship-across-representations") == 2
-    assert "python harness/integrity.py" in job
-    assert "python -m pytest harness/tests -q" in job
-    assert 'PYTHONSAFEPATH: "1"' in job, (
-        "integrity.py refuses without it, so the job would fail on step one")
-    assert 'PYTHONDONTWRITEBYTECODE: "1"' in job, (
-        "T4: a run that writes bytecode breaks the integrity step on the next one")
+    job, _ = _study_019_job()
+    assert job is not None, (
+        "the registration says CI runs the deterministic controls and no executable "
+        "study-019-harness job exists in .github/workflows/ci.yml (a comment naming "
+        "one is not one)")
+    assert job["keys"].get("runs-on"), "the job defines no runner"
+    steps = job["steps"]
+    assert steps, "the job defines no steps"
+
+    setup = [step for step in steps
+             if step.get("uses", "").startswith("actions/setup-python@")]
+    assert len(setup) == 1, "the job must set up exactly one interpreter"
+    version = setup[0].get("withMembers", {}).get("python-version", "").strip('"')
+    pins = _load("harness/PINS.json")
+    series = pins["python"]["series"]
+    assert version.startswith(series + "."), (
+        "the job's interpreter (%r) must be a patch of the registered %s series"
+        % (version, series))
+
+    working = "studies/019-authorship-across-representations"
+    wanted = {"python harness/integrity.py": {"PYTHONSAFEPATH", "PYTHONDONTWRITEBYTECODE"},
+              "python -m pytest harness/tests -q": {"PYTHONDONTWRITEBYTECODE"}}
+    for command, environment in wanted.items():
+        matching = [step for step in steps if step.get("run", "") == command]
+        assert len(matching) == 1, (
+            "the job must run %r in exactly one step; found %d"
+            % (command, len(matching)))
+        step = matching[0]
+        assert step.get("working-directory") == working, (
+            "%r must run in %s, not %r" % (command, working,
+                                           step.get("working-directory")))
+        for name in environment:
+            assert step["env"].get(name) == "1", (
+                "%r must run under %s=1 (integrity.py refuses without "
+                "PYTHONSAFEPATH; a run that writes bytecode breaks the integrity "
+                "step on the next one)" % (command, name))
+
     # the pinned action SHAs are the workflow's own, copied rather than invented
     for action in ("actions/checkout@", "actions/setup-python@"):
         used = {line.split(action, 1)[1].split()[0]
-                for line in workflow.splitlines() if action in line}
+                for line in workflow.splitlines()
+                if action in line and not line.strip().startswith("#")}
         assert len(used) == 1, (
             "the workflow pins %s at more than one SHA (%s); the Study 019 job must "
             "copy the file's pin, not introduce another" % (action, sorted(used)))
-    # and the attempt is stated to be an attempt
-    assert "ATTEMPT, not a test" in job or "attempt, not a test" in job, (
+    # and the attempt is stated to be an attempt — a comment, by design
+    assert "ATTEMPT, not a test" in job["raw"] or "attempt, not a test" in job["raw"], (
         "the job must say in the file that the matrix adjudication never runs in CI")
+
+
+def test_a_comment_shaped_like_the_job_is_not_the_job():
+    """R5-5's discriminating case, and the reason the parse above exists. The
+    retained R4-6 test passed on a workflow whose Study 019 job was commented
+    out in its entirety — every expected substring present, nothing executable.
+    This runs that mutation over the real file."""
+    workflow = _workflow()
+    if workflow is None:
+        pytest.skip("the study tree is not inside the repository carrying ci.yml")
+    jobs = _parse_workflow_jobs(workflow)
+    assert "study-019-harness" in jobs, "no job to mutate; see the test above"
+    commented = "\n".join(
+        ("# " + line) if line.strip() else line
+        for line in jobs["study-019-harness"]["raw"].split("\n"))
+    mutated = workflow.replace(jobs["study-019-harness"]["raw"], commented)
+    assert mutated != workflow
+    assert "study-019-harness" not in _parse_workflow_jobs(mutated), (
+        "a commented-out job still parses as a job; the shape check has no power")
+    # and every substring the old test looked for survives the mutation, which is
+    # exactly why the old test passed it
+    for phrase in ("study-019-harness:", "python harness/integrity.py",
+                   "python -m pytest harness/tests -q", 'PYTHONSAFEPATH: "1"'):
+        assert phrase in mutated
+
+
+def test_the_ci_interpreter_rationale_matches_what_the_registry_actually_pins():
+    """R5-5's third residual. The job's comment said `PINS.json` records 3.12.11 and
+    that the scorer refuses any other patch; the registry pins the SERIES 3.12 by
+    design (Study 012 round-3 finding 20 — the running patch level is reported, not
+    required) and `integrity.verify_interpreter()` compares major and minor only. The
+    exact patch in CI is a REPRODUCIBILITY choice for the runner, and the file must say
+    that rather than claim an enforcement that does not exist."""
+    job, reason = _study_019_job()
+    if job is None:
+        pytest.skip(reason or "no Study 019 job in the workflow")
+    pins = _load("harness/PINS.json")
+    entry = pins["python"]
+    assert set(entry) == {"implementation", "note", "series"}, (
+        "the registry's python member registers an implementation and a SERIES; if a "
+        "patch level is ever registered, this test and the workflow comment move "
+        "together: %s" % sorted(entry))
+    raw = job["raw"]
+    for false_claim in ("harness/PINS.json records 3.12.11",
+                        "PINS.json records the patch level",
+                        "refuses to adjudicate under anything else"):
+        assert false_claim not in raw, (
+            "the workflow claims %r and the registry pins only the %s series"
+            % (false_claim, entry["series"]))
+    assert entry["series"] in raw, (
+        "the job must name the series the registry actually pins (%s)"
+        % entry["series"])
+
+
+# The stale-lifecycle register, and the one file on it that the freeze DELETES.
+# ROUND-5 FINDING R5-5: the retained R4-6 test opened every one of these
+# unconditionally, so the first post-freeze commit — which deletes `SCAFFOLD.md`
+# by the scaffold's own step 9 — turned this guard into a `FileNotFoundError`.
+# A registered deletion must not be able to fail the suite, and it must not be
+# able to take the OTHER files' assertions with it either.
+_DELETED_AT_FREEZE = ("harness/SCAFFOLD.md",)
+_STALE_LIFECYCLE_NOTES = (
+    ("harness/SCAFFOLD.md", ("What remains owed in this file is T3 alone",
+                             "THIS IS THE ONLY ITEM LEFT IN THIS FILE",
+                             "Do not add the job until T3 is done")),
+    ("harness/batch.py", ("item T3 records that `design/` still",)),
+    ("harness/PINS.json", ("not yet assembled",)),
+    ("harness/e4lib/census.py", ("109 at the current revision",)),
+    # ROUND-5 FINDING R5-7's class, at the place it bit hardest: §7's own gate
+    # sentence said the tree still owed committed design sources and carried
+    # stale caches that "must be committed" — which is the round-4 defect
+    # written down as an instruction.
+    ("PREREGISTRATION.md", ("stale bytecode caches that "
+                            "`integrity.verify_bytecode()` refuses must be "
+                            "committed",)),
+)
+
+
+def _stale_lifecycle_offenders(study):
+    """The register applied to a tree. A file registered as deleted at the
+    freeze is skipped when it is absent; every other file must be there."""
+    offenders = []
+    for relative, stale in _STALE_LIFECYCLE_NOTES:
+        path = os.path.join(study, relative)
+        if not os.path.isfile(path):
+            if relative in _DELETED_AT_FREEZE:
+                continue
+            offenders.append("%s: registered for this check and absent" % relative)
+            continue
+        with open(path, "rb") as handle:
+            text = flatten(handle.read().decode("utf-8"))
+        for phrase in stale:
+            if flatten(phrase) in text:
+                offenders.append("%s: %r" % (relative, phrase))
+    return offenders
 
 
 def test_no_lifecycle_note_still_calls_a_landed_item_outstanding():
@@ -1580,22 +2265,8 @@ def test_no_lifecycle_note_still_calls_a_landed_item_outstanding():
     scaffold's "T3 alone remains", the batch tripwire's "design/ still holds untracked
     sources", the pins registry's "the scorer, not yet assembled", and the census's
     quotation of a §5 row count that had moved."""
-    checks = (
-        ("harness/SCAFFOLD.md", ("What remains owed in this file is T3 alone",
-                                 "THIS IS THE ONLY ITEM LEFT IN THIS FILE",
-                                 "Do not add the job until T3 is done")),
-        ("harness/batch.py", ("item T3 records that `design/` still",)),
-        ("harness/PINS.json", ("not yet assembled",)),
-        ("harness/e4lib/census.py", ("109 at the current revision",)),
-    )
-    offenders = []
-    for relative, stale in checks:
-        with open(os.path.join(_study(), relative), "rb") as handle:
-            text = flatten(handle.read().decode("utf-8"))
-        for phrase in stale:
-            if flatten(phrase) in text:
-                offenders.append("%s: %r" % (relative, phrase))
-    assert offenders == [], "\n  ".join([""] + offenders)
+    assert _stale_lifecycle_offenders(_study()) == [], \
+        "\n  ".join([""] + _stale_lifecycle_offenders(_study()))
     # the untracked-source condition itself, asserted rather than described
     import subprocess as _subprocess
     tracked = set(_subprocess.run(["git", "ls-files", "-z", "--", "."],
@@ -1616,6 +2287,45 @@ def test_no_lifecycle_note_still_calls_a_landed_item_outstanding():
         % sorted(untracked))
     assert caches == [], (
         "T3 is recorded LANDED and these bytecode caches exist: %s" % sorted(caches))
+
+
+def test_the_lifecycle_check_survives_the_scaffolds_registered_deletion(tmp_path):
+    """R5-5's first residual, run rather than argued. `SCAFFOLD.md` §9 records
+    that the file is deleted in the first post-freeze commit; simulating its
+    absence raised `FileNotFoundError` out of the retained R4-6 guard, so the
+    freeze the scaffold describes broke the test that enforces the scaffold's
+    own closed items.
+
+    The register is applied to a scratch tree with the scaffold removed and
+    every other registered file copied — so the deletion is tolerated and the
+    remaining assertions still bite, which is the property that matters."""
+    import shutil
+    scratch = tmp_path / "post-freeze"
+    for relative, _stale in _STALE_LIFECYCLE_NOTES:
+        source = os.path.join(_study(), relative)
+        if not os.path.isfile(source):
+            continue
+        target = scratch / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, target)
+    (scratch / "harness" / "SCAFFOLD.md").unlink()
+    assert _stale_lifecycle_offenders(str(scratch)) == [], (
+        "the lifecycle check must pass over a post-freeze tree; the scaffold's "
+        "deletion is registered, not a defect")
+
+    # and it must still have power over what remains
+    with open(scratch / "harness" / "PINS.json", "a", encoding="utf-8") as handle:
+        handle.write("\nnot yet assembled\n")
+    assert _stale_lifecycle_offenders(str(scratch)) != [], (
+        "with the scaffold gone the check stopped reading the other files")
+
+    # a file that is NOT registered as deleted may not simply vanish
+    shutil.copyfile(os.path.join(_study(), "harness", "PINS.json"),
+                    scratch / "harness" / "PINS.json")
+    (scratch / "harness" / "e4lib" / "census.py").unlink()
+    assert any("census.py" in offender
+               for offender in _stale_lifecycle_offenders(str(scratch))), (
+        "an unregistered disappearance must fail rather than skip")
 
 
 def test_the_gold_row_count_in_the_pins_note_is_the_committed_suites():

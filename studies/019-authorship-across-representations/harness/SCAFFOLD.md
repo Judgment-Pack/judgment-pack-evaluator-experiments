@@ -596,12 +596,20 @@ Each step fills exactly one link, and every link is checkable before the next.
    survives, `integrity.py` passes under the pinned 3.12.11, and the
    `study-019-harness` CI job is in the workflow. What remains under this step
    is the gate work itself, not the tree.
-2. **Land the registered documents**: `policy/POLICY.md` (the frozen copy of
-   the design draft), `gold/GOLD.json`, `mutants/MANIFEST-*.json`,
-   `reference/REFERENCE-*.md`, `controls/off-gold-equivalence.json`,
-   `arms/<ARM>/PROMPT.txt`. `make_manifest.py --freeze` refuses while any
-   registered document is still pending, so this step is checkable rather than
-   remembered.
+2. **Land the registered documents AND the registered payload SETS**:
+   `policy/POLICY.md` (the frozen copy of the design draft), `gold/GOLD.json`,
+   `mutants/MANIFEST-*.json`, `reference/REFERENCE-*.md`,
+   `reference/refA/pack.json`, `reference/refB/policy.rego`,
+   `controls/off-gold-equivalence.json`, `arms/<ARM>/PROMPT.txt` — and the two
+   payload trees the MANIFESTs point at, **`mutants/jps/*.json` and
+   `mutants/rego/*.rego`**, whose files each carry a per-file hash.
+   `make_manifest.py --freeze` refuses while any registered document **or any
+   registered payload set** is still pending, so this step is checkable rather
+   than remembered. Round-5 finding **R5-6** is why the sets are named here: the
+   gate walked the documents only, so a freeze over a tree with both payload
+   roots absent returned success and wrote a manifest with zero mutant payload
+   entries — the scorer refuses that tree, but only at attempt time, which is
+   after the anchor it was supposed to gate.
 3. **Assemble the arm prompts deterministically** and fill
    `arms.<ARM>.promptSha256` (the `matrixA/B/C` freeze pins) and
    `promptBytes`. The wrapper's prompt-digest gate reads exactly these members.
