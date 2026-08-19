@@ -8,7 +8,7 @@ than being a guard over an absent file: every named file EXISTS in this study
 today, so an edit that widened the covered set would cover them and these
 assertions would fail.
 
-THREE APPENDABLE FILES, not two. `DEVIATIONS.md` and `README.md` are ADR 0004's
+FOUR APPENDABLE FILES, not two. `DEVIATIONS.md` and `README.md` are ADR 0004's
 own examples; **`PREREG-REVIEW.md` is round-3 finding R3-1** and is the same
 shape of file — it grows by one disposition table per review round, so covering
 it made every round's own dispositions stale the committed manifest. It did that
@@ -19,7 +19,14 @@ remembered every round is not a safeguard. So it leaves the covered set by named
 constant, like the other two, and `test_the_review_record_cannot_be_re_covered`
 below is what makes re-covering it fail the suite rather than pass quietly.
 
-The fourth exclusion — `harness/PINS.json` — is Study 014's linear-anchor rule,
+`harness/ADVISORIES.md` is the fourth, and it is round 9's ratified scope
+ruling made structural: `PREREGISTRATION.md` §4b registers a review-support
+apparatus whose findings are RECORDED rather than gated, and the register that
+records them grows by an entry per such finding for as long as that apparatus is
+maintained — after the freeze included. Covering it would make the first entry
+break the anchor, which is the failure the other three exist to prevent.
+
+The last exclusion — `harness/PINS.json` — is Study 014's linear-anchor rule,
 and it is asserted with the same idiom: the manifest must not cover the registry
 that pins the manifest, or the anchor cannot be initialized without a SHA-256
 fixed point.
@@ -33,7 +40,8 @@ import pytest
 import make_manifest
 
 # The files ADR 0004 calls appendable in this study, each of which exists today.
-APPENDABLE = ("DEVIATIONS.md", "README.md", "PREREG-REVIEW.md")
+APPENDABLE = ("DEVIATIONS.md", "README.md", "PREREG-REVIEW.md",
+              "harness/ADVISORIES.md")
 
 
 def test_the_adr_0004_exclusions_are_named_constants_carrying_their_reason():
@@ -79,6 +87,36 @@ def test_the_review_record_cannot_be_re_covered(study):
     # …and the exclusion is not a silent drop: `_excluded()` is the one place
     # that decides, so a path in the constant is out however it was reached.
     assert make_manifest._excluded("PREREG-REVIEW.md")
+
+
+def test_the_advisory_register_is_appendable_and_carries_what_it_records(study):
+    """ROUND-9, the RATIFIED SCOPE RULING, as the assertion that bites.
+
+    §4b registers a review-support apparatus whose findings are recorded rather
+    than gated. The register that records them is worth nothing if it can be
+    covered (the first advisory then breaks the anchor, exactly as the review
+    record did three rounds running) or silently emptied — so both directions are
+    asserted here: it is excluded by named constant, it is not in the covered
+    set, and it still carries every advisory round 9 put in it, each with the
+    file cite that makes it findable."""
+    assert "harness/ADVISORIES.md" in make_manifest.EXCLUDED_DOCUMENTS
+    assert "harness/ADVISORIES.md" not in make_manifest.REGISTERED_DOCUMENTS
+    assert "harness/ADVISORIES.md" not in make_manifest.manifest_entries()
+    assert make_manifest._excluded("harness/ADVISORIES.md")
+    path = pathlib.Path(study) / "harness" / "ADVISORIES.md"
+    text = path.read_text(encoding="utf-8")
+    for advisory in ("R9-3", "R9-5", "R9-6", "R9-7"):
+        assert advisory in text, (
+            "the advisory register must still carry %s: an entry that is "
+            "recorded and then deleted was never recorded" % advisory)
+    # a recorded advisory is not a downgraded one — the severity the reviewer
+    # returned travels with it, and so does §4b, which is what makes the
+    # recording a registered decision rather than a preference
+    assert text.count("MAJOR") >= 3 and "MINOR" in text
+    assert "§4b" in text
+    # and it says which surface it may concern, so an advisory against the
+    # REGISTERED surface cannot be filed here instead of being answered
+    assert "review-support" in text
 
 
 def test_the_registry_is_not_covered_by_the_manifest_it_pins():
@@ -718,6 +756,116 @@ def test_the_freeze_runs_the_canonical_grid_assertion(tmp_path, monkeypatch):
     grid.write_text(original, encoding="utf-8")
     assert make_manifest.grid_assertion_problems(root) == []
     assert make_manifest.main(["--freeze"]) == 0
+
+
+# --- ROUND-9 FINDING R9-2: the prior attempt root refuses at the FREEZE ------
+
+def test_the_attempt_root_this_gate_names_is_the_registered_one():
+    """Not a second spelling of a registered name. `harness/batch.py` owns the
+    absolute constant and `harness/score.py` takes it as `--attempt-root`; a
+    gate that guarded a path only IT believed in would pass while the real root
+    sat beside it."""
+    import batch
+    relative = os.path.relpath(batch.ATTEMPT_ROOT, batch.STUDY)
+    assert relative.replace(os.sep, "/") == make_manifest.PRIMARY_ATTEMPT_ROOT
+
+
+def test_a_prior_attempt_root_refuses_the_freeze(tmp_path, monkeypatch):
+    """R9-2. `PREREGISTRATION.md` ("The freeze and the primary attempt") states
+    the condition as one of the freeze's own: at the freeze
+    `results/primary-attempt-001` must not exist. Enforcement lived in the
+    SCORER, which refuses at attempt time — after the anchor — so a tree
+    carrying a completed prior attempt was freezable and the sentence bound
+    nothing at the moment it names.
+
+    Four ways the root is present, and the last two are the ones a plain
+    `isdir()` on the working tree calls absent: a real directory, a DANGLING
+    symlink (a name that exists while `exists()` says no), an attempt root under
+    a second name, and a root that is gone from disk and still in the INDEX —
+    which is the state the freeze anchors, since the freeze anchors a commit."""
+    import shutil
+    root = _scratch_study(tmp_path / "study")
+    _fill_payloads(root)
+    monkeypatch.setattr(make_manifest, "STUDY", root)
+    monkeypatch.setattr(make_manifest, "MANIFEST_PATH",
+                        root / "harness" / "STUDY-MANIFEST.sha256")
+    manifest = root / "harness" / "STUDY-MANIFEST.sha256"
+    attempt = root / make_manifest.PRIMARY_ATTEMPT_ROOT
+
+    # The tree without an attempt root freezes, so every refusal below is the
+    # registered condition and nothing else. The manifest is written here rather
+    # than at the end because `--check` reports "study manifest is absent" and
+    # stops before it reaches any gate — so the assertion that the gate reaches
+    # `--check` needs a tree that has been frozen once.
+    assert make_manifest.prior_attempt_problems(root) == []
+    assert make_manifest.main(["--freeze"]) == 0
+    anchored = manifest.read_bytes()
+
+    # 1. the state the finding describes: a completed attempt on disk
+    attempt.mkdir(parents=True)
+    (attempt / "RESULTS.json").write_text('{"decision": "R1"}', encoding="utf-8")
+    problems = make_manifest.prior_attempt_problems(root)
+    assert any(make_manifest.PRIMARY_ATTEMPT_ROOT in problem
+               for problem in problems), problems
+    assert make_manifest.main(["--freeze"]) == 1
+    assert manifest.read_bytes() == anchored, (
+        "a refused freeze must not rewrite the manifest")
+    assert make_manifest.main(["--freeze-gates"]) == 1
+    assert make_manifest.main(["--check"]) == 1
+    assert any(make_manifest.PRIMARY_ATTEMPT_ROOT in problem
+               for problem in make_manifest.manifest_problems()), (
+        "the gate must reach --check, not only --freeze")
+
+    # 2. a DANGLING symlink: `exists()` and `isdir()` both call this absent
+    shutil.rmtree(attempt)
+    attempt.symlink_to("attempt-that-moved")
+    assert attempt.is_symlink() and not attempt.exists()
+    assert make_manifest.prior_attempt_problems(root) != [], (
+        "a name that exists is a root that exists; lexists, not exists")
+    assert make_manifest.main(["--freeze"]) == 1
+    attempt.unlink()
+
+    # 3. an attempt root under a second name
+    second = root / make_manifest.RESULTS_DIR / "primary-attempt-002"
+    second.mkdir(parents=True)
+    problems = make_manifest.prior_attempt_problems(root)
+    assert any("primary-attempt-002" in problem for problem in problems), problems
+    assert make_manifest.main(["--freeze"]) == 1
+    shutil.rmtree(root / make_manifest.RESULTS_DIR)
+
+    # 4. gone from disk, still in the index — the freeze anchors a COMMIT
+    _git(root, "init", "-q")
+    attempt.mkdir(parents=True)
+    (attempt / "RESULTS.json").write_text("{}", encoding="utf-8")
+    _git(root, "add", "-A", "-f")
+    shutil.rmtree(root / make_manifest.RESULTS_DIR)
+    assert not (root / make_manifest.RESULTS_DIR).exists()
+    problems = make_manifest.prior_attempt_problems(root)
+    assert any("the index carries" in problem for problem in problems), problems
+    assert make_manifest.main(["--freeze"]) == 1
+    assert manifest.read_bytes() == anchored
+
+    # …and with the tree clean of it in both places, the freeze closes: the
+    # refusal is the registered condition and not obstruction.
+    _git(root, "rm", "-q", "-r", "--cached", make_manifest.RESULTS_DIR)
+    assert make_manifest.prior_attempt_problems(root) == []
+    assert make_manifest.main(["--freeze"]) == 0
+    assert manifest.exists()
+
+
+def test_the_freeze_fill_step_names_the_prior_attempt_condition(study):
+    """R9-2's procedural half, in the idiom the payload-set test uses: the
+    ceremony an operator reads must name the gate, or the runbook and the code
+    disagree about what the freeze checks. Skipped once the scaffold is deleted
+    at the freeze, which is its registered lifecycle."""
+    path = pathlib.Path(study) / "harness" / "SCAFFOLD.md"
+    if not path.is_file():
+        pytest.skip("SCAFFOLD.md is deleted in the first post-freeze commit")
+    text = " ".join(path.read_text(encoding="utf-8").split())
+    assert make_manifest.PRIMARY_ATTEMPT_ROOT in text, (
+        "the freeze-fill procedure must name the attempt root whose absence it "
+        "now checks")
+    assert "R9-2" in text
 
 
 # --- ROUND-5 FINDING R5-1: tracked bytecode is refused, from the INDEX -------

@@ -1,6 +1,6 @@
 # Preregistration — Study 019: authorship across representations
 
-**Status: DRAFT, ninth major revision (post-round-8). Not frozen. Nothing citable has
+**Status: DRAFT, tenth major revision (post-round-9). Not frozen. Nothing citable has
 run. The cross-vendor review rounds are recorded in [`PREREG-REVIEW.md`](PREREG-REVIEW.md),
 each verbatim under [`reviews/`](reviews/), and that record's round-state block is the
 single machine-readable source for round counts, verdicts and open state. The rendered
@@ -24,7 +24,7 @@ states nothing a test parses out of English: it carries a rendered sentence, the
 it is the record's block, and the truth of the surrounding prose rests on review.)**
 
 <!-- round-status:begin -->
-ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 9 review rounds are on the record, 8 have returned a verdict — rounds 1-3 and 5-8 returned DO NOT FREEZE; round 4 returned FREEZABLE AFTER LISTED FIXES — and round 9 is open, awaiting the reviewer's answer.
+ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 10 review rounds are on the record, 9 have returned a verdict — rounds 1-3 and 5-9 returned DO NOT FREEZE; round 4 returned FREEZABLE AFTER LISTED FIXES — and round 10 is open, awaiting the reviewer's answer.
 <!-- round-status:end -->
 
 
@@ -463,6 +463,74 @@ Resolved values below were verified empirically on 2026-08-14/15
   through the same kill machinery, published in its own section, and reaching no member the
   decision reads. No reviewer mutant is paired, enters a witness group, or moves a cut.
 
+## 4b. Threat model — which surface is gated, and which is recorded
+
+**Registered here because the review rounds proved it has to be.** This study is adjudicated
+by code and attested by documents, and after nine rounds of adversarial review
+(`PREREG-REVIEW.md`) the findings arrive against two different kinds of thing. Treating them
+as one kind is what produces both errors available: gating a weakness that no adversary can
+reach through the study's claims, and recording one that decides a published number. The
+boundary is therefore registered, before the freeze, rather than argued afterwards.
+
+**(a) The REGISTERED surface — reviewed adversarially, freeze-gated.** This preregistration;
+the frozen policy prose; the gold suite; both mutant corpora and their manifests; both
+reference implementations; the off-gold equivalence certificate; the three arm prompts; the
+sealed reviewer mutant set; and the harness's scoring, driver, integrity, pins and manifest
+chain — `harness/score.py` and `harness/e4lib/`, `harness/batch.py`, `harness/transcript_check.py`,
+`harness/integrity.py`, `harness/grid_gate.py`, `harness/PINS.json` and
+`harness/make_manifest.py`. These are the bytes that decide what is published and the
+documents that state what was promised. A finding against any of them is answered — with a
+mechanism and a test that fails when the mechanism is removed — or the freeze does not
+happen. Nothing in this section narrows that, and no finding against this surface may be
+filed as an advisory.
+
+**(b) The REVIEW-SUPPORT APPARATUS — registered purpose: drift detection under an honest
+operator.** The currency suite (`harness/tests/test_prereg_currency.py`), the render
+machinery that keeps the three front-door status sentences in step with the round-state
+block (`harness/render_round_status.py`), and the ceremony's own procedural documents
+(`harness/SCAFFOLD.md`, this record's round-state block as a lifecycle) exist to catch a
+document that has fallen out of step with the tree — a count edited in one place and not the
+other, a stale manifest, a status sentence left behind by a round. That is a real and
+repeatedly useful property: it caught the manifest going stale three rounds running, and it
+is why the round-state block is data rather than prose.
+
+What that apparatus is **not**, and cannot be made into by hardening, is a root of trust
+against a maintainer attacking their own record. The study already says this about the strongest
+component in the chain, in the round-2 disposition's own words (R2-8, and §7 carries the same
+sentence): integrity is **"a gate against drift, not a root of trust"**, because the scorer
+and the integrity module are read and executed before either can check anything. Every check
+in the review-support layer is weaker than that one: it is code the maintainer runs, over
+documents the maintainer writes, checking properties the maintainer registered, in a
+repository the maintainer controls. An operator willing to edit the review record in order to
+defeat the test that reads the review record can also edit the test — and the empirical
+record across these nine rounds is the evidence that hardening this layer does not converge.
+R7-2…R7-4 and R7-7, then R8-4…R8-7, then R9-3, R9-5, R9-6 and R9-7 are successive findings
+against the same few hundred lines, most of them constructions that satisfy a check while
+defeating the property the check stands for; each was answered, and each answer was followed
+by another. The registered
+surface is where a finding must be closed rather than bounded, whatever it costs and however
+many rounds it takes: R9-2 and R9-4 are this round's findings against it, and both are fixed,
+mechanism and mutation-checked test, rather than recorded. The lesson
+taken is not that the support layer is worthless but that its worth is bounded, and the bound
+is stated here rather than discovered by a reader later.
+
+**Consequence, registered.** A finding whose only reachable exploit requires the maintainer to
+edit the record they are attesting is RECORDED as an open advisory in `harness/ADVISORIES.md`
+— with its severity as the reviewer returned it, its file cites, and the reviewer's proposed
+fix, unadopted and named as such — and is not a freeze gate. Recording is not dismissal: the
+register is appendable, excluded from the exact-set manifest by named constant with an
+asserting test (ADR 0004's rule, `make_manifest.EXCLUDED_DOCUMENTS`), and published with the
+study, so the whole list is in front of anyone judging the result. And no file that is
+covered today leaves the covered set for this: the currency suite and the render machinery
+stay covered
+exactly as before, because coverage answers "may these bytes move after the freeze" while
+this section answers "what must a finding against them do". A covered file is not thereby a
+root of trust. What the study rests on is
+stated in §7 and §8 and is unchanged by this section: the published numbers come from the
+scorer over pinned bytes, the freeze anchors the covered set, and integrity rests on ledger
+discipline and re-runnability — not on the currency suite's ability to out-argue its own
+author.
+
 ## 5. Endpoints and decision rule
 
 Scored surface: **kind + outcomeId + reasons (as sorted sets)** under the registered
@@ -604,6 +672,18 @@ the registered input domain with its symmetric per-arm case enumeration, the E4 
 (`design/mutants/e4_score.py` lineage — deterministic, byte-identical reruns), the ordered
 decision table, and the sealed reviewer set's loader/executor.
 
+**The same sentence governs the whole review-support layer, and §4b registers the boundary.**
+What is written just below about `integrity` — a gate against drift, not a root of trust —
+is true a fortiori of the currency suite, the round-status render machinery and the ceremony
+documents, which are weaker checks over the same maintainer's own record. §4b registers which
+surface is which: findings against the registered surface (this document, the artifacts, the
+scoring/driver/integrity/pins/manifest chain) are answered with a mechanism and a test or the
+freeze does not happen; findings whose only reachable exploit needs the maintainer to edit the
+record they are attesting are recorded as open advisories in `harness/ADVISORIES.md`, with
+their severities and cites, and are not freeze gates. The advisory register is appendable and
+excluded from the exact-set manifest by named constant with an asserting test, exactly as
+`DEVIATIONS.md` and `PREREG-REVIEW.md` are.
+
 **Integrity is a gate against drift, not a root of trust, and the bootstrap is stated
 rather than glossed** (round-3 finding R3-7). The honest property, and the one under test,
 is this: `integrity` is **the only study-local module the scorer imports at module scope**,
@@ -622,8 +702,9 @@ both reference implementations, every mutant payload with a per-file hash, the o
 certificate and the sealed reviewer set — and the port chain, the interpreter check, the
 untracked-source and unreviewed-bytecode scan and the manifest verification all run and are
 fatal before any of those modules is bound. The manifest is scoped per ADR 0004:
-`DEVIATIONS.md`, `README.md` and — since round-3 finding R3-1 — **`PREREG-REVIEW.md`** are
-excluded by named constant (`make_manifest.EXCLUDED_DOCUMENTS`, a mapping of path to
+`DEVIATIONS.md`, `README.md`, — since round-3 finding R3-1 — **`PREREG-REVIEW.md`**, and —
+since round 9's scope ruling — **`harness/ADVISORIES.md`** are excluded by named constant
+(`make_manifest.EXCLUDED_DOCUMENTS`, a mapping of path to
 reason), each with an asserting test; the appendable-files rule is honored from day one and
 now honored for the file that most obviously needed it. Pins registry: linear anchor order,
 REGISTERED-vs-PILOT label rule over the **whole freeze set** — the freeze pins include the

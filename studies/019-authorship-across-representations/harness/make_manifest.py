@@ -15,7 +15,7 @@ can be edited after the freeze is not a guard.
 `harness/score.py` will verify this file before it adjudicates anything, and a
 harness test verifies it too.
 
-**Four exclusions, each by construction and each asserted by a harness test.**
+**Five exclusions, each by construction and each asserted by a harness test.**
 Every one carries its REASON in `EXCLUDED_DOCUMENTS` itself, so a future reader
 deciding whether to re-cover a path reads why it is out rather than guessing.
 
@@ -42,7 +42,16 @@ deciding whether to re-cover a path reads why it is out rather than guessing.
    the covered set by named constant. Nothing is lost — `PREREG-REVIEW.md`
    carries no claim any published number rests on, and the artifacts that do are
    still covered file by file.
-3. `harness/PINS.json` — Study 014's round-3 lesson, carried unchanged. The
+3. `harness/ADVISORIES.md` — **ADR 0004 again, and the RATIFIED SCOPE RULING of
+   round 9.** The advisory register is the same shape of file as the two above:
+   it grows by one entry whenever a review finding lands on the review-support
+   apparatus (§4b) and is RECORDED rather than gated, and it is appended to for
+   as long as that apparatus is maintained — including after the freeze, which
+   is exactly when a recorded-not-gated finding is most likely to be revisited.
+   Covering it would make the first such entry break the anchor. Nothing is lost:
+   an advisory carries no claim any published number rests on, and §4b registers
+   which surface it may and may not concern.
+4. `harness/PINS.json` — Study 014's round-3 lesson, carried unchanged. The
    manifest must not cover the registry that pins the manifest: that is a cycle
    which cannot be initialized without finding a SHA-256 fixed point. The
    anchor order is LINEAR:
@@ -110,6 +119,20 @@ at freeze, and no step ran either. `harness/grid_gate.py` is that assertion and
 
 Both are reachable on their own as `--freeze-gates`, so the ceremony's step F5c
 is a command rather than a memory.
+
+**ROUND-9 FINDING R9-2: the preregistration's own freeze condition was checked
+only AFTER the freeze.** "At the freeze, every pin in `harness/PINS.json` is
+filled; `results/primary-attempt-001` must not exist, and the scorer refuses if
+it does" (`PREREGISTRATION.md`, "The freeze and the primary attempt") — and the
+scorer's refusal comes at ATTEMPT time, which is after the anchor. A tree
+carrying a prior attempt root could therefore be frozen, and the condition the
+freeze registers would be enforced by nothing at the moment it names.
+`prior_attempt_problems()` is that condition, at that moment: the registered
+root is looked up with `lexists` (a dangling symlink is a name that exists), any
+OTHER entry under `results/` is an attempt root under another name, and the
+INDEX is read as well as the disk, because a working tree can be clean of a
+directory HEAD still carries. It joins `freeze_gate_problems()`, so `--check`
+reports it, `--freeze-gates` runs it and `--freeze` refuses on it.
 
 Run: <the pinned interpreter> harness/make_manifest.py
                                       [--check | --freeze | --freeze-gates]
@@ -207,11 +230,27 @@ EXCLUDED_DOCUMENTS = {
         "made every round's dispositions stale the committed manifest — three "
         "rounds running. The registered claims live in PREREGISTRATION.md and "
         "the artifacts, all of which stay covered.",
+    "harness/ADVISORIES.md":
+        "ADR 0004, round-9 ratified scope ruling: appendable by design. The "
+        "advisory register grows by one entry per recorded-not-gated finding "
+        "against the review-support apparatus (PREREGISTRATION.md §4b), for as "
+        "long as that apparatus is maintained; covering it means the first "
+        "advisory breaks the anchor, exactly as PREREG-REVIEW.md did three "
+        "rounds running. No advisory carries a claim a published number rests "
+        "on.",
     "harness/PINS.json":
         "Study 014's round-3 linear-anchor rule: the manifest must not cover "
         "the registry that pins the manifest, or the anchor cannot be "
         "initialized without finding a SHA-256 fixed point.",
 }
+
+# ROUND-9 FINDING R9-2. The preregistration's freeze condition, as a path this
+# module can look up. `harness/batch.py` owns the absolute constant
+# (`batch.ATTEMPT_ROOT`) and the scorer takes it as `--attempt-root`; this is the
+# same path study-relative, and `tests/test_manifest.py` asserts the two agree
+# rather than trusting a second spelling of one registered name.
+RESULTS_DIR = "results"
+PRIMARY_ATTEMPT_ROOT = RESULTS_DIR + "/primary-attempt-001"
 
 # Files this module and its neighbours WRITE, which therefore cannot be covered:
 # the manifest cannot contain its own digest, and a scratch temporary is not a
@@ -537,12 +576,69 @@ def grid_assertion_problems(study=None):
             for problem in grid_gate.grid_problems(str(root))]
 
 
+def prior_attempt_problems(study=None):
+    """ROUND-9 FINDING R9-2. The freeze condition the preregistration states and
+    only the SCORER enforced.
+
+    `PREREGISTRATION.md` ("The freeze and the primary attempt"): at the freeze
+    `results/primary-attempt-001` must not exist. The scorer refuses an existing
+    attempt root at ATTEMPT time — after the anchor — so a tree carrying a prior
+    attempt was freezable, and the sentence was enforced by nothing at the moment
+    it names.
+
+    Three ways a prior attempt is present, and each of them refuses:
+
+    * the registered root exists as a NAME — `lexists`, not `isdir`, because a
+      dangling symlink named `results/primary-attempt-001` is a root that exists
+      and that `isdir`/`exists` both call absent;
+    * some OTHER entry sits under `results/` — an attempt root under a second
+      name is the same fact, and the freeze may not anchor a tree in which a rate
+      may already have been computed;
+    * the INDEX carries a descendant of `results/` — read exactly as
+      `tracked_bytecode()` reads it (R5-1's lesson), because a working tree can
+      be clean of a directory HEAD still carries, and the freeze anchors a
+      COMMIT.
+    """
+    root = Path(study) if study is not None else STUDY
+    problems = []
+    registered = root / PRIMARY_ATTEMPT_ROOT
+    if registered.is_symlink() or registered.exists():
+        problems.append(
+            "%s exists and the preregistration registers its ABSENCE at the "
+            "freeze: the primary attempt is the first invocation from the "
+            "freeze commit, and a root that is already there means a rate may "
+            "already have been computed" % PRIMARY_ATTEMPT_ROOT)
+    here = root / RESULTS_DIR
+    if here.is_dir():
+        for entry in sorted(here.iterdir(), key=lambda path: path.name):
+            relative = "%s/%s" % (RESULTS_DIR, entry.name)
+            if relative == PRIMARY_ATTEMPT_ROOT:
+                continue                 # already named above
+            problems.append(
+                "%s exists: an attempt root under a second name is the same "
+                "fact the freeze forbids, and `results/` holds attempt roots "
+                "and nothing else" % relative)
+    tracked = tracked_paths(study)
+    if tracked:
+        indexed = sorted(name for name in tracked
+                         if name.split("/")[0] == RESULTS_DIR)
+        if indexed:
+            problems.append(
+                "the index carries %d path(s) under %s/ (%s): the freeze "
+                "anchors a commit, and a working tree clean of an attempt root "
+                "the index still has is not a tree without one"
+                % (len(indexed), RESULTS_DIR, ", ".join(indexed[:3])))
+    return problems
+
+
 def freeze_gate_problems(study=None):
     """The registered validators that are not filename comparisons, in one
-    list: the sealed set's loader (R8-2) and the canonical grid's freeze-time
-    assertion (R8-8). `--check` reports them, `--freeze` refuses on them, and
-    `--freeze-gates` runs exactly these."""
-    return reviewer_load_problems(study) + grid_assertion_problems(study)
+    list: the sealed set's loader (R8-2), the canonical grid's freeze-time
+    assertion (R8-8) and the absence of a prior attempt root (R9-2). `--check`
+    reports them, `--freeze` refuses on them, and `--freeze-gates` runs exactly
+    these."""
+    return (reviewer_load_problems(study) + grid_assertion_problems(study)
+            + prior_attempt_problems(study))
 
 
 def payload_closure_problems(study=None):
@@ -732,10 +828,12 @@ def manifest_problems():
     # not close against the manifest naming it. Reported here so `--check` says
     # it, and refused below so `--freeze` cannot anchor it.
     problems.extend(payload_closure_problems())
-    # ROUND-8 FINDINGS R8-2 AND R8-8. Neither is a digest mismatch either: a
-    # sealed set that its own loader refuses, and a canonical grid that fails
-    # the assertion two design documents register for the freeze. `--check`
-    # says both, and `--freeze` refuses on both.
+    # ROUND-8 FINDINGS R8-2 AND R8-8, AND ROUND-9 FINDING R9-2. None of the
+    # three is a digest mismatch either: a sealed set that its own loader
+    # refuses, a canonical grid that fails the assertion two design documents
+    # register for the freeze, and a prior attempt root the preregistration
+    # registers as absent at this moment. `--check` says all three, and
+    # `--freeze` refuses on all three.
     problems.extend(freeze_gate_problems())
     return problems
 
@@ -748,8 +846,9 @@ def main(argv=None):
                              "document is still pending")
     parser.add_argument("--freeze-gates", dest="gates", action="store_true",
                         help="run the registered freeze-time validators alone: "
-                             "the sealed reviewer set's loader (R8-2) and the "
-                             "canonical grid's assertion (R8-8)")
+                             "the sealed reviewer set's loader (R8-2), the "
+                             "canonical grid's assertion (R8-8) and the "
+                             "absence of a prior attempt root (R9-2)")
     arguments = parser.parse_args(argv)
     pending = pending_documents()
     bytecode = tracked_bytecode()
@@ -762,8 +861,9 @@ def main(argv=None):
         for problem in gates:
             print("refused: " + problem)
         if not gates:
-            print("freeze gates hold: the sealed reviewer set loads and the "
-                  "canonical grid assertion holds")
+            print("freeze gates hold: the sealed reviewer set loads, the "
+                  "canonical grid assertion holds, and no prior attempt root "
+                  "exists")
         if not (arguments.check or arguments.freeze):
             return 1 if gates else 0
         if gates:
@@ -800,10 +900,13 @@ def main(argv=None):
             for problem in closure:
                 print("refused: " + problem)
             return 1
-        # ROUND-8 FINDINGS R8-2 AND R8-8: and the two registered VALIDATORS,
-        # which closure is not. A set whose loader refuses it and a grid that
-        # fails the assertion registered for this moment are both anchorable
-        # without this call, which is exactly what the reviewer constructed.
+        # ROUND-8 FINDINGS R8-2 AND R8-8 AND ROUND-9 FINDING R9-2: and the
+        # registered VALIDATORS, which closure is not. A set whose loader
+        # refuses it, a grid that fails the assertion registered for this
+        # moment, and a tree carrying a prior attempt root are all three
+        # anchorable without this call — the first is exactly what the round-8
+        # reviewer constructed, and the third is a condition the preregistration
+        # states about the freeze and the scorer checked one step too late.
         gates = freeze_gate_problems()
         if gates:
             for problem in gates:

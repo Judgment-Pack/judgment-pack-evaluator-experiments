@@ -1383,6 +1383,11 @@ def _review_finding_ids(number, reviews=None):
 # block records. Nothing here reads a sentence for its meaning.
 _VERDICT_OF_LINE = {line.casefold(): token for token, line
                     in render_round_status.VERDICT_LINES.items()}
+# R9-1: the freeze-authorizing reading is exact — the line as the reviewer
+# wrote it, byte for byte. The case-folded map above survives only for the
+# diagnostic message that names a near-miss as a near-miss.
+_VERDICT_OF_LINE_EXACT = {line: token for token, line
+                          in render_round_status.VERDICT_LINES.items()}
 
 
 def _review_verdict(number, reviews=None):
@@ -1395,10 +1400,16 @@ def _review_verdict(number, reviews=None):
         return None, None
     with open(path, "rb") as handle:
         text = handle.read().decode("utf-8")
-    lines = [line.strip() for line in text.split("\n") if line.strip()]
+    lines = [line for line in (raw.rstrip("\r") for raw in text.split("\n"))
+             if line.strip()]
     if not lines:
         return None, ""
-    return _VERDICT_OF_LINE.get(lines[-1].casefold()), lines[-1]
+    # ROUND-9 FINDING R9-1: RFC 0009 requires the final line to be EXACTLY the
+    # verdict — the freeze-authorizing token is a registered freeze condition,
+    # so the reading is byte-exact on the line (no case folding, no
+    # indentation forgiveness). A review whose final line is "Freezable As
+    # Written" or "  freezable as written" has not returned the exact words.
+    return _VERDICT_OF_LINE_EXACT.get(lines[-1]), lines[-1]
 
 
 def _tree_states(record_text=None, reviews=None):
@@ -3618,3 +3629,24 @@ def test_the_gold_row_count_in_the_pins_note_is_the_committed_suites():
     assert "at the current revision" not in census_source, (
         "census.py quotes §5's registered stimulus; the quotation must elide the row "
         "count rather than restate it, or it goes stale with the suite")
+
+
+def test_a_near_miss_verdict_line_does_not_authorize(tmp_path):
+    """ROUND-9 FINDING R9-1: RFC 0009 requires the final line to be EXACTLY
+    the verdict. A case-folded or indented rendition is a near-miss, not an
+    authorization — the freeze token is a registered freeze condition and its
+    reading is byte-exact."""
+    reviews = tmp_path / "reviews"
+    (reviews / "round-1").mkdir(parents=True)
+    (reviews / "round-1" / "PROMPT.md").write_text("p\n")
+    exact = render_round_status.VERDICT_LINES[render_round_status.FREEZABLE]
+    for near_miss in (exact.upper(), exact.title(), "  " + exact,
+                      exact.replace(" ", "  ")):
+        (reviews / "round-1" / "REVIEW.md").write_text(
+            "R1-1 finding\n%s\n" % near_miss)
+        token, line = _review_verdict(1, str(reviews))
+        assert token is None, (near_miss, token)
+        assert line.strip() == near_miss.strip()
+    (reviews / "round-1" / "REVIEW.md").write_text("R1-1 finding\n%s\n" % exact)
+    token, _line = _review_verdict(1, str(reviews))
+    assert token == render_round_status.FREEZABLE

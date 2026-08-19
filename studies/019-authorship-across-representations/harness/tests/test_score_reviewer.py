@@ -212,6 +212,111 @@ def test_two_members_of_one_name_refuse(tmp_path):
     assert "appears twice" in str(raised.value)
 
 
+# --- ROUND-9 FINDING R9-4: the registered id, not only the agreeing pair -----
+
+# Every one of these is a `file` that equals `id + <the registered extension for
+# the declared language>`, which is the whole of what the loader used to check.
+# The first is the reviewer's own construction, run at the size it was run at
+# (all six records renamed) in the test below; the rest are the shape's edges.
+NON_CONFORMING_IDS = [
+    "not-authored-01",          # the construction: nothing about it is `rm-…`
+    "rm-jps-1",                 # NN is TWO digits
+    "rm-jps-001",               # …and exactly two
+    "RM-JPS-01",                # the registered id is lower case
+    "rm-jps-0a",                # NN is digits
+    "rm-jps-01 ",               # a trailing space is a different filename
+    "rm-jps-01\n",              # `$` matches before a trailing newline; `\Z` does not
+    " rm-jps-01",
+    "rm-json-01",               # a language segment that is not a language
+    "rm-jps-01-extra",
+]
+
+
+@pytest.mark.parametrize("identity", NON_CONFORMING_IDS)
+def test_an_id_outside_the_registered_pattern_refuses(tmp_path, identity):
+    """R9-4. `reviews/round-2/PROMPT.md` registers the sealed set's filenames as
+    `rm-<language>-NN.<ext>`; the loader required only `file == id + extension`
+    and validated the id against nothing, so any pair of agreeing strings was a
+    member. Each id here agrees with its own filename and is not the registered
+    shape, and each must refuse — including the two that a `^…$` pattern admits
+    and a `\\A…\\Z` one does not."""
+    extension = reviewer.EXTENSION_OF_LANGUAGE["jps"]
+    body = '{"specVersion": "0.2.0-draft"}\n'
+    mutants = [(identity, "jps", identity + extension, body)] \
+        + DEFAULT_MUTANTS[1:]
+    sealed = sealed_tree(tmp_path / "reviewer-mutants", mutants=mutants)
+    with pytest.raises(reviewer.ReviewerSetError) as raised:
+        reviewer.load(str(sealed))
+    assert str(raised.value).startswith("REVIEWER-SET-SCHEMA")
+    assert "rm-<language>-NN" in str(raised.value)
+
+
+def test_the_authored_ids_load_so_the_pattern_is_strictness_not_obstruction(
+        tmp_path):
+    """The other direction, without which the parametrization above proves only
+    that something refuses: the conforming set — both languages, `NN` from `01`
+    to `10`, which is the registered cardinality's ceiling — loads."""
+    conforming = [("rm-jps-%02d" % index, "jps", "rm-jps-%02d.json" % index,
+                   '{"specVersion": "0.2.%d-draft"}\n' % index)
+                  for index in (1, 7, 10)] \
+        + [("rm-rego-%02d" % index, "rego", "rm-rego-%02d.rego" % index,
+            "package study\n# %d\n" % index) for index in (2, 9, 10)]
+    sealed = sealed_tree(tmp_path / "reviewer-mutants", mutants=conforming)
+    assert reviewer.load(str(sealed))["count"] == 6
+
+
+def test_the_whole_set_renamed_still_refuses(tmp_path):
+    """The construction as the reviewer ran it: ALL SIX records renamed to
+    `not-authored-*`, with every payload hash recomputed over its real bytes and
+    the manifest internally consistent. It passed closure, `--freeze-gates`,
+    `--freeze` and `--check`, because nothing anywhere held the authored names."""
+    renamed = [("not-authored-%s" % identity.split("-", 1)[1], language,
+                "not-authored-%s%s" % (identity.split("-", 1)[1],
+                                       filename[filename.rindex("."):]), body)
+               for identity, language, filename, body in DEFAULT_MUTANTS]
+    sealed = sealed_tree(tmp_path / "reviewer-mutants", mutants=renamed)
+    with pytest.raises(reviewer.ReviewerSetError) as raised:
+        reviewer.load(str(sealed))
+    assert str(raised.value).startswith("REVIEWER-SET-SCHEMA")
+
+
+def test_the_ids_language_segment_is_bound_to_the_records_language(tmp_path):
+    """A conforming SHAPE that misnames the thing it seals: `rm-rego-04`
+    declared `jps`, with the `.json` extension its declared language registers,
+    so `file == id + extension` holds exactly. The id's language segment and the
+    record's `language` are one fact."""
+    body = '{"specVersion": "0.2.0-draft"}\n'
+    mutants = [("rm-rego-04", "jps", "rm-rego-04.json", body)] \
+        + DEFAULT_MUTANTS[1:]
+    sealed = sealed_tree(tmp_path / "reviewer-mutants", mutants=mutants)
+    with pytest.raises(reviewer.ReviewerSetError) as raised:
+        reviewer.load(str(sealed))
+    assert "one fact and not two" in str(raised.value)
+
+
+@pytest.mark.parametrize("injection,where", [
+    ('"reviewerSetVersion": 1, "reviewerSetVersion": 2', "the top level"),
+    ('"id": "rm-jps-01", "id": "rm-jps-02"', "one record"),
+])
+def test_a_duplicate_member_in_the_sealed_manifest_refuses(tmp_path, injection,
+                                                           where):
+    """R9-4's second half. The sealed manifest was read with the ordinary
+    decoder, which resolves a repeated member last-one-wins and says nothing, so
+    a manifest a human reads one way and the loader reads another loaded clean.
+    The house hook (`transcript_check`, `score`, `integrity`, `grid_gate`,
+    `render_round_status`) runs at every depth, which is why the nested case
+    refuses too."""
+    sealed = sealed_tree(tmp_path / "reviewer-mutants")
+    manifest = sealed / reviewer.MANIFEST_NAME
+    text = manifest.read_text()
+    original, _, replacement = injection.partition(", ")
+    assert original in text, (text[:120], where)
+    manifest.write_text(text.replace(original, injection, 1))
+    with pytest.raises(reviewer.ReviewerSetError) as raised:
+        reviewer.load(str(sealed))
+    assert "duplicate-free" in str(raised.value), where
+
+
 def test_an_absent_set_refuses_rather_than_scoring_zero_reviewer_mutants(
         tmp_path):
     with pytest.raises(reviewer.ReviewerSetError) as raised:

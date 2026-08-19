@@ -698,6 +698,29 @@ Each step fills exactly one link, and every link is checkable before the next.
    `--freeze` refuses on either, so this step is checkable rather than
    remembered; running it alone first is how an operator sees which of the two
    is not ready.
+5d. **Confirm no prior attempt root exists** — round-9 finding **R9-2**, and it
+   is the same shape of gap as 5b and 5c: a condition the preregistration states
+   about the FREEZE, enforced only after it. `PREREGISTRATION.md` ("The freeze
+   and the primary attempt") registers that at the freeze every pin is filled
+   and **`results/primary-attempt-001` must not exist**; the only code that
+   checked it was `harness/score.py`, which refuses at ATTEMPT time — one step
+   after the anchor the condition exists to protect. A tree carrying a completed
+   prior attempt was therefore freezable, and the freeze commit would have
+   anchored it.
+
+   `make_manifest.prior_attempt_problems()` is that condition at that moment,
+   and it runs inside `--freeze-gates` with the other two, so this step is the
+   same command as 5c:
+
+       <the pinned interpreter> harness/make_manifest.py --freeze-gates
+
+   It refuses on four states, the last two of which a working-tree `isdir()`
+   calls clean: the registered root present; a DANGLING symlink of that name
+   (`lexists`, because a name that exists is a root that exists); any other
+   entry under `results/`, which holds attempt roots and nothing else; and any
+   path under `results/` in the **index**, because the freeze anchors a commit
+   and a working tree can be clean of a directory HEAD still carries.
+   `harness/tests/test_manifest.py` seeds all four.
 6. **Regenerate `harness/PORTS.md`'s destination digests** for every file the
    remaining ports touched, then re-pin `ownPorts.sha256`. `PORTS.md` before
    `PINS.json`, always: the registry pins the ports table and never the reverse.

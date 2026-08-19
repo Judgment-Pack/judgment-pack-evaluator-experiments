@@ -117,7 +117,7 @@
  },
  "ownPorts": {
   "path": "harness/PORTS.md",
-  "sha256": "sha256:3955a2ca18845fc706d7b50d836d6ea7b73729ca362f983396a608fe31dc5c37"
+  "sha256": "sha256:3a8af01224208dec91a8df6bd5541496b7ed9f7f2c1b9d292729f59b2ce8df18"
  },
  "pinnedFrom": {
   "alsoTakenFrom": {

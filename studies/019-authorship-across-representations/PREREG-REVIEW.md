@@ -138,6 +138,20 @@ mechanical.
   },
   {
    "number": 9,
+   "state": "complete",
+   "verdict": "DO NOT FREEZE",
+   "severities": {
+    "BLOCKER": 2,
+    "MAJOR": 4,
+    "MINOR": 1
+   },
+   "findings": {
+    "first": 1,
+    "last": 7
+   }
+  },
+  {
+   "number": 10,
    "state": "awaiting-review",
    "verdict": null,
    "severities": null,
@@ -696,3 +710,44 @@ otherwise.)
 **Post-revision state.** Suite 757 → 780 (23 new tests, all green both ways); the freeze
 gate now exercises its own loaders and the grid gate; fifteen pending ceremony
 obligations, unchanged and enumerated.
+
+## Round 9 — 2026-08-19
+
+- Reviewer: codex-cli 0.145.0 / gpt-5.6-sol (OpenAI), reasoning effort ultra, read-only
+  sandbox, same invocation shape as all rounds. **First attempt produced no verdict**: the
+  reviewer's provider flagged the session for "possible cybersecurity risk" after 282,252
+  tokens — a false positive on the study's adversarial-testing vocabulary — and the run
+  exited without output. The retry, same committed prompt byte-for-byte, completed. Both
+  attempts are part of this round's history.
+- Verbatim record: [`reviews/round-9/PROMPT.md`](reviews/round-9/PROMPT.md),
+  [`reviews/round-9/REVIEW.md`](reviews/round-9/REVIEW.md).
+- Verdict: **DO NOT FREEZE** — 2 BLOCKER, 4 MAJOR, 1 MINOR (R9-1 … R9-7).
+- **The scope ruling (maintainer decision, user-ratified 2026-08-19, taken on this
+  round's evidence):** across rounds 5–9 the registered surface took no findings while
+  the review-support apparatus — a layer no predecessor study carried — absorbed nearly
+  all of them and grew with every response. The apparatus is now registered in §4b for
+  what it demonstrably is: drift detection under an honest operator, in this record's own
+  round-2 words "a gate against drift, not a root of trust." Registered-surface findings
+  keep full gate force; apparatus-hardening findings are recorded in
+  `harness/ADVISORIES.md` (appendable, manifest-excluded) and do not gate.
+
+### Dispositions
+
+(Written 2026-08-19 at round close. Suite of record 800/800 expected at the close commit,
+archive-verified; the response's own verification ran 799/799 both ways before the R9-1
+fix added its test.)
+
+| # | Sev | Disposition |
+|---|---|---|
+| R9-1 | BLOCKER | **Accepted — registered surface, outside the ruling.** The freeze-authorizing reading is byte-exact: the review's final line must be the verdict as registered, no case folding, no indentation forgiveness; near-miss renditions are named as near-misses and authorize nothing. Enforced by `test_a_near_miss_verdict_line_does_not_authorize`. |
+| R9-2 | BLOCKER | **Accepted — registered surface.** The freeze refuses while any attempt root exists: the registered root, any entry under `results/`, and any indexed path there, with dangling-symlink semantics; the constant is asserted equal to the driver's own root rather than being a second spelling. Mutation-checked both ways. |
+| R9-3 | MAJOR | **Recorded advisory under the §4b ruling** (`harness/ADVISORIES.md`): Python's numeric equality admits `1.0` where the block schema means `1`. |
+| R9-4 | MAJOR | **Accepted — registered surface (the sealed set's registration).** Ids bind to `rm-<language>-NN` exactly, anchored `\A…\Z` — the finding's own suggested `$`-anchored pattern is too wide in Python, verified by construction — with the language segment bound to the record and duplicate-key refusal on the sealed manifest. Fifteen tests including the reviewer's all-renamed construction. |
+| R9-5 | MAJOR | **Recorded advisory** — liveness-helper indentation edges. |
+| R9-6 | MAJOR | **Recorded advisory** — marker-span Markdown context. |
+| R9-7 | MINOR | **Recorded advisory** — render write-loop atomicity. |
+
+**Post-revision state.** The two-tier threat model is registered (§4b, §7); the advisory
+register exists and is excluded from the covered set by named constant with its asserting
+test; the freeze gate gains the prior-attempt refusal. Round 10 is asked for its verdict
+on the registered surface under the declared threat model.
