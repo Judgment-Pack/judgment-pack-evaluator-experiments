@@ -91,12 +91,23 @@ def test_the_catch_all_claims_no_registered_word():
         [family.id for family in capabilities.FAMILIES]
 
 
-def test_the_registry_names_where_the_file_lives_and_leaves_the_pin_null(pins):
-    """Committing the artifact does not fill the freeze pin. `capabilitiesPath`
-    is where it lives; `capabilitiesSha256` is what the FREEZE fills."""
+def test_the_registry_names_where_the_file_lives_and_the_pin_matches_it(pins):
+    """`capabilitiesPath` is where it lives; `capabilitiesSha256` is what the
+    FREEZE fills. Pre-ceremony this asserted the pin null — committing the
+    artifact did not fill it. The freeze-fill has run (SCAFFOLD §F5), so the pin
+    now has one honest state per phase: null before the ceremony reaches it, and
+    EXACTLY the committed file's digest after — a pin that disagrees with the
+    bytes it names is worse than a null one."""
+    import hashlib
+
     assert pins["opa"]["capabilitiesPath"] == capabilities.REGISTERED_RELPATH
-    assert pins["opa"]["capabilitiesSha256"] is None
-    assert os.path.isfile(capabilities.committed_path(STUDY))
+    path = capabilities.committed_path(STUDY)
+    assert os.path.isfile(path)
+    pin = pins["opa"]["capabilitiesSha256"]
+    if pin is not None:
+        with open(path, "rb") as fh:
+            actual = hashlib.sha256(fh.read()).hexdigest()
+        assert pin == "sha256:" + actual
 
 
 def test_the_registry_records_that_the_rules_over_deny(pins):

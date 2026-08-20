@@ -420,9 +420,20 @@ def test_the_terminal_record_names_every_problem_it_found(tmp_path):
     # nothing was scored.
     assert results["pipelineInvalid"] is True
     assert problems == sorted(problems)
-    assert (results["problem"].startswith("integrity: ")
-            or any("registered artifact is absent: gold/GOLD.json" in problem
-                   for problem in problems))
+    # The invariant is phase-independent: a terminal record REFUSES BY NAME.
+    # Pre-freeze the first refusal was integrity's or an absent frozen artifact;
+    # the freeze-fill landed those (SCAFFOLD §F2), so on this tree the named
+    # causes are the capabilities env seat and the batch that does not exist
+    # yet. What must never recur is the round-1 shape — a refusal whose record
+    # carries an empty problems list, "invalid" with nothing to act on.
+    if results["problem"].startswith("integrity: "):
+        pass                        # integrity refusals carry the cause inline
+    else:
+        assert problems, "a terminal record with no named problem is a mood"
+        recognised = ("integrity: ", "binary-digest-mismatch", "terminality: ",
+                      "registered artifact is absent", "registry: ")
+        for problem in problems:
+            assert problem.startswith(recognised), problem
 
 
 def test_no_published_byte_is_an_absolute_path(tmp_path):
@@ -1547,15 +1558,34 @@ def test_the_full_verification_runs_and_is_terminal_when_it_refuses(tmp_path,
     assert results["problem"].startswith("integrity: ")
 
 
-def test_a_scorer_input_outside_the_covered_set_is_a_pipeline_problem():
+def test_a_scorer_input_outside_the_covered_set_is_a_pipeline_problem(tmp_path, monkeypatch):
     """The other half of R1-9: an input the exact-set manifest does not name is
     an input nothing verified, and it is named rather than counted."""
     problems = score._registered_inputs_problems()
-    # Pre-freeze the frozen inputs do not exist yet, so what this asserts is
-    # that their ABSENCE is reported by name — the same predicate that reports
-    # an uncovered one once they do.
-    assert any("registered artifact is absent: gold/GOLD.json" in problem
-               for problem in problems)
-    assert any("controls/off-gold-equivalence.json" in problem
-               for problem in problems)
+    # Two-phase, one predicate. Pre-freeze the frozen inputs did not exist and
+    # this asserted their ABSENCE was reported by name; the freeze-fill has
+    # landed them (SCAFFOLD §F2), so the same predicate must now be SILENT about
+    # both — a problem named for a present, covered artifact would be the
+    # census miscounting. The refusal side keeps its own coverage: delete the
+    # gold from a copy of the tree and the problem comes back by name.
+    assert not any("gold/GOLD.json" in problem for problem in problems)
+    assert not any("controls/off-gold-equivalence.json" in problem
+                   for problem in problems)
     assert problems == sorted(problems)
+
+    # The refusal side, kept falsifiable: point the census at a copy of the
+    # tree with the gold deleted and the problem returns by name.
+    import shutil
+
+    clone = tmp_path / "study"
+    for member in ("harness", "gold", "controls", "mutants", "reference",
+                   "policy", "arms", "verification"):
+        source = os.path.join(score.STUDY, member)
+        if os.path.isdir(source):
+            shutil.copytree(source, str(clone / member))
+    os.unlink(str(clone / "gold" / "GOLD.json"))
+    monkeypatch.setattr(score, "STUDY", str(clone))
+    absent = score._registered_inputs_problems()
+    assert any("gold/GOLD.json" in problem for problem in absent)
+
+

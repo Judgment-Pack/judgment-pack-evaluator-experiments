@@ -14,12 +14,24 @@ import pytest
 import integrity
 
 
-def test_the_committed_registry_is_pre_freeze_and_labels_pilot(pins):
-    assert integrity.study_label(pins) == "PILOT"
-    # And it says WHICH pins are null, in registered order, so a PILOT label is
-    # actionable rather than a mood.
-    assert integrity.unfilled_pins(pins) == \
-        [name for name, _path in integrity.FREEZE_PINS]
+def test_the_committed_registry_labels_by_its_own_unfilled_pins(pins):
+    """PILOT while any freeze pin is null; the null list is the registered order's
+    suffix of what remains.
+
+    The pre-ceremony form of this test asserted ALL pins null. The freeze-fill is
+    running (SCAFFOLD §F): the artifact pins are filled from committed artifacts,
+    and what remains null is exactly the ceremony's tail — the manifest and
+    preregistration digests (F7/F8, filled after CORRECTION-TARGETS.md lands) and
+    the three operational pins (G1 capture, G2 assent). The label must stay PILOT
+    until the LAST of them fills, and the unfilled list must stay actionable — a
+    subset of the registered order, never an invention."""
+    unfilled = integrity.unfilled_pins(pins)
+    registered = [name for name, _path in integrity.FREEZE_PINS]
+    assert [n for n in registered if n in unfilled] == unfilled
+    if unfilled:
+        assert integrity.study_label(pins) == "PILOT"
+    else:
+        assert integrity.study_label(pins) == "REGISTERED"
 
 
 def _fill(pins):
@@ -118,7 +130,13 @@ def test_every_pin_r1_9_added_is_reachable_from_the_committed_registry(pins):
             assert isinstance(node, dict) and key in node, (name, key)
             node = node[key]
         assert paths[name][-1] in node, name
-        assert node[paths[name][-1]] is None, name
+        # Pre-ceremony this asserted null; during and after the freeze-fill the
+        # member holds its filled value. What must stay true forever is that the
+        # PATH resolves — a pin whose path vanished could never be read again —
+        # and that a still-null member is one the ceremony has not reached
+        # (integrity.unfilled_pins names it), not one it cannot reach.
+        if node[paths[name][-1]] is None:
+            assert name in integrity.unfilled_pins(pins), name
 
 
 def test_the_two_ceremony_pins_are_freeze_pins_and_are_named_as_exempt():
@@ -168,10 +186,20 @@ def test_the_resolved_toolchain_blocks_are_marked_and_carry_digests(pins):
     assert pins["jpack"]["binarySha256"].startswith("sha256:")
     assert pins["opa"]["assetSha256"].startswith("sha256:")
     assert pins["codex"]["binarySha256"].startswith("sha256:")
-    # …and the two that are NOT resolved yet are null rather than plausible.
-    assert pins["codex"]["model"] is None
-    assert pins["opa"]["capabilitiesSha256"] is None
-    assert pins["jpack"]["reproducibleBuildAttestation"] is None
+    # …and the three the ceremony fills are either still null (the ceremony has
+    # not reached them) or carry the SHAPE their member registers — never a
+    # placeholder that reads as filled. The model is a name, not a digest
+    # (Study 012's correction); the capabilities member is a digest; the
+    # attestation is a sentence recording a reproduction, and the word
+    # "reproduc" is what separates it from a build note.
+    model = pins["codex"]["model"]
+    assert model is None or (isinstance(model, str) and model and
+                             not model.startswith("sha256:"))
+    caps = pins["opa"]["capabilitiesSha256"]
+    assert caps is None or (caps.startswith("sha256:") and
+                            len(caps) == len("sha256:") + 64)
+    attestation = pins["jpack"]["reproducibleBuildAttestation"]
+    assert attestation is None or "reproduc" in attestation
 
 
 def test_the_anchor_order_is_linear_and_says_so(pins):

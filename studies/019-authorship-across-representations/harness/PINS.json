@@ -3,20 +3,20 @@
  "arms": {
   "A": {
    "path": "arms/A/PROMPT.txt",
-   "promptBytes": null,
-   "promptSha256": null,
+   "promptBytes": 84289,
+   "promptSha256": "sha256:9d8b4f41c6cbb1c2ff5216c7758ad8f25d274802b5f07b2f54ac14d19e85d83a",
    "representation": "Judgment Pack (specVersion 0.2.0-draft) + matrixVersion-2 test matrix"
   },
   "B": {
    "path": "arms/B/PROMPT.txt",
-   "promptBytes": null,
-   "promptSha256": null,
+   "promptBytes": 204333,
+   "promptSha256": "sha256:074c5b4a9837e887846f140bf45ca481956aea672d05e1ee49e7ed559f99b055",
    "representation": "Rego v1 policy + opa test file, informal contract"
   },
   "C": {
    "path": "arms/C/PROMPT.txt",
-   "promptBytes": null,
-   "promptSha256": null,
+   "promptBytes": 206686,
+   "promptSha256": "sha256:576a8e8e6c890f2cb28100621a53438c09de5e9970a480f7997ebf096203567c",
    "representation": "Rego v1 policy + opa test file, prescribed judgment convention"
   }
  },
@@ -58,7 +58,7 @@
  },
  "codex": {
   "binarySha256": "sha256:a2a05dafaa1acb002a45eaec0a462de5b13694fcfcd7bc43305f14781ce7be14",
-  "model": null,
+  "model": "gpt-5.6-sol",
   "note": "The binary digest is byte-identical to Study 012's pin, so continuity with the 011/012 baselines holds with no re-pin. The MODEL is null here and is named by explicit flag at batch time: a model name is not a digest (Study 012's correction). harness/authoring_call.sh REFUSES while it is null rather than passing the string None to -m.",
   "resolvedAtDesignTime": true,
   "version": "codex-cli 0.145.0"
@@ -70,8 +70,8 @@
  "goldSuite": {
   "note": "76 rows at design time; 117 at this revision - the round-1 arm-A reference repair added coverage of the former X1 region (76 -> 109) and the round-3 adequacy re-closure added eight prose-derived rows (109 -> 117). The pre-freeze adequacy gate may add more, and any added row re-runs the full agreement chain (both engines, the clean-room oracle). The count is recomputed from the committed suite by harness/tests/test_prereg_currency.py rather than read from this note.",
   "path": "gold/GOLD.json",
-  "rows": null,
-  "sha256": null
+  "rows": 117,
+  "sha256": "sha256:6a41174bc6765781d4eae6eec610994240173fcdf97d442c8aeef6ce63bb9cc3"
  },
  "golden": {
   "note": "Captured from at least two independent agreeing probes before the batch, for THIS study's environment. One recapture serves all three arms: the pre-prompt context precedes the prompt and does not depend on it.",
@@ -87,22 +87,23 @@
   "archiveSha256": "sha256:4046a101e3b638eee87f5d3f2f17b8337d2e4be35a34d45060789639b816d8dc",
   "binarySha256": "sha256:42f35f7900bea6dfce215631b50729ab22dd347289e1bde3412604fb043a22e9",
   "note": "Verified 2026-08-14 against the release checksums.txt (design/TOOLCHAIN-NOTES.md). The operator PATH binary is v0.10.0 and must never be invoked; the harness refuses on digest mismatch. Verdicts and error classes are read from the JSON payload only. The reproducible-build attestation (local build from the tag reproducing the published digest, the Study 013 pattern) is deferred to harness time and is null until then.",
-  "reproducibleBuildAttestation": null,
+  "reproducibleBuildAttestation": "a local build from the v0.17.0 tag (go1.26.5, CGO_ENABLED=0, -trimpath, goreleaser ldflags with CLIVersion=0.17.0) reproduced the pinned binary digest 42f35f79\u2026 byte-identically, 2026-08-19 \u2014 the Study 013 pattern",
   "resolvedAtDesignTime": true,
   "version": "0.17.0"
  },
  "mutantManifests": {
-  "jps": null,
+  "combinationRule": "sha256 over the concatenation of the two manifests' bytes, MANIFEST-jps.json then MANIFEST-rego.json \u2014 the order the pin source names them in",
+  "jps": "sha256:2a7a6ad2642544c445415ba083ba591e4b134a6a7a8ff1a575c7ff3ddbbbe4c1",
   "note": "One digest over the two committed manifests (145 JPS / 184 valid Rego at the design-time build; 183 JPS / 184 valid Rego at this revision, after the arm-A reference repair forced a corpus rebuild), each mutant with its witness set over gold. The live totals are recomputed from the manifests by harness/tests/test_prereg_currency.py. Null until the pre-freeze adequacy gate closes.",
   "path": "mutants/",
-  "rego": null,
-  "sha256": null
+  "rego": "sha256:bf3995defe7b779acd19006aa6befecd67d2b7a8661cdd8f4ad7a2f13c1db8c8",
+  "sha256": "sha256:eef21f2a4d7c9031bf444039bf99992ce814504735214cd8eb56bda199122cb9"
  },
  "note": "Pin registry, 011/012/014 convention. It is a pin, not an attestation - but every non-null member here is ENFORCED before anything is spent, not merely declared: harness/integrity.py verifies the port chain and the exact-set study manifest, harness/authoring_call.sh verifies the codex binary digest, the CLI version, the interpreter, the per-arm prompt digest and the registered timeout ceiling before any call, and the scorer (harness/score.py, assembled and under test since the round-1 response) verifies the rest before it adjudicates anything. EVERY freeze pin below is null: this study is pre-freeze, nothing citable has run, and registeredLabelRule makes that visible in every output rather than in a banner.",
  "offGoldCertificate": {
   "note": "The pre-freeze off-gold equivalence check: the two references' agreement re-established over the full derived input space. The REGISTERED EXCLUSION SET IS EMPTY - X1 was retired by round-1 finding R1-2 and the arm-A reference was repaired - so the check now requires ZERO divergence points anywhere in the 236,196-cell space rather than requiring every divergence to fall inside a registered class. This is what makes the E4 identity control safe, so it is a freeze pin and not a report.",
   "path": "controls/off-gold-equivalence.json",
-  "sha256": null
+  "sha256": "sha256:52de0923d0cb7c1c62bb11e72b471f0674563f0974659e66d15f1aa9d979a7b9"
  },
  "opa": {
   "asset": "opa_linux_amd64_static",
@@ -120,7 +121,7 @@
   ],
   "capabilitiesDenylistNote": "The nine families PREREGISTRATION.md section 2 calls \"the registered denylist\". Section 2 names the phrase and nowhere names its members, so the members are registered HERE as bytes rather than left to a reading of the sentence; harness/e4lib/capabilities.py transcribes this member into REGISTERED_DENYLIST and harness/tests/test_score_capabilities.py binds the two in both directions. Each word is implemented as a RULE over the builtin's own capability record, never as a list of builtin names - measured against the pinned binary, denying the two builtins literally named print and trace leaves print(\"x\") compiling, because the compiler lowers the call to internal.print. The rules deny a SUPERSET of what these nine words name: the binary's own \"nondeterministic\": true flag also removes io.jwt.decode_verify, io.jwt.encode_sign and io.jwt.encode_sign_raw, which no family word here names, and that over-denial is recorded in capabilities.py's CATCH_ALL_ONLY_AT_PIN rather than hidden.",
   "capabilitiesPath": "controls/opa-capabilities.json",
-  "capabilitiesSha256": null,
+  "capabilitiesSha256": "sha256:7cbfe97d24c51d8ef08931a6dfdb457bf15ee833e814a4ec815d80177add600e",
   "license": "Apache-2.0 (verified from LICENSE at tag v1.19.0)",
   "note": "No reproducible-build claim exists - official builds embed a build timestamp - so the pin is against the published artifact, stated rather than glossed. opa exec does not accept --capabilities at this version; scored invocations use per-row opa eval --format json --fail --strict-builtin-errors --capabilities ... --timeout ... under env -i with TZ=UTC. The time.now_ns canary must be REFUSED by the filtered capabilities file, and that is re-verified at attempt time as a control gate. The capabilities file is generated from the pinned binary and the registered capabilitiesDenylist by harness/e4lib/capabilities.py and is committed at capabilitiesPath. capabilitiesSha256 is a FREEZE pin and stays null until the freeze fills it; until then capabilities.py's check_committed() re-derives the file from the pinned binary and compares it byte for byte, which is what binds the bytes pre-freeze. Nothing RESOLVES capabilitiesPath at run time: engines.Toolchain still reads the capabilities path from $OPA_CAPS and records the null pin in unenforcedPins, so a scored invocation names whatever file the operator names and the attempt record says which pins were declarations rather than enforcements.",
   "regoVersion": "v1",
@@ -150,7 +151,7 @@
  "policyProse": {
   "note": "The frozen copy of design/POLICY-DRAFT.md v0.3. Absent until the freeze.",
   "path": "policy/POLICY.md",
-  "sha256": null
+  "sha256": "sha256:c4a533cab4dc6b6fa5e5f3b92d999ebf130cfbfaa5811ace49087c16612173bc"
  },
  "preregistration": {
   "path": "PREREGISTRATION.md",
@@ -168,18 +169,18 @@
  "references": {
   "A": {
    "path": "reference/REFERENCE-A.md",
-   "sha256": null
+   "sha256": "sha256:db9776070fbf5e193443ffb1f371b2524b4662f0877868306323b5c9e3701853"
   },
   "B": {
    "path": "reference/REFERENCE-B.md",
-   "sha256": null
+   "sha256": "sha256:1f2e1ad1d423240dd262852f19057a8e906387d5a1b71db8b8a15bc010fc12e2"
   }
  },
  "registeredLabelRule": "harness/integrity.py's study_label() labels a run REGISTERED only when EVERY freeze pin below is non-null - preregistration, policyProse, goldSuite, the three arm prompt digests (matrixA/matrixB/matrixC, stored at arms.<ARM>.promptSha256, the member the call wrapper's prompt-digest gate reads), mutantManifests, referenceA, referenceB, offGoldCertificate, studyManifest, opa.capabilitiesSha256 (opaCapabilities), jpack.reproducibleBuildAttestation (jpackBuildAttestation), codex.model (model), probePrompt.sha256 (probePrompt), golden.sha256 (goldenContext), isolationNegative.assent (isolationAssent), and reviewerMutantSet.sha256 (reviewerMutantSet). Any null makes it a PILOT, and a PILOT supports no claim. The non-null members are enforced under both labels: a design-time resolved toolchain digest is checked whether or not the freeze has happened. Study 014's round 3 found a registered run reachable with only the preregistration digest filled, which left the registry the attempt adjudicated unpinned; the rule is over the whole freeze set for that reason. ROUND-1 FINDING R1-9 extended the set from eleven members to eighteen: the last seven are values the attempt depends on and REGISTERED used to be reachable with every one of them null - a null capabilities digest was merely RECORDED as unenforced by the toolchain, a null model reached the wrapper as a refusal rather than a label, and a null reviewerMutantSet let a registered attempt skip the only prospective reviewer-authored content the study has (R1-10). harness/tests/test_pins.py drives the rule pin by pin: each member nulled alone on an otherwise-full registry must produce PILOT.",
  "reviewerMutantSet": {
   "note": "Sealed, authored during review rounds, committed verbatim, first executed at the primary attempt, scored as authored, reported separately, moving nothing. --include-reviewer-set refuses while any pin above is null.",
   "path": "controls/reviewer-mutants/",
-  "sha256": null
+  "sha256": "sha256:6bff7f950b132505d1034fe7d993a8920f028647b35dc1f48d9072884fedaa0e"
  },
  "studyManifest": {
   "path": "harness/STUDY-MANIFEST.sha256",
