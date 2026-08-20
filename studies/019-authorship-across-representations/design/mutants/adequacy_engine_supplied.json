@@ -1,0 +1,3142 @@
+{
+ "definition": "engineSuppliedKill = the mutant differs from its reference somewhere in the registered domain AND every scored output it produces at every differing cell is unresolved{conflict}. Computed over the FULL dense derived space, not over gold witnesses.",
+ "domain": {
+  "cells": 419904,
+  "note": "the exclusion registry is empty since 2026-08-18, so the census domain is the whole dense space",
+  "registeredExclusionClasses": []
+ },
+ "engineConfirmation": {
+  "detail": [
+   {
+    "cellIndex": 23364,
+    "class": "operator-flip",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:no-match",
+    "engineReferenceOutput": "outcome:reject",
+    "id": "m-a-001",
+    "inputs": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "90",
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "unresolved:no-match"
+   },
+   {
+    "cellIndex": 84600,
+    "class": "operator-flip",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:no-match",
+    "engineReferenceOutput": "outcome:reject",
+    "id": "m-a-002",
+    "inputs": {
+     "country": "HIGH",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "70",
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "unresolved:no-match"
+   },
+   {
+    "cellIndex": 5868,
+    "class": "operator-flip",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:conflict",
+    "engineReferenceOutput": "outcome:review",
+    "id": "m-a-003",
+    "inputs": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "40",
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "unresolved:conflict"
+   },
+   {
+    "cellIndex": 1251,
+    "class": "operator-flip",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:no-match",
+    "engineReferenceOutput": "outcome:approve",
+    "id": "m-a-004",
+    "inputs": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "0",
+     "sanctions": "CLEAR",
+     "spend": "500000.00"
+    },
+    "simulatorMutantOutput": "unresolved:no-match"
+   },
+   {
+    "cellIndex": 7326,
+    "class": "operator-flip",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:conflict",
+    "engineReferenceOutput": "outcome:review",
+    "id": "m-a-005",
+    "inputs": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "40",
+     "sanctions": "CLEAR",
+     "spend": "500000.01"
+    },
+    "simulatorMutantOutput": "unresolved:conflict"
+   },
+   {
+    "cellIndex": 7327,
+    "class": "operator-flip",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:conflict",
+    "engineReferenceOutput": "outcome:review",
+    "id": "m-a-008",
+    "inputs": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "absent",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "40",
+     "sanctions": "CLEAR",
+     "spend": "500000.01"
+    },
+    "simulatorMutantOutput": "unresolved:conflict"
+   },
+   {
+    "cellIndex": 23364,
+    "class": "boundary-shift",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:no-match",
+    "engineReferenceOutput": "outcome:reject",
+    "id": "m-a-045",
+    "inputs": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "90",
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "unresolved:no-match"
+   },
+   {
+    "cellIndex": 20448,
+    "class": "boundary-shift",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:conflict",
+    "engineReferenceOutput": "outcome:review",
+    "id": "m-a-046",
+    "inputs": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "89",
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "unresolved:conflict"
+   },
+   {
+    "cellIndex": 84600,
+    "class": "boundary-shift",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:no-match",
+    "engineReferenceOutput": "outcome:reject",
+    "id": "m-a-047",
+    "inputs": {
+     "country": "HIGH",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "70",
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "unresolved:no-match"
+   },
+   {
+    "cellIndex": 81684,
+    "class": "boundary-shift",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:conflict",
+    "engineReferenceOutput": "outcome:review",
+    "id": "m-a-048",
+    "inputs": {
+     "country": "HIGH",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "69",
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "unresolved:conflict"
+   },
+   {
+    "cellIndex": 5868,
+    "class": "boundary-shift",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:conflict",
+    "engineReferenceOutput": "outcome:review",
+    "id": "m-a-049",
+    "inputs": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "40",
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "unresolved:conflict"
+   },
+   {
+    "cellIndex": 2952,
+    "class": "boundary-shift",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:no-match",
+    "engineReferenceOutput": "outcome:approve",
+    "id": "m-a-050",
+    "inputs": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "39",
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "unresolved:no-match"
+   },
+   {
+    "cellIndex": 32103,
+    "class": "onUnknown-flip",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:unknown",
+    "engineReferenceOutput": "outcome:reject",
+    "id": "m-a-134",
+    "inputs": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "yes",
+     "risk": null,
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "unresolved:unknown"
+   },
+   {
+    "cellIndex": 102087,
+    "class": "onUnknown-flip",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:unknown",
+    "engineReferenceOutput": "outcome:reject",
+    "id": "m-a-135",
+    "inputs": {
+     "country": "HIGH",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "yes",
+     "risk": null,
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "unresolved:unknown"
+   },
+   {
+    "cellIndex": 139968,
+    "class": "outcome-swap",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "outcome:review",
+    "engineReferenceOutput": "outcome:reject",
+    "id": "m-a-160",
+    "inputs": {
+     "country": "LOW",
+     "critical": "yes",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "yes",
+     "risk": "0",
+     "sanctions": "MATCH",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "outcome:review"
+   },
+   {
+    "cellIndex": 23364,
+    "class": "outcome-swap",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "outcome:review",
+    "engineReferenceOutput": "outcome:reject",
+    "id": "m-a-161",
+    "inputs": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "90",
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "outcome:review"
+   },
+   {
+    "cellIndex": 23355,
+    "class": "outcome-swap",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:conflict",
+    "engineReferenceOutput": "outcome:reject",
+    "id": "m-a-161",
+    "inputs": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "yes",
+     "risk": "90",
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "unresolved:conflict"
+   },
+   {
+    "cellIndex": 84600,
+    "class": "outcome-swap",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "outcome:review",
+    "engineReferenceOutput": "outcome:reject",
+    "id": "m-a-162",
+    "inputs": {
+     "country": "HIGH",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "70",
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "outcome:review"
+   },
+   {
+    "cellIndex": 84591,
+    "class": "outcome-swap",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:conflict",
+    "engineReferenceOutput": "outcome:reject",
+    "id": "m-a-162",
+    "inputs": {
+     "country": "HIGH",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "yes",
+     "risk": "70",
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "unresolved:conflict"
+   },
+   {
+    "cellIndex": 5868,
+    "class": "outcome-swap",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:conflict",
+    "engineReferenceOutput": "outcome:review",
+    "id": "m-a-169",
+    "inputs": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "40",
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "unresolved:conflict"
+   },
+   {
+    "cellIndex": 39,
+    "class": "required-flip",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "outcome:approve",
+    "engineReferenceOutput": "unresolved:missing-required-evidence",
+    "id": "m-a-173",
+    "inputs": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "absent",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "0",
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "outcome:approve"
+   },
+   {
+    "cellIndex": 1498,
+    "class": "required-flip",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "outcome:enhanced-review",
+    "engineReferenceOutput": "unresolved:missing-required-evidence",
+    "id": "m-a-173",
+    "inputs": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "absent",
+     "insurance": "absent",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "0",
+     "sanctions": "CLEAR",
+     "spend": "500000.01"
+    },
+    "simulatorMutantOutput": "outcome:enhanced-review"
+   },
+   {
+    "cellIndex": 30,
+    "class": "required-flip",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "outcome:reject",
+    "engineReferenceOutput": "unresolved:missing-required-evidence",
+    "id": "m-a-173",
+    "inputs": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "absent",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "yes",
+     "risk": "0",
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "outcome:reject"
+   },
+   {
+    "cellIndex": 3,
+    "class": "required-flip",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "outcome:review",
+    "engineReferenceOutput": "unresolved:missing-required-evidence",
+    "id": "m-a-173",
+    "inputs": {
+     "country": "LOW",
+     "critical": "yes",
+     "finEvidence": "absent",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "yes",
+     "risk": "0",
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "outcome:review"
+   },
+   {
+    "cellIndex": 279939,
+    "class": "required-flip",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:no-match",
+    "engineReferenceOutput": "unresolved:missing-required-evidence",
+    "id": "m-a-173",
+    "inputs": {
+     "country": "LOW",
+     "critical": "yes",
+     "finEvidence": "absent",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "yes",
+     "risk": "0",
+     "sanctions": "UNKNOWN",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "unresolved:no-match"
+   },
+   {
+    "cellIndex": 1499,
+    "class": "required-flip",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:unknown",
+    "engineReferenceOutput": "unresolved:missing-required-evidence",
+    "id": "m-a-173",
+    "inputs": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "absent",
+     "insurance": null,
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "0",
+     "sanctions": "CLEAR",
+     "spend": "500000.01"
+    },
+    "simulatorMutantOutput": "unresolved:unknown"
+   },
+   {
+    "cellIndex": 0,
+    "class": "effect-swap",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:exception-escalation",
+    "engineReferenceOutput": "outcome:review",
+    "id": "m-a-174",
+    "inputs": {
+     "country": "LOW",
+     "critical": "yes",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "yes",
+     "risk": "0",
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "unresolved:exception-escalation"
+   },
+   {
+    "cellIndex": 3,
+    "class": "effect-swap",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:exception-escalation+missing-required-evidence",
+    "engineReferenceOutput": "unresolved:missing-required-evidence",
+    "id": "m-a-174",
+    "inputs": {
+     "country": "LOW",
+     "critical": "yes",
+     "finEvidence": "absent",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "yes",
+     "risk": "0",
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "unresolved:exception-escalation+missing-required-evidence"
+   },
+   {
+    "cellIndex": 6,
+    "class": "effect-swap",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:exception-escalation+unknown",
+    "engineReferenceOutput": "unresolved:unknown",
+    "id": "m-a-174",
+    "inputs": {
+     "country": "LOW",
+     "critical": "yes",
+     "finEvidence": null,
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "yes",
+     "risk": "0",
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "unresolved:exception-escalation+unknown"
+   },
+   {
+    "cellIndex": 72171,
+    "class": "effect-swap",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "outcome:review",
+    "engineReferenceOutput": "unresolved:exception-escalation",
+    "id": "m-a-175",
+    "inputs": {
+     "country": "HIGH",
+     "critical": "yes",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "yes",
+     "risk": "0",
+     "sanctions": "CLEAR",
+     "spend": "2000000.01"
+    },
+    "simulatorMutantOutput": "outcome:review"
+   },
+   {
+    "cellIndex": 34299,
+    "class": "cascade-deletion",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "outcome:review",
+    "engineReferenceOutput": "unresolved:unknown",
+    "id": "m-a-176",
+    "inputs": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": null,
+     "sanctions": "CLEAR",
+     "spend": "2000000.01"
+    },
+    "simulatorMutantOutput": "outcome:review"
+   },
+   {
+    "cellIndex": 23364,
+    "class": "cascade-deletion",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:conflict",
+    "engineReferenceOutput": "outcome:reject",
+    "id": "m-a-176",
+    "inputs": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "90",
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "unresolved:conflict"
+   },
+   {
+    "cellIndex": 128340,
+    "class": "cascade-deletion",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:unknown",
+    "engineReferenceOutput": "outcome:reject",
+    "id": "m-a-176",
+    "inputs": {
+     "country": null,
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "90",
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "unresolved:unknown"
+   },
+   {
+    "cellIndex": 119592,
+    "class": "cascade-deletion",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "outcome:review",
+    "engineReferenceOutput": "unresolved:unknown",
+    "id": "m-a-177",
+    "inputs": {
+     "country": null,
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "70",
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "outcome:review"
+   },
+   {
+    "cellIndex": 84600,
+    "class": "cascade-deletion",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:conflict",
+    "engineReferenceOutput": "outcome:reject",
+    "id": "m-a-177",
+    "inputs": {
+     "country": "HIGH",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "70",
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "unresolved:conflict"
+   },
+   {
+    "cellIndex": 105741,
+    "class": "cascade-deletion",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "outcome:review",
+    "engineReferenceOutput": "unresolved:unknown",
+    "id": "m-a-178",
+    "inputs": {
+     "country": null,
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "0",
+     "sanctions": "CLEAR",
+     "spend": "100000.01"
+    },
+    "simulatorMutantOutput": "outcome:review"
+   },
+   {
+    "cellIndex": 36,
+    "class": "cascade-deletion",
+    "engineConfirmsDistinguished": true,
+    "engineConfirmsSimulator": true,
+    "engineMutantOutput": "unresolved:conflict",
+    "engineReferenceOutput": "outcome:approve",
+    "id": "m-a-178",
+    "inputs": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "0",
+     "sanctions": "CLEAR",
+     "spend": "0.00"
+    },
+    "simulatorMutantOutput": "unresolved:conflict"
+   }
+  ],
+  "evaluations": 37,
+  "mutantsSampled": [
+   "m-a-001",
+   "m-a-002",
+   "m-a-003",
+   "m-a-004",
+   "m-a-005",
+   "m-a-008",
+   "m-a-045",
+   "m-a-046",
+   "m-a-047",
+   "m-a-048",
+   "m-a-049",
+   "m-a-050",
+   "m-a-133",
+   "m-a-134",
+   "m-a-135",
+   "m-a-160",
+   "m-a-161",
+   "m-a-162",
+   "m-a-169",
+   "m-a-173",
+   "m-a-174",
+   "m-a-175",
+   "m-a-176",
+   "m-a-177",
+   "m-a-178"
+  ],
+  "pass": true,
+  "rule": "strata = (mutation class x engineSuppliedKill), up to 3 mutants per stratum in id order, plus the D4-cascade-deletion mutant pinned by edit text (the reviewer's worked counter-example); every distinct output the census recorded for a sampled mutant is confirmed at its exemplar cell, on the mutant AND on the reference",
+  "unconfirmed": []
+ },
+ "engineSuppliedKillTrue": [
+  "m-a-003",
+  "m-a-005",
+  "m-a-008",
+  "m-a-009",
+  "m-a-012",
+  "m-a-014",
+  "m-a-022",
+  "m-a-038",
+  "m-a-046",
+  "m-a-048",
+  "m-a-049",
+  "m-a-051",
+  "m-a-053",
+  "m-a-057",
+  "m-a-059",
+  "m-a-062",
+  "m-a-063",
+  "m-a-067",
+  "m-a-069",
+  "m-a-071",
+  "m-a-073",
+  "m-a-076",
+  "m-a-082",
+  "m-a-086",
+  "m-a-087",
+  "m-a-120",
+  "m-a-169"
+ ],
+ "equivalentOverDomain": [
+  "m-a-006",
+  "m-a-016",
+  "m-a-017",
+  "m-a-018",
+  "m-a-020",
+  "m-a-029",
+  "m-a-032",
+  "m-a-056",
+  "m-a-066",
+  "m-a-075",
+  "m-a-077",
+  "m-a-078",
+  "m-a-079",
+  "m-a-080",
+  "m-a-083",
+  "m-a-089",
+  "m-a-102",
+  "m-a-108",
+  "m-a-112",
+  "m-a-133",
+  "m-a-137",
+  "m-a-138",
+  "m-a-139",
+  "m-a-140",
+  "m-a-141",
+  "m-a-183"
+ ],
+ "finding": "round-1 R1-11",
+ "mutantsCensused": 183,
+ "perMutant": [
+  {
+   "differingCells": 1188,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 23364
+   },
+   "id": "m-a-001",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 1188
+   }
+  },
+  {
+   "differingCells": 324,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 84600
+   },
+   "id": "m-a-002",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 324
+   }
+  },
+  {
+   "differingCells": 144,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 5868
+   },
+   "id": "m-a-003",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 144
+   }
+  },
+  {
+   "differingCells": 72,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 1251
+   },
+   "id": "m-a-004",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 72
+   }
+  },
+  {
+   "differingCells": 36,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 7326
+   },
+   "id": "m-a-005",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 36
+   }
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-006",
+   "mutantOutputsOverDomain": {}
+  },
+  {
+   "differingCells": 24,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 1980
+   },
+   "id": "m-a-007",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 24
+   }
+  },
+  {
+   "differingCells": 36,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 7327
+   },
+   "id": "m-a-008",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 36
+   }
+  },
+  {
+   "differingCells": 24,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 1252
+   },
+   "id": "m-a-009",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 24
+   }
+  },
+  {
+   "differingCells": 24,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 1981
+   },
+   "id": "m-a-010",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 24
+   }
+  },
+  {
+   "differingCells": 72,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 5949
+   },
+   "id": "m-a-011",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 72
+   }
+  },
+  {
+   "differingCells": 72,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 14697
+   },
+   "id": "m-a-012",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 72
+   }
+  },
+  {
+   "differingCells": 72,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 6435
+   },
+   "id": "m-a-013",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 72
+   }
+  },
+  {
+   "differingCells": 108,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 40860
+   },
+   "id": "m-a-014",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 108
+   }
+  },
+  {
+   "differingCells": 72,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 35514
+   },
+   "id": "m-a-015",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 72
+   }
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-016",
+   "mutantOutputsOverDomain": {}
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-017",
+   "mutantOutputsOverDomain": {}
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-018",
+   "mutantOutputsOverDomain": {}
+  },
+  {
+   "differingCells": 108,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 6597
+   },
+   "id": "m-a-019",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 108
+   }
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-020",
+   "mutantOutputsOverDomain": {}
+  },
+  {
+   "differingCells": 108,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 40860
+   },
+   "id": "m-a-021",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 108
+   }
+  },
+  {
+   "differingCells": 36,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 84600
+   },
+   "id": "m-a-022",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 36
+   }
+  },
+  {
+   "differingCells": 108,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 41346
+   },
+   "id": "m-a-023",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 108
+   }
+  },
+  {
+   "differingCells": 1188,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 23364,
+    "unresolved:unknown": 128340
+   },
+   "id": "m-a-024",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 864,
+    "unresolved:unknown": 324
+   }
+  },
+  {
+   "differingCells": 648,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 119592,
+    "unresolved:conflict": 84600
+   },
+   "id": "m-a-025",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 324,
+    "unresolved:conflict": 324
+   }
+  },
+  {
+   "differingCells": 180,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 6678,
+    "unresolved:unknown": 111573
+   },
+   "id": "m-a-026",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 72,
+    "unresolved:unknown": 108
+   }
+  },
+  {
+   "differingCells": 144,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 106227,
+    "unresolved:conflict": 1251
+   },
+   "id": "m-a-027",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 72,
+    "unresolved:conflict": 72
+   }
+  },
+  {
+   "differingCells": 120,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 7407,
+    "unresolved:unknown": 7409
+   },
+   "id": "m-a-028",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 24,
+    "unresolved:unknown": 96
+   }
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-029",
+   "mutantOutputsOverDomain": {}
+  },
+  {
+   "differingCells": 48,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 106956,
+    "unresolved:conflict": 1980
+   },
+   "id": "m-a-030",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 24,
+    "unresolved:conflict": 24
+   }
+  },
+  {
+   "differingCells": 120,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 7408,
+    "unresolved:unknown": 7409
+   },
+   "id": "m-a-031",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 24,
+    "unresolved:unknown": 96
+   }
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-032",
+   "mutantOutputsOverDomain": {}
+  },
+  {
+   "differingCells": 48,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 106957,
+    "unresolved:conflict": 1981
+   },
+   "id": "m-a-033",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 24,
+    "unresolved:conflict": 24
+   }
+  },
+  {
+   "differingCells": 168,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 8622,
+    "unresolved:conflict": 5949
+   },
+   "id": "m-a-034",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 96,
+    "unresolved:conflict": 72
+   }
+  },
+  {
+   "differingCells": 144,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 14616,
+    "unresolved:unknown": 17289
+   },
+   "id": "m-a-035",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 108,
+    "unresolved:unknown": 36
+   }
+  },
+  {
+   "differingCells": 144,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 111411,
+    "unresolved:conflict": 6435
+   },
+   "id": "m-a-036",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 72,
+    "unresolved:conflict": 72
+   }
+  },
+  {
+   "differingCells": 108,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 40941,
+    "unresolved:unknown": 43533
+   },
+   "id": "m-a-037",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 72,
+    "unresolved:unknown": 36
+   }
+  },
+  {
+   "differingCells": 72,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 35514
+   },
+   "id": "m-a-038",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 72
+   }
+  },
+  {
+   "differingCells": 1728,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:exception-escalation": 71928,
+    "unresolved:unknown": 106920
+   },
+   "id": "m-a-039",
+   "mutantOutputsOverDomain": {
+    "unresolved:exception-escalation": 972,
+    "unresolved:unknown": 756
+   }
+  },
+  {
+   "differingCells": 12,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:unknown": 8541
+   },
+   "id": "m-a-040",
+   "mutantOutputsOverDomain": {
+    "unresolved:unknown": 12
+   }
+  },
+  {
+   "differingCells": 144,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 14616
+   },
+   "id": "m-a-041",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 144
+   }
+  },
+  {
+   "differingCells": 36,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:unknown": 110844
+   },
+   "id": "m-a-042",
+   "mutantOutputsOverDomain": {
+    "unresolved:unknown": 36
+   }
+  },
+  {
+   "differingCells": 108,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 14616
+   },
+   "id": "m-a-043",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 108
+   }
+  },
+  {
+   "differingCells": 36,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:unknown": 111330
+   },
+   "id": "m-a-044",
+   "mutantOutputsOverDomain": {
+    "unresolved:unknown": 36
+   }
+  },
+  {
+   "differingCells": 1188,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 23364
+   },
+   "id": "m-a-045",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 1188
+   }
+  },
+  {
+   "differingCells": 864,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 20448
+   },
+   "id": "m-a-046",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 864
+   }
+  },
+  {
+   "differingCells": 324,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 84600
+   },
+   "id": "m-a-047",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 324
+   }
+  },
+  {
+   "differingCells": 324,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 81684
+   },
+   "id": "m-a-048",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 324
+   }
+  },
+  {
+   "differingCells": 144,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 5868
+   },
+   "id": "m-a-049",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 144
+   }
+  },
+  {
+   "differingCells": 216,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 2952
+   },
+   "id": "m-a-050",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 216
+   }
+  },
+  {
+   "differingCells": 24,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 1495
+   },
+   "id": "m-a-051",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 24
+   }
+  },
+  {
+   "differingCells": 72,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 1251
+   },
+   "id": "m-a-052",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 72
+   }
+  },
+  {
+   "differingCells": 36,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 7326
+   },
+   "id": "m-a-053",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 36
+   }
+  },
+  {
+   "differingCells": 36,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 4410
+   },
+   "id": "m-a-054",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 36
+   }
+  },
+  {
+   "differingCells": 24,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 1494
+   },
+   "id": "m-a-055",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 24
+   }
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-056",
+   "mutantOutputsOverDomain": {}
+  },
+  {
+   "differingCells": 24,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 2223
+   },
+   "id": "m-a-057",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 24
+   }
+  },
+  {
+   "differingCells": 24,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 1980
+   },
+   "id": "m-a-058",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 24
+   }
+  },
+  {
+   "differingCells": 36,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 7327
+   },
+   "id": "m-a-059",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 36
+   }
+  },
+  {
+   "differingCells": 36,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 4411
+   },
+   "id": "m-a-060",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 36
+   }
+  },
+  {
+   "differingCells": 24,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 1495
+   },
+   "id": "m-a-061",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 24
+   }
+  },
+  {
+   "differingCells": 24,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 1252
+   },
+   "id": "m-a-062",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 24
+   }
+  },
+  {
+   "differingCells": 24,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 2224
+   },
+   "id": "m-a-063",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 24
+   }
+  },
+  {
+   "differingCells": 24,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 1981
+   },
+   "id": "m-a-064",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 24
+   }
+  },
+  {
+   "differingCells": 72,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 5949
+   },
+   "id": "m-a-065",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 72
+   }
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-066",
+   "mutantOutputsOverDomain": {}
+  },
+  {
+   "differingCells": 72,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 14697
+   },
+   "id": "m-a-067",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 72
+   }
+  },
+  {
+   "differingCells": 72,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 11781
+   },
+   "id": "m-a-068",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 72
+   }
+  },
+  {
+   "differingCells": 72,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 6678
+   },
+   "id": "m-a-069",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 72
+   }
+  },
+  {
+   "differingCells": 72,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 6435
+   },
+   "id": "m-a-070",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 72
+   }
+  },
+  {
+   "differingCells": 108,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 40860
+   },
+   "id": "m-a-071",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 108
+   }
+  },
+  {
+   "differingCells": 108,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 37944
+   },
+   "id": "m-a-072",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 108
+   }
+  },
+  {
+   "differingCells": 72,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 35757
+   },
+   "id": "m-a-073",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 72
+   }
+  },
+  {
+   "differingCells": 72,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 35514
+   },
+   "id": "m-a-074",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 72
+   }
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-075",
+   "mutantOutputsOverDomain": {}
+  },
+  {
+   "differingCells": 36,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 2952
+   },
+   "id": "m-a-076",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 36
+   }
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-077",
+   "mutantOutputsOverDomain": {}
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-078",
+   "mutantOutputsOverDomain": {}
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-079",
+   "mutantOutputsOverDomain": {}
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-080",
+   "mutantOutputsOverDomain": {}
+  },
+  {
+   "differingCells": 108,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 6597
+   },
+   "id": "m-a-081",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 108
+   }
+  },
+  {
+   "differingCells": 96,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 2952
+   },
+   "id": "m-a-082",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 96
+   }
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-083",
+   "mutantOutputsOverDomain": {}
+  },
+  {
+   "differingCells": 108,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 12429
+   },
+   "id": "m-a-084",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 108
+   }
+  },
+  {
+   "differingCells": 108,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 40860
+   },
+   "id": "m-a-085",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 108
+   }
+  },
+  {
+   "differingCells": 72,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 2952
+   },
+   "id": "m-a-086",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 72
+   }
+  },
+  {
+   "differingCells": 36,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 84600
+   },
+   "id": "m-a-087",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 36
+   }
+  },
+  {
+   "differingCells": 108,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 46692
+   },
+   "id": "m-a-088",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 108
+   }
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-089",
+   "mutantOutputsOverDomain": {}
+  },
+  {
+   "differingCells": 108,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 41346
+   },
+   "id": "m-a-090",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 108
+   }
+  },
+  {
+   "differingCells": 1188,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 23364,
+    "unresolved:unknown": 128340
+   },
+   "id": "m-a-091",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 864,
+    "unresolved:unknown": 324
+   }
+  },
+  {
+   "differingCells": 1188,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 20448
+   },
+   "id": "m-a-092",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 1188
+   }
+  },
+  {
+   "differingCells": 648,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 119592,
+    "unresolved:conflict": 84600
+   },
+   "id": "m-a-093",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 324,
+    "unresolved:conflict": 324
+   }
+  },
+  {
+   "differingCells": 504,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 81765,
+    "unresolved:unknown": 117405
+   },
+   "id": "m-a-094",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 288,
+    "unresolved:unknown": 216
+   }
+  },
+  {
+   "differingCells": 180,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 6678,
+    "unresolved:unknown": 111573
+   },
+   "id": "m-a-095",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 72,
+    "unresolved:unknown": 108
+   }
+  },
+  {
+   "differingCells": 324,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 108657,
+    "unresolved:conflict": 2952
+   },
+   "id": "m-a-096",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 108,
+    "unresolved:conflict": 216
+   }
+  },
+  {
+   "differingCells": 24,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 1496
+   },
+   "id": "m-a-097",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 24
+   }
+  },
+  {
+   "differingCells": 144,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 106227,
+    "unresolved:conflict": 1251
+   },
+   "id": "m-a-098",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 72,
+    "unresolved:conflict": 72
+   }
+  },
+  {
+   "differingCells": 120,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 7407,
+    "unresolved:unknown": 7409
+   },
+   "id": "m-a-099",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 24,
+    "unresolved:unknown": 96
+   }
+  },
+  {
+   "differingCells": 72,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 109386,
+    "unresolved:conflict": 4410
+   },
+   "id": "m-a-100",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 36,
+    "unresolved:conflict": 36
+   }
+  },
+  {
+   "differingCells": 48,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 106470,
+    "unresolved:conflict": 1494
+   },
+   "id": "m-a-101",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 24,
+    "unresolved:conflict": 24
+   }
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-102",
+   "mutantOutputsOverDomain": {}
+  },
+  {
+   "differingCells": 48,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 2223,
+    "unresolved:unknown": 2225
+   },
+   "id": "m-a-103",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 24,
+    "unresolved:unknown": 24
+   }
+  },
+  {
+   "differingCells": 48,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 106956,
+    "unresolved:conflict": 1980
+   },
+   "id": "m-a-104",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 24,
+    "unresolved:conflict": 24
+   }
+  },
+  {
+   "differingCells": 120,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 7408,
+    "unresolved:unknown": 7409
+   },
+   "id": "m-a-105",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 24,
+    "unresolved:unknown": 96
+   }
+  },
+  {
+   "differingCells": 72,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 109387,
+    "unresolved:conflict": 4411
+   },
+   "id": "m-a-106",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 36,
+    "unresolved:conflict": 36
+   }
+  },
+  {
+   "differingCells": 48,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 106471,
+    "unresolved:conflict": 1495
+   },
+   "id": "m-a-107",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 24,
+    "unresolved:conflict": 24
+   }
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-108",
+   "mutantOutputsOverDomain": {}
+  },
+  {
+   "differingCells": 48,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 2224,
+    "unresolved:unknown": 2225
+   },
+   "id": "m-a-109",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 24,
+    "unresolved:unknown": 24
+   }
+  },
+  {
+   "differingCells": 48,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 106957,
+    "unresolved:conflict": 1981
+   },
+   "id": "m-a-110",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 24,
+    "unresolved:conflict": 24
+   }
+  },
+  {
+   "differingCells": 168,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 8622,
+    "unresolved:conflict": 5949
+   },
+   "id": "m-a-111",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 96,
+    "unresolved:conflict": 72
+   }
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-112",
+   "mutantOutputsOverDomain": {}
+  },
+  {
+   "differingCells": 144,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 14616,
+    "unresolved:unknown": 17289
+   },
+   "id": "m-a-113",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 108,
+    "unresolved:unknown": 36
+   }
+  },
+  {
+   "differingCells": 168,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 14454,
+    "unresolved:conflict": 11781
+   },
+   "id": "m-a-114",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 96,
+    "unresolved:conflict": 72
+   }
+  },
+  {
+   "differingCells": 180,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 6678,
+    "unresolved:unknown": 111573
+   },
+   "id": "m-a-115",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 72,
+    "unresolved:unknown": 108
+   }
+  },
+  {
+   "differingCells": 144,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 111411,
+    "unresolved:conflict": 6435
+   },
+   "id": "m-a-116",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 72,
+    "unresolved:conflict": 72
+   }
+  },
+  {
+   "differingCells": 108,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 40941,
+    "unresolved:unknown": 43533
+   },
+   "id": "m-a-117",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 72,
+    "unresolved:unknown": 36
+   }
+  },
+  {
+   "differingCells": 144,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 40617,
+    "unresolved:conflict": 37944
+   },
+   "id": "m-a-118",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 36,
+    "unresolved:conflict": 108
+   }
+  },
+  {
+   "differingCells": 72,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 35757
+   },
+   "id": "m-a-119",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 72
+   }
+  },
+  {
+   "differingCells": 72,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 35514
+   },
+   "id": "m-a-120",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 72
+   }
+  },
+  {
+   "differingCells": 1800,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:reject": 72198,
+    "outcome:review": 72171,
+    "unresolved:unknown": 104283
+   },
+   "id": "m-a-121",
+   "mutantOutputsOverDomain": {
+    "outcome:reject": 756,
+    "outcome:review": 1008,
+    "unresolved:unknown": 36
+   }
+  },
+  {
+   "differingCells": 1728,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:exception-escalation": 71928,
+    "unresolved:unknown": 106920
+   },
+   "id": "m-a-122",
+   "mutantOutputsOverDomain": {
+    "unresolved:exception-escalation": 972,
+    "unresolved:unknown": 756
+   }
+  },
+  {
+   "differingCells": 12,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:unknown": 8541
+   },
+   "id": "m-a-123",
+   "mutantOutputsOverDomain": {
+    "unresolved:unknown": 12
+   }
+  },
+  {
+   "differingCells": 48,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 4412
+   },
+   "id": "m-a-124",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 48
+   }
+  },
+  {
+   "differingCells": 144,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 14616
+   },
+   "id": "m-a-125",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 144
+   }
+  },
+  {
+   "differingCells": 12,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:unknown": 14373
+   },
+   "id": "m-a-126",
+   "mutantOutputsOverDomain": {
+    "unresolved:unknown": 12
+   }
+  },
+  {
+   "differingCells": 36,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:unknown": 110844
+   },
+   "id": "m-a-127",
+   "mutantOutputsOverDomain": {
+    "unresolved:unknown": 36
+   }
+  },
+  {
+   "differingCells": 72,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 72936
+   },
+   "id": "m-a-128",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 72
+   }
+  },
+  {
+   "differingCells": 108,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 14616
+   },
+   "id": "m-a-129",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 108
+   }
+  },
+  {
+   "differingCells": 36,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:unknown": 116676
+   },
+   "id": "m-a-130",
+   "mutantOutputsOverDomain": {
+    "unresolved:unknown": 36
+   }
+  },
+  {
+   "differingCells": 108,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 41589
+   },
+   "id": "m-a-131",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 108
+   }
+  },
+  {
+   "differingCells": 36,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:unknown": 111330
+   },
+   "id": "m-a-132",
+   "mutantOutputsOverDomain": {
+    "unresolved:unknown": 36
+   }
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-133",
+   "mutantOutputsOverDomain": {}
+  },
+  {
+   "differingCells": 756,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:unknown": 32103
+   },
+   "id": "m-a-134",
+   "mutantOutputsOverDomain": {
+    "unresolved:unknown": 756
+   }
+  },
+  {
+   "differingCells": 2268,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:unknown": 102087
+   },
+   "id": "m-a-135",
+   "mutantOutputsOverDomain": {
+    "unresolved:unknown": 2268
+   }
+  },
+  {
+   "differingCells": 7254,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:unknown": 45
+   },
+   "id": "m-a-136",
+   "mutantOutputsOverDomain": {
+    "unresolved:unknown": 7254
+   }
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-137",
+   "mutantOutputsOverDomain": {}
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-138",
+   "mutantOutputsOverDomain": {}
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-139",
+   "mutantOutputsOverDomain": {}
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-140",
+   "mutantOutputsOverDomain": {}
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-141",
+   "mutantOutputsOverDomain": {}
+  },
+  {
+   "differingCells": 252,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:unknown": 6030
+   },
+   "id": "m-a-142",
+   "mutantOutputsOverDomain": {
+    "unresolved:unknown": 252
+   }
+  },
+  {
+   "differingCells": 936,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:unknown": 6030
+   },
+   "id": "m-a-143",
+   "mutantOutputsOverDomain": {
+    "unresolved:unknown": 936
+   }
+  },
+  {
+   "differingCells": 432,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:unknown": 6030
+   },
+   "id": "m-a-144",
+   "mutantOutputsOverDomain": {
+    "unresolved:unknown": 432
+   }
+  },
+  {
+   "differingCells": 3636,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:no-match": 1496
+   },
+   "id": "m-a-145",
+   "mutantOutputsOverDomain": {
+    "unresolved:no-match": 3636
+   }
+  },
+  {
+   "differingCells": 90756,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:exception-escalation+unknown": 72333,
+    "unresolved:missing-required-evidence+unknown": 165,
+    "unresolved:unknown": 162
+   },
+   "id": "m-a-146",
+   "mutantOutputsOverDomain": {
+    "unresolved:exception-escalation+unknown": 648,
+    "unresolved:missing-required-evidence+unknown": 46656,
+    "unresolved:unknown": 43452
+   }
+  },
+  {
+   "differingCells": 27990,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:exception-escalation+unknown": 72225,
+    "unresolved:missing-required-evidence+unknown": 57,
+    "unresolved:unknown": 54
+   },
+   "id": "m-a-147",
+   "mutantOutputsOverDomain": {
+    "unresolved:exception-escalation+unknown": 648,
+    "unresolved:missing-required-evidence+unknown": 15552,
+    "unresolved:unknown": 11790
+   }
+  },
+  {
+   "differingCells": 3240,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:reject": 72684,
+    "outcome:review": 72657
+   },
+   "id": "m-a-148",
+   "mutantOutputsOverDomain": {
+    "outcome:reject": 1404,
+    "outcome:review": 1836
+   }
+  },
+  {
+   "differingCells": 90198,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:exception-escalation+unknown": 72189,
+    "unresolved:missing-required-evidence+unknown": 21,
+    "unresolved:unknown": 18
+   },
+   "id": "m-a-149",
+   "mutantOutputsOverDomain": {
+    "unresolved:exception-escalation+unknown": 648,
+    "unresolved:missing-required-evidence+unknown": 46656,
+    "unresolved:unknown": 42894
+   }
+  },
+  {
+   "differingCells": 90198,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:exception-escalation+unknown": 72189,
+    "unresolved:missing-required-evidence+unknown": 21,
+    "unresolved:unknown": 18
+   },
+   "id": "m-a-150",
+   "mutantOutputsOverDomain": {
+    "unresolved:exception-escalation+unknown": 648,
+    "unresolved:missing-required-evidence+unknown": 46656,
+    "unresolved:unknown": 42894
+   }
+  },
+  {
+   "differingCells": 90198,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:exception-escalation+unknown": 72189,
+    "unresolved:missing-required-evidence+unknown": 21,
+    "unresolved:unknown": 18
+   },
+   "id": "m-a-151",
+   "mutantOutputsOverDomain": {
+    "unresolved:exception-escalation+unknown": 648,
+    "unresolved:missing-required-evidence+unknown": 46656,
+    "unresolved:unknown": 42894
+   }
+  },
+  {
+   "differingCells": 90198,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:exception-escalation+unknown": 72189,
+    "unresolved:missing-required-evidence+unknown": 21,
+    "unresolved:unknown": 18
+   },
+   "id": "m-a-152",
+   "mutantOutputsOverDomain": {
+    "unresolved:exception-escalation+unknown": 648,
+    "unresolved:missing-required-evidence+unknown": 46656,
+    "unresolved:unknown": 42894
+   }
+  },
+  {
+   "differingCells": 90198,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:exception-escalation+unknown": 72189,
+    "unresolved:missing-required-evidence+unknown": 21,
+    "unresolved:unknown": 18
+   },
+   "id": "m-a-153",
+   "mutantOutputsOverDomain": {
+    "unresolved:exception-escalation+unknown": 648,
+    "unresolved:missing-required-evidence+unknown": 46656,
+    "unresolved:unknown": 42894
+   }
+  },
+  {
+   "differingCells": 90198,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:exception-escalation+unknown": 72189,
+    "unresolved:missing-required-evidence+unknown": 21,
+    "unresolved:unknown": 18
+   },
+   "id": "m-a-154",
+   "mutantOutputsOverDomain": {
+    "unresolved:exception-escalation+unknown": 648,
+    "unresolved:missing-required-evidence+unknown": 46656,
+    "unresolved:unknown": 42894
+   }
+  },
+  {
+   "differingCells": 90198,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:exception-escalation+unknown": 72189,
+    "unresolved:missing-required-evidence+unknown": 21,
+    "unresolved:unknown": 18
+   },
+   "id": "m-a-155",
+   "mutantOutputsOverDomain": {
+    "unresolved:exception-escalation+unknown": 648,
+    "unresolved:missing-required-evidence+unknown": 46656,
+    "unresolved:unknown": 42894
+   }
+  },
+  {
+   "differingCells": 7128,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:missing-required-evidence+unknown": 5997,
+    "unresolved:unknown": 5994
+   },
+   "id": "m-a-156",
+   "mutantOutputsOverDomain": {
+    "unresolved:missing-required-evidence+unknown": 4212,
+    "unresolved:unknown": 2916
+   }
+  },
+  {
+   "differingCells": 4056,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:missing-required-evidence+unknown": 5997,
+    "unresolved:unknown": 5994
+   },
+   "id": "m-a-157",
+   "mutantOutputsOverDomain": {
+    "unresolved:missing-required-evidence+unknown": 2484,
+    "unresolved:unknown": 1572
+   }
+  },
+  {
+   "differingCells": 90198,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:exception-escalation+unknown": 72189,
+    "unresolved:missing-required-evidence+unknown": 21,
+    "unresolved:unknown": 18
+   },
+   "id": "m-a-158",
+   "mutantOutputsOverDomain": {
+    "unresolved:exception-escalation+unknown": 648,
+    "unresolved:missing-required-evidence+unknown": 46656,
+    "unresolved:unknown": 42894
+   }
+  },
+  {
+   "differingCells": 90198,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:exception-escalation+unknown": 72189,
+    "unresolved:missing-required-evidence+unknown": 21,
+    "unresolved:unknown": 18
+   },
+   "id": "m-a-159",
+   "mutantOutputsOverDomain": {
+    "unresolved:exception-escalation+unknown": 648,
+    "unresolved:missing-required-evidence+unknown": 46656,
+    "unresolved:unknown": 42894
+   }
+  },
+  {
+   "differingCells": 46656,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 139968
+   },
+   "id": "m-a-160",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 46656
+   }
+  },
+  {
+   "differingCells": 6804,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 23364,
+    "unresolved:conflict": 23355
+   },
+   "id": "m-a-161",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 3564,
+    "unresolved:conflict": 3240
+   }
+  },
+  {
+   "differingCells": 2916,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 84600,
+    "unresolved:conflict": 84591
+   },
+   "id": "m-a-162",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 972,
+    "unresolved:conflict": 1944
+   }
+  },
+  {
+   "differingCells": 9072,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 27,
+    "unresolved:conflict": 23355
+   },
+   "id": "m-a-163",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 6318,
+    "unresolved:conflict": 2754
+   }
+  },
+  {
+   "differingCells": 432,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 36
+   },
+   "id": "m-a-164",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 432
+   }
+  },
+  {
+   "differingCells": 72,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 1494
+   },
+   "id": "m-a-165",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 72
+   }
+  },
+  {
+   "differingCells": 72,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 1495
+   },
+   "id": "m-a-166",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 72
+   }
+  },
+  {
+   "differingCells": 216,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 5949
+   },
+   "id": "m-a-167",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 216
+   }
+  },
+  {
+   "differingCells": 216,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 35028
+   },
+   "id": "m-a-168",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 216
+   }
+  },
+  {
+   "differingCells": 108,
+   "engineSuppliedKill": true,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:conflict": 5868
+   },
+   "id": "m-a-169",
+   "mutantOutputsOverDomain": {
+    "unresolved:conflict": 108
+   }
+  },
+  {
+   "differingCells": 432,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:approve": 6597,
+    "unresolved:conflict": 5868
+   },
+   "id": "m-a-170",
+   "mutantOutputsOverDomain": {
+    "outcome:approve": 324,
+    "unresolved:conflict": 108
+   }
+  },
+  {
+   "differingCells": 432,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:approve": 40860,
+    "unresolved:conflict": 5868
+   },
+   "id": "m-a-171",
+   "mutantOutputsOverDomain": {
+    "outcome:approve": 324,
+    "unresolved:conflict": 108
+   }
+  },
+  {
+   "differingCells": 7236,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:approve": 2223
+   },
+   "id": "m-a-172",
+   "mutantOutputsOverDomain": {
+    "outcome:approve": 7236
+   }
+  },
+  {
+   "differingCells": 270468,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:approve": 39,
+    "outcome:enhanced-review": 1498,
+    "outcome:reject": 30,
+    "outcome:review": 3,
+    "unresolved:no-match": 279939,
+    "unresolved:unknown": 1499
+   },
+   "id": "m-a-173",
+   "mutantOutputsOverDomain": {
+    "outcome:approve": 1872,
+    "outcome:enhanced-review": 144,
+    "outcome:reject": 124740,
+    "outcome:review": 46044,
+    "unresolved:no-match": 93312,
+    "unresolved:unknown": 4356
+   }
+  },
+  {
+   "differingCells": 46008,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "unresolved:exception-escalation": 0,
+    "unresolved:exception-escalation+missing-required-evidence": 3,
+    "unresolved:exception-escalation+unknown": 6
+   },
+   "id": "m-a-174",
+   "mutantOutputsOverDomain": {
+    "unresolved:exception-escalation": 13608,
+    "unresolved:exception-escalation+missing-required-evidence": 15552,
+    "unresolved:exception-escalation+unknown": 16848
+   }
+  },
+  {
+   "differingCells": 1944,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 72171
+   },
+   "id": "m-a-175",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 1944
+   }
+  },
+  {
+   "differingCells": 3924,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 34299,
+    "unresolved:conflict": 23364,
+    "unresolved:unknown": 128340
+   },
+   "id": "m-a-176",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 360,
+    "unresolved:conflict": 2592,
+    "unresolved:unknown": 972
+   }
+  },
+  {
+   "differingCells": 1944,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 119592,
+    "unresolved:conflict": 84600
+   },
+   "id": "m-a-177",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 972,
+    "unresolved:conflict": 972
+   }
+  },
+  {
+   "differingCells": 648,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 105741,
+    "unresolved:conflict": 36
+   },
+   "id": "m-a-178",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 216,
+    "unresolved:conflict": 432
+   }
+  },
+  {
+   "differingCells": 144,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 106470,
+    "unresolved:conflict": 1494
+   },
+   "id": "m-a-179",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 72,
+    "unresolved:conflict": 72
+   }
+  },
+  {
+   "differingCells": 144,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 106471,
+    "unresolved:conflict": 1495
+   },
+   "id": "m-a-180",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 72,
+    "unresolved:conflict": 72
+   }
+  },
+  {
+   "differingCells": 504,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 8622,
+    "unresolved:conflict": 5949
+   },
+   "id": "m-a-181",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 288,
+    "unresolved:conflict": 216
+   }
+  },
+  {
+   "differingCells": 288,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": false,
+   "exemplarCellIndexPerOutput": {
+    "outcome:review": 37701,
+    "unresolved:conflict": 35028
+   },
+   "id": "m-a-182",
+   "mutantOutputsOverDomain": {
+    "outcome:review": 72,
+    "unresolved:conflict": 216
+   }
+  },
+  {
+   "differingCells": 0,
+   "engineSuppliedKill": false,
+   "equivalentOverDomain": true,
+   "exemplarCellIndexPerOutput": {},
+   "id": "m-a-183",
+   "mutantOutputsOverDomain": {}
+  }
+ ],
+ "record": "engine-supplied-kill dense census"
+}

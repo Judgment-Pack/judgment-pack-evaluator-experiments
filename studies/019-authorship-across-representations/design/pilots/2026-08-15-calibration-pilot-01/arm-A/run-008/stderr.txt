@@ -1,0 +1,3974 @@
+OpenAI Codex v0.145.0
+--------
+workdir: /tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/e3978f36-2e67-46bb-868c-8df975356ef9/scratchpad/wt-019/studies/019-authorship-across-representations/design/pilot
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: ultra
+reasoning summaries: none
+session id: 01a005ed-5b17-78c2-9127-ded372c73995
+--------
+user
+## Vendor Approval Policy
+
+This policy governs vendor onboarding spend requests. Each request receives exactly one
+determination — **approve**, **review**, **enhanced review**, or **reject** — or the case is
+**unresolved** where this policy states that no determination can be issued.
+
+### Inputs
+
+Each input is reported in exactly one of the listed states.
+
+- **Risk score**: an integer from 0 to 100, or unreadable.
+- **Requested spend**: a US-dollar amount from 0 to 10,000,000.00 (cents precision), or
+  unreadable.
+- **Sanctions screening result**: CLEAR, MATCH, or UNKNOWN (screening ran but returned no
+  result).
+- **Country risk**: LOW, MEDIUM, or HIGH, or unreadable.
+- **New vendor**: yes, no, or unreported.
+- **Critical supplier**: yes, no, or unreported.
+- **Prior enforcement action**: yes, no, or unreported.
+- **Financial evidence** (audited financial statements on file): available, absent, or
+  unreported availability.
+- **Insurance certificate**: available, absent, or unreported availability. It is never
+  required (P1); it is consulted only by D6b.
+
+### Order of application
+
+Clauses apply in this order: **P1** first; then the overrides **O3**, then **O2**; then the
+determination clauses **D1–D8**, as modified by **O1**. **U1** governs cases the clauses
+above leave undetermined because an input cannot be read; a determination issued by a clause
+that does not depend on the unreadable input stands (U1 states the test). Where more than
+one clause yields the same determination, the earliest clause in this order governs.
+
+### Precondition
+
+**P1 — Financial evidence.** No determination of any kind — including a rejection — may be
+issued without financial evidence: no other clause of this policy applies unless financial
+evidence is available. If financial evidence is **absent**, the case is unresolved for
+missing required evidence. If its availability is **unreported**, the case is unresolved as
+unknown. No override in this policy displaces P1.
+
+### Determination clauses
+
+**D1 — Sanctions match.** If the screening result is MATCH, the request is **rejected**. D1
+depends on no input but the screening result (subject always to P1).
+
+**D2 — Unreported sanctions.** If the screening result is UNKNOWN, no determination clause
+of this policy applies, and the case is unresolved because no clause matches. D2 depends on
+no input but the screening result (subject always to P1).
+
+*Clauses D3–D8 apply only when the screening result is CLEAR.*
+
+**D3 — Critical risk.** A risk score of 90 or above is **rejected**, whatever the other
+inputs, subject to the overrides O2 and O3.
+
+**D4 — Elevated risk in a high-risk country.** Where country risk is HIGH and the risk
+score is 70 or above, the request is **rejected**. (With D3: in a HIGH-risk country,
+rejection begins at risk 70.)
+
+**D5 — Prior enforcement action.** A vendor with a recorded prior enforcement action (yes)
+is **rejected**, whatever the risk score, requested spend, or country risk, subject to the
+overrides O2 and O3. An unreported prior-enforcement status is treated as **no**.
+
+*The approval clauses D6 and D7 apply only to vendors with no recorded prior enforcement
+action.*
+
+**D6 — Approval, LOW-risk country.** Where country risk is LOW:
+- **D6a.** Risk score below 40 and requested spend up to and including $500,000.00:
+  **approved**.
+- **D6b.** Risk score below 40 and requested spend above $500,000.00 and up to and
+  including $2,000,000.00: **approved** if an insurance certificate is available. If the
+  certificate is **absent**, the request receives **enhanced review** (D6b decides such
+  requests; D8 does not reach them). If its availability is **unreported**, the case is
+  unresolved as unknown.
+- **D6c.** Risk score of at least 40 and below 70, and requested spend up to and including
+  $100,000.00: **approved**. (Subject to suspension under O1.)
+
+**D7 — Approval, MEDIUM-risk country.** Where country risk is MEDIUM: risk score below 40
+and requested spend up to and including $100,000.00: **approved**.
+
+**D8 — Review.** Every request with a CLEAR screening result that is not determined by
+D3–D7 — including requests removed from D6c by O1 — is referred for **review**. D8 never
+determines a case D3–D7 determines.
+
+### Overrides
+
+**O1 — First-engagement suspension.** For new vendors (yes), clause D6c does not apply;
+such requests fall to D8. An unreported new-vendor status is treated as **no**.
+
+**O2 — Critical-supplier override.** A critical supplier (yes) with a CLEAR screening
+result is never approved or rejected automatically: the determination is **review**. This
+displaces every determination D1–D8 would issue — including D6b's enhanced-review limb and
+D6b's unreported-insurance limb. O2
+takes precedence over every determination clause D1–D8, including rejection under D3, D4,
+and D5 — but O2 never applies when the screening result is MATCH or UNKNOWN (D1 and D2
+stand), and never displaces P1 or O3. Where the risk score, requested spend, or country
+risk cannot be read, U1 governs O2 cases like any other clause (worked examples 3 and 4).
+An unreported critical-supplier status is treated as **no**.
+
+**O3 — Large exposure in a high-risk country.** Where country risk is HIGH, the screening
+result is CLEAR, requested spend is above $2,000,000.00, and financial evidence is
+available (P1), no automated determination is issued: the case is escalated for human
+determination and is unresolved on the ground of escalation. O3 takes precedence over every
+clause except P1, including O2 and rejection under D3, D4, and D5. Escalated cases are
+directed to the vendor compliance desk (queue `vendor-compliance-desk`).
+
+### Unreadable inputs
+
+**U1.** Where the risk score, requested spend, or country risk cannot be read, the case is
+determined as follows: **if every readable value the unreadable input(s) could take would
+yield the same determination under the clauses above, that determination is issued;
+otherwise no determination is issued and the case is unresolved as unknown.** For this
+test, each readable assignment's outcome is whatever the clauses above yield for it — a
+determination, an escalation (O3), or an unresolved limb such as D6b's — and "the same
+determination" means the same outcome; the test varies only the unreadable inputs, with
+every other input keeping its reported state. (The
+screening result, evidence availability, and the yes/no statuses are never "unreadable" in
+this sense: their unreported states are governed by D2, P1, O1, O2, and D5 directly.)
+
+Worked examples:
+1. CLEAR, risk 95, country unreadable, spend 1,000,000.00, no prior action, not critical:
+   every country value rejects (D3 alone at LOW/MEDIUM; D3 and D4 at HIGH) → **rejected**.
+2. CLEAR, HIGH, risk 50, spend unreadable, not critical: spend up to $2,000,000.00 gives
+   review (D8) but above it gives escalation (O3) → **unresolved as unknown**.
+3. CLEAR, critical supplier yes, risk unreadable, LOW, spend 100.00: O2 determines the
+   case without the risk score, and no readable risk value changes it → **review**.
+4. CLEAR, critical supplier yes, country risk and requested spend unreadable, financial
+   evidence available: a readable HIGH country with spend above $2,000,000.00 would
+   escalate (O3), while every other assignment gives review (O2) — the determinations
+   differ → **unresolved as unknown**.
+
+---
+
+# Naming appendix (registered study conventions — shared across all arms)
+
+These are fixed identifiers and encodings, not policy content. Use them exactly.
+
+## Outcomes and grounds
+
+- Determination identifiers, exactly: `approve`, `review`, `enhanced-review`, `reject`.
+- Unresolved ground tokens, exactly: `missing-required-evidence`, `unknown`, `no-match`,
+  `exception-escalation` (the escalated-for-human-determination ground). An unresolved
+  case carries one or more of these tokens; a determination carries none.
+
+## Input identifiers
+
+- Vendor facts live under `/vendor/`: `riskScore`, `requestedSpend`, `sanctionsStatus`
+  (`"CLEAR"` | `"MATCH"` | `"UNKNOWN"` — UNKNOWN is a present string value),
+  `countryRisk` (`"LOW"` | `"MEDIUM"` | `"HIGH"`), `newVendor`, `criticalSupplier`,
+  `priorEnforcement` (each `"yes"` | `"no"`).
+- Evidence availability identifiers: `financial-evidence`, `insurance-certificate`, with
+  availability values `"present"` (= available) and `"absent"`; an omitted entry means
+  the availability is unreported.
+- An input that is unreadable/unreported is an **omitted member** — never a null, never a
+  sentinel string. Inputs never carry malformed or out-of-range values.
+
+## Arm A (Judgment Pack) bindings
+
+- `riskScore` and `requestedSpend` arrive as decimal **strings** — integer scale for risk
+  (e.g. `"70"`), two decimals for spend (e.g. `"100000.00"`), no leading zeros, no
+  exponent.
+- Evidence availability arrives as the separate evidence document mapping the two
+  requirement ids above to `"present"` / `"absent"` (omitted = unreported).
+- The pack's `escalation` member uses target kind `queue`, name `vendor-compliance-desk`,
+  and the trigger list exactly `["missing-required-evidence", "no-match", "unknown"]`.
+- Do not use the `applicability` member.
+
+## Arms B and C (Rego) bindings
+
+- Rego v1 (OPA 1.x default dialect). Package `study`; the decision entrypoint is the rule
+  `decision` (evaluated as `data.study.decision`).
+- `input.vendor` carries the vendor fields above, with `riskScore` and `requestedSpend`
+  as JSON **numbers**; `input.evidence` carries the two evidence identifiers with values
+  `"present"` / `"absent"` (omitted = unreported).
+
+---
+
+# Judgment Pack Core `0.2.0-draft`
+
+## Status
+
+This document is a research preview. It may change incompatibly and MUST NOT be represented as an
+industry standard or as suitable, by conformance alone, for consequential decisions.
+
+`0.2.0-draft` defines four conformance classes: carrier, structural, and semantic document
+conformance, unchanged in substance from `0.1.0-draft`, and evaluator conformance (§3.4), which is
+new. Sections 7 and 8 are normative for an implementation that claims the evaluator class and
+informative for every other consumer; a document-conformance claim does not depend on them. The
+document format is unchanged: a `0.1.0-draft` pack is unchanged in representation and in
+document-conformance meaning here and may be re-declared as `0.2.0-draft` without other edits.
+Re-declaration also opts the pack into this draft's evaluator semantics (§§7–8), which existed for no
+consumer under `0.1.0-draft`, and confers no conformance on any implementation (§11).
+
+The key words **MUST**, **MUST NOT**, **REQUIRED**, **SHOULD**, **SHOULD NOT**, and **MAY** are to be
+interpreted as described by BCP 14 when, and only when, they appear in all capitals. Normative
+references are listed in §12.
+
+## 1. Purpose
+
+Judgment Pack Core defines a portable JSON document for representing:
+
+- a decision intent and question;
+- possible outcomes;
+- evidence requirements;
+- sources and claim-level citations;
+- applicability conditions;
+- rules and typed exceptions;
+- explicit behavior for unknown information;
+- escalation requirements; and
+- basic authorship and review metadata.
+
+The core defines representation and document conformance. For an implementation that claims
+evaluator conformance (§3.4) it also defines portable evaluation semantics (§§7–8) and one portable
+result, the disposition of §8.3. It does not establish truth, authority, safety, or fitness for a
+deployment, and a disposition is not made true, authorized, or safe by being portable.
+
+### 1.1 Normative artifacts and precedence
+
+The artifacts in this repository have distinct roles:
+
+- this document is the normative prose for carrier and semantic document conformance, for evaluator
+  conformance, and for the interpretation of schema-defined fields;
+- [`schema/judgment-pack-core.schema.json`](../schema/judgment-pack-core.schema.json) is the
+  normative machine-readable projection of structural document constraints;
+- the evaluation corpus — the manifest and case fixtures under
+  [`conformance/evaluation/`](../conformance/evaluation/README.md), not its README — is normative for
+  evaluator conformance (§3.4) and for nothing else. This is the normative status the bullet below
+  reserves for a later specification, granted here to those files only; and
+- examples, the document-conformance corpus, READMEs, design notes, RFCs, the roadmap, and
+  implementation behavior are informative unless a later specification explicitly gives an artifact
+  normative status.
+
+A conformance claim MUST satisfy all applicable normative requirements. If the schema or the
+evaluation corpus disagrees with this document, this document controls and the mismatch is a
+specification defect that SHOULD be reported. An example, test fixture, validator, or product
+behavior cannot override any normative artifact.
+
+## 2. Normative representation
+
+### 2.1 JSON carrier
+
+The normative carrier is a JSON text as defined by RFC 8259. In addition:
+
+- object member names MUST be unique; and
+- implementations MUST reject malformed or incomplete input and data exceeding their documented
+  resource limits rather than process only a silent prefix.
+
+Root type, recognized members, and field-value constraints belong to structural or semantic
+document conformance rather than carrier conformance.
+
+### 2.2 Decimal grammar
+
+JSON numbers SHOULD NOT be used for business quantities whose exact decimal identity matters. The
+comparison operand of a `fact` condition using `greater-than`, `greater-than-or-equal`, `less-than`,
+or `less-than-or-equal` MUST be a string matching:
+
+```text
+decimal = [ "-" ] ( "0" / non-zero-digit *DIGIT ) [ "." 1*DIGIT ]
+```
+
+Exponent notation, leading plus signs, leading zeroes, `NaN`, and infinities are not admitted.
+This grammar does not classify every numeric-looking string as a decimal and does not apply to
+identifiers, versions, paths, locators, citations, equality operands, or other textual values merely
+because they contain digits. Core `0.2.0-draft` has no general decimal type marker; exact decimal
+quantities outside ordered fact-condition operands require a future profile or declared extension.
+
+This section defines decimal lexical syntax only. It has no decimal type marker and does not define
+decimal equality, scale, units, or cross-unit conversion. §7.4 defines ordered comparison of two
+strings satisfying this grammar for evaluator conformance (§3.4) and nothing else; it defines no
+decimal-aware *equality*, so `equals` compares two such strings as strings. Outside that class,
+satisfying this grammar does not imply executable comparison support.
+
+## 3. Conformance classes
+
+This draft defines three document conformance classes and one evaluator conformance class. The
+document classes are unchanged in substance from `0.1.0-draft` and do not depend on the evaluator
+class. It defines no execution conformance: applying an outcome remains outside Core.
+
+### 3.1 Carrier-conforming document
+
+A serialized document is carrier conforming when it satisfies §2.1, including valid and complete
+RFC 8259 JSON, unique object member names, and explicit failure rather than silent partial
+processing when a documented resource limit is exceeded.
+
+### 3.2 Structurally conforming document
+
+A carrier-conforming document is structurally conforming when it satisfies the normative JSON
+Schema and all schema-adjacent requirements in this document.
+
+The `format` keywords in the schema are assertions for JPS conformance, regardless of whether a
+JSON Schema implementation treats `format` as annotation by default. A structural validator MUST
+enable the Draft 2020-12 Format-Assertion vocabulary or perform equivalent checks. In particular:
+
+- `id` MUST be an absolute URI conforming to RFC 3986;
+- `source.publishedAt` MUST be an RFC 3339 `full-date`; and
+- `metadata.createdAt` and every `metadata.reviews[].reviewedAt` value MUST be an RFC 3339
+  `date-time`.
+
+Accepting these fields without asserting their formats is insufficient for structural conformance.
+
+### 3.3 Semantically conforming document
+
+A structurally conforming document is semantically conforming when:
+
+- every local reference resolves exactly once;
+- referenced object kinds are correct;
+- outcome, rule, evidence-requirement, source, and exception identifiers are unique within their
+  collections;
+- every rule outcome and fallback outcome names a declared outcome;
+- every rule evidence reference names a declared evidence requirement;
+- every rule source reference names a declared source;
+- every `evidence-present` condition names a declared evidence requirement;
+- every exception target names a declared rule when a target is present;
+- every exception outcome names a declared outcome when an outcome is present;
+- every exception source reference names a declared source;
+- required extension capabilities are declared;
+- field meanings and cross-field constraints follow the normative prose in §§4–6 and §9.
+
+Condition or resolution results are not part of semantic document conformance.
+
+### 3.4 Evaluator conformance
+
+An implementation is *evaluator conforming* when, given
+
+- a semantically conforming pack (§3.3);
+- one JSON facts document;
+- at most one evidence-availability document, whose absence §8.2 defines; and
+- its own supported-extension set,
+
+it produces the portable disposition of §8.3 under the semantics of §§7–8, reports every condition
+that prevents completing an evaluation as an evaluation error rather than as a disposition (§8.4),
+defines the limits §10 requires of this class, and passes the evaluation corpus published for the
+exact `specVersion` it names.
+
+The claim is scoped by the contract, not by the corpus: it asserts that the implementation satisfies
+every requirement of §§7–10 — the semantics, the disposition, the error classes, and the documented
+limits — for every input it admits. It says nothing about the pack, the facts, the evidence, or the
+consequences of acting on a disposition (§3.5). Corpus results are required evidence for that claim
+and are not exhaustive evidence of it (§3.4.1).
+
+Every row of the corpus published for the claimed `specVersion` MUST pass, and a failed row blocks the
+claim. A failed row does not by itself decide who is wrong: a divergence is as likely to be a defect
+in the row as in the implementation, and §1.1 makes this document control over the corpus. What a
+claimant MUST NOT do is decide that question for itself. A row is defective for a released corpus
+version only when the project has said so in a versioned erratum, published beside the corpus as
+`conformance/evaluation/errata.md`: one entry naming the `suiteVersion` it applies to, the case id, the
+date of issue, and the defect. An erratum edits nothing — the manifest of a released version is never
+changed (§3.4.1), so the frozen rows stay exactly as published — and it has one effect: a claim against
+that `suiteVersion` may exclude the row the erratum names, provided the claim names the row and cites
+the erratum. Until such an erratum exists, a failing row is a blocked claim and a specification-defect
+report, in that order.
+
+Carrier, structural, and semantic document conformance are untouched by this class. A document is
+conforming or not without reference to any evaluator, and an implementation MAY claim document
+conformance alone.
+
+#### 3.4.1 Evaluator-conformance claims
+
+Exactly one form of evaluator-conformance claim is definable: a claim against this class and against
+the [evaluation corpus](../conformance/evaluation/README.md) for one exact `specVersion`, naming that
+version, the corpus version, the results obtained, and — in the claim's own words, not as an inference
+a reader must draw — that every row of that corpus version passed. If a project-issued erratum marks a
+row defective for that corpus version (§3.4), the claim MUST name that row and cite the erratum;
+otherwise "every row" means every row. Everything else remains forbidden. An implementation MUST NOT:
+
+- claim partial or qualified evaluator conformance — a subset of §§7–8, a subset of the corpus, or
+  conformance "except for" any requirement;
+- claim evaluator conformance on the strength of prototyping, of an experimental surface, or of
+  agreement with another implementation, in place of corpus results;
+- claim evaluator conformance without having run the evaluation corpus for the exact `specVersion`
+  claimed;
+- claim evaluator conformance under `0.1.0-draft`, which defines no such class, or under any
+  `specVersion` whose corpus it has not run;
+- claim evaluator conformance while a row of the named corpus version fails, unless a project-issued
+  erratum for that `suiteVersion` marks that row defective and the claim names and cites it (§3.4); or
+- describe an evaluator-conformance claim as establishing anything §3.5 excludes.
+
+A claim is made against one exact `specVersion` and is not inherited by any other version (§11).
+The evaluation corpus is a *seed* corpus: it is version-pinned, it is not exhaustive, and it grows by
+RFC. Passing it is necessary for the claim and is not evidence that the implementation is correct on
+inputs the corpus does not contain.
+
+The corpus is **frozen at the release of a `specVersion`** and grows only into the next one: rows are
+added, changed, or corrected on the way to a later `specVersion`, never inside a released one, so two
+identically worded claims against the same `specVersion` require the same rows. "The corpus version"
+a claim must name is the `suiteVersion` member of the evaluation manifest, which for a released
+version equals the `specVersion` the corpus was published for. An erratum (§3.4) is the only
+post-release statement about a released corpus, and it changes no row.
+
+Two optional case members of the corpus carrier are defined and unused by every row of this version's
+corpus, so that a later row can carry them without a carrier change. `workBudget` is a positive integer
+of evaluation-work units, in the accounting units a future work-accounting model will define; when it is
+absent, the case sets no budget and the implementation's own documented limit (§10) applies.
+`expectedErrorPhase` is `preflight` or `evaluation` and says which phase an expected error class was
+reached in — while admitting the inputs (§8.2) or while evaluating them (§8) — so it accompanies
+`expectedErrorClass` and never an expected disposition.
+
+### 3.5 Non-claims
+
+Conformance MUST NOT be described as proof that:
+
+- a claim is true;
+- evidence is authentic or sufficient;
+- an author or reviewer had authority;
+- an outcome is legally or ethically permissible;
+- a particular runtime applied the pack correctly; or
+- use of the pack is safe.
+
+The runtime-correctness bullet has exactly one narrow exception. An evaluator-conformance claim
+(§3.4) asserts that the claimed implementation complies with the complete evaluator contract of
+§§7–10 — the semantics of §§7–8, the §8.3 disposition, the §8.4 error classes, and the limits §10
+requires of the class — for every input it admits, not merely for the inputs it happened to run. Its
+corpus results are required evidence of that compliance and are not exhaustive evidence of it: the
+corpus is a seed corpus, and passing every row of it demonstrates nothing directly about an input no
+row contains (§3.4.1). The claim asserts nothing about any deployment, any particular run in
+production, the facts and evidence a caller supplied, or the permissibility of acting on a
+disposition. Every other bullet above applies to the evaluator class unchanged.
+
+## 4. Root object
+
+| Member                 | Required | Meaning                                                 |
+| ---------------------- | -------: | ------------------------------------------------------- |
+| `specVersion`          |      yes | Exact value `0.2.0-draft`                               |
+| `id`                   |      yes | Stable absolute URI identifying the pack series         |
+| `version`              |      yes | Three-component `MAJOR.MINOR.PATCH` revision string     |
+| `title`                |      yes | Non-empty human-readable title                          |
+| `description`          |       no | Human-readable overview                                 |
+| `decision`             |      yes | Decision intent and question                            |
+| `applicability`        |       no | Optional condition delimiting the pack's scope          |
+| `evidenceRequirements` |       no | Declared inputs or proof obligations                    |
+| `sources`              |       no | Located source material                                 |
+| `outcomes`             |      yes | At least two possible outcomes                          |
+| `rules`                |      yes | One or more rules                                       |
+| `exceptions`           |       no | Typed exceptions to rules or normal resolution          |
+| `fallbackOutcome`      |       no | Candidate outcome when normal rules yield no candidate  |
+| `escalation`           |       no | Optional handoff configuration, not a decision outcome  |
+| `metadata`             |       no | Authorship, license, creation, and review information   |
+| `extensions`           |       no | Namespaced extension values                             |
+
+Collection order is preserved for authoring and display but MUST NOT determine rule priority.
+
+The root MUST be an object. The schema defines the recognized members of each Core object; a member
+not defined for that Core object MUST NOT appear. The names and arbitrary JSON values inside an
+`extensions` object are governed separately by §9.
+
+## 5. Identity and references
+
+The pack `id` MUST be an absolute URI. Local object identifiers are non-empty ASCII strings matching
+`^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$`.
+
+Local identifiers are scoped to the pack version. They MUST NOT be interpreted as globally unique.
+Meaning MUST NOT be inferred from the spelling of an identifier.
+
+Core `0.2.0-draft` has no imports or remote-reference resolution. All rule, outcome, source,
+evidence-requirement, and exception references resolve within one document.
+
+## 6. Core objects
+
+### 6.1 Decision
+
+`decision.intent` explains the organizational purpose. `decision.question` states the question the
+pack is intended to resolve. Both are required human-readable strings.
+
+The decision object MAY include namespaced extensions. It MUST NOT embed prompts or executable
+host-language code.
+
+### 6.2 Evidence requirement
+
+An evidence requirement declares:
+
+- `id` — local identity;
+- `description` — what must be provided;
+- `required` — whether absence prevents normal resolution; and
+- optional `kind` — `document`, `fact`, `measurement`, or `attestation`.
+
+The kind is descriptive in this draft. Products may acquire or authenticate evidence differently.
+
+### 6.3 Source
+
+A source contains:
+
+- `id` and `title`;
+- a typed `locator` with `kind` and `value`;
+- optional publisher and publication date;
+- optional `citation` containing a location and excerpt; and
+- optional rights information.
+
+A source record represents provenance supplied by the author. Core conformance does not verify that
+the source exists, that the excerpt is accurate, or that its license permits a proposed use.
+
+### 6.4 Outcome
+
+An outcome has a local `id`, human-readable `label`, and optional `description`.
+
+An outcome is a declared result, not an authorization to perform an external action. Execution of
+an outcome is outside Core.
+
+### 6.5 Rule
+
+A rule declares:
+
+- `id` and `description`;
+- `when`, a condition;
+- `outcome`, a declared outcome id;
+- `onUnknown`, either `ignore` or `escalate`;
+- optional evidence-requirement references;
+- optional source references; and
+- optional rationale.
+
+The representation has no rule-priority field, and array order carries no priority meaning. Handling
+of conflicts and `onUnknown` appears in §8, which is normative for evaluator conformance (§3.4) and
+informative for a document-conformance consumer.
+
+### 6.6 Exception
+
+An exception declares a condition and one effect:
+
+- `suppress-rule`, with `targetRule`;
+- `force-outcome`, with `outcome`; or
+- `escalate`.
+
+For `suppress-rule`, `targetRule` is required and `outcome` is absent. For `force-outcome`, `outcome`
+is required and `targetRule` is absent. For `escalate`, both are absent. Every exception also has a
+required `onUnknown` policy of `ignore` or `escalate`. Evaluation order and effect compatibility
+appear in §8, which is normative for evaluator conformance (§3.4) and informative for a
+document-conformance consumer.
+
+### 6.7 Escalation
+
+An escalation object describes configured handoff intent. `triggers` is a non-empty set chosen
+from:
+
+- `not-applicable`;
+- `missing-required-evidence`;
+- `unknown`;
+- `conflict`; and
+- `no-match`.
+
+The target identifies a human role, queue, or external system by a display name. The object
+configures handoff intent; it does not itself make a pack applicable, turn a condition into an
+outcome, or prove that a handoff occurred. When the object is omitted, Core supplies no default
+triggers or target. Core does not define delivery, identity resolution, authorization, or
+service-level objectives.
+
+### 6.8 Metadata
+
+Metadata MAY carry authors, creation time, license expression, and review records. These are
+author assertions. Signature and organizational-authority profiles may strengthen them later.
+
+## 7. Condition interpretation
+
+This section is **normative for evaluator conformance** (§3.4) and informative for every other
+consumer. In `0.1.0-draft` the results described here were informative in every direction; that note
+is amended, and amended only for the evaluator class. The allowed JSON shapes for conditions remain
+normative through the schema for all classes, and a carrier, structural, or semantic document
+conformance claim is unaffected by anything in this section: no result below can make a document
+conforming or non-conforming.
+
+A condition produces `true`, `false`, or `unknown`:
+
+- `literal` returns its Boolean value;
+- `all` uses strong three-valued conjunction;
+- `any` uses strong three-valued disjunction;
+- `not` negates while preserving `unknown`;
+- `fact` compares a value selected from runtime-supplied facts; and
+- `evidence-present` tests whether evidence was supplied for a named requirement.
+
+### 7.1 `all`
+
+- `false` if any child is false;
+- `true` if every child is true;
+- `unknown` otherwise.
+
+### 7.2 `any`
+
+- `true` if any child is true;
+- `false` if every child is false;
+- `unknown` otherwise.
+
+### 7.3 `not`
+
+`true` becomes `false`, `false` becomes `true`, and `unknown` remains `unknown`.
+
+### 7.4 Fact conditions
+
+A `fact.path` is interpreted as RFC 6901 JSON Pointer syntax against one runtime-supplied JSON facts
+document. The empty string selects the document root. A syntactically valid pointer that does not
+resolve, including an invalid array traversal at runtime, produces `unknown`.
+
+The admitted operators are:
+
+- `equals`;
+- `not-equals`;
+- `greater-than`;
+- `greater-than-or-equal`;
+- `less-than`;
+- `less-than-or-equal`; and
+- `in`.
+
+`equals` uses type-preserving JSON equality: null equals null; Booleans and
+strings compare by value; JSON numbers compare by their mathematical value without lossy
+conversion; arrays compare recursively in order; and objects compare recursively by member name
+and value without regard to member order. There is no coercion between JSON types. `not-equals` is
+the Boolean inverse of `equals` when equality can be determined.
+
+For `in`, the schema requires the condition value to be a non-empty array. The selected fact value
+is compared for equality with each array item. A match produces `true`; no match produces `false`.
+
+The schema requires operands of `greater-than`, `greater-than-or-equal`, `less-than`, and
+`less-than-or-equal` to satisfy the decimal grammar in §2.2. An ordered comparison is *defined* if
+and only if both the selected fact value and the operand are JSON strings satisfying that grammar;
+the two are then compared by mathematical value. Any other selected value — including a JSON number,
+a Boolean, null, an array, an object, or a string that does not satisfy the grammar — makes the
+comparison undefined and produces `unknown`. A JSON number is deliberately not coerced: the grammar
+exists because a number's decimal identity is not preserved, and silently accepting one would make
+two implementations disagree.
+
+Equality of decimal strings is *string* equality and is deliberately not decimal-aware. `"1.0"` and
+`"1.00"` are therefore not equal under `equals`, and `not-equals` is correspondingly `true`, while
+neither is greater than the other under an ordered comparison, which reads both by mathematical value.
+The two families of operator answer different questions and Core defines no reconciliation between
+them; a pack that needs decimal-aware equality must normalize scale in the pack, in the operand and in
+the facts it is compared against.
+
+Units, quantities carrying units, and date or time values have no ordered comparison here. Such an
+operand does not satisfy §2.2, so an ordered comparison over one is not expressible rather than
+merely unknown-by-accident; `equals`, `not-equals`, and `in` still compare those values as ordinary
+JSON. Outside evaluator conformance, structural acceptance of an ordered condition still implies no
+executable support.
+
+An implementation claiming evaluator conformance (§3.4) MUST implement every operator listed above.
+"Unsupported operator" is not an available result for that class, and answering `unknown` where this
+section defines `true` or `false` is a failure to implement §7.4 rather than a conforming result —
+§3.4.1 forbids claiming a subset of §§7–8, whether or not a corpus row happens to exercise the
+operator. Within that class `unknown` is produced by exactly three things: a path that is absent or
+does not resolve; a selected value or operand whose shape the operator does not admit, which includes a
+value carrying units, since this section does not admit one in an ordered comparison at all; and a value
+the implementation cannot compare exactly. That last case is confined to JSON numbers outside an
+implementation's exact range, it is the one open question of §13 that §8.3 names as the single seam in
+its byte-agreement requirement, and it is not permission to return `unknown` for anything else.
+
+### 7.5 Evidence presence
+
+`evidence-present` is `true` when the evaluation input records the named requirement as available,
+`false` when it records the requirement as absent, and `unknown` when the input cannot say. For
+evaluator conformance those three states are supplied by the evidence-availability document of §8.2:
+`present` is `true`, `absent` is `false`, and `unknown` — including an omitted key — is `unknown`.
+That tri-state input replaces `0.1.0-draft`'s appeal to a "complete evidence manifest", which was
+undefined and was the one recorded semantic divergence between careful readings of that draft. This
+draft still defines no evidence-manifest interchange format beyond the tri-state of §8.2.
+
+## 8. Resolution model
+
+This section is **normative for evaluator conformance** (§3.4) and informative for every other
+consumer, on the same terms as §7. The step order below is contractual only where it changes the
+disposition; it mandates no implementation algorithm, and an implementation may compute in any order
+that yields the specified disposition. §8.2 defines the inputs, §8.3 the one portable result, and
+§8.4 the errors that replace a result.
+
+Resolution produces one of three result kinds:
+
+- an `outcome` result naming exactly one declared outcome;
+- a `not-applicable` result carrying reason `not-applicable`, which is not an outcome; and
+- an `unresolved` result carrying one or more reasons.
+
+The generated reason vocabulary is `not-applicable`, `missing-required-evidence`, `unknown`,
+`conflict`, and `no-match`, matching `escalation.triggers`. A true exception with effect `escalate`
+adds the separate reason `exception-escalation`; that reason is a direct request rather than a
+trigger-selected request. A result may retain multiple reasons. Reasons are a de-duplicated set;
+their order carries no priority. Implementations may additionally record contributing rule,
+exception, or evidence-requirement ids, outside the disposition (§8.3).
+
+The algorithm is:
+
+1. Treat omitted `applicability` as the literal value `true`. If applicability is false, produce a
+   terminal `not-applicable` result carrying reason `not-applicable` and do not evaluate exceptions
+   or rules. If it is unknown, produce an `unresolved` result with reason `unknown` and stop.
+2. Inspect every required evidence requirement, using the presence values of §7.5. Record
+   `missing-required-evidence` if and only if at least one required requirement's presence is
+   `false`. Record `unknown` if and only if at least one required requirement's presence is
+   `unknown` and none is `false`. Retain the ids of the requirements that produced either reason for
+   diagnostics. This restates `0.1.0-draft`'s binary "any required evidence is absent" test in the
+   three-valued terms of §7.5, and is the resolution of that draft's one recorded semantic
+   divergence.
+3. Evaluate every exception condition and collect its effects. An unknown exception with
+   `onUnknown: ignore` contributes no effect but remains unknown in a trace. An unknown exception
+   with `onUnknown: escalate` records reason `unknown`.
+4. Combine true exception effects as follows:
+
+   - all `suppress-rule` effects are compatible and suppress the union of their target rules;
+   - `force-outcome` effects are compatible when they all name the same outcome and conflict when
+     they name different outcomes;
+   - suppression is compatible with a forced outcome; and
+   - one or more `escalate` effects are mutually compatible, record reason
+     `exception-escalation`, and form a direct escalation request that takes precedence over
+     suppression and forced outcomes.
+
+5. Record reason `conflict` for incompatible forced outcomes. If step 2 recorded either of its
+   reasons, an exception is unknown with `onUnknown: escalate`, exception effects conflict, or a true
+   exception directly requests escalation, produce `unresolved` after all exception effects have been
+   inspected, and do not evaluate normal rules. Retain every reason discovered at this stage. A
+   direct exception escalation is also retained as such in diagnostics.
+6. If one compatible forced outcome remains and no blocking state from step 5 exists, produce that
+   outcome without evaluating normal rules. Otherwise, remove every suppressed rule and evaluate
+   all remaining rules.
+7. A true rule contributes its outcome as a candidate. A false rule contributes none. An unknown
+   rule with `onUnknown: ignore` contributes no candidate and does not block resolution; an unknown
+   rule with `onUnknown: escalate` records reason `unknown` and blocks both a candidate outcome and
+   the fallback.
+8. Record reason `conflict` when true rules name more than one distinct outcome. If both an
+   escalate-on-unknown rule and conflicting true rules are present, retain both `unknown` and
+   `conflict`; neither is discarded because the other also blocks resolution. Produce `unresolved`
+   whenever either reason is present.
+9. If no blocking reason exists and true rules name one distinct outcome, produce it. Multiple true
+   rules naming that same outcome are compatible.
+10. If no true rule contributes an outcome, use `fallbackOutcome` when present. False rules and
+    unknown rules with `onUnknown: ignore` do not prevent this fallback. If no fallback is present,
+    produce `unresolved` with reason `no-match`.
+
+Thus, `onUnknown: escalate` has blocking precedence over otherwise compatible outcomes at the same
+resolution stage, while `onUnknown: ignore` never changes an unknown condition to false and does
+not erase that unknown from a trace. Array order, lexical id order, and implementation-defined
+priority MUST NOT select among rule outcomes, and a conflict MUST NOT be tie-broken: it is an
+`unresolved` result.
+
+### 8.1 Handoff configuration
+
+Evaluation state and handoff configuration are distinct. An unresolved or not-applicable result
+exists independently of the optional `escalation` object; `escalation` is not itself an outcome.
+
+For a generated reason, the configured target is requested when `escalation` is present and at
+least one retained reason appears in `escalation.triggers`. When several reasons match, resolution
+creates exactly one handoff request to the configured target and includes the complete retained
+reason set. That complete set is carried in the disposition's `reasons`; `handoff.triggeredBy` names
+the subset of it that triggered the request, which is smaller whenever `escalation.triggers` does not
+name every retained reason (§8.3). A true exception with effect `escalate` is a direct request and
+uses the configured target regardless of the trigger list.
+
+When `escalation` is omitted, there are no default triggers and no default target. When it is
+present but no generated reason matches its triggers, there is likewise no configured handoff for
+that reason. In either case, an unresolved result remains unresolved and must not be converted into
+a fallback or other outcome. A direct exception escalation without an `escalation` object remains
+an unresolved direct request with no Core-defined destination; the disposition records it as a
+requested handoff whose destination the pack does not supply (§8.3).
+
+### 8.2 Evaluation inputs
+
+An evaluation takes four inputs. Three are documents — the pack and the facts document are always
+supplied, and the evidence-availability document is optional, with the meaning of its absence defined
+below — and the fourth is a property of the implementation. Two documents are therefore the minimum
+and three the maximum.
+
+- **Pack** — one semantically conforming document (§3.3). A pack that is not semantically conforming
+  is an evaluation error (§8.4), not a disposition.
+- **Facts** — one JSON document. Every `fact.path` is an RFC 6901 JSON Pointer evaluated against it
+  (§7.4). There is exactly one facts document per evaluation; Core defines no fact namespace,
+  merging, or acquisition.
+- **Evidence availability** — one JSON object whose member names are declared
+  `evidenceRequirements[].id` values and whose values are exactly one of the strings `present`,
+  `absent`, or `unknown`. An omitted key means `unknown`. An omitted document as a whole is the
+  implicit empty object, which by that rule makes every declared requirement `unknown`; it is the only
+  form absence takes, and it is not an error. A value that is not a JSON object at all, a member name
+  that is not a declared requirement id, or a value outside those three strings is an evaluation error
+  (§8.4) — an undeclared key is far more likely to be a caller's mistake than a statement about the
+  pack. Duplicate member names are already rejected by §2.1.
+- **Supported extensions** — the set of `metadata.requiredExtensions` capabilities the implementation
+  supports. A required capability outside that set is an evaluation error (§8.4), never a
+  disposition (§9).
+
+**Input preflight.** The inputs are admitted before evaluation begins. An implementation claiming
+evaluator conformance MUST validate them in this order — the pack, then the facts document, then the
+evidence-availability document, then the pack's `metadata.requiredExtensions` against its own
+supported-extension set — and MUST complete that validation before step 1 of §8 runs. That order is the
+error precedence of §8.4, so the first failure encountered is also the class §8.4 requires be reported.
+
+Any violation of this section's shape requirements is the `malformed-input` evaluation error of §8.4: an
+evidence-availability input that is not a JSON object, an undeclared member name, a value outside
+`present`, `absent`, and `unknown`, and a facts or evidence-availability input that is not a
+carrier-conforming JSON text (§2.1) are all that error. So is reaching a documented document or carrier
+limit while admitting an input, because §2.1 requires refusing such a document rather than processing
+part of it, so the input is never admitted (§8.4, §10).
+
+Because preflight completes before step 1, no result can outrace an input error: a pack whose
+applicability is false, presented with an evidence-availability document carrying an undeclared key, is
+the `malformed-input` error and never the `not-applicable` disposition, and the same holds for every
+other terminal step of §8 and for every preflight failure. Two conforming implementations therefore
+agree on which inputs are admitted at all, not only on what an admitted input produces.
+
+Core defines no transport, file layout, or command-line surface for these inputs. It defines what
+they mean.
+
+### 8.3 The portable disposition
+
+An implementation claiming evaluator conformance MUST produce, for each evaluation, exactly one
+*disposition* or exactly one evaluation error (§8.4) and no disposition. The disposition is a JSON
+object with these members and no others:
+
+| Member      | Present                  | Value                                                       |
+| ----------- | ------------------------ | ----------------------------------------------------------- |
+| `kind`      | always                   | `outcome`, `not-applicable`, or `unresolved`                 |
+| `outcomeId` | iff `kind` is `outcome`  | the `id` of exactly one declared outcome                     |
+| `reasons`   | always                   | the retained reason set, serialized as a sorted array        |
+| `handoff`   | always                   | an object carrying the handoff state, and its trigger        |
+
+`kind` is the result kind produced by §8. `not-applicable` and `unresolved` are not outcomes and MUST
+NOT be mapped onto one, defaulted to one, or flattened into the same field as `outcomeId`.
+
+`outcomeId` MUST be present when `kind` is `outcome` and MUST be absent otherwise — absent, not
+`null` and not an empty string. It MUST name a declared outcome of the pack evaluated.
+
+`reasons` is a **set**: unordered and duplicate-free. Its members are drawn from
+`not-applicable`, `missing-required-evidence`, `unknown`, `conflict`, `no-match`, and
+`exception-escalation`; no other value is admitted. It is empty if and only if `kind` is `outcome`.
+When `kind` is `not-applicable` its one member is `not-applicable`. Two dispositions have the same
+`reasons` when the sets are equal; serialized order is never a difference in the disposition.
+
+`handoff` is an object with:
+
+- `state` — `requested` when §8.1 makes a handoff request, whether trigger-selected or a direct
+  exception request, and including a direct exception request made when the pack carries no
+  `escalation` object, in which case the request has no Core-defined destination (§8.1). `none`
+  otherwise. Present always.
+- `triggeredBy` — present if and only if `state` is `requested`. A non-empty **set** of reason
+  identifiers: every retained reason that appears in `escalation.triggers`, plus
+  `exception-escalation` when a true exception with effect `escalate` made a direct request (§8.1).
+  It is always a subset of `reasons`.
+
+The disposition does not echo the configured escalation target. A consumer that needs the target
+reads it from the pack; carrying a copy here would let a disposition disagree with the pack it came
+from, and the target is a display name, not an address (§6.7). A requested handoff is a request, not
+evidence that a handoff occurred.
+
+Nothing else belongs in the disposition object. An implementation MAY report a trace, contributing
+rule, exception, or evidence-requirement ids, timings, or any other diagnostic **outside** the
+disposition, and their presence or absence MUST NOT change any member above.
+
+**Serialization.** So that two conforming implementations can be compared:
+
+- both sets — `reasons` and `handoff.triggeredBy` — are serialized as JSON arrays whose elements are
+  sorted ascending by Unicode code point, with no duplicates;
+- an absent member is omitted, never serialized as `null`;
+- member order carries no meaning; and
+- where a byte comparison is required, each disposition is first canonicalized as described by
+  RFC 8785, which orders object members by name. A disposition contains no numbers, so that
+  specification's number rules never engage.
+
+Two conforming implementations given the same pack, facts document, evidence-availability document,
+and supported-extension set MUST produce byte-identical canonicalized dispositions. That is the whole
+of the portability claim, and §3.5 applies to every part of it.
+
+That requirement has exactly one seam, and this is the whole of it: whether equality involving a JSON
+number an implementation cannot represent exactly is `unknown` or an explicit input error is an open
+question (§7.4, §13). Until §13 closes it, two implementations with different arithmetic ranges may
+answer differently on such a value, and an input carrying one is outside the portable claim. No other
+input, operator, or member is outside it, and no other implementation-relative escape exists in §§7–8:
+an implementation MUST NOT read this seam as permission to answer `unknown` anywhere else.
+
+Two illustrative canonicalized dispositions, informative:
+
+```json
+{"handoff":{"state":"none"},"kind":"outcome","outcomeId":"proceed","reasons":[]}
+```
+
+```json
+{"handoff":{"state":"requested","triggeredBy":["missing-required-evidence"]},"kind":"unresolved","reasons":["missing-required-evidence"]}
+```
+
+### 8.4 Evaluation errors
+
+An evaluation error is not a disposition. When an implementation claiming evaluator conformance
+cannot complete an evaluation, it MUST report an evaluation error, MUST NOT emit a disposition for
+that evaluation, and MUST NOT substitute `unresolved`, `not-applicable`, or a fallback outcome for
+the error. Evaluation terminates wherever §8 had reached, and partial state MUST NOT be reported as a
+result. This is the §3.1 rule applied one layer up: a documented limit or a malformed input produces
+explicit failure, never a silent partial processing that a caller could mistake for a result. A
+truncated evaluation reported as a disposition is a forged disposition.
+
+An implementation MUST report the class of every evaluation error, and every evaluation error is
+identified by exactly one class: exactly one of the four Core classes below, or — for a condition no
+Core class covers — exactly one documented implementation-defined class in the form this section
+requires of one. A Core class always takes precedence: an implementation-defined class is reported only
+when no Core class applies, never in place of one that does.
+
+The Core classes are:
+
+- **`pack-not-conformant`** — the pack input is not a semantically conforming document (§3.3),
+  failing at any of the carrier, structural, or semantic layer.
+- **`unsupported-required-extension`** — the pack declares a capability in
+  `metadata.requiredExtensions` that the implementation does not support. §9's "structurally readable
+  but not fully interpretable" report is this error for the evaluator class: the unsupported part may
+  be the part that decides, so no disposition may be produced.
+- **`malformed-input`** — an input failed the preflight of §8.2. The facts document or the
+  evidence-availability document is not a carrier-conforming JSON text (§2.1); or the
+  evidence-availability input violates §8.2 by not being a JSON object, by carrying an undeclared member
+  name, or by carrying a value outside `present`, `absent`, and `unknown`; or a documented document or
+  carrier limit — bytes, nesting depth, or string size — was reached while admitting an input, which
+  §2.1 requires be refused rather than partly processed, so the input never became one.
+- **`resource-exhaustion`** — a limit documented under §10 was reached during evaluation: a
+  collection-size limit or the evaluation-work limit. This class is about work an admitted input turned
+  out to require, never about admitting the input in the first place.
+
+More than one class can apply to the same inputs: a pack that fails semantic conformance presented with
+an evidence document carrying an undeclared key is both `pack-not-conformant` and `malformed-input`. The
+classes are therefore evaluated in one fixed order — `pack-not-conformant`, then `malformed-input`, then
+`unsupported-required-extension`, then `resource-exhaustion` — and the first that applies is the class
+reported, so that two conforming implementations report the same class for the same inputs. That order is
+the preflight order of §8.2, and the phase split between `malformed-input` and `resource-exhaustion` is
+what keeps it from contradicting §10: a limit reached while admitting an input is `malformed-input`
+because the input was refused, and `resource-exhaustion` is reserved for a limit reached while evaluating
+an input that was admitted. An implementation MAY name the other classes it also considered as message
+detail.
+
+As stated above, an implementation MAY define an additional class for a condition none of the four Core
+classes covers — and only for such a condition — and MAY attach any message detail it likes. An
+implementation-defined class MUST be documented and MUST be named in the reverse-domain form of
+§9 — for example `com.example.timeout` — which cannot collide with a Core class identifier, since
+those are bare kebab-case names, nor with a class another implementation defines. The transport, exit
+status, and wire format of an evaluation error are not defined here; the class identifier is. A
+machine-readable diagnostic contract remains open (§13).
+
+## 9. Extensions
+
+`extensions` is an object whose keys use reverse-domain naming, for example
+`com.example.review-policy`. Values may be any JSON value.
+
+An optional extension MUST NOT change Core semantics. Consumers preserve optional extensions when
+round-tripping but may otherwise ignore them.
+
+Required extension semantics are declared in `metadata.requiredExtensions`. A consumer that does
+not support every required extension MUST report the document as structurally readable but not
+fully interpretable. It MUST NOT silently ignore a required extension. For an implementation claiming
+evaluator conformance, that report is the `unsupported-required-extension` evaluation error of §8.4
+and no disposition is produced.
+
+Every name in `metadata.requiredExtensions` MUST appear as a key in at least one `extensions`
+object in the document. A required-extension declaration without a corresponding value is
+semantically invalid. An extension key omitted from `metadata.requiredExtensions` is optional.
+
+Names beginning with `org.judgmentpack.` are reserved for future specification-defined extensions.
+
+## 10. Security and privacy considerations
+
+Implementations must treat packs, sources, citations, extensions, and runtime facts as untrusted
+input. They SHOULD define limits for document bytes, nesting depth, collection sizes, string sizes,
+and evaluation work.
+
+An implementation claiming evaluator conformance (§3.4) MUST define and document at least its
+collection-size and evaluation-work limits, and reaching one of those during an evaluation MUST produce
+the `resource-exhaustion` evaluation error of §8.4 rather than a disposition. A documented document or
+carrier limit — bytes, nesting depth, or string size — reached while admitting an input instead produces
+`malformed-input`: §2.1 refuses such a document rather than processing part of it, and §8.2's preflight
+therefore never admits it (§8.4). Either way the evaluation yields an explicit error and never a
+disposition; the two classes differ only in which phase the limit belongs to. Defining a limit is not
+portability: two conforming implementations may define different limits, so an input above either
+one is outside the portable claim. The evaluation corpus therefore keeps its cases well inside any
+plausible limit instead of probing one.
+
+Implementations MUST NOT:
+
+- execute code found in strings or extensions;
+- fetch source locators during ordinary validation unless explicitly requested;
+- treat a URL or publisher name as proof of authenticity;
+- expose sensitive evidence merely because a pack references it;
+- convert conformance into authorization; or
+- continue after silently dropping malformed or unsupported required content.
+
+## 11. Versioning
+
+`specVersion` identifies this specification draft. `version` identifies the pack revision. They are
+independent.
+
+During `0.x`, any specification release may be breaking. A future stable specification must define
+reader, writer, and semantic compatibility separately and supply machine-readable migration cases.
+
+A published pack version SHOULD be immutable. Changed content SHOULD receive a new version.
+
+`0.2.0-draft` changes no part of the document format. A pack declaring `specVersion` `0.1.0-draft` is
+unchanged in representation and in document-conformance meaning under this draft — every member, every
+cross-field rule, and every conformance verdict of §§3.1–3.3 is the same — and may be re-declared as
+`0.2.0-draft` by editing that one value and nothing else. Re-declaration is not semantically inert: it
+opts the pack into the evaluator semantics of §§7–8, which are normative for the class defined here and
+existed for no consumer under `0.1.0-draft` (§7.5 replaces that draft's undefined appeal to a complete
+evidence manifest). What re-declaration does not do is confer conformance on anything: an
+evaluator-conformance claim is a claim about an implementation, made only as §3.4.1 permits, and no pack
+edit creates, transfers, or strengthens one. Because the value is exact (§4), an unedited `0.1.0-draft` pack is not
+structurally conforming to `0.2.0-draft` and must be re-declared before an implementation claiming
+this draft evaluates it; the `0.1.0-draft` schema remains published for packs that keep the older
+value.
+
+An evaluator-conformance claim (§3.4) attaches to one exact `specVersion` and to the evaluation
+corpus published with it. It is not inherited by a later or an earlier version, and re-declaring a
+pack acquires nothing for the implementations that read it.
+
+## 12. Normative references
+
+- [BCP 14](https://www.rfc-editor.org/info/bcp14), including RFC 2119 and RFC 8174, defines the
+  requirement keywords used by this document.
+- [RFC 8259](https://www.rfc-editor.org/rfc/rfc8259) defines JSON.
+- [RFC 3986](https://www.rfc-editor.org/rfc/rfc3986) defines URI syntax.
+- [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339) defines the date and date-time forms used by
+  schema format assertions.
+- [RFC 6901](https://www.rfc-editor.org/rfc/rfc6901) defines the JSON Pointer syntax admitted by
+  `fact.path`.
+- [RFC 8785](https://www.rfc-editor.org/rfc/rfc8785) defines the JSON canonicalization used by §8.3
+  when two dispositions are compared byte for byte.
+- [JSON Schema Core, Draft 2020-12](https://json-schema.org/draft/2020-12/json-schema-core) and
+  [JSON Schema Validation, Draft 2020-12](https://json-schema.org/draft/2020-12/json-schema-validation)
+  define the schema dialect and validation keywords used by the normative schema.
+
+## 13. Open questions
+
+Whether portable rule evaluation belongs in Core or in a separate profile is closed: §3.4 places the
+class in Core, so the error contract and the disposition shape live in one place that a later
+evaluation profile can build on rather than restate. Before a candidate stable core, the project must
+still resolve:
+
+- exact unit, date/time, and normalization semantics beyond the decimal-string ordering of §7.4;
+- whether equality between syntactically valid but arithmetically unrepresentable JSON numbers is
+  `unknown`, as §7.4's incomparable-value rule implies, or an explicit input error. This is the single
+  seam §8.3 excludes from its byte-agreement requirement, and the evaluation corpus carries no row for
+  it because a row cannot state an expected result until the question is closed;
+- an interchange form for evidence beyond §8.2's tri-state, and whether §8.2 grows into it;
+- the minimum a trace must surface, including whether it must surface a true rule that a forced
+  outcome skipped;
+- a machine-readable diagnostic contract, for document validation and for the §8.4 error classes;
+- the minimum provenance and lineage model;
+- whether authority bindings belong in optional profiles;
+- content identity, canonicalization, and signatures;
+- imports and content-addressed dependencies; and
+- profile and capability negotiation.
+
+## Normative JSON Schema for a Judgment Pack
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://judgmentpack.org/schema/0.2.0-draft/judgment-pack-core.schema.json",
+  "title": "Judgment Pack Core",
+  "description": "Research-preview structural schema. Conformance does not establish truth, authority, safety, or operational fitness.",
+  "$comment": "JPS structural conformance requires uri, date, and date-time format assertions even when a general-purpose validator treats format as annotation-only.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "specVersion",
+    "id",
+    "version",
+    "title",
+    "decision",
+    "outcomes",
+    "rules"
+  ],
+  "properties": {
+    "specVersion": {
+      "const": "0.2.0-draft"
+    },
+    "id": {
+      "type": "string",
+      "format": "uri",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "title": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "description": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "decision": {
+      "$ref": "#/$defs/decision"
+    },
+    "applicability": {
+      "$ref": "#/$defs/condition"
+    },
+    "evidenceRequirements": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/evidenceRequirement"
+      },
+      "uniqueItems": true
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/source"
+      },
+      "uniqueItems": true
+    },
+    "outcomes": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "$ref": "#/$defs/outcome"
+      },
+      "uniqueItems": true
+    },
+    "rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/rule"
+      },
+      "uniqueItems": true
+    },
+    "exceptions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/exception"
+      },
+      "uniqueItems": true
+    },
+    "fallbackOutcome": {
+      "$ref": "#/$defs/localId"
+    },
+    "escalation": {
+      "$ref": "#/$defs/escalation"
+    },
+    "metadata": {
+      "$ref": "#/$defs/metadata"
+    },
+    "extensions": {
+      "$ref": "#/$defs/extensions"
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "localId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "decimalString": {
+      "type": "string",
+      "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$"
+    },
+    "extensions": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^(?!org\\.judgmentpack\\.)[a-z][a-z0-9]*(?:\\.[a-z][a-z0-9-]*)+$"
+      },
+      "additionalProperties": true
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["intent", "question"],
+      "properties": {
+        "intent": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "question": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        }
+      }
+    },
+    "evidenceRequirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "description", "required"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/localId"
+        },
+        "description": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "kind": {
+          "enum": ["document", "fact", "measurement", "attestation"]
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "locator"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/localId"
+        },
+        "title": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "publisher": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "publishedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "locator": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "value"],
+          "properties": {
+            "kind": {
+              "enum": ["uri", "repository", "path", "other"]
+            },
+            "value": {
+              "$ref": "#/$defs/nonEmptyString"
+            }
+          }
+        },
+        "citation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["location", "excerpt"],
+          "properties": {
+            "location": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "excerpt": {
+              "$ref": "#/$defs/nonEmptyString"
+            }
+          }
+        },
+        "rights": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        }
+      }
+    },
+    "outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/localId"
+        },
+        "label": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "description": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        }
+      }
+    },
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "description", "when", "outcome", "onUnknown"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/localId"
+        },
+        "description": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "when": {
+          "$ref": "#/$defs/condition"
+        },
+        "outcome": {
+          "$ref": "#/$defs/localId"
+        },
+        "onUnknown": {
+          "enum": ["ignore", "escalate"]
+        },
+        "evidenceRequirementRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/localId"
+          },
+          "uniqueItems": true
+        },
+        "sourceRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/localId"
+          },
+          "uniqueItems": true
+        },
+        "rationale": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        }
+      }
+    },
+    "exception": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "description", "when", "effect", "onUnknown"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/localId"
+        },
+        "description": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "when": {
+          "$ref": "#/$defs/condition"
+        },
+        "effect": {
+          "enum": ["suppress-rule", "force-outcome", "escalate"]
+        },
+        "targetRule": {
+          "$ref": "#/$defs/localId"
+        },
+        "outcome": {
+          "$ref": "#/$defs/localId"
+        },
+        "onUnknown": {
+          "enum": ["ignore", "escalate"]
+        },
+        "sourceRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/localId"
+          },
+          "uniqueItems": true
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "effect": {
+                "const": "suppress-rule"
+              }
+            },
+            "required": ["effect"]
+          },
+          "then": {
+            "required": ["targetRule"],
+            "not": {
+              "required": ["outcome"]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "effect": {
+                "const": "force-outcome"
+              }
+            },
+            "required": ["effect"]
+          },
+          "then": {
+            "required": ["outcome"],
+            "not": {
+              "required": ["targetRule"]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "effect": {
+                "const": "escalate"
+              }
+            },
+            "required": ["effect"]
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                { "required": ["outcome"] },
+                { "required": ["targetRule"] }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "escalation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["triggers", "target"],
+      "properties": {
+        "triggers": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "not-applicable",
+              "missing-required-evidence",
+              "unknown",
+              "conflict",
+              "no-match"
+            ]
+          }
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "name"],
+          "properties": {
+            "kind": {
+              "enum": ["human-role", "queue", "system"]
+            },
+            "name": {
+              "$ref": "#/$defs/nonEmptyString"
+            }
+          }
+        },
+        "message": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "authors": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          },
+          "uniqueItems": true
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "license": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "requiredExtensions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^(?!org\\.judgmentpack\\.)[a-z][a-z0-9]*(?:\\.[a-z][a-z0-9-]*)+$"
+          },
+          "uniqueItems": true
+        },
+        "reviews": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["reviewer", "reviewedAt", "disposition"],
+            "properties": {
+              "reviewer": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "reviewedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "disposition": {
+                "enum": ["approved", "changes-requested", "rejected"]
+              },
+              "note": {
+                "$ref": "#/$defs/nonEmptyString"
+              }
+            }
+          }
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        }
+      }
+    },
+    "condition": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["op", "value"],
+          "properties": {
+            "op": {
+              "const": "literal"
+            },
+            "value": {
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["op", "conditions"],
+          "properties": {
+            "op": {
+              "enum": ["all", "any"]
+            },
+            "conditions": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/condition"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["op", "condition"],
+          "properties": {
+            "op": {
+              "const": "not"
+            },
+            "condition": {
+              "$ref": "#/$defs/condition"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["op", "path", "operator", "value"],
+          "properties": {
+            "op": {
+              "const": "fact"
+            },
+            "path": {
+              "type": "string",
+              "pattern": "^(?:/(?:[^~/]|~0|~1)*)*$"
+            },
+            "operator": {
+              "enum": [
+                "equals",
+                "not-equals",
+                "greater-than",
+                "greater-than-or-equal",
+                "less-than",
+                "less-than-or-equal",
+                "in"
+              ]
+            },
+            "value": true
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "operator": {
+                    "enum": [
+                      "greater-than",
+                      "greater-than-or-equal",
+                      "less-than",
+                      "less-than-or-equal"
+                    ]
+                  }
+                },
+                "required": ["operator"]
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "$ref": "#/$defs/decimalString"
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "operator": {
+                    "const": "in"
+                  }
+                },
+                "required": ["operator"]
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "array",
+                    "minItems": 1
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["op", "evidenceRequirement"],
+          "properties": {
+            "op": {
+              "const": "evidence-present"
+            },
+            "evidenceRequirement": {
+              "$ref": "#/$defs/localId"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+---
+
+# Your task
+
+You are given, above: a written policy, a naming appendix that fixes the identifiers you must
+use, and the complete Judgment Pack Specification (JPS Core `0.2.0-draft`) with its normative
+JSON Schema.
+
+Write, in one reply, an executable implementation of that policy as a **Judgment Pack**,
+together with a **test matrix** for it.
+
+Working conditions, stated plainly so you can plan:
+
+- **One attempt.** You have no tools, no file access, and no way to run either artifact
+  before you answer. Nothing will be run for you and handed back. Do not ask questions.
+- **Nothing is repaired for you.** Your reply is read exactly as written. A document that
+  does not parse, or that the specification's validator rejects, is the answer you gave.
+- Your pack will be checked with the specification's validator and then evaluated against
+  inputs you have not seen, drawn from the same policy. Aim for a pack whose behaviour
+  matches the policy text on **every** input the policy describes, not only on the cases you
+  happen to think of.
+- Read the policy as a lawyer would: the order in which its clauses apply, which clause
+  governs where two could, and what it says happens when an input cannot be read, are all
+  part of what you must implement.
+
+## What the two artifacts are
+
+**1. The pack.** One JSON document conforming to the JPS Core `0.2.0-draft` schema above. It
+declares the decision, the evidence requirements, the outcomes, the rules, the exceptions and
+the escalation configuration. The specification above is the whole language: the resolution
+model (section 8) is what your pack will actually be run under, and the disposition it
+produces (section 8.3) is what your pack is judged on.
+
+**2. The test matrix.** One JSON document of instance rows for your pack: the inputs you would
+want tested and the disposition you expect each to produce. The matrix is not part of the
+specification — it is a runtime convention — so its format is given in full below.
+
+## Pack rules for this task
+
+- `specVersion` MUST be exactly `"0.2.0-draft"`.
+- Use the identifiers in the naming appendix exactly: outcome ids, fact pointer paths,
+  evidence requirement ids, escalation target kind and name, and the escalation trigger list.
+- Do **not** declare an `applicability` member. (Stated in the naming appendix; repeated here
+  because it is a refusal, not a preference.)
+- Do **not** declare a `fallbackOutcome`.
+- Facts reach your pack as the document described in the naming appendix; the availability of
+  each evidence requirement reaches it as the separate evidence-availability document of
+  specification section 8.2.
+- Ordered comparisons (`greater-than`, `greater-than-or-equal`, `less-than`,
+  `less-than-or-equal`) are defined over decimal strings — see section 7.4 and the naming
+  appendix's wire forms.
+- The pack must be self-contained: no extensions, no external references.
+
+## The test-matrix format
+
+A matrix is one JSON object:
+
+- `matrixVersion`: the string `"2"`.
+- `cases`: an array of rows. Each row has
+  - `id` — unique within the matrix, named so a failure can be pointed at;
+  - `facts` — the facts document for that row (**required**);
+  - `evidenceAvailability` — optional; maps evidence requirement ids to `"present"` or
+    `"absent"`. An omitted id means the availability is unknown;
+  - exactly **one** of
+    - `expectedDisposition` — an object with `kind` (`"outcome"` or `"unresolved"`),
+      `outcomeId` when the kind is `outcome`, `reasons` (an array, empty for an outcome), and
+      `handoff` (`{"state": "none"}`, or `{"state": "requested", "triggeredBy": [...]}`), or
+    - `expectedErrorClass` — the evaluation-error class the row expects, optionally beside
+      `expectedErrorPhase`;
+  - `expectedHandoffTarget` — optional, and only beside `expectedDisposition`: an object with
+    `kind` and `name` asserting that exact escalation target, or the literal `null` asserting
+    that the evaluation reports no target.
+  - `focus` — optional, one line saying what the row probes.
+
+A row passes when the disposition produced is byte-identical (RFC 8785 canonical form) to the
+row's `expectedDisposition`. Unknown members are rejected, and a misspelled member is an
+error rather than a row that silently expects nothing.
+
+## Toy example (unrelated domain — shape only)
+
+The example below is about renewing a library loan. It exists to show you the *shape* of the
+two documents and nothing else: its domain, its identifiers, its thresholds and its structure
+have no relationship to the policy you were given.
+
+```json
+{
+  "specVersion": "0.2.0-draft",
+  "id": "https://example.org/judgment-packs/toy-library-loan-renewal",
+  "version": "0.1.0",
+  "title": "Library loan renewal (toy example, unrelated domain)",
+  "description": "A deliberately tiny pack, shown only to fix the shape of the document.",
+  "decision": {
+    "intent": "Decide how a request to renew a library loan is handled.",
+    "question": "May this loan be renewed?"
+  },
+  "evidenceRequirements": [
+    {
+      "id": "current-address",
+      "description": "A confirmed current address for the member.",
+      "required": true,
+      "kind": "attestation"
+    }
+  ],
+  "outcomes": [
+    { "id": "renew", "label": "Renew the loan" },
+    { "id": "refer-to-desk", "label": "Refer to the front desk" }
+  ],
+  "rules": [
+    {
+      "id": "r-not-overdue",
+      "description": "A loan less than 14 days overdue renews.",
+      "when": {
+        "op": "fact",
+        "path": "/loan/daysOverdue",
+        "operator": "less-than",
+        "value": "14"
+      },
+      "outcome": "renew",
+      "onUnknown": "ignore"
+    },
+    {
+      "id": "r-overdue",
+      "description": "A loan 14 or more days overdue goes to the desk.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/loan/daysOverdue",
+            "operator": "greater-than-or-equal",
+            "value": "14"
+          },
+          {
+            "op": "not",
+            "condition": {
+              "op": "fact",
+              "path": "/member/status",
+              "operator": "equals",
+              "value": "staff"
+            }
+          }
+        ]
+      },
+      "outcome": "refer-to-desk",
+      "onUnknown": "escalate"
+    }
+  ],
+  "exceptions": [
+    {
+      "id": "x-guest-card",
+      "description": "A guest card is always handled at the desk.",
+      "when": {
+        "op": "fact",
+        "path": "/member/status",
+        "operator": "equals",
+        "value": "guest"
+      },
+      "effect": "force-outcome",
+      "outcome": "refer-to-desk",
+      "onUnknown": "ignore"
+    }
+  ],
+  "escalation": {
+    "triggers": ["missing-required-evidence", "unknown"],
+    "target": { "kind": "human-role", "name": "Front desk" }
+  }
+}
+```
+
+A matrix for that toy pack:
+
+```json
+{
+  "matrixVersion": "2",
+  "cases": [
+    {
+      "id": "renewed-when-recent",
+      "facts": { "loan": { "daysOverdue": "3" }, "member": { "status": "member" } },
+      "evidenceAvailability": { "current-address": "present" },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "renew",
+        "reasons": [],
+        "handoff": { "state": "none" }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "address-absent-blocks-everything",
+      "facts": { "loan": { "daysOverdue": "3" }, "member": { "status": "member" } },
+      "evidenceAvailability": { "current-address": "absent" },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": ["missing-required-evidence"],
+        "handoff": { "state": "requested", "triggeredBy": ["missing-required-evidence"] }
+      },
+      "expectedHandoffTarget": { "kind": "human-role", "name": "Front desk" }
+    },
+    {
+      "id": "overdue-day-14-is-the-boundary",
+      "facts": { "loan": { "daysOverdue": "14" }, "member": { "status": "member" } },
+      "evidenceAvailability": { "current-address": "present" },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "refer-to-desk",
+        "reasons": [],
+        "handoff": { "state": "none" }
+      }
+    }
+  ]
+}
+```
+
+## Required output form
+
+Think and explain as much as you like first; only the blocks below are read. End your reply
+with **exactly** these two blocks, in this order:
+
+    PACK:
+    ```json
+    <the complete pack document>
+    ```
+
+    MATRIX:
+    ```json
+    <the complete test matrix document>
+    ```
+
+- The marker is a line on its own containing exactly `PACK:` (and exactly `MATRIX:`),
+  immediately followed by a fenced block.
+- The fence may be ```` ```json ```` or a bare ```` ``` ````.
+- If a marker appears more than once, **the last one is the one read**. Everything outside
+  these two blocks is ignored.
+- Each block must contain one complete JSON document and nothing else — no prose, no comments,
+  no ellipsis, no placeholder.
+
+warning: Skill descriptions were shortened to fit the 2% skills context budget. Codex can still see every skill, but some descriptions are shorter. Disable unused skills or plugins to leave more room for the rest.
+codex
+I’m mapping the policy into Core’s unordered rule/exception semantics and independently checking unreadable-input behavior, since that is the main representation constraint.
+2026-08-15T14:58:59.328018Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 95 column 5
+2026-08-15T15:01:07.584305Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 95 column 5
+2026-08-15T15:01:20.939842Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 95 column 5
+2026-08-15T15:01:49.682361Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 95 column 5
+2026-08-15T15:02:13.775448Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 95 column 5
+2026-08-15T15:03:08.917843Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 95 column 5
+2026-08-15T15:03:55.103655Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 95 column 5
+2026-08-15T15:04:32.607472Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 95 column 5
+2026-08-15T15:04:46.600334Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 95 column 5
+2026-08-15T15:05:50.989812Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 95 column 5
+2026-08-15T15:06:06.882055Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 95 column 5
+2026-08-15T15:06:12.796651Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 95 column 5
+2026-08-15T15:06:45.945977Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 95 column 5
+2026-08-15T15:07:20.313016Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 95 column 5
+2026-08-15T15:07:50.315907Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 95 column 5
+2026-08-15T15:08:23.488698Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 95 column 5
+2026-08-15T15:08:50.849878Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 95 column 5
+2026-08-15T15:09:52.644231Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 95 column 5
+2026-08-15T15:12:12.807056Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 95 column 5
+2026-08-15T15:12:47.605087Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 95 column 5
+2026-08-15T15:14:04.572099Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 95 column 5
+2026-08-15T15:15:59.533180Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 95 column 5
+2026-08-15T15:17:49.453592Z ERROR codex_models_manager::manager: failed to renew cache TTL: missing field `base_instructions` at line 95 column 5
+codex
+PACK:
+```json
+{
+  "specVersion": "0.2.0-draft",
+  "id": "https://example.org/judgment-packs/vendor-approval-policy",
+  "version": "1.0.0",
+  "title": "Vendor Approval Policy",
+  "description": "Determines vendor onboarding spend requests under the stated evidence, sanctions, risk, country, supplier, enforcement, insurance, and escalation requirements.",
+  "decision": {
+    "intent": "Determine the disposition of a vendor onboarding spend request.",
+    "question": "What disposition does the vendor approval policy assign to this request?"
+  },
+  "evidenceRequirements": [
+    {
+      "id": "financial-evidence",
+      "description": "Audited financial statements required before any determination may be issued.",
+      "required": true,
+      "kind": "document"
+    },
+    {
+      "id": "insurance-certificate",
+      "description": "Insurance certificate consulted only by the applicable D6b approval clause.",
+      "required": false,
+      "kind": "document"
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "approve",
+      "label": "Approve"
+    },
+    {
+      "id": "review",
+      "label": "Review"
+    },
+    {
+      "id": "enhanced-review",
+      "label": "Enhanced review"
+    },
+    {
+      "id": "reject",
+      "label": "Reject"
+    }
+  ],
+  "rules": [
+    {
+      "id": "d1-sanctions-match",
+      "description": "A sanctions match rejects the request.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/sanctionsStatus",
+        "operator": "equals",
+        "value": "MATCH"
+      },
+      "outcome": "reject",
+      "onUnknown": "ignore"
+    },
+    {
+      "id": "d3-d4-risk-rejection",
+      "description": "A clear request is rejected for risk of at least 90, or for risk of at least 70 in a high-risk country.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "any",
+            "conditions": [
+              {
+                "op": "fact",
+                "path": "/vendor/riskScore",
+                "operator": "greater-than-or-equal",
+                "value": "90"
+              },
+              {
+                "op": "all",
+                "conditions": [
+                  {
+                    "op": "fact",
+                    "path": "/vendor/countryRisk",
+                    "operator": "equals",
+                    "value": "HIGH"
+                  },
+                  {
+                    "op": "fact",
+                    "path": "/vendor/riskScore",
+                    "operator": "greater-than-or-equal",
+                    "value": "70"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "outcome": "reject",
+      "onUnknown": "escalate"
+    },
+    {
+      "id": "d5-prior-enforcement",
+      "description": "A clear request for a vendor with a recorded prior enforcement action is rejected.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/priorEnforcement",
+            "operator": "equals",
+            "value": "yes"
+          }
+        ]
+      },
+      "outcome": "reject",
+      "onUnknown": "ignore"
+    },
+    {
+      "id": "d6a-d6b-d7-approval",
+      "description": "Implements D6a, D6b's insured approval limb, and D7.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "any",
+            "conditions": [
+              {
+                "op": "all",
+                "conditions": [
+                  {
+                    "op": "fact",
+                    "path": "/vendor/countryRisk",
+                    "operator": "equals",
+                    "value": "LOW"
+                  },
+                  {
+                    "op": "fact",
+                    "path": "/vendor/riskScore",
+                    "operator": "less-than",
+                    "value": "40"
+                  },
+                  {
+                    "op": "fact",
+                    "path": "/vendor/requestedSpend",
+                    "operator": "less-than-or-equal",
+                    "value": "500000.00"
+                  }
+                ]
+              },
+              {
+                "op": "all",
+                "conditions": [
+                  {
+                    "op": "fact",
+                    "path": "/vendor/countryRisk",
+                    "operator": "equals",
+                    "value": "LOW"
+                  },
+                  {
+                    "op": "fact",
+                    "path": "/vendor/riskScore",
+                    "operator": "less-than",
+                    "value": "40"
+                  },
+                  {
+                    "op": "fact",
+                    "path": "/vendor/requestedSpend",
+                    "operator": "greater-than",
+                    "value": "500000.00"
+                  },
+                  {
+                    "op": "fact",
+                    "path": "/vendor/requestedSpend",
+                    "operator": "less-than-or-equal",
+                    "value": "2000000.00"
+                  },
+                  {
+                    "op": "evidence-present",
+                    "evidenceRequirement": "insurance-certificate"
+                  }
+                ]
+              },
+              {
+                "op": "all",
+                "conditions": [
+                  {
+                    "op": "fact",
+                    "path": "/vendor/countryRisk",
+                    "operator": "equals",
+                    "value": "MEDIUM"
+                  },
+                  {
+                    "op": "fact",
+                    "path": "/vendor/riskScore",
+                    "operator": "less-than",
+                    "value": "40"
+                  },
+                  {
+                    "op": "fact",
+                    "path": "/vendor/requestedSpend",
+                    "operator": "less-than-or-equal",
+                    "value": "100000.00"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "outcome": "approve",
+      "onUnknown": "escalate"
+    },
+    {
+      "id": "d6c-approval",
+      "description": "A clear low-country-risk request with risk from 40 through 69 and spend through 100000.00 is approved unless O1 suppresses this rule.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/countryRisk",
+            "operator": "equals",
+            "value": "LOW"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "greater-than-or-equal",
+            "value": "40"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "less-than",
+            "value": "70"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/requestedSpend",
+            "operator": "less-than-or-equal",
+            "value": "100000.00"
+          }
+        ]
+      },
+      "outcome": "approve",
+      "onUnknown": "escalate"
+    },
+    {
+      "id": "d6b-enhanced-review",
+      "description": "An otherwise qualifying D6b request receives enhanced review when its insurance certificate is absent.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/countryRisk",
+            "operator": "equals",
+            "value": "LOW"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "less-than",
+            "value": "40"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/requestedSpend",
+            "operator": "greater-than",
+            "value": "500000.00"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/requestedSpend",
+            "operator": "less-than-or-equal",
+            "value": "2000000.00"
+          },
+          {
+            "op": "not",
+            "condition": {
+              "op": "evidence-present",
+              "evidenceRequirement": "insurance-certificate"
+            }
+          }
+        ]
+      },
+      "outcome": "enhanced-review",
+      "onUnknown": "escalate"
+    },
+    {
+      "id": "o1-d6c-review",
+      "description": "A new vendor in the D6c region receives D8 review after O1 suppresses D6c.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/newVendor",
+            "operator": "equals",
+            "value": "yes"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/countryRisk",
+            "operator": "equals",
+            "value": "LOW"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "greater-than-or-equal",
+            "value": "40"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "less-than",
+            "value": "70"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/requestedSpend",
+            "operator": "less-than-or-equal",
+            "value": "100000.00"
+          }
+        ]
+      },
+      "outcome": "review",
+      "onUnknown": "ignore"
+    },
+    {
+      "id": "d8-review",
+      "description": "Every otherwise undetermined clear request receives review.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/sanctionsStatus",
+        "operator": "equals",
+        "value": "CLEAR"
+      },
+      "outcome": "review",
+      "onUnknown": "ignore"
+    }
+  ],
+  "exceptions": [
+    {
+      "id": "o3-large-high-risk-exposure",
+      "description": "A clear high-country-risk request above 2000000.00 is directly escalated when financial evidence is available.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "evidence-present",
+            "evidenceRequirement": "financial-evidence"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/countryRisk",
+            "operator": "equals",
+            "value": "HIGH"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/requestedSpend",
+            "operator": "greater-than",
+            "value": "2000000.00"
+          }
+        ]
+      },
+      "effect": "escalate",
+      "onUnknown": "escalate"
+    },
+    {
+      "id": "o2-critical-supplier",
+      "description": "A critical supplier with a clear screening result is forced to review.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/criticalSupplier",
+            "operator": "equals",
+            "value": "yes"
+          }
+        ]
+      },
+      "effect": "force-outcome",
+      "outcome": "review",
+      "onUnknown": "ignore"
+    },
+    {
+      "id": "o1-suspend-d6c",
+      "description": "A reported new-vendor status suppresses D6c.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/newVendor",
+        "operator": "equals",
+        "value": "yes"
+      },
+      "effect": "suppress-rule",
+      "targetRule": "d6c-approval",
+      "onUnknown": "ignore"
+    },
+    {
+      "id": "d3-d4-suppress-d8",
+      "description": "A true D3 or D4 rejection condition prevents D8 from also contributing review.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "any",
+            "conditions": [
+              {
+                "op": "fact",
+                "path": "/vendor/riskScore",
+                "operator": "greater-than-or-equal",
+                "value": "90"
+              },
+              {
+                "op": "all",
+                "conditions": [
+                  {
+                    "op": "fact",
+                    "path": "/vendor/countryRisk",
+                    "operator": "equals",
+                    "value": "HIGH"
+                  },
+                  {
+                    "op": "fact",
+                    "path": "/vendor/riskScore",
+                    "operator": "greater-than-or-equal",
+                    "value": "70"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "effect": "suppress-rule",
+      "targetRule": "d8-review",
+      "onUnknown": "ignore"
+    },
+    {
+      "id": "d5-suppress-risk-rejection",
+      "description": "A recorded prior action suppresses the risk-rejection rule so unreadable risk inputs cannot block D5.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/priorEnforcement",
+        "operator": "equals",
+        "value": "yes"
+      },
+      "effect": "suppress-rule",
+      "targetRule": "d3-d4-risk-rejection",
+      "onUnknown": "ignore"
+    },
+    {
+      "id": "d5-suppress-main-approval",
+      "description": "A recorded prior action suppresses D6a, D6b approval, and D7.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/priorEnforcement",
+        "operator": "equals",
+        "value": "yes"
+      },
+      "effect": "suppress-rule",
+      "targetRule": "d6a-d6b-d7-approval",
+      "onUnknown": "ignore"
+    },
+    {
+      "id": "d5-suppress-d6c-approval",
+      "description": "A recorded prior action suppresses D6c approval.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/priorEnforcement",
+        "operator": "equals",
+        "value": "yes"
+      },
+      "effect": "suppress-rule",
+      "targetRule": "d6c-approval",
+      "onUnknown": "ignore"
+    },
+    {
+      "id": "d5-suppress-d6b-enhanced",
+      "description": "A recorded prior action suppresses D6b enhanced review.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/priorEnforcement",
+        "operator": "equals",
+        "value": "yes"
+      },
+      "effect": "suppress-rule",
+      "targetRule": "d6b-enhanced-review",
+      "onUnknown": "ignore"
+    },
+    {
+      "id": "d5-suppress-o1-review",
+      "description": "A recorded prior action suppresses the O1 shadow review rule.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/priorEnforcement",
+        "operator": "equals",
+        "value": "yes"
+      },
+      "effect": "suppress-rule",
+      "targetRule": "o1-d6c-review",
+      "onUnknown": "ignore"
+    },
+    {
+      "id": "d5-suppress-d8",
+      "description": "A recorded prior action suppresses ordinary D8 review.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/priorEnforcement",
+        "operator": "equals",
+        "value": "yes"
+      },
+      "effect": "suppress-rule",
+      "targetRule": "d8-review",
+      "onUnknown": "ignore"
+    },
+    {
+      "id": "d6a-d6b-d7-suppress-d8",
+      "description": "A true D6a, insured D6b, or D7 approval condition prevents D8 from also contributing review.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "any",
+            "conditions": [
+              {
+                "op": "all",
+                "conditions": [
+                  {
+                    "op": "fact",
+                    "path": "/vendor/countryRisk",
+                    "operator": "equals",
+                    "value": "LOW"
+                  },
+                  {
+                    "op": "fact",
+                    "path": "/vendor/riskScore",
+                    "operator": "less-than",
+                    "value": "40"
+                  },
+                  {
+                    "op": "fact",
+                    "path": "/vendor/requestedSpend",
+                    "operator": "less-than-or-equal",
+                    "value": "500000.00"
+                  }
+                ]
+              },
+              {
+                "op": "all",
+                "conditions": [
+                  {
+                    "op": "fact",
+                    "path": "/vendor/countryRisk",
+                    "operator": "equals",
+                    "value": "LOW"
+                  },
+                  {
+                    "op": "fact",
+                    "path": "/vendor/riskScore",
+                    "operator": "less-than",
+                    "value": "40"
+                  },
+                  {
+                    "op": "fact",
+                    "path": "/vendor/requestedSpend",
+                    "operator": "greater-than",
+                    "value": "500000.00"
+                  },
+                  {
+                    "op": "fact",
+                    "path": "/vendor/requestedSpend",
+                    "operator": "less-than-or-equal",
+                    "value": "2000000.00"
+                  },
+                  {
+                    "op": "evidence-present",
+                    "evidenceRequirement": "insurance-certificate"
+                  }
+                ]
+              },
+              {
+                "op": "all",
+                "conditions": [
+                  {
+                    "op": "fact",
+                    "path": "/vendor/countryRisk",
+                    "operator": "equals",
+                    "value": "MEDIUM"
+                  },
+                  {
+                    "op": "fact",
+                    "path": "/vendor/riskScore",
+                    "operator": "less-than",
+                    "value": "40"
+                  },
+                  {
+                    "op": "fact",
+                    "path": "/vendor/requestedSpend",
+                    "operator": "less-than-or-equal",
+                    "value": "100000.00"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "effect": "suppress-rule",
+      "targetRule": "d8-review",
+      "onUnknown": "ignore"
+    },
+    {
+      "id": "d6c-suppress-d8",
+      "description": "A true D6c region prevents ordinary D8 review; the O1 shadow supplies review when D6c itself is suspended.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/countryRisk",
+            "operator": "equals",
+            "value": "LOW"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "greater-than-or-equal",
+            "value": "40"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "less-than",
+            "value": "70"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/requestedSpend",
+            "operator": "less-than-or-equal",
+            "value": "100000.00"
+          }
+        ]
+      },
+      "effect": "suppress-rule",
+      "targetRule": "d8-review",
+      "onUnknown": "ignore"
+    },
+    {
+      "id": "d6b-enhanced-suppress-d8",
+      "description": "A true D6b enhanced-review condition prevents D8 from also contributing review.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/countryRisk",
+            "operator": "equals",
+            "value": "LOW"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "less-than",
+            "value": "40"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/requestedSpend",
+            "operator": "greater-than",
+            "value": "500000.00"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/requestedSpend",
+            "operator": "less-than-or-equal",
+            "value": "2000000.00"
+          },
+          {
+            "op": "not",
+            "condition": {
+              "op": "evidence-present",
+              "evidenceRequirement": "insurance-certificate"
+            }
+          }
+        ]
+      },
+      "effect": "suppress-rule",
+      "targetRule": "d8-review",
+      "onUnknown": "ignore"
+    }
+  ],
+  "escalation": {
+    "triggers": [
+      "missing-required-evidence",
+      "no-match",
+      "unknown"
+    ],
+    "target": {
+      "kind": "queue",
+      "name": "vendor-compliance-desk"
+    }
+  }
+}
+```
+
+MATRIX:
+```json
+{
+  "matrixVersion": "2",
+  "cases": [
+    {
+      "id": "p1-absent-blocks-all",
+      "facts": {
+        "vendor": {
+          "riskScore": "95",
+          "requestedSpend": "3000000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "HIGH",
+          "newVendor": "yes",
+          "criticalSupplier": "yes",
+          "priorEnforcement": "yes"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "absent",
+        "insurance-certificate": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "missing-required-evidence"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "missing-required-evidence"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      }
+    },
+    {
+      "id": "p1-unreported-blocks-all",
+      "facts": {
+        "vendor": {
+          "riskScore": "95",
+          "requestedSpend": "3000000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "HIGH",
+          "newVendor": "yes",
+          "criticalSupplier": "yes",
+          "priorEnforcement": "yes"
+        }
+      },
+      "evidenceAvailability": {
+        "insurance-certificate": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      }
+    },
+    {
+      "id": "p1-evidence-document-omitted",
+      "facts": {
+        "vendor": {
+          "riskScore": "20",
+          "requestedSpend": "100.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      }
+    },
+    {
+      "id": "d1-match-with-override-facts",
+      "facts": {
+        "vendor": {
+          "riskScore": "95",
+          "requestedSpend": "3000000.00",
+          "sanctionsStatus": "MATCH",
+          "countryRisk": "HIGH",
+          "newVendor": "yes",
+          "criticalSupplier": "yes",
+          "priorEnforcement": "yes"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "d2-unknown-is-no-match",
+      "facts": {
+        "vendor": {
+          "sanctionsStatus": "UNKNOWN",
+          "criticalSupplier": "yes",
+          "priorEnforcement": "yes"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "no-match"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "no-match"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      }
+    },
+    {
+      "id": "d3-risk-90-boundary",
+      "facts": {
+        "vendor": {
+          "riskScore": "90",
+          "requestedSpend": "100.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "u1-d3-country-unreadable-safe-spend",
+      "facts": {
+        "vendor": {
+          "riskScore": "95",
+          "requestedSpend": "1000000.00",
+          "sanctionsStatus": "CLEAR",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "u1-d3-country-unreadable-large-spend",
+      "facts": {
+        "vendor": {
+          "riskScore": "95",
+          "requestedSpend": "3000000.00",
+          "sanctionsStatus": "CLEAR",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      }
+    },
+    {
+      "id": "d4-risk-70-high",
+      "facts": {
+        "vendor": {
+          "riskScore": "70",
+          "requestedSpend": "2000000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "HIGH",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "d4-risk-69-high",
+      "facts": {
+        "vendor": {
+          "riskScore": "69",
+          "requestedSpend": "2000000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "HIGH",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "d5-prior-rejects-approval",
+      "facts": {
+        "vendor": {
+          "riskScore": "20",
+          "requestedSpend": "100.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "yes"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "d5-unreported-treated-no",
+      "facts": {
+        "vendor": {
+          "riskScore": "20",
+          "requestedSpend": "100.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "approve",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "u1-d5-risk-country-unreadable-safe-spend",
+      "facts": {
+        "vendor": {
+          "requestedSpend": "2000000.00",
+          "sanctionsStatus": "CLEAR",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "yes"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "u1-d5-high-spend-unreadable",
+      "facts": {
+        "vendor": {
+          "riskScore": "20",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "HIGH",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "yes"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      }
+    },
+    {
+      "id": "d5-suppresses-unreported-insurance",
+      "facts": {
+        "vendor": {
+          "riskScore": "20",
+          "requestedSpend": "1000000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "yes"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "d6a-500000-boundary",
+      "facts": {
+        "vendor": {
+          "riskScore": "39",
+          "requestedSpend": "500000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "approve",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "o1-does-not-affect-d6a",
+      "facts": {
+        "vendor": {
+          "riskScore": "39",
+          "requestedSpend": "100000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "yes",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "approve",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "d6b-50000001-insurance-present",
+      "facts": {
+        "vendor": {
+          "riskScore": "39",
+          "requestedSpend": "500000.01",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present",
+        "insurance-certificate": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "approve",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "d6b-50000001-insurance-absent",
+      "facts": {
+        "vendor": {
+          "riskScore": "39",
+          "requestedSpend": "500000.01",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present",
+        "insurance-certificate": "absent"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "enhanced-review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "d6b-50000001-insurance-unreported",
+      "facts": {
+        "vendor": {
+          "riskScore": "39",
+          "requestedSpend": "500000.01",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      }
+    },
+    {
+      "id": "d6b-2000000-upper-bound",
+      "facts": {
+        "vendor": {
+          "riskScore": "39",
+          "requestedSpend": "2000000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present",
+        "insurance-certificate": "absent"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "enhanced-review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "d6b-200000001-falls-review",
+      "facts": {
+        "vendor": {
+          "riskScore": "39",
+          "requestedSpend": "2000000.01",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present",
+        "insurance-certificate": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "d6c-lower-and-spend-boundaries",
+      "facts": {
+        "vendor": {
+          "riskScore": "40",
+          "requestedSpend": "100000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "approve",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "o1-new-suspends-d6c",
+      "facts": {
+        "vendor": {
+          "riskScore": "40",
+          "requestedSpend": "100000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "yes",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "o1-unreported-new-treated-no",
+      "facts": {
+        "vendor": {
+          "riskScore": "50",
+          "requestedSpend": "100000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "approve",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "d6c-spend-over-boundary",
+      "facts": {
+        "vendor": {
+          "riskScore": "69",
+          "requestedSpend": "100000.01",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "d6c-risk-70-excluded",
+      "facts": {
+        "vendor": {
+          "riskScore": "70",
+          "requestedSpend": "100000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "d7-upper-boundaries",
+      "facts": {
+        "vendor": {
+          "riskScore": "39",
+          "requestedSpend": "100000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "MEDIUM",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "approve",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "d7-spend-over-boundary",
+      "facts": {
+        "vendor": {
+          "riskScore": "39",
+          "requestedSpend": "100000.01",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "MEDIUM",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "d7-risk-40-excluded",
+      "facts": {
+        "vendor": {
+          "riskScore": "40",
+          "requestedSpend": "100000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "MEDIUM",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "o2-beats-d3",
+      "facts": {
+        "vendor": {
+          "riskScore": "95",
+          "requestedSpend": "100.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "yes",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "o2-beats-d5",
+      "facts": {
+        "vendor": {
+          "riskScore": "20",
+          "requestedSpend": "100.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "yes",
+          "priorEnforcement": "yes"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "o2-beats-d6b-unknown",
+      "facts": {
+        "vendor": {
+          "riskScore": "20",
+          "requestedSpend": "1000000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "yes",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "o2-unreported-critical-treated-no",
+      "facts": {
+        "vendor": {
+          "riskScore": "20",
+          "requestedSpend": "100.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "approve",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "o3-boundary-o2-review",
+      "facts": {
+        "vendor": {
+          "riskScore": "95",
+          "requestedSpend": "2000000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "HIGH",
+          "newVendor": "no",
+          "criticalSupplier": "yes",
+          "priorEnforcement": "yes"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "o3-beats-o2-d3-d5",
+      "facts": {
+        "vendor": {
+          "riskScore": "95",
+          "requestedSpend": "2000000.01",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "HIGH",
+          "newVendor": "no",
+          "criticalSupplier": "yes",
+          "priorEnforcement": "yes"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "exception-escalation"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "exception-escalation"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      }
+    },
+    {
+      "id": "u1-o2-risk-unreadable",
+      "facts": {
+        "vendor": {
+          "requestedSpend": "100.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "yes",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "u1-o2-country-spend-unreadable",
+      "facts": {
+        "vendor": {
+          "riskScore": "20",
+          "sanctionsStatus": "CLEAR",
+          "newVendor": "no",
+          "criticalSupplier": "yes",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      }
+    },
+    {
+      "id": "o3-risk-unreadable",
+      "facts": {
+        "vendor": {
+          "requestedSpend": "3000000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "HIGH",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "exception-escalation"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "exception-escalation"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      }
+    },
+    {
+      "id": "u1-o1-spend-unreadable-review",
+      "facts": {
+        "vendor": {
+          "riskScore": "50",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "yes",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "u1-low-moderate-risk-spend-unreadable-unknown",
+      "facts": {
+        "vendor": {
+          "riskScore": "50",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      }
+    },
+    {
+      "id": "u1-low-risk-80-spend-unreadable-review",
+      "facts": {
+        "vendor": {
+          "riskScore": "80",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "u1-medium-risk-50-spend-unreadable-review",
+      "facts": {
+        "vendor": {
+          "riskScore": "50",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "MEDIUM",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "u1-country-unreadable-risk-50-spend-200000-review",
+      "facts": {
+        "vendor": {
+          "riskScore": "50",
+          "requestedSpend": "200000.00",
+          "sanctionsStatus": "CLEAR",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null
+    },
+    {
+      "id": "u1-country-unreadable-risk-20-spend-50000",
+      "facts": {
+        "vendor": {
+          "riskScore": "20",
+          "requestedSpend": "50000.00",
+          "sanctionsStatus": "CLEAR",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      }
+    },
+    {
+      "id": "u1-country-unreadable-risk-80-spend-50000",
+      "facts": {
+        "vendor": {
+          "riskScore": "80",
+          "requestedSpend": "50000.00",
+          "sanctionsStatus": "CLEAR",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      }
+    },
+    {
+      "id": "u1-high-spend-unreadable",
+      "facts": {
+        "vendor": {
+          "riskScore": "50",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "HIGH",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      }
+    }
+  ]
+}
+```
+tokens used
+61,884

@@ -1,0 +1,61 @@
+{
+  "argv": [
+    "codex",
+    "exec",
+    "--ignore-user-config",
+    "-m",
+    "gpt-5.6-sol",
+    "--sandbox",
+    "workspace-write",
+    "-c",
+    "mcp_servers={}",
+    "<the exact bytes of PROBE-PROMPT.txt>"
+  ],
+  "slot": "capture-001",
+  "slotIndex": 1,
+  "arm": null,
+  "armPromptSha256": null,
+  "promptKind": "probe",
+  "promptSha256": "sha256:128aaa9a67b601c66b11d8d233a336cca1e064401bb24994929b9965f77f45e7",
+  "pinsSha256": "sha256:9f7839568710ae412dfc70de6f2e1aa89c517677510bc119c1b157f3efa60013",
+  "goldenSha256": null,
+  "isolation": "isolated",
+  "startedAt": "2026-08-20T02:18:49Z",
+  "endedAt": "2026-08-20T02:18:58Z",
+  "cwd": "/tmp/gcap-run/s019-authoring-none-capture-001-1637690",
+  "home": "/tmp/gcap-run/s019-home-none-capture-001-1637690",
+  "codexHome": "/tmp/gcap-run/s019-home-none-capture-001-1637690/.codex",
+  "environment": [
+    "PATH",
+    "HOME",
+    "TMPDIR",
+    "CODEX_HOME"
+  ],
+  "environmentValues": {
+    "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/tmp/gcap-run/s019-bin-none-capture-001-1637690",
+    "HOME": "/tmp/gcap-run/s019-home-none-capture-001-1637690",
+    "TMPDIR": "/tmp/gcap-run/s019-authoring-none-capture-001-1637690/tmp",
+    "CODEX_HOME": "/tmp/gcap-run/s019-home-none-capture-001-1637690/.codex"
+  },
+  "environmentScrubbed": true,
+  "codexHomeIsolated": true,
+  "homeIsolated": true,
+  "isolatedHomeInventory": [
+    ".codex",
+    ".codex/auth.json"
+  ],
+  "operatorHomeSkillsPresent": true,
+  "credentialCopied": true,
+  "credentialRemoved": true,
+  "ignoreUserConfig": true,
+  "model": "gpt-5.6-sol",
+  "cli": "codex-cli 0.145.0",
+  "binarySha256": "sha256:a2a05dafaa1acb002a45eaec0a462de5b13694fcfcd7bc43305f14781ce7be14",
+  "exitStatus": 0,
+  "timeoutSeconds": 2700,
+  "timeoutKillAfterSeconds": 60,
+  "timedOut": false,
+  "newSessionCount": 1,
+  "stdin": "closed (/dev/null)",
+  "note": "One run of one of Study 019's three cells; session.jsonl is the transcript evidence."
+}

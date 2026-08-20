@@ -1,0 +1,519 @@
+POLICY:
+```rego
+package study
+
+default decision := {"disposition": "unresolved", "reasons": ["no-match"]}
+
+approve_result := {"disposition": "approve", "reasons": []}
+review_result := {"disposition": "review", "reasons": []}
+enhanced_review_result := {"disposition": "enhanced-review", "reasons": []}
+reject_result := {"disposition": "reject", "reasons": []}
+
+missing_evidence_result := {
+	"disposition": "unresolved",
+	"reasons": ["missing-required-evidence"],
+}
+
+unknown_result := {
+	"disposition": "unresolved",
+	"reasons": ["unknown"],
+}
+
+no_match_result := {
+	"disposition": "unresolved",
+	"reasons": ["no-match"],
+}
+
+exception_escalation_result := {
+	"disposition": "unresolved",
+	"reasons": ["exception-escalation"],
+}
+
+vendor := object.get(input, "vendor", {})
+evidence := object.get(input, "evidence", {})
+
+financial_evidence := object.get(evidence, "financial-evidence", "unreported")
+insurance_certificate := object.get(evidence, "insurance-certificate", "unreported")
+
+sanctions_status := object.get(vendor, "sanctionsStatus", "unreported")
+new_vendor := object.get(vendor, "newVendor", "unreported")
+critical_supplier := object.get(vendor, "criticalSupplier", "unreported")
+prior_enforcement := object.get(vendor, "priorEnforcement", "unreported")
+
+# The representatives below cover every equivalence class induced by the
+# policy's thresholds. They permit U1's universal test without enumerating
+# every possible cent value.
+
+risk_values contains value if {
+	value := object.get(vendor, "riskScore", -1)
+	value != -1
+}
+
+risk_values contains value if {
+	object.get(vendor, "riskScore", -1) == -1
+	some value in [0, 40, 70, 90]
+}
+
+spend_values contains value if {
+	value := object.get(vendor, "requestedSpend", -1)
+	value != -1
+}
+
+spend_values contains value if {
+	object.get(vendor, "requestedSpend", -1) == -1
+	some value in [0, 100000.01, 500000.01, 2000000.01]
+}
+
+country_values contains value if {
+	value := object.get(vendor, "countryRisk", "unreported")
+	value != "unreported"
+}
+
+country_values contains value if {
+	object.get(vendor, "countryRisk", "unreported") == "unreported"
+	some value in ["LOW", "MEDIUM", "HIGH"]
+}
+
+valid_assignment(risk, spend, country) if {
+	risk >= 0
+	risk <= 100
+	spend >= 0
+	spend <= 10000000
+	country in {"LOW", "MEDIUM", "HIGH"}
+}
+
+outcome_for(risk, spend, country) := exception_escalation_result if {
+	valid_assignment(risk, spend, country)
+	country == "HIGH"
+	spend > 2000000
+} else := review_result if {
+	valid_assignment(risk, spend, country)
+	critical_supplier == "yes"
+} else := reject_result if {
+	valid_assignment(risk, spend, country)
+	risk >= 90
+} else := reject_result if {
+	valid_assignment(risk, spend, country)
+	country == "HIGH"
+	risk >= 70
+} else := reject_result if {
+	valid_assignment(risk, spend, country)
+	prior_enforcement == "yes"
+} else := approve_result if {
+	valid_assignment(risk, spend, country)
+	country == "LOW"
+	risk < 40
+	spend <= 500000
+} else := approve_result if {
+	valid_assignment(risk, spend, country)
+	country == "LOW"
+	risk < 40
+	spend > 500000
+	spend <= 2000000
+	insurance_certificate == "present"
+} else := enhanced_review_result if {
+	valid_assignment(risk, spend, country)
+	country == "LOW"
+	risk < 40
+	spend > 500000
+	spend <= 2000000
+	insurance_certificate == "absent"
+} else := unknown_result if {
+	valid_assignment(risk, spend, country)
+	country == "LOW"
+	risk < 40
+	spend > 500000
+	spend <= 2000000
+	insurance_certificate == "unreported"
+} else := approve_result if {
+	valid_assignment(risk, spend, country)
+	country == "LOW"
+	risk >= 40
+	risk < 70
+	spend <= 100000
+	new_vendor != "yes"
+} else := approve_result if {
+	valid_assignment(risk, spend, country)
+	country == "MEDIUM"
+	risk < 40
+	spend <= 100000
+} else := review_result if {
+	valid_assignment(risk, spend, country)
+}
+
+candidate_outcomes contains outcome if {
+	some risk in risk_values
+	some spend in spend_values
+	some country in country_values
+	outcome := outcome_for(risk, spend, country)
+}
+
+decision := missing_evidence_result if {
+	financial_evidence == "absent"
+} else := unknown_result if {
+	financial_evidence == "unreported"
+} else := reject_result if {
+	sanctions_status == "MATCH"
+} else := no_match_result if {
+	sanctions_status == "UNKNOWN"
+} else := only_outcome if {
+	sanctions_status == "CLEAR"
+	count(candidate_outcomes) == 1
+	some only_outcome in candidate_outcomes
+} else := unknown_result if {
+	sanctions_status == "CLEAR"
+	count(candidate_outcomes) != 1
+}
+```
+
+TESTS:
+```rego
+package study_test
+
+import data.study
+
+want_approve := {"disposition": "approve", "reasons": []}
+want_review := {"disposition": "review", "reasons": []}
+want_enhanced_review := {"disposition": "enhanced-review", "reasons": []}
+want_reject := {"disposition": "reject", "reasons": []}
+
+want_missing_evidence := {
+	"disposition": "unresolved",
+	"reasons": ["missing-required-evidence"],
+}
+
+want_unknown := {
+	"disposition": "unresolved",
+	"reasons": ["unknown"],
+}
+
+want_no_match := {
+	"disposition": "unresolved",
+	"reasons": ["no-match"],
+}
+
+want_exception_escalation := {
+	"disposition": "unresolved",
+	"reasons": ["exception-escalation"],
+}
+
+base_vendor := {
+	"riskScore": 20,
+	"requestedSpend": 50000,
+	"sanctionsStatus": "CLEAR",
+	"countryRisk": "LOW",
+	"newVendor": "no",
+	"criticalSupplier": "no",
+	"priorEnforcement": "no",
+}
+
+base_evidence := {
+	"financial-evidence": "present",
+	"insurance-certificate": "present",
+}
+
+make_input(vendor_overrides, vendor_omissions, evidence_overrides, evidence_omissions) := result if {
+	merged_vendor := object.union(base_vendor, vendor_overrides)
+	case_vendor := object.remove(merged_vendor, vendor_omissions)
+	merged_evidence := object.union(base_evidence, evidence_overrides)
+	case_evidence := object.remove(merged_evidence, evidence_omissions)
+	result := {
+		"vendor": case_vendor,
+		"evidence": case_evidence,
+	}
+}
+
+cases := {
+	"baseline_d6a": {
+		"input": make_input({}, [], {}, []),
+		"expected": want_approve,
+	},
+	"p1_absent_preempts_everything": {
+		"input": make_input({
+			"riskScore": 95,
+			"requestedSpend": 3000000,
+			"countryRisk": "HIGH",
+			"criticalSupplier": "yes",
+			"priorEnforcement": "yes",
+		}, [], {"financial-evidence": "absent"}, []),
+		"expected": want_missing_evidence,
+	},
+	"p1_unreported_preempts_match": {
+		"input": make_input({
+			"sanctionsStatus": "MATCH",
+			"criticalSupplier": "yes",
+		}, [], {}, ["financial-evidence"]),
+		"expected": want_unknown,
+	},
+	"d1_match_not_displaced_by_critical": {
+		"input": make_input({
+			"riskScore": 95,
+			"requestedSpend": 3000000,
+			"sanctionsStatus": "MATCH",
+			"countryRisk": "HIGH",
+			"criticalSupplier": "yes",
+			"priorEnforcement": "yes",
+		}, [], {}, []),
+		"expected": want_reject,
+	},
+	"d2_unknown_sanctions_no_match": {
+		"input": make_input({
+			"sanctionsStatus": "UNKNOWN",
+			"criticalSupplier": "yes",
+		}, ["riskScore", "requestedSpend", "countryRisk"], {}, []),
+		"expected": want_no_match,
+	},
+	"o3_boundary_not_above": {
+		"input": make_input({
+			"requestedSpend": 2000000,
+			"countryRisk": "HIGH",
+		}, [], {}, []),
+		"expected": want_review,
+	},
+	"o3_preempts_o2_and_rejections": {
+		"input": make_input({
+			"riskScore": 95,
+			"requestedSpend": 2000000.01,
+			"countryRisk": "HIGH",
+			"criticalSupplier": "yes",
+			"priorEnforcement": "yes",
+		}, [], {}, []),
+		"expected": want_exception_escalation,
+	},
+	"o3_with_unreadable_risk": {
+		"input": make_input({
+			"requestedSpend": 3000000,
+			"countryRisk": "HIGH",
+		}, ["riskScore"], {}, []),
+		"expected": want_exception_escalation,
+	},
+	"o2_preempts_d3": {
+		"input": make_input({
+			"riskScore": 90,
+			"requestedSpend": 100,
+			"criticalSupplier": "yes",
+		}, [], {}, []),
+		"expected": want_review,
+	},
+	"o2_preempts_d6b_enhanced": {
+		"input": make_input({
+			"requestedSpend": 600000,
+			"criticalSupplier": "yes",
+		}, [], {"insurance-certificate": "absent"}, []),
+		"expected": want_review,
+	},
+	"o2_with_unreadable_risk": {
+		"input": make_input({
+			"requestedSpend": 100,
+			"criticalSupplier": "yes",
+		}, ["riskScore"], {}, []),
+		"expected": want_review,
+	},
+	"o2_with_unreadable_country_and_spend": {
+		"input": make_input({
+			"criticalSupplier": "yes",
+		}, ["requestedSpend", "countryRisk"], {}, []),
+		"expected": want_unknown,
+	},
+	"d3_at_90": {
+		"input": make_input({"riskScore": 90}, [], {}, []),
+		"expected": want_reject,
+	},
+	"d3_below_90": {
+		"input": make_input({"riskScore": 89}, [], {}, []),
+		"expected": want_review,
+	},
+	"u1_country_unreadable_d3_rejects_all": {
+		"input": make_input({
+			"riskScore": 95,
+			"requestedSpend": 1000000,
+		}, ["countryRisk"], {}, []),
+		"expected": want_reject,
+	},
+	"d4_at_70": {
+		"input": make_input({
+			"riskScore": 70,
+			"requestedSpend": 100000,
+			"countryRisk": "HIGH",
+		}, [], {}, []),
+		"expected": want_reject,
+	},
+	"d4_below_70": {
+		"input": make_input({
+			"riskScore": 69,
+			"requestedSpend": 100000,
+			"countryRisk": "HIGH",
+		}, [], {}, []),
+		"expected": want_review,
+	},
+	"u1_high_risk_75_spend_unreadable": {
+		"input": make_input({
+			"riskScore": 75,
+			"countryRisk": "HIGH",
+		}, ["requestedSpend"], {}, []),
+		"expected": want_unknown,
+	},
+	"d5_prior_enforcement": {
+		"input": make_input({"priorEnforcement": "yes"}, [], {}, []),
+		"expected": want_reject,
+	},
+	"d5_unreported_treated_as_no": {
+		"input": make_input({}, ["priorEnforcement"], {}, []),
+		"expected": want_approve,
+	},
+	"d6a_upper_boundaries": {
+		"input": make_input({
+			"riskScore": 39,
+			"requestedSpend": 500000,
+		}, [], {}, []),
+		"expected": want_approve,
+	},
+	"d6b_just_above_500k": {
+		"input": make_input({"requestedSpend": 500000.01}, [], {}, []),
+		"expected": want_approve,
+	},
+	"d6b_at_2m": {
+		"input": make_input({"requestedSpend": 2000000}, [], {}, []),
+		"expected": want_approve,
+	},
+	"d6b_absent_insurance": {
+		"input": make_input(
+			{"requestedSpend": 600000},
+			[],
+			{"insurance-certificate": "absent"},
+			[],
+		),
+		"expected": want_enhanced_review,
+	},
+	"d6b_unreported_insurance": {
+		"input": make_input(
+			{"requestedSpend": 600000},
+			[],
+			{},
+			["insurance-certificate"],
+		),
+		"expected": want_unknown,
+	},
+	"d8_low_above_2m": {
+		"input": make_input({"requestedSpend": 2000000.01}, [], {}, []),
+		"expected": want_review,
+	},
+	"insurance_absent_ignored_outside_d6b": {
+		"input": make_input({}, [], {"insurance-certificate": "absent"}, []),
+		"expected": want_approve,
+	},
+	"insurance_unreported_ignored_outside_d6b": {
+		"input": make_input({}, [], {}, ["insurance-certificate"]),
+		"expected": want_approve,
+	},
+	"d6c_lower_risk_boundary": {
+		"input": make_input({
+			"riskScore": 40,
+			"requestedSpend": 100000,
+		}, [], {}, []),
+		"expected": want_approve,
+	},
+	"d6c_upper_risk_boundary": {
+		"input": make_input({
+			"riskScore": 69,
+			"requestedSpend": 100000,
+		}, [], {}, []),
+		"expected": want_approve,
+	},
+	"d6c_above_spend_boundary": {
+		"input": make_input({
+			"riskScore": 40,
+			"requestedSpend": 100000.01,
+		}, [], {}, []),
+		"expected": want_review,
+	},
+	"o1_suspends_d6c": {
+		"input": make_input({
+			"riskScore": 40,
+			"requestedSpend": 100000,
+			"newVendor": "yes",
+		}, [], {}, []),
+		"expected": want_review,
+	},
+	"o1_unreported_new_treated_as_no": {
+		"input": make_input({
+			"riskScore": 40,
+			"requestedSpend": 100000,
+		}, ["newVendor"], {}, []),
+		"expected": want_approve,
+	},
+	"o1_does_not_suspend_d6a": {
+		"input": make_input({"newVendor": "yes"}, [], {}, []),
+		"expected": want_approve,
+	},
+	"d7_upper_boundaries": {
+		"input": make_input({
+			"riskScore": 39,
+			"requestedSpend": 100000,
+			"countryRisk": "MEDIUM",
+		}, [], {}, []),
+		"expected": want_approve,
+	},
+	"d7_above_spend_boundary": {
+		"input": make_input({
+			"riskScore": 39,
+			"requestedSpend": 100000.01,
+			"countryRisk": "MEDIUM",
+		}, [], {}, []),
+		"expected": want_review,
+	},
+	"d7_at_risk_40_falls_to_review": {
+		"input": make_input({
+			"riskScore": 40,
+			"requestedSpend": 100000,
+			"countryRisk": "MEDIUM",
+		}, [], {}, []),
+		"expected": want_review,
+	},
+	"u1_high_risk_50_spend_unreadable": {
+		"input": make_input({
+			"riskScore": 50,
+			"countryRisk": "HIGH",
+		}, ["requestedSpend"], {}, []),
+		"expected": want_unknown,
+	},
+	"u1_medium_risk_50_spend_unreadable_all_review": {
+		"input": make_input({
+			"riskScore": 50,
+			"countryRisk": "MEDIUM",
+		}, ["requestedSpend"], {}, []),
+		"expected": want_review,
+	},
+	"u1_country_unreadable_outcomes_differ": {
+		"input": make_input({
+			"riskScore": 20,
+			"requestedSpend": 50000,
+		}, ["countryRisk"], {}, []),
+		"expected": want_unknown,
+	},
+	"u1_risk_unreadable_outcomes_differ": {
+		"input": make_input({
+			"requestedSpend": 100,
+			"countryRisk": "LOW",
+		}, ["riskScore"], {}, []),
+		"expected": want_unknown,
+	},
+	"u1_low_d3_spend_unreadable_all_reject": {
+		"input": make_input({
+			"riskScore": 95,
+			"countryRisk": "LOW",
+		}, ["requestedSpend"], {}, []),
+		"expected": want_reject,
+	},
+	"critical_unreported_treated_as_no": {
+		"input": make_input({"riskScore": 90}, ["criticalSupplier"], {}, []),
+		"expected": want_reject,
+	},
+}
+
+test_vendor_approval_policy[name] if {
+	some name, test_case in cases
+	actual := study.decision with input as test_case.input
+	actual == test_case.expected
+}
+```

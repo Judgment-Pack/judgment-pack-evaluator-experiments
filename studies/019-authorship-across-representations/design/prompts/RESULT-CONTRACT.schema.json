@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/study-019/result-contract.schema.json",
+  "title": "Decision result",
+  "description": "The value the decision entrypoint must produce for any input document. DESIGN DRAFT, NOT REGISTERED.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["disposition", "reasons"],
+  "properties": {
+    "disposition": {
+      "description": "The determination issued, or the string unresolved where no determination is issued.",
+      "type": "string",
+      "enum": ["approve", "review", "enhanced-review", "reject", "unresolved"]
+    },
+    "reasons": {
+      "description": "The grounds on which the case is unresolved. Order is not significant; a value may not repeat.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": ["missing-required-evidence", "unknown", "no-match", "exception-escalation"]
+      }
+    }
+  },
+  "allOf": [
+    {
+      "description": "A determination carries no grounds.",
+      "if": {
+        "properties": {
+          "disposition": { "enum": ["approve", "review", "enhanced-review", "reject"] }
+        },
+        "required": ["disposition"]
+      },
+      "then": { "properties": { "reasons": { "maxItems": 0 } } }
+    },
+    {
+      "description": "An unresolved case carries at least one ground.",
+      "if": {
+        "properties": { "disposition": { "const": "unresolved" } },
+        "required": ["disposition"]
+      },
+      "then": { "properties": { "reasons": { "minItems": 1 } } }
+    }
+  ]
+}

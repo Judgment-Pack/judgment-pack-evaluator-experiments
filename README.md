@@ -61,6 +61,7 @@ records; it remains the canonical matrix, with the external source each study bu
 | [016](studies/016-policy-currency-anchor/) | Interoperability | Frozen + run — R1 holds (both strata) | [`ANALYSIS.md`](studies/016-policy-currency-anchor/ANALYSIS.md), [`results/`](studies/016-policy-currency-anchor/results/) |
 | [017](studies/017-witnessed-currency/) | Currency governance | Frozen + run — R1 holds (both strata) | [`ANALYSIS.md`](studies/017-witnessed-currency/ANALYSIS.md), [`results/`](studies/017-witnessed-currency/results/) |
 | [018](studies/018-transition-rules/) | Currency governance | Frozen + run — R1 holds; reviewer holdout diverged on three preregistered cells | [`ANALYSIS.md`](studies/018-transition-rules/ANALYSIS.md), [`results/`](studies/018-transition-rules/results/) |
+| [019](studies/019-authorship-across-representations/) | Blinded authorship | **Design draft — not preregistered** | [`PREREGISTRATION.md`](studies/019-authorship-across-representations/PREREGISTRATION.md) (draft), [`design/`](studies/019-authorship-across-representations/design/) |
 
 This repository claims **no JPS conformance** for anything in it, and the table above adds no
 aggregate headline: each study answers a different preregistered question and must be read with

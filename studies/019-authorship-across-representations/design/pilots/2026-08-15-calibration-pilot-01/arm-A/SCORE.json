@@ -1,0 +1,143 @@
+{
+  "admitted": 5,
+  "arm": "A",
+  "dropCodes": {
+    "invalid-artifact": 0,
+    "no-marker": 5,
+    "unparseable": 0
+  },
+  "generatedAt": "2026-08-15T16:33:53Z",
+  "goldPolicy": "POLICY-DRAFT.md v0.2",
+  "goldRows": 76,
+  "goldVersion": "0-draft",
+  "harness": "pilot_run.py (design-time, non-citable)",
+  "perRun": [
+    {
+      "dropCode": "no-marker",
+      "perfect": false,
+      "rowFailures": [],
+      "secondaryArtifact": {
+        "bytes": 0,
+        "marker": "MATRIX",
+        "present": false
+      },
+      "slot": "001"
+    },
+    {
+      "dropCode": "no-marker",
+      "perfect": false,
+      "rowFailures": [],
+      "secondaryArtifact": {
+        "bytes": 0,
+        "marker": "MATRIX",
+        "present": false
+      },
+      "slot": "002"
+    },
+    {
+      "dropCode": "no-marker",
+      "perfect": false,
+      "rowFailures": [],
+      "secondaryArtifact": {
+        "bytes": 0,
+        "marker": "MATRIX",
+        "present": false
+      },
+      "slot": "003"
+    },
+    {
+      "dropCode": "no-marker",
+      "perfect": false,
+      "rowFailures": [],
+      "secondaryArtifact": {
+        "bytes": 0,
+        "marker": "MATRIX",
+        "present": false
+      },
+      "slot": "004"
+    },
+    {
+      "dropCode": "no-marker",
+      "perfect": false,
+      "rowFailures": [],
+      "secondaryArtifact": {
+        "bytes": 0,
+        "marker": "MATRIX",
+        "present": false
+      },
+      "slot": "005"
+    },
+    {
+      "detail": {
+        "validateStatus": "valid"
+      },
+      "perfect": true,
+      "rowFailures": [],
+      "rowsEvaluated": 76,
+      "secondaryArtifact": {
+        "bytes": 31072,
+        "marker": "MATRIX",
+        "present": true
+      },
+      "slot": "006"
+    },
+    {
+      "detail": {
+        "validateStatus": "valid"
+      },
+      "perfect": true,
+      "rowFailures": [],
+      "rowsEvaluated": 76,
+      "secondaryArtifact": {
+        "bytes": 25960,
+        "marker": "MATRIX",
+        "present": true
+      },
+      "slot": "007"
+    },
+    {
+      "detail": {
+        "validateStatus": "valid"
+      },
+      "perfect": true,
+      "rowFailures": [],
+      "rowsEvaluated": 76,
+      "secondaryArtifact": {
+        "bytes": 31840,
+        "marker": "MATRIX",
+        "present": true
+      },
+      "slot": "008"
+    },
+    {
+      "detail": {
+        "validateStatus": "valid"
+      },
+      "perfect": true,
+      "rowFailures": [],
+      "rowsEvaluated": 76,
+      "secondaryArtifact": {
+        "bytes": 24865,
+        "marker": "MATRIX",
+        "present": true
+      },
+      "slot": "009"
+    },
+    {
+      "detail": {
+        "validateStatus": "valid"
+      },
+      "perfect": true,
+      "rowFailures": [],
+      "rowsEvaluated": 76,
+      "secondaryArtifact": {
+        "bytes": 32088,
+        "marker": "MATRIX",
+        "present": true
+      },
+      "slot": "010"
+    }
+  ],
+  "perfect": 5,
+  "runs": 10
+}

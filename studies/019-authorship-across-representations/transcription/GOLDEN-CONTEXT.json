@@ -1,0 +1,45 @@
+{
+  "capturedFrom": [
+    "capture-001",
+    "capture-002"
+  ],
+  "capturedIdentities": [
+    {
+      "callIdentity": "edb3a7960661245fd2d20f0ecc6c0694d0843b1ce6fb999e3524b0e11f6d893b",
+      "sessionId": "01a01cf6-cb25-7722-ab00-6e43800f5e04",
+      "sessionSha256": "sha256:a8e73f9b3741e47b782e37c6e1bc52be806ae25488b74e31ff052bdf4eb7dd23",
+      "slot": "capture-001"
+    },
+    {
+      "callIdentity": "028c01dec8fd39e75d96b9b079222831440300d20c1ffbfc745b8a54e0ce2a72",
+      "sessionId": "01a01cf6-f857-7221-8ed5-90ce308370ec",
+      "sessionSha256": "sha256:924bfa84098e55d35993be0a723da9dbea6794da002efe425c6d6ffe9d30e72a",
+      "slot": "capture-002"
+    }
+  ],
+  "capturedIn": "attempt-2",
+  "contextVersion": "1",
+  "entries": [
+    {
+      "length": 4024,
+      "role": "developer",
+      "sha256": "029b4168c24d6525378718fd5bc0dd86f748a8e69c493ca4110dea126e7cee5b"
+    },
+    {
+      "length": 2183,
+      "role": "developer",
+      "sha256": "61f6bc799a82990ebede5d07532d630a01c40dcdfc55d89e74fdf079e9322636"
+    },
+    {
+      "length": 271,
+      "role": "developer",
+      "sha256": "6ded806e3cdbb35599ecaf8742574bc5274908472b1729090010c404c2151e8e"
+    },
+    {
+      "length": 3912,
+      "role": "user",
+      "sha256": "81aabd1e575cd1e8a3f29e32a8675b0d818db64e5de687e8fb96830d191a3d12"
+    }
+  ],
+  "note": "The pre-prompt context of this study's registered invocations, captured from independent probe-prompt runs that reproduced identically after normalization. One capture serves all three arms. Any deviation in a batch run's context scores that run golden-context-mismatch \u2014 an APPARATUS code (\u00a71a) \u2014 and a capture taken after the batch cannot redefine this one: it is a new file the registry does not pin, and every slot names the digest it was made under. Its digest goes into harness/PINS.json golden.sha256 and both are committed before round 1."
+}

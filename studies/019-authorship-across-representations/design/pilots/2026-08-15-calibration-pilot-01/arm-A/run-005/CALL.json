@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "codex",
+    "exec",
+    "--skip-git-repo-check",
+    "--sandbox",
+    "read-only",
+    "--color",
+    "never",
+    "-c",
+    "mcp_servers={}",
+    "-"
+  ],
+  "arm": "A",
+  "completionBytes": 0,
+  "completionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "durationSeconds": 900.108,
+  "endedAt": "2026-08-15T13:06:02Z",
+  "exitCode": 124,
+  "harness": "pilot_run.py (design-time, non-citable)",
+  "promptBytes": 84289,
+  "promptFile": "/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/e3978f36-2e67-46bb-868c-8df975356ef9/scratchpad/pilot-batch-001/prompt-A.txt",
+  "promptSha256": "9d8b4f41c6cbb1c2ff5216c7758ad8f25d274802b5f07b2f54ac14d19e85d83a",
+  "slot": "005",
+  "startedAt": "2026-08-15T12:51:02Z",
+  "timedOut": true
+}

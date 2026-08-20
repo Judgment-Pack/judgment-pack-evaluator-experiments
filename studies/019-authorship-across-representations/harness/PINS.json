@@ -1,0 +1,190 @@
+{
+ "anchorOrder": "LINEAR, 014-style, and in this order: (1) harness/STUDY-MANIFEST.sha256 covers the registered documents, the artifacts and the code, and covers NEITHER itself NOR this file; (2) this file pins that manifest's digest in studyManifest.sha256; (3) the freeze commit anchors this file. Each link is fillable in one pass, and after the freeze harness/make_manifest.py can still rewrite the manifest but cannot rewrite the digest pinned here. Study 014's round 3 established this order after round 2 built a cycle - the manifest hashing PINS.json while PINS.json stored the manifest's digest - which cannot be initialized without finding a SHA-256 fixed point. DEVIATIONS.md and README.md are outside the manifest by construction (ADR 0004), so a post-freeze deviation entry breaks no anchor.",
+ "arms": {
+  "A": {
+   "path": "arms/A/PROMPT.txt",
+   "promptBytes": 84289,
+   "promptSha256": "sha256:9d8b4f41c6cbb1c2ff5216c7758ad8f25d274802b5f07b2f54ac14d19e85d83a",
+   "representation": "Judgment Pack (specVersion 0.2.0-draft) + matrixVersion-2 test matrix"
+  },
+  "B": {
+   "path": "arms/B/PROMPT.txt",
+   "promptBytes": 204333,
+   "promptSha256": "sha256:074c5b4a9837e887846f140bf45ca481956aea672d05e1ee49e7ed559f99b055",
+   "representation": "Rego v1 policy + opa test file, informal contract"
+  },
+  "C": {
+   "path": "arms/C/PROMPT.txt",
+   "promptBytes": 206686,
+   "promptSha256": "sha256:576a8e8e6c890f2cb28100621a53438c09de5e9970a480f7997ebf096203567c",
+   "representation": "Rego v1 policy + opa test file, prescribed judgment convention"
+  }
+ },
+ "batch": {
+  "arms": [
+   "A",
+   "B",
+   "C"
+  ],
+  "callTimeoutSeconds": 2700,
+  "n": 50,
+  "note": "Sequential, never parallel. The per-call timeout ceiling is an APPARATUS bound: a call that reaches it is pipeline-invalid, excluded from every rate's denominator and reported with its own rate, and a per-arm timeout rate above timeoutRateCap is a control-gate failure adjudicating R1 in neither direction. The wrapper reads callTimeoutSeconds and timeoutKillAfterSeconds from HERE, so the registry, the driver and the wrapper cannot hold three ceilings; a harness test asserts these two values equal batch.py's constants.",
+  "order": {
+   "blockOrder": [
+    "W1",
+    "W2",
+    "W3",
+    "W4",
+    "W6",
+    "W5"
+   ],
+   "blocks": 8,
+   "construction": "W1-W3 increment every symbol A->B->C->A per row; W4-W6 are those rows reversed",
+   "firstRow": [
+    "A",
+    "B",
+    "C"
+   ],
+   "note": "50 rounds of three arms: eight whole blocks of the six Williams sequences and a two-sequence tail, because 50 is not a multiple of 6. Exact balance is arithmetically unavailable at three arms over 50 rounds, so what is registered is the FLOOR of both spreads - position spread 1 and directed-transition spread 1, with no arm ever immediately following itself. harness/batch.py derive_order() establishes that floor by exhaustive search and harness/tests/test_schedule.py requires this order to attain it.",
+   "tail": [
+    "W4",
+    "W6"
+   ]
+  },
+  "slots": 150,
+  "timeoutKillAfterSeconds": 60,
+  "timeoutRateCap": 0.1,
+  "window": "three consecutive UTC calendar days"
+ },
+ "codex": {
+  "binarySha256": "sha256:a2a05dafaa1acb002a45eaec0a462de5b13694fcfcd7bc43305f14781ce7be14",
+  "model": "gpt-5.6-sol",
+  "note": "The binary digest is byte-identical to Study 012's pin, so continuity with the 011/012 baselines holds with no re-pin. The MODEL is null here and is named by explicit flag at batch time: a model name is not a digest (Study 012's correction). harness/authoring_call.sh REFUSES while it is null rather than passing the string None to -m.",
+  "resolvedAtDesignTime": true,
+  "version": "codex-cli 0.145.0"
+ },
+ "freeze": {
+  "commit": null,
+  "note": "The freeze commit is the squash-merge commit of the freeze PR on main - named by reference because a squash hash cannot exist before the merge. At the freeze every pin above is filled, results/primary-attempt-001 must not exist, and the scorer refuses if it does."
+ },
+ "goldSuite": {
+  "note": "76 rows at design time; 117 at this revision - the round-1 arm-A reference repair added coverage of the former X1 region (76 -> 109) and the round-3 adequacy re-closure added eight prose-derived rows (109 -> 117). The pre-freeze adequacy gate may add more, and any added row re-runs the full agreement chain (both engines, the clean-room oracle). The count is recomputed from the committed suite by harness/tests/test_prereg_currency.py rather than read from this note.",
+  "path": "gold/GOLD.json",
+  "rows": 117,
+  "sha256": "sha256:1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8"
+ },
+ "golden": {
+  "note": "Captured from at least two independent agreeing probes before the batch, for THIS study's environment. One recapture serves all three arms: the pre-prompt context precedes the prompt and does not depend on it.",
+  "path": "transcription/GOLDEN-CONTEXT.json",
+  "sha256": "sha256:0e8c9cb1fd7db6d8b770ebeea669b675ecf69a81e213403212eb1a1bccda7783"
+ },
+ "isolationNegative": {
+  "assent": "granted",
+  "assentProvenance": "recorded 2026-08-19: explicit maintainer assent, given in answer to a named question describing exactly this control \u2014 one probe call with the operator's real HOME exposed to the pinned CLI, to prove the golden-context gate has power. The capture itself is the parallel fill line's run, RATIFIED under this grant rather than re-run: the driver refuses to rewrite a registered control, and the maintainer's explicit answer supersedes that line's earlier reading of a generic 'go' as assent.",
+  "note": "The isolation negative control runs against the operator's real home under recorded operator assent, and is a precondition of the batch rather than of its own command."
+ },
+ "jpack": {
+  "archive": "judgment-pack_0.17.0_linux_amd64.tar.gz",
+  "archiveSha256": "sha256:4046a101e3b638eee87f5d3f2f17b8337d2e4be35a34d45060789639b816d8dc",
+  "binarySha256": "sha256:42f35f7900bea6dfce215631b50729ab22dd347289e1bde3412604fb043a22e9",
+  "note": "Verified 2026-08-14 against the release checksums.txt (design/TOOLCHAIN-NOTES.md). The operator PATH binary is v0.10.0 and must never be invoked; the harness refuses on digest mismatch. Verdicts and error classes are read from the JSON payload only. The reproducible-build attestation (local build from the tag reproducing the published digest, the Study 013 pattern) is deferred to harness time and is null until then.",
+  "reproducibleBuildAttestation": "a local build from the v0.17.0 tag (go1.26.5, CGO_ENABLED=0, -trimpath, goreleaser ldflags with CLIVersion=0.17.0) reproduced the pinned binary digest 42f35f79\u2026 byte-identically, 2026-08-19 \u2014 the Study 013 pattern",
+  "resolvedAtDesignTime": true,
+  "version": "0.17.0"
+ },
+ "mutantManifests": {
+  "combinationRule": "sha256 over the concatenation of the two manifests' bytes, MANIFEST-jps.json then MANIFEST-rego.json \u2014 the order the pin source names them in",
+  "jps": "sha256:5f553baa68a50daefc046823e0488ff6831d083969663cc5d125f5eddd212b6d",
+  "note": "One digest over the two committed manifests (145 JPS / 184 valid Rego at the design-time build; 183 JPS / 184 valid Rego at this revision, after the arm-A reference repair forced a corpus rebuild), each mutant with its witness set over gold. The live totals are recomputed from the manifests by harness/tests/test_prereg_currency.py. Null until the pre-freeze adequacy gate closes.",
+  "path": "mutants/",
+  "rego": "sha256:06cb8d2f46a3833253d1eb6dc314c5ab847412061f378dbfb19facfa1f29225b",
+  "sha256": "sha256:e85fec00eeaf8c381c8b0e52090b446ce1ff11f4ddd4748d63e7ec785139d109"
+ },
+ "note": "Pin registry, 011/012/014 convention. It is a pin, not an attestation - but every non-null member here is ENFORCED before anything is spent, not merely declared: harness/integrity.py verifies the port chain and the exact-set study manifest, harness/authoring_call.sh verifies the codex binary digest, the CLI version, the interpreter, the per-arm prompt digest and the registered timeout ceiling before any call, and the scorer (harness/score.py, assembled and under test since the round-1 response) verifies the rest before it adjudicates anything. EVERY freeze pin below is null: this study is pre-freeze, nothing citable has run, and registeredLabelRule makes that visible in every output rather than in a banner.",
+ "offGoldCertificate": {
+  "note": "The pre-freeze off-gold equivalence check: the two references' agreement re-established over the full derived input space. The REGISTERED EXCLUSION SET IS EMPTY - X1 was retired by round-1 finding R1-2 and the arm-A reference was repaired - so the check now requires ZERO divergence points anywhere in the 236,196-cell space rather than requiring every divergence to fall inside a registered class. This is what makes the E4 identity control safe, so it is a freeze pin and not a report.",
+  "path": "controls/off-gold-equivalence.json",
+  "sha256": "sha256:66203266741fd2c769c794469d8050e732ac2c4e1b4df2e462f8e59055f3b6f3"
+ },
+ "opa": {
+  "asset": "opa_linux_amd64_static",
+  "assetSha256": "sha256:1dd5c5591ff856f5e20a1d66bafae9511ddf3c5552ed3b5070c70b2b6580ee3f",
+  "capabilitiesDenylist": [
+   "clock",
+   "network",
+   "rand",
+   "uuid",
+   "opa.runtime",
+   "print",
+   "trace",
+   "timezone-taking time forms",
+   "net.cidr_expand"
+  ],
+  "capabilitiesDenylistNote": "The nine families PREREGISTRATION.md section 2 calls \"the registered denylist\". Section 2 names the phrase and nowhere names its members, so the members are registered HERE as bytes rather than left to a reading of the sentence; harness/e4lib/capabilities.py transcribes this member into REGISTERED_DENYLIST and harness/tests/test_score_capabilities.py binds the two in both directions. Each word is implemented as a RULE over the builtin's own capability record, never as a list of builtin names - measured against the pinned binary, denying the two builtins literally named print and trace leaves print(\"x\") compiling, because the compiler lowers the call to internal.print. The rules deny a SUPERSET of what these nine words name: the binary's own \"nondeterministic\": true flag also removes io.jwt.decode_verify, io.jwt.encode_sign and io.jwt.encode_sign_raw, which no family word here names, and that over-denial is recorded in capabilities.py's CATCH_ALL_ONLY_AT_PIN rather than hidden.",
+  "capabilitiesPath": "controls/opa-capabilities.json",
+  "capabilitiesSha256": "sha256:7cbfe97d24c51d8ef08931a6dfdb457bf15ee833e814a4ec815d80177add600e",
+  "license": "Apache-2.0 (verified from LICENSE at tag v1.19.0)",
+  "note": "No reproducible-build claim exists - official builds embed a build timestamp - so the pin is against the published artifact, stated rather than glossed. opa exec does not accept --capabilities at this version; scored invocations use per-row opa eval --format json --fail --strict-builtin-errors --capabilities ... --timeout ... under env -i with TZ=UTC. The time.now_ns canary must be REFUSED by the filtered capabilities file, and that is re-verified at attempt time as a control gate. The capabilities file is generated from the pinned binary and the registered capabilitiesDenylist by harness/e4lib/capabilities.py and is committed at capabilitiesPath. capabilitiesSha256 is a FREEZE pin and stays null until the freeze fills it; until then capabilities.py's check_committed() re-derives the file from the pinned binary and compares it byte for byte, which is what binds the bytes pre-freeze. Nothing RESOLVES capabilitiesPath at run time: engines.Toolchain still reads the capabilities path from $OPA_CAPS and records the null pin in unenforcedPins, so a scored invocation names whatever file the operator names and the attempt record says which pins were declarations rather than enforcements.",
+  "regoVersion": "v1",
+  "reproducibleBuild": false,
+  "resolvedAtDesignTime": true,
+  "version": "1.19.0"
+ },
+ "ownPorts": {
+  "path": "harness/PORTS.md",
+  "sha256": "sha256:0016fcf89bf3b971f6ef899b38e2cf975b0c0fc18d79e2acb5901d44dce18362"
+ },
+ "pinnedFrom": {
+  "alsoTakenFrom": {
+   "file": "harness/make_manifest.py",
+   "note": "Study 014 pins none of its own harness sources, so this row is bound to the recorded commit's working file and to nothing older. harness/PORTS.md says so in its own authority column.",
+   "study": "studies/014-openworkproof-binding"
+  },
+  "commit": "019c95be9e86c575878015954dfec17e4f84e683",
+  "pins": {
+   "path": "harness/PINS.json",
+   "sha256": "sha256:cff265e75fc3f3be82fcbbb12527d14faa30935e6f804c3f02dd2fb22fcc64f4"
+  },
+  "portsNote": "Study 012's harness/PORTS.md is NOT pinned here. Its digest is read from Study 012's own registry (ownPorts), so the source-side cells of this study's port table answer to the source study and not to a digest this study chose.",
+  "study": "studies/012-policy-perturbation"
+ },
+ "pinsVersion": "1",
+ "policyProse": {
+  "note": "The frozen copy of design/POLICY-DRAFT.md v0.3. Absent until the freeze.",
+  "path": "policy/POLICY.md",
+  "sha256": "sha256:c4a533cab4dc6b6fa5e5f3b92d999ebf130cfbfaa5811ace49087c16612173bc"
+ },
+ "preregistration": {
+  "path": "PREREGISTRATION.md",
+  "sha256": "sha256:dac90f4912beb9d576a52bc3770d5720802a6c241826acce7dd53af0a34bb237"
+ },
+ "probePrompt": {
+  "path": "transcription/PROBE-PROMPT.txt",
+  "sha256": "sha256:128aaa9a67b601c66b11d8d233a336cca1e064401bb24994929b9965f77f45e7"
+ },
+ "python": {
+  "implementation": "CPython",
+  "note": "Implementation and series enforced by harness/integrity.py and by the call wrapper before any helper step; the running interpreter's full version is reported at run time and deliberately not pinned here (Study 012's round 3, finding 20). Runbooks name the interpreter by absolute path.",
+  "series": "3.12"
+ },
+ "references": {
+  "A": {
+   "path": "reference/REFERENCE-A.md",
+   "sha256": "sha256:0af62377357adc54e03b45f90724414ce67bad6414a2d0307cab2eb77a5354eb"
+  },
+  "B": {
+   "path": "reference/REFERENCE-B.md",
+   "sha256": "sha256:21f9ae1906a462c398bd969d3da792f55aef834651e26d38b7b29da53a90dec7"
+  }
+ },
+ "registeredLabelRule": "harness/integrity.py's study_label() labels a run REGISTERED only when EVERY freeze pin below is non-null - preregistration, policyProse, goldSuite, the three arm prompt digests (matrixA/matrixB/matrixC, stored at arms.<ARM>.promptSha256, the member the call wrapper's prompt-digest gate reads), mutantManifests, referenceA, referenceB, offGoldCertificate, studyManifest, opa.capabilitiesSha256 (opaCapabilities), jpack.reproducibleBuildAttestation (jpackBuildAttestation), codex.model (model), probePrompt.sha256 (probePrompt), golden.sha256 (goldenContext), isolationNegative.assent (isolationAssent), and reviewerMutantSet.sha256 (reviewerMutantSet). Any null makes it a PILOT, and a PILOT supports no claim. The non-null members are enforced under both labels: a design-time resolved toolchain digest is checked whether or not the freeze has happened. Study 014's round 3 found a registered run reachable with only the preregistration digest filled, which left the registry the attempt adjudicated unpinned; the rule is over the whole freeze set for that reason. ROUND-1 FINDING R1-9 extended the set from eleven members to eighteen: the last seven are values the attempt depends on and REGISTERED used to be reachable with every one of them null - a null capabilities digest was merely RECORDED as unenforced by the toolchain, a null model reached the wrapper as a refusal rather than a label, and a null reviewerMutantSet let a registered attempt skip the only prospective reviewer-authored content the study has (R1-10). harness/tests/test_pins.py drives the rule pin by pin: each member nulled alone on an otherwise-full registry must produce PILOT.",
+ "reviewerMutantSet": {
+  "note": "Sealed, authored during review rounds, committed verbatim, first executed at the primary attempt, scored as authored, reported separately, moving nothing. --include-reviewer-set refuses while any pin above is null.",
+  "path": "controls/reviewer-mutants/",
+  "sha256": "sha256:6bff7f950b132505d1034fe7d993a8920f028647b35dc1f48d9072884fedaa0e"
+ },
+ "studyManifest": {
+  "path": "harness/STUDY-MANIFEST.sha256",
+  "sha256": "sha256:816eb15276e76502f0a538f540235928206daf2ef884bdb47bc996c1517ab593"
+ }
+}

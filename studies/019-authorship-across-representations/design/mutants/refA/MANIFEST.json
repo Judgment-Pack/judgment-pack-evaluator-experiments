@@ -1,0 +1,4365 @@
+[
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[1](r-d3).when.conditions[1].operator: greater-than-or-equal -> greater-than",
+  "engineSuppliedKill": false,
+  "id": "m-a-001",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d3-low-90",
+   "d3-med-90"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d4-high-nv-70-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[2](r-d4).when.conditions[2].operator: greater-than-or-equal -> greater-than",
+  "engineSuppliedKill": false,
+  "id": "m-a-002",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d4-high-70",
+   "d4-high-nv-70-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-nv-40-100k01",
+    "o1-nv-40-0",
+    "o1-nv-40-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[4](r-d6a).when.conditions[2].operator: less-than -> less-than-or-equal",
+  "engineSuppliedKill": true,
+  "id": "m-a-003",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 5,
+  "witnessSet": [
+   "d8-40-100k01",
+   "d8-40-500k",
+   "d8-nv-40-100k01",
+   "o1-nv-40-0",
+   "o1-nv-40-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6a-500k-ins-absent",
+    "d6a-500k-ins-unreported"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[4](r-d6a).when.conditions[3].operator: less-than-or-equal -> less-than",
+  "engineSuppliedKill": false,
+  "id": "m-a-004",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 3,
+  "witnessSet": [
+   "d6a-500k",
+   "d6a-500k-ins-absent",
+   "d6a-500k-ins-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-low-40-500k01-ins-present"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[5](r-d6b-insured).when.conditions[2].operator: less-than -> less-than-or-equal",
+  "engineSuppliedKill": true,
+  "id": "m-a-005",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-low-40-500k01-ins-present"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "r-d6b-insured's lower spend edge is relaxed onto $500,000.00. The only cells it newly admits (CLEAR, LOW, risk<40, spend exactly $500,000.00) are already r-d6a's, and both rules name `approve`, so the candidate set is unchanged (SS8 step 9: multiple true rules naming one outcome are compatible). The one exception that suppresses r-d6a (D5) suppresses r-d6b-insured too, so no cell suppresses one without the other.",
+   "dropMechanismClass": "same-outcome-overlap",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "operator-flip",
+  "edit": "rules[5](r-d6b-insured).when.conditions[3].operator: greater-than -> greater-than-or-equal",
+  "engineSuppliedKill": false,
+  "id": "m-a-006",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[5](r-d6b-insured).when.conditions[4].operator: less-than-or-equal -> less-than",
+  "engineSuppliedKill": false,
+  "id": "m-a-007",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6b-2m"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-low-40-500k01-ins-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[6](r-d6b-uninsured).when.conditions[2].operator: less-than -> less-than-or-equal",
+  "engineSuppliedKill": true,
+  "id": "m-a-008",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-low-40-500k01-ins-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6a-500k-ins-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[6](r-d6b-uninsured).when.conditions[3].operator: greater-than -> greater-than-or-equal",
+  "engineSuppliedKill": true,
+  "id": "m-a-009",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6a-500k-ins-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-2m-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[6](r-d6b-uninsured).when.conditions[4].operator: less-than-or-equal -> less-than",
+  "engineSuppliedKill": false,
+  "id": "m-a-010",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6b-2m-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[7](r-d6c).when.conditions[2].operator: greater-than-or-equal -> greater-than",
+  "engineSuppliedKill": false,
+  "id": "m-a-011",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6c-40-100k",
+   "d6c-40-50k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[7](r-d6c).when.conditions[3].operator: less-than -> less-than-or-equal",
+  "engineSuppliedKill": true,
+  "id": "m-a-012",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-70-low"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[7](r-d6c).when.conditions[4].operator: less-than-or-equal -> less-than",
+  "engineSuppliedKill": false,
+  "id": "m-a-013",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6c-40-100k",
+   "d6c-69-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-med-nv-40-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[8](r-d7).when.conditions[2].operator: less-than -> less-than-or-equal",
+  "engineSuppliedKill": true,
+  "id": "m-a-014",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-40-med",
+   "d8-med-nv-40-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[8](r-d7).when.conditions[3].operator: less-than-or-equal -> less-than",
+  "engineSuppliedKill": false,
+  "id": "m-a-015",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d7-39-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "r-o1-review's region (CLEAR, LOW, 40 <= risk < 70, spend <= $100,000.00, newVendor=yes) is a STRICT SUBSET of r-o1-wide-low's (the same without the spend conjunct), which the X1 repair added (reference/refA/PACK-CHANGE-001.md); both name `review`, both carry `onUnknown: ignore`, and the D5 family suppresses them together (x-d5-suppress-o1-review beside x-d5-suppress-o1-wide-low). Raising this rule's lower risk edge off 40 therefore stops admitting cells r-o1-wide-low still admits with the same outcome: the candidate set is unchanged on all 419,904 cells.",
+   "dropMechanismClass": "subsumed-region-lemma",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "operator-flip",
+  "edit": "rules[9](r-o1-review).when.conditions[0].conditions[2].operator: greater-than-or-equal -> greater-than",
+  "engineSuppliedKill": false,
+  "id": "m-a-016",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "The widening direction of the same subsumption. r-o1-review is relaxed onto risk exactly 70, which is OUTSIDE r-o1-wide-low's band \u2014 but there r-d8 already fires and also names `review`: r-d8's cascade reads its D6c disjunct, which needs risk < 70 and is false, so the negation is true; x-o1-suppress-d8-low needs risk < 70 too and does not suppress it; and no approval or rejection rule reaches a LOW country at risk 70 below 90. Same-outcome overlap, same candidate set (SS8 step 9).",
+   "dropMechanismClass": "subsumed-region-lemma",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "operator-flip",
+  "edit": "rules[9](r-o1-review).when.conditions[0].conditions[3].operator: less-than -> less-than-or-equal",
+  "engineSuppliedKill": false,
+  "id": "m-a-017",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "As m-a-016 on the spend conjunct (spend <= $100,000.00 -> spend < $100,000.00): r-o1-wide-low carries NO spend conjunct, so every cell this edit drops is still its.",
+   "dropMechanismClass": "subsumed-region-lemma",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "operator-flip",
+  "edit": "rules[9](r-o1-review).when.conditions[0].conditions[4].operator: less-than-or-equal -> less-than",
+  "engineSuppliedKill": false,
+  "id": "m-a-018",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-nv-40-100k01",
+    "x1r-low-spend-unreadable-40"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[10](r-o1-wide-low).when.conditions[2].operator: greater-than-or-equal -> greater-than",
+  "engineSuppliedKill": false,
+  "id": "m-a-019",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-nv-40-100k01",
+   "x1r-low-spend-unreadable-40"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "r-o1-wide-low is relaxed onto risk exactly 70. There r-d8 already fires and names `review` (its D6c cascade disjunct needs risk < 70 and is false; x-o1-suppress-d8-low is unedited and needs risk < 70, so it does not suppress r-d8), and nothing else is true in a LOW country at risk 70 below 90.",
+   "dropMechanismClass": "same-outcome-overlap",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "operator-flip",
+  "edit": "rules[10](r-o1-wide-low).when.conditions[3].operator: less-than -> less-than-or-equal",
+  "engineSuppliedKill": false,
+  "id": "m-a-020",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-med-nv-40-100k",
+    "x1r-country-unreadable-40"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[11](r-o1-wide-spend).when.conditions[1].operator: greater-than-or-equal -> greater-than",
+  "engineSuppliedKill": false,
+  "id": "m-a-021",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-med-nv-40-100k",
+   "x1r-country-unreadable-40"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d4-high-nv-70-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[11](r-o1-wide-spend).when.conditions[2].operator: less-than -> less-than-or-equal",
+  "engineSuppliedKill": true,
+  "id": "m-a-022",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d4-high-nv-70-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-med-nv-40-100k",
+    "d8-med-nv-69-100k",
+    "x1r-country-unreadable-100k",
+    "x1r-country-unreadable-40",
+    "x1r-country-unreadable-69"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[11](r-o1-wide-spend).when.conditions[3].operator: less-than-or-equal -> less-than",
+  "engineSuppliedKill": false,
+  "id": "m-a-023",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 5,
+  "witnessSet": [
+   "d8-med-nv-40-100k",
+   "d8-med-nv-69-100k",
+   "x1r-country-unreadable-100k",
+   "x1r-country-unreadable-40",
+   "x1r-country-unreadable-69"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[0].conditions[1].operator: greater-than-or-equal -> greater-than",
+  "engineSuppliedKill": false,
+  "id": "m-a-024",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d3-low-90",
+   "d3-med-90"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d4-high-nv-70-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[1].conditions[2].operator: greater-than-or-equal -> greater-than",
+  "engineSuppliedKill": false,
+  "id": "m-a-025",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d4-high-70",
+   "d4-high-nv-70-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[2].conditions[2].operator: less-than -> less-than-or-equal",
+  "engineSuppliedKill": false,
+  "id": "m-a-026",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-40-100k01",
+   "d8-40-500k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6a-500k-ins-absent",
+    "d6a-500k-ins-unreported"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[2].conditions[3].operator: less-than-or-equal -> less-than",
+  "engineSuppliedKill": false,
+  "id": "m-a-027",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 3,
+  "witnessSet": [
+   "d6a-500k",
+   "d6a-500k-ins-absent",
+   "d6a-500k-ins-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-low-40-500k01-ins-present",
+    "d8-low-40-500k01-ins-unreported"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[3].conditions[2].operator: less-than -> less-than-or-equal",
+  "engineSuppliedKill": false,
+  "id": "m-a-028",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-low-40-500k01-ins-present",
+   "d8-low-40-500k01-ins-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "The edit relaxes the D6b-insured COPY inside r-d8's `not(any ...)` onto spend exactly $500,000.00. At every such cell the D6a copy in the same `any` is already true, so the disjunction is true either way (SS7.2), the negation is false either way, and r-d8's condition value is unchanged on all 419,904 cells (live-edit cells: 0).",
+   "dropMechanismClass": "shadowed-cascade-branch",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "operator-flip",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[3].conditions[3].operator: greater-than -> greater-than-or-equal",
+  "engineSuppliedKill": false,
+  "id": "m-a-029",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[3].conditions[4].operator: less-than-or-equal -> less-than",
+  "engineSuppliedKill": false,
+  "id": "m-a-030",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6b-2m"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-low-40-500k01-ins-absent",
+    "d8-low-40-500k01-ins-unreported"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[4].conditions[2].operator: less-than -> less-than-or-equal",
+  "engineSuppliedKill": false,
+  "id": "m-a-031",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-low-40-500k01-ins-absent",
+   "d8-low-40-500k01-ins-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "As m-a-029 for the D6b-uninsured copy in the same cascade.",
+   "dropMechanismClass": "shadowed-cascade-branch",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "operator-flip",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[4].conditions[3].operator: greater-than -> greater-than-or-equal",
+  "engineSuppliedKill": false,
+  "id": "m-a-032",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-2m-absent",
+    "u1-country-2m-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[4].conditions[4].operator: less-than-or-equal -> less-than",
+  "engineSuppliedKill": false,
+  "id": "m-a-033",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6b-2m-absent",
+   "u1-country-2m-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[5].conditions[2].operator: greater-than-or-equal -> greater-than",
+  "engineSuppliedKill": false,
+  "id": "m-a-034",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6c-40-100k",
+   "d6c-40-50k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-nv-70-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[5].conditions[3].operator: less-than -> less-than-or-equal",
+  "engineSuppliedKill": false,
+  "id": "m-a-035",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-70-low",
+   "d8-nv-70-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[5].conditions[4].operator: less-than-or-equal -> less-than",
+  "engineSuppliedKill": false,
+  "id": "m-a-036",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6c-40-100k",
+   "d6c-69-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[6].conditions[2].operator: less-than -> less-than-or-equal",
+  "engineSuppliedKill": false,
+  "id": "m-a-037",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-40-med"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[6].conditions[3].operator: less-than-or-equal -> less-than",
+  "engineSuppliedKill": true,
+  "id": "m-a-038",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d7-39-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "u1-country-2m"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "exceptions[2](x-o3-large-exposure).when.conditions[2].operator: greater-than -> greater-than-or-equal",
+  "engineSuppliedKill": false,
+  "id": "m-a-039",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-high-2m",
+   "u1-country-2m"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "x1r-low-spend-unreadable-40"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "exceptions[10](x-o1-suppress-d8-low).when.conditions[2].operator: greater-than-or-equal -> greater-than",
+  "engineSuppliedKill": false,
+  "id": "m-a-040",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "x1r-low-spend-unreadable-40"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-nv-70-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "exceptions[10](x-o1-suppress-d8-low).when.conditions[3].operator: less-than -> less-than-or-equal",
+  "engineSuppliedKill": false,
+  "id": "m-a-041",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-nv-70-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "x1r-country-unreadable-40"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "exceptions[11](x-o1-suppress-d8-spend).when.conditions[1].operator: greater-than-or-equal -> greater-than",
+  "engineSuppliedKill": false,
+  "id": "m-a-042",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "x1r-country-unreadable-40"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-nv-70-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "exceptions[11](x-o1-suppress-d8-spend).when.conditions[2].operator: less-than -> less-than-or-equal",
+  "engineSuppliedKill": false,
+  "id": "m-a-043",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-nv-70-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "x1r-country-unreadable-100k",
+    "x1r-country-unreadable-40",
+    "x1r-country-unreadable-69"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "operator-flip",
+  "edit": "exceptions[11](x-o1-suppress-d8-spend).when.conditions[3].operator: less-than-or-equal -> less-than",
+  "engineSuppliedKill": false,
+  "id": "m-a-044",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 3,
+  "witnessSet": [
+   "x1r-country-unreadable-100k",
+   "x1r-country-unreadable-40",
+   "x1r-country-unreadable-69"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[1](r-d3).when.conditions[1].value: 90 -> 91 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-045",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d3-low-90",
+   "d3-med-90"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[1](r-d3).when.conditions[1].value: 90 -> 89 (-1 at scale)",
+  "engineSuppliedKill": true,
+  "id": "m-a-046",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-low-89"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d4-high-nv-70-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[2](r-d4).when.conditions[2].value: 70 -> 71 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-047",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d4-high-70",
+   "d4-high-nv-70-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[2](r-d4).when.conditions[2].value: 70 -> 69 (-1 at scale)",
+  "engineSuppliedKill": true,
+  "id": "m-a-048",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-high-69"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-nv-40-100k01",
+    "o1-nv-40-0",
+    "o1-nv-40-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[4](r-d6a).when.conditions[2].value: 40 -> 41 (+1 at scale)",
+  "engineSuppliedKill": true,
+  "id": "m-a-049",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 5,
+  "witnessSet": [
+   "d8-40-100k01",
+   "d8-40-500k",
+   "d8-nv-40-100k01",
+   "o1-nv-40-0",
+   "o1-nv-40-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6a-nv-39-0"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[4](r-d6a).when.conditions[2].value: 40 -> 39 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-050",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6a-39-50k",
+   "d6a-nv-39-0"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-39-500k01-absent",
+    "d6b-500k01-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[4](r-d6a).when.conditions[3].value: 500000.00 -> 500000.01 (+1 at scale)",
+  "engineSuppliedKill": true,
+  "id": "m-a-051",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6b-39-500k01-absent",
+   "d6b-500k01-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6a-500k-ins-absent",
+    "d6a-500k-ins-unreported"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[4](r-d6a).when.conditions[3].value: 500000.00 -> 499999.99 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-052",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 3,
+  "witnessSet": [
+   "d6a-500k",
+   "d6a-500k-ins-absent",
+   "d6a-500k-ins-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-low-40-500k01-ins-present"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[5](r-d6b-insured).when.conditions[2].value: 40 -> 41 (+1 at scale)",
+  "engineSuppliedKill": true,
+  "id": "m-a-053",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-low-40-500k01-ins-present"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-39-500k01-present"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[5](r-d6b-insured).when.conditions[2].value: 40 -> 39 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-054",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6b-39-500k01-present"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-39-500k01-present"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[5](r-d6b-insured).when.conditions[3].value: 500000.00 -> 500000.01 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-055",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6b-39-500k01-present",
+   "d6b-500k01"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "Threshold form of m-a-006 ($500,000.00 -> $499,999.99): the newly admitted cell is r-d6a's and both rules name `approve`.",
+   "dropMechanismClass": "same-outcome-overlap",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[5](r-d6b-insured).when.conditions[3].value: 500000.00 -> 499999.99 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-056",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[5](r-d6b-insured).when.conditions[4].value: 2000000.00 -> 2000000.01 (+1 at scale)",
+  "engineSuppliedKill": true,
+  "id": "m-a-057",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-2m01-low"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[5](r-d6b-insured).when.conditions[4].value: 2000000.00 -> 1999999.99 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-058",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6b-2m"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-low-40-500k01-ins-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[6](r-d6b-uninsured).when.conditions[2].value: 40 -> 41 (+1 at scale)",
+  "engineSuppliedKill": true,
+  "id": "m-a-059",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-low-40-500k01-ins-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-39-500k01-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[6](r-d6b-uninsured).when.conditions[2].value: 40 -> 39 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-060",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6b-39-500k01-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-39-500k01-absent",
+    "d6b-500k01-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[6](r-d6b-uninsured).when.conditions[3].value: 500000.00 -> 500000.01 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-061",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6b-39-500k01-absent",
+   "d6b-500k01-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6a-500k-ins-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[6](r-d6b-uninsured).when.conditions[3].value: 500000.00 -> 499999.99 (-1 at scale)",
+  "engineSuppliedKill": true,
+  "id": "m-a-062",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6a-500k-ins-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-2m01-low-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[6](r-d6b-uninsured).when.conditions[4].value: 2000000.00 -> 2000000.01 (+1 at scale)",
+  "engineSuppliedKill": true,
+  "id": "m-a-063",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-2m01-low-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-2m-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[6](r-d6b-uninsured).when.conditions[4].value: 2000000.00 -> 1999999.99 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-064",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6b-2m-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[7](r-d6c).when.conditions[2].value: 40 -> 41 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-065",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6c-40-100k",
+   "d6c-40-50k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "r-d6c's lower risk edge is relaxed onto 39. The cells it newly admits (CLEAR, LOW, risk 39, spend <= $100,000.00) are already r-d6a's, whose band is risk < 40 with spend <= $500,000.00, and both name `approve`. Where O1 bites (newVendor=yes) it suppresses r-d6c alone, so the widened rule is removed and r-d6a still approves; where D5 bites it suppresses both.",
+   "dropMechanismClass": "same-outcome-overlap",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[7](r-d6c).when.conditions[2].value: 40 -> 39 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-066",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[7](r-d6c).when.conditions[3].value: 70 -> 71 (+1 at scale)",
+  "engineSuppliedKill": true,
+  "id": "m-a-067",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-70-low"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[7](r-d6c).when.conditions[3].value: 70 -> 69 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-068",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6c-69-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[7](r-d6c).when.conditions[4].value: 100000.00 -> 100000.01 (+1 at scale)",
+  "engineSuppliedKill": true,
+  "id": "m-a-069",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-40-100k01"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[7](r-d6c).when.conditions[4].value: 100000.00 -> 99999.99 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-070",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6c-40-100k",
+   "d6c-69-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-med-nv-40-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[8](r-d7).when.conditions[2].value: 40 -> 41 (+1 at scale)",
+  "engineSuppliedKill": true,
+  "id": "m-a-071",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-40-med",
+   "d8-med-nv-40-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[8](r-d7).when.conditions[2].value: 40 -> 39 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-072",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d7-39-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[8](r-d7).when.conditions[3].value: 100000.00 -> 100000.01 (+1 at scale)",
+  "engineSuppliedKill": true,
+  "id": "m-a-073",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-39-100k01-med"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[8](r-d7).when.conditions[3].value: 100000.00 -> 99999.99 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-074",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d7-39-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "Threshold form of m-a-016 (40 -> 41): the cells the rule stops admitting are r-o1-wide-low's, and it names the same outcome.",
+   "dropMechanismClass": "subsumed-region-lemma",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[9](r-o1-review).when.conditions[0].conditions[2].value: 40 -> 41 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-075",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6a-nv-39-0"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[9](r-o1-review).when.conditions[0].conditions[2].value: 40 -> 39 (-1 at scale)",
+  "engineSuppliedKill": true,
+  "id": "m-a-076",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6a-nv-39-0"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "Threshold form of m-a-017 (70 -> 71): the widened cells are r-d8's `review`.",
+   "dropMechanismClass": "subsumed-region-lemma",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[9](r-o1-review).when.conditions[0].conditions[3].value: 70 -> 71 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-077",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "As m-a-016 at the band's upper edge (risk < 70 -> risk < 69): the cells at risk exactly 69 stay r-o1-wide-low's `review`.",
+   "dropMechanismClass": "subsumed-region-lemma",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[9](r-o1-review).when.conditions[0].conditions[3].value: 70 -> 69 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-078",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "r-o1-review is relaxed onto spend exactly $100,000.01. That cell is still inside r-o1-wide-low (LOW, 40 <= risk < 70, newVendor=yes, any spend), which already names `review`, and no approval clause reaches risk >= 40 above D6c's ceiling.",
+   "dropMechanismClass": "subsumed-region-lemma",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[9](r-o1-review).when.conditions[0].conditions[4].value: 100000.00 -> 100000.01 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-079",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "Threshold form of m-a-018 ($100,000.00 -> $99,999.99): the dropped cells are r-o1-wide-low's.",
+   "dropMechanismClass": "subsumed-region-lemma",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[9](r-o1-review).when.conditions[0].conditions[4].value: 100000.00 -> 99999.99 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-080",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-nv-40-100k01",
+    "x1r-low-spend-unreadable-40"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-o1-wide-low).when.conditions[2].value: 40 -> 41 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-081",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-nv-40-100k01",
+   "x1r-low-spend-unreadable-40"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6a-nv-39-0"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-o1-wide-low).when.conditions[2].value: 40 -> 39 (-1 at scale)",
+  "engineSuppliedKill": true,
+  "id": "m-a-082",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6a-nv-39-0"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "Threshold form of m-a-020 (70 -> 71): the widened cells are r-d8's `review`.",
+   "dropMechanismClass": "same-outcome-overlap",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-o1-wide-low).when.conditions[3].value: 70 -> 71 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-083",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "x1r-low-spend-unreadable-69"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[10](r-o1-wide-low).when.conditions[3].value: 70 -> 69 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-084",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "x1r-low-spend-unreadable-69"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-med-nv-40-100k",
+    "x1r-country-unreadable-40"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[11](r-o1-wide-spend).when.conditions[1].value: 40 -> 41 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-085",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-med-nv-40-100k",
+   "x1r-country-unreadable-40"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6a-nv-39-0"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[11](r-o1-wide-spend).when.conditions[1].value: 40 -> 39 (-1 at scale)",
+  "engineSuppliedKill": true,
+  "id": "m-a-086",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6a-nv-39-0"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d4-high-nv-70-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[11](r-o1-wide-spend).when.conditions[2].value: 70 -> 71 (+1 at scale)",
+  "engineSuppliedKill": true,
+  "id": "m-a-087",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d4-high-nv-70-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-med-nv-69-100k",
+    "x1r-country-unreadable-69"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[11](r-o1-wide-spend).when.conditions[2].value: 70 -> 69 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-088",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-med-nv-69-100k",
+   "x1r-country-unreadable-69"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "r-o1-wide-spend is relaxed onto spend exactly $100,000.01. Its companion suppression x-o1-suppress-d8-spend is UNEDITED and still reads $100,000.00, so r-d8 is live at those cells and already reviews them; in a LOW country r-o1-wide-low reviews them as well. No approval clause reaches risk >= 40 above D6c's ceiling, so no cell gains a competing outcome.",
+   "dropMechanismClass": "same-outcome-overlap",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[11](r-o1-wide-spend).when.conditions[3].value: 100000.00 -> 100000.01 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-089",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-med-nv-40-100k",
+    "d8-med-nv-69-100k",
+    "x1r-country-unreadable-100k",
+    "x1r-country-unreadable-40",
+    "x1r-country-unreadable-69"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[11](r-o1-wide-spend).when.conditions[3].value: 100000.00 -> 99999.99 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-090",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 5,
+  "witnessSet": [
+   "d8-med-nv-40-100k",
+   "d8-med-nv-69-100k",
+   "x1r-country-unreadable-100k",
+   "x1r-country-unreadable-40",
+   "x1r-country-unreadable-69"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[0].conditions[1].value: 90 -> 91 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-091",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d3-low-90",
+   "d3-med-90"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[0].conditions[1].value: 90 -> 89 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-092",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-low-89"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d4-high-nv-70-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[1].conditions[2].value: 70 -> 71 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-093",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d4-high-70",
+   "d4-high-nv-70-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[1].conditions[2].value: 70 -> 69 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-094",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-high-69"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[2].conditions[2].value: 40 -> 41 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-095",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-40-100k01",
+   "d8-40-500k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6a-nv-39-0"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[2].conditions[2].value: 40 -> 39 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-096",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6a-39-50k",
+   "d6a-nv-39-0"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-39-500k01-unreported",
+    "d6b-500k01-unreported",
+    "d6b-nv-39-500k01-unreported"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[2].conditions[3].value: 500000.00 -> 500000.01 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-097",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 3,
+  "witnessSet": [
+   "d6b-39-500k01-unreported",
+   "d6b-500k01-unreported",
+   "d6b-nv-39-500k01-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6a-500k-ins-absent",
+    "d6a-500k-ins-unreported"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[2].conditions[3].value: 500000.00 -> 499999.99 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-098",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 3,
+  "witnessSet": [
+   "d6a-500k",
+   "d6a-500k-ins-absent",
+   "d6a-500k-ins-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-low-40-500k01-ins-present",
+    "d8-low-40-500k01-ins-unreported"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[3].conditions[2].value: 40 -> 41 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-099",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-low-40-500k01-ins-present",
+   "d8-low-40-500k01-ins-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-39-500k01-present",
+    "u1-country-39-500k01-present"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[3].conditions[2].value: 40 -> 39 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-100",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6b-39-500k01-present",
+   "u1-country-39-500k01-present"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-39-500k01-present",
+    "u1-country-39-500k01-present"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[3].conditions[3].value: 500000.00 -> 500000.01 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-101",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 3,
+  "witnessSet": [
+   "d6b-39-500k01-present",
+   "d6b-500k01",
+   "u1-country-39-500k01-present"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "Threshold form of m-a-029 ($500,000.00 -> $499,999.99) on the D6b-insured copy.",
+   "dropMechanismClass": "shadowed-cascade-branch",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[3].conditions[3].value: 500000.00 -> 499999.99 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-102",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-2m01-low-unreported"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[3].conditions[4].value: 2000000.00 -> 2000000.01 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-103",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-2m01-low",
+   "d8-2m01-low-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[3].conditions[4].value: 2000000.00 -> 1999999.99 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-104",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6b-2m"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-low-40-500k01-ins-absent",
+    "d8-low-40-500k01-ins-unreported"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[4].conditions[2].value: 40 -> 41 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-105",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-low-40-500k01-ins-absent",
+   "d8-low-40-500k01-ins-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-39-500k01-absent",
+    "u1-country-39-500k01-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[4].conditions[2].value: 40 -> 39 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-106",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6b-39-500k01-absent",
+   "u1-country-39-500k01-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-39-500k01-absent",
+    "d6b-500k01-absent",
+    "u1-country-39-500k01-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[4].conditions[3].value: 500000.00 -> 500000.01 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-107",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 3,
+  "witnessSet": [
+   "d6b-39-500k01-absent",
+   "d6b-500k01-absent",
+   "u1-country-39-500k01-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "Threshold form of m-a-029 ($500,000.00 -> $499,999.99) on the D6b-uninsured copy.",
+   "dropMechanismClass": "shadowed-cascade-branch",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[4].conditions[3].value: 500000.00 -> 499999.99 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-108",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-2m01-low-absent",
+    "d8-2m01-low-unreported"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[4].conditions[4].value: 2000000.00 -> 2000000.01 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-109",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-2m01-low-absent",
+   "d8-2m01-low-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-2m-absent",
+    "u1-country-2m-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[4].conditions[4].value: 2000000.00 -> 1999999.99 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-110",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6b-2m-absent",
+   "u1-country-2m-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[5].conditions[2].value: 40 -> 41 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-111",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6c-40-100k",
+   "d6c-40-50k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "The edit relaxes the D6c copy inside r-d8's cascade onto risk 39. D6c's ceiling is $100,000.00, so every cell it newly admits satisfies the D6a copy (risk < 40, spend <= $500,000.00) in the same `any`, which is therefore true either way.",
+   "dropMechanismClass": "shadowed-cascade-branch",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[5].conditions[2].value: 40 -> 39 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-112",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-nv-70-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[5].conditions[3].value: 70 -> 71 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-113",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-70-low",
+   "d8-nv-70-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[5].conditions[3].value: 70 -> 69 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-114",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6c-69-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[5].conditions[4].value: 100000.00 -> 100000.01 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-115",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-40-100k01"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[5].conditions[4].value: 100000.00 -> 99999.99 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-116",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d6c-40-100k",
+   "d6c-69-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[6].conditions[2].value: 40 -> 41 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-117",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-40-med"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[6].conditions[2].value: 40 -> 39 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-118",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d7-39-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[6].conditions[3].value: 100000.00 -> 100000.01 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-119",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-39-100k01-med"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[6].conditions[3].value: 100000.00 -> 99999.99 (-1 at scale)",
+  "engineSuppliedKill": true,
+  "id": "m-a-120",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d7-39-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "u1-country-2m01"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "exceptions[2](x-o3-large-exposure).when.conditions[2].value: 2000000.00 -> 2000000.01 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-121",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "o3-2m01",
+   "u1-country-2m01"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "u1-country-2m"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "exceptions[2](x-o3-large-exposure).when.conditions[2].value: 2000000.00 -> 1999999.99 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-122",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d8-high-2m",
+   "u1-country-2m"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "x1r-low-spend-unreadable-40"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "exceptions[10](x-o1-suppress-d8-low).when.conditions[2].value: 40 -> 41 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-123",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "x1r-low-spend-unreadable-40"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-nv-39-500k01-unreported"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "exceptions[10](x-o1-suppress-d8-low).when.conditions[2].value: 40 -> 39 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-124",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d6b-nv-39-500k01-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-nv-70-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "exceptions[10](x-o1-suppress-d8-low).when.conditions[3].value: 70 -> 71 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-125",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-nv-70-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "x1r-low-spend-unreadable-69"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "exceptions[10](x-o1-suppress-d8-low).when.conditions[3].value: 70 -> 69 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-126",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "x1r-low-spend-unreadable-69"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "x1r-country-unreadable-40"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "exceptions[11](x-o1-suppress-d8-spend).when.conditions[1].value: 40 -> 41 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-127",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "x1r-country-unreadable-40"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-high-nv-39-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "exceptions[11](x-o1-suppress-d8-spend).when.conditions[1].value: 40 -> 39 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-128",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-high-nv-39-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-nv-70-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "exceptions[11](x-o1-suppress-d8-spend).when.conditions[2].value: 70 -> 71 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-129",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-nv-70-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "x1r-country-unreadable-69"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "exceptions[11](x-o1-suppress-d8-spend).when.conditions[2].value: 70 -> 69 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-130",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "x1r-country-unreadable-69"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-med-nv-40-100k01"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "exceptions[11](x-o1-suppress-d8-spend).when.conditions[3].value: 100000.00 -> 100000.01 (+1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-131",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d8-med-nv-40-100k01"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "x1r-country-unreadable-100k",
+    "x1r-country-unreadable-40",
+    "x1r-country-unreadable-69"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "boundary-shift",
+  "edit": "exceptions[11](x-o1-suppress-d8-spend).when.conditions[3].value: 100000.00 -> 99999.99 (-1 at scale)",
+  "engineSuppliedKill": false,
+  "id": "m-a-132",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 3,
+  "witnessSet": [
+   "x1r-country-unreadable-100k",
+   "x1r-country-unreadable-40",
+   "x1r-country-unreadable-69"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "Kleene-monotone onUnknown flip. r-d1's condition reads only /vendor/sanctionsStatus, which the registered projection always supplies as a present string (UNKNOWN is a value, not an omission), so the condition is never `unknown` and `onUnknown` is never consulted: 0 unknown cells of 419,904 (adequacy_mechanisms.json).",
+   "dropMechanismClass": "never-unknown-rule",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "onUnknown-flip",
+  "edit": "rules[0](r-d1).onUnknown: ignore -> escalate",
+  "engineSuppliedKill": false,
+  "id": "m-a-133",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "rules[1](r-d3).onUnknown: ignore -> escalate",
+  "engineSuppliedKill": false,
+  "id": "m-a-134",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "u1-risk-prior",
+   "u1-two-unreadable-uniform"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "rules[2](r-d4).onUnknown: ignore -> escalate",
+  "engineSuppliedKill": false,
+  "id": "m-a-135",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "u1-ex1",
+   "u1-two-unreadable-uniform"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "rules[3](r-d5).onUnknown: ignore -> escalate",
+  "engineSuppliedKill": false,
+  "id": "m-a-136",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "d5-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "onUnknown flip on r-d6a. Wherever r-d6a's condition is unknown AND the rule stage is reached at all (no evidence/exception block, no forced outcome, not suppressed), r-d8 is unknown and unsuppressed too, because its negation cascade carries a copy of the same conjuncts: 972 such cells, 0 uncovered. r-d8 already carries `onUnknown: escalate`, and SS8 keeps reasons as a de-duplicated set, so the flip can only re-record `unknown`.",
+   "dropMechanismClass": "reason-set-idempotence",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "onUnknown-flip",
+  "edit": "rules[4](r-d6a).onUnknown: ignore -> escalate",
+  "engineSuppliedKill": false,
+  "id": "m-a-137",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "As m-a-137 for r-d6b-insured: 432 unknown-and-evaluated cells, 0 uncovered by r-d8.",
+   "dropMechanismClass": "reason-set-idempotence",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "onUnknown-flip",
+  "edit": "rules[5](r-d6b-insured).onUnknown: ignore -> escalate",
+  "engineSuppliedKill": false,
+  "id": "m-a-138",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "As m-a-137 for r-d6b-uninsured: 432 unknown-and-evaluated cells, 0 uncovered by r-d8.",
+   "dropMechanismClass": "reason-set-idempotence",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "onUnknown-flip",
+  "edit": "rules[6](r-d6b-uninsured).onUnknown: ignore -> escalate",
+  "engineSuppliedKill": false,
+  "id": "m-a-139",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "As m-a-137 for r-d6c: 456 unknown-and-evaluated cells, 0 uncovered by r-d8.",
+   "dropMechanismClass": "reason-set-idempotence",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "onUnknown-flip",
+  "edit": "rules[7](r-d6c).onUnknown: ignore -> escalate",
+  "engineSuppliedKill": false,
+  "id": "m-a-140",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "As m-a-137 for r-d7: 540 unknown-and-evaluated cells, 0 uncovered by r-d8.",
+   "dropMechanismClass": "reason-set-idempotence",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "onUnknown-flip",
+  "edit": "rules[8](r-d7).onUnknown: ignore -> escalate",
+  "engineSuppliedKill": false,
+  "id": "m-a-141",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "x1r-country-unreadable-100k",
+    "x1r-country-unreadable-40",
+    "x1r-country-unreadable-69",
+    "x1r-low-spend-unreadable-40",
+    "x1r-low-spend-unreadable-69"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "rules[9](r-o1-review).onUnknown: ignore -> escalate",
+  "engineSuppliedKill": false,
+  "id": "m-a-142",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 6,
+  "witnessSet": [
+   "o1-nv-unreported",
+   "x1r-country-unreadable-100k",
+   "x1r-country-unreadable-40",
+   "x1r-country-unreadable-69",
+   "x1r-low-spend-unreadable-40",
+   "x1r-low-spend-unreadable-69"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "x1r-country-unreadable-100k",
+    "x1r-country-unreadable-40",
+    "x1r-country-unreadable-69"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "rules[10](r-o1-wide-low).onUnknown: ignore -> escalate",
+  "engineSuppliedKill": false,
+  "id": "m-a-143",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 4,
+  "witnessSet": [
+   "o1-nv-unreported",
+   "x1r-country-unreadable-100k",
+   "x1r-country-unreadable-40",
+   "x1r-country-unreadable-69"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "x1r-low-spend-unreadable-40",
+    "x1r-low-spend-unreadable-69"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "rules[11](r-o1-wide-spend).onUnknown: ignore -> escalate",
+  "engineSuppliedKill": false,
+  "id": "m-a-144",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 3,
+  "witnessSet": [
+   "o1-nv-unreported",
+   "x1r-low-spend-unreadable-40",
+   "x1r-low-spend-unreadable-69"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-2m-unreported",
+    "d6b-39-500k01-unreported",
+    "d6b-500k01-unreported",
+    "d6b-nv-39-500k01-unreported",
+    "u1-country-2m-absent",
+    "u1-country-39-500k01-absent",
+    "u1-country-39-500k01-present"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "rules[12](r-d8).onUnknown: escalate -> ignore",
+  "engineSuppliedKill": false,
+  "id": "m-a-145",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 12,
+  "witnessSet": [
+   "d6b-1m-unreported",
+   "d6b-2m-unreported",
+   "d6b-39-500k01-unreported",
+   "d6b-500k01-unreported",
+   "d6b-nv-39-500k01-unreported",
+   "u1-country-20-50k",
+   "u1-country-2m-absent",
+   "u1-country-39-500k01-absent",
+   "u1-country-39-500k01-present",
+   "u1-risk-high-50k",
+   "u1-risk-low-50k",
+   "u1-spend-low-20"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "exceptions[0](x-o1-first-engagement).onUnknown: ignore -> escalate",
+  "engineSuppliedKill": false,
+  "id": "m-a-146",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d1-match-bare",
+   "o1-nv-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "exceptions[1](x-o2-critical-supplier).onUnknown: ignore -> escalate",
+  "engineSuppliedKill": false,
+  "id": "m-a-147",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 1,
+  "witnessSet": [
+   "o2-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "u1-country-2m01"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "exceptions[2](x-o3-large-exposure).onUnknown: escalate -> ignore",
+  "engineSuppliedKill": false,
+  "id": "m-a-148",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 5,
+  "witnessSet": [
+   "u1-country-2m01",
+   "u1-country-95-3m",
+   "u1-ex2",
+   "u1-ex4",
+   "u1-spend-high-95"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "exceptions[3](x-d5-suppress-d6a).onUnknown: ignore -> escalate",
+  "engineSuppliedKill": false,
+  "id": "m-a-149",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d1-match-bare",
+   "d5-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "exceptions[4](x-d5-suppress-d6b-insured).onUnknown: ignore -> escalate",
+  "engineSuppliedKill": false,
+  "id": "m-a-150",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d1-match-bare",
+   "d5-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "exceptions[5](x-d5-suppress-d6b-uninsured).onUnknown: ignore -> escalate",
+  "engineSuppliedKill": false,
+  "id": "m-a-151",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d1-match-bare",
+   "d5-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "exceptions[6](x-d5-suppress-d6c).onUnknown: ignore -> escalate",
+  "engineSuppliedKill": false,
+  "id": "m-a-152",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d1-match-bare",
+   "d5-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "exceptions[7](x-d5-suppress-d7).onUnknown: ignore -> escalate",
+  "engineSuppliedKill": false,
+  "id": "m-a-153",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d1-match-bare",
+   "d5-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "exceptions[8](x-d5-suppress-o1-review).onUnknown: ignore -> escalate",
+  "engineSuppliedKill": false,
+  "id": "m-a-154",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d1-match-bare",
+   "d5-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "exceptions[9](x-d5-suppress-d8).onUnknown: ignore -> escalate",
+  "engineSuppliedKill": false,
+  "id": "m-a-155",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d1-match-bare",
+   "d5-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "x1r-country-unreadable-100k",
+    "x1r-country-unreadable-40",
+    "x1r-country-unreadable-69"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "exceptions[10](x-o1-suppress-d8-low).onUnknown: ignore -> escalate",
+  "engineSuppliedKill": false,
+  "id": "m-a-156",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 4,
+  "witnessSet": [
+   "o1-nv-unreported",
+   "x1r-country-unreadable-100k",
+   "x1r-country-unreadable-40",
+   "x1r-country-unreadable-69"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "x1r-low-spend-unreadable-40",
+    "x1r-low-spend-unreadable-69"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "exceptions[11](x-o1-suppress-d8-spend).onUnknown: ignore -> escalate",
+  "engineSuppliedKill": false,
+  "id": "m-a-157",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 3,
+  "witnessSet": [
+   "o1-nv-unreported",
+   "x1r-low-spend-unreadable-40",
+   "x1r-low-spend-unreadable-69"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "exceptions[12](x-d5-suppress-o1-wide-low).onUnknown: ignore -> escalate",
+  "engineSuppliedKill": false,
+  "id": "m-a-158",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d1-match-bare",
+   "d5-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "onUnknown-flip",
+  "edit": "exceptions[13](x-d5-suppress-o1-wide-spend).onUnknown: ignore -> escalate",
+  "engineSuppliedKill": false,
+  "id": "m-a-159",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 2,
+  "witnessSet": [
+   "d1-match-bare",
+   "d5-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d1-match-o3-region"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "outcome-swap",
+  "edit": "rules[0](r-d1).outcome: reject -> review",
+  "engineSuppliedKill": false,
+  "id": "m-a-160",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 4,
+  "witnessSet": [
+   "d1-match",
+   "d1-match-bare",
+   "d1-match-critical",
+   "d1-match-o3-region"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "outcome-swap",
+  "edit": "rules[1](r-d3).outcome: reject -> review",
+  "engineSuppliedKill": false,
+  "id": "m-a-161",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 6,
+  "witnessSet": [
+   "d3-high-90",
+   "d3-low-90",
+   "d3-med-90",
+   "d3-over-d5",
+   "u1-ex1",
+   "u1-spend-med-95"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d4-high-nv-70-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "outcome-swap",
+  "edit": "rules[2](r-d4).outcome: reject -> review",
+  "engineSuppliedKill": false,
+  "id": "m-a-162",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 4,
+  "witnessSet": [
+   "d3-high-90",
+   "d4-high-70",
+   "d4-high-89",
+   "d4-high-nv-70-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "outcome-swap",
+  "edit": "rules[3](r-d5).outcome: reject -> review",
+  "engineSuppliedKill": false,
+  "id": "m-a-163",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 6,
+  "witnessSet": [
+   "d3-over-d5",
+   "d5-d6b-absent",
+   "d5-low-approve-region",
+   "d5-med",
+   "u1-risk-prior",
+   "u1-two-unreadable-uniform"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6a-500k-ins-absent",
+    "d6a-500k-ins-unreported",
+    "d6a-nv-39-0"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "outcome-swap",
+  "edit": "rules[4](r-d6a).outcome: approve -> review",
+  "engineSuppliedKill": false,
+  "id": "m-a-164",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 10,
+  "witnessSet": [
+   "d5-unreported",
+   "d6a-0-0",
+   "d6a-39-50k",
+   "d6a-500k",
+   "d6a-500k-ins-absent",
+   "d6a-500k-ins-unreported",
+   "d6a-ins-absent",
+   "d6a-nv-39-0",
+   "o1-nv-d6a",
+   "o2-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-39-500k01-present"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "outcome-swap",
+  "edit": "rules[5](r-d6b-insured).outcome: approve -> review",
+  "engineSuppliedKill": false,
+  "id": "m-a-165",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 4,
+  "witnessSet": [
+   "d6b-1m-present",
+   "d6b-2m",
+   "d6b-39-500k01-present",
+   "d6b-500k01"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-2m-absent",
+    "d6b-39-500k01-absent",
+    "d6b-500k01-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "outcome-swap",
+  "edit": "rules[6](r-d6b-uninsured).outcome: enhanced-review -> review",
+  "engineSuppliedKill": false,
+  "id": "m-a-166",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 4,
+  "witnessSet": [
+   "d6b-1m-absent",
+   "d6b-2m-absent",
+   "d6b-39-500k01-absent",
+   "d6b-500k01-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "outcome-swap",
+  "edit": "rules[7](r-d6c).outcome: approve -> review",
+  "engineSuppliedKill": false,
+  "id": "m-a-167",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 4,
+  "witnessSet": [
+   "d6c-40-100k",
+   "d6c-40-50k",
+   "d6c-69-100k",
+   "o1-nv-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "outcome-swap",
+  "edit": "rules[8](r-d7).outcome: approve -> review",
+  "engineSuppliedKill": false,
+  "id": "m-a-168",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 3,
+  "witnessSet": [
+   "d7-0-0",
+   "d7-39-100k",
+   "o1-nv-med"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "o1-nv-40-0",
+    "o1-nv-40-100k",
+    "o1-nv-69-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "outcome-swap",
+  "edit": "rules[9](r-o1-review).outcome: review -> approve",
+  "engineSuppliedKill": true,
+  "id": "m-a-169",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 4,
+  "witnessSet": [
+   "o1-nv-40-0",
+   "o1-nv-40-100k",
+   "o1-nv-69-100k",
+   "o1-nv-d6c"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-nv-40-100k01",
+    "o1-nv-40-0",
+    "o1-nv-40-100k",
+    "o1-nv-69-100k",
+    "x1r-low-spend-unreadable-40",
+    "x1r-low-spend-unreadable-69"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "outcome-swap",
+  "edit": "rules[10](r-o1-wide-low).outcome: review -> approve",
+  "engineSuppliedKill": false,
+  "id": "m-a-170",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 7,
+  "witnessSet": [
+   "d8-nv-40-100k01",
+   "o1-nv-40-0",
+   "o1-nv-40-100k",
+   "o1-nv-69-100k",
+   "o1-nv-d6c",
+   "x1r-low-spend-unreadable-40",
+   "x1r-low-spend-unreadable-69"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-med-nv-40-100k",
+    "d8-med-nv-69-100k",
+    "o1-nv-40-0",
+    "o1-nv-40-100k",
+    "o1-nv-69-100k",
+    "x1r-country-unreadable-100k",
+    "x1r-country-unreadable-40",
+    "x1r-country-unreadable-69"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "outcome-swap",
+  "edit": "rules[11](r-o1-wide-spend).outcome: review -> approve",
+  "engineSuppliedKill": false,
+  "id": "m-a-171",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 9,
+  "witnessSet": [
+   "d8-med-nv-40-100k",
+   "d8-med-nv-69-100k",
+   "o1-nv-40-0",
+   "o1-nv-40-100k",
+   "o1-nv-69-100k",
+   "o1-nv-d6c",
+   "x1r-country-unreadable-100k",
+   "x1r-country-unreadable-40",
+   "x1r-country-unreadable-69"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d8-2m01-low-absent",
+    "d8-2m01-low-unreported",
+    "d8-high-nv-39-100k",
+    "d8-low-40-500k01-ins-absent",
+    "d8-low-40-500k01-ins-present",
+    "d8-low-40-500k01-ins-unreported",
+    "d8-med-500k01-absent",
+    "d8-med-500k01-present",
+    "d8-med-500k01-unreported",
+    "d8-med-nv-40-100k01",
+    "d8-nv-70-100k",
+    "u1-country-2m"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "outcome-swap",
+  "edit": "rules[12](r-d8).outcome: review -> approve",
+  "engineSuppliedKill": false,
+  "id": "m-a-172",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 23,
+  "witnessSet": [
+   "d8-2m01-low",
+   "d8-2m01-low-absent",
+   "d8-2m01-low-unreported",
+   "d8-39-100k01-med",
+   "d8-40-100k01",
+   "d8-40-500k",
+   "d8-40-med",
+   "d8-70-low",
+   "d8-high-2m",
+   "d8-high-69",
+   "d8-high-mid",
+   "d8-high-nv-39-100k",
+   "d8-low-3m",
+   "d8-low-40-500k01-ins-absent",
+   "d8-low-40-500k01-ins-present",
+   "d8-low-40-500k01-ins-unreported",
+   "d8-low-89",
+   "d8-med-500k01-absent",
+   "d8-med-500k01-present",
+   "d8-med-500k01-unreported",
+   "d8-med-nv-40-100k01",
+   "d8-nv-70-100k",
+   "u1-country-2m"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "required-flip",
+  "edit": "evidenceRequirements[0](financial-evidence).required: true -> false",
+  "engineSuppliedKill": false,
+  "id": "m-a-173",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 5,
+  "witnessSet": [
+   "p1-absent",
+   "p1-absent-escalation-region",
+   "p1-absent-match",
+   "p1-unreported",
+   "p1-unreported-d2"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "effect-swap",
+  "edit": "exceptions[1](x-o2-critical-supplier).effect: force-outcome -> escalate (the outcome member the discriminator governs is dropped)",
+  "engineSuppliedKill": false,
+  "id": "m-a-174",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 7,
+  "witnessSet": [
+   "o2-approve-region",
+   "o2-d6b-absent",
+   "o2-over-d4",
+   "o2-over-d5",
+   "o2-reject-region",
+   "u1-ex3",
+   "u1-ex4"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "effect-swap",
+  "edit": "exceptions[2](x-o3-large-exposure).effect: escalate -> force-outcome (outcome review, the member the discriminator governs)",
+  "engineSuppliedKill": false,
+  "id": "m-a-175",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 6,
+  "witnessSet": [
+   "o3-2m01",
+   "o3-3m",
+   "o3-over-d3",
+   "o3-over-d5",
+   "o3-over-o2",
+   "o3-risk-unreadable"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "cascade-deletion",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[0] deleted (top-level disjunct of the D8 negation cascade; /vendor/sanctionsStatus equals CLEAR; /vendor/riskScore greater-than-or-equal 90)",
+  "engineSuppliedKill": false,
+  "id": "m-a-176",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 4,
+  "witnessSet": [
+   "d3-low-90",
+   "d3-med-90",
+   "u1-ex1",
+   "u1-spend-med-95"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d4-high-nv-70-100k"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "cascade-deletion",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[1] deleted (top-level disjunct of the D8 negation cascade; /vendor/sanctionsStatus equals CLEAR; /vendor/countryRisk equals HIGH; /vendor/riskScore greater-than-or-equal 70)",
+  "engineSuppliedKill": false,
+  "id": "m-a-177",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 3,
+  "witnessSet": [
+   "d4-high-70",
+   "d4-high-89",
+   "d4-high-nv-70-100k"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6a-500k-ins-absent",
+    "d6a-500k-ins-unreported",
+    "d6a-nv-39-0"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "cascade-deletion",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[2] deleted (top-level disjunct of the D8 negation cascade; /vendor/sanctionsStatus equals CLEAR; /vendor/countryRisk equals LOW; /vendor/riskScore less-than 40; /vendor/requestedSpend less-than-or-equal 500000.00)",
+  "engineSuppliedKill": false,
+  "id": "m-a-178",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 10,
+  "witnessSet": [
+   "d5-unreported",
+   "d6a-0-0",
+   "d6a-39-50k",
+   "d6a-500k",
+   "d6a-500k-ins-absent",
+   "d6a-500k-ins-unreported",
+   "d6a-ins-absent",
+   "d6a-nv-39-0",
+   "o1-nv-d6a",
+   "o2-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-39-500k01-present",
+    "u1-country-39-500k01-present"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "cascade-deletion",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[3] deleted (top-level disjunct of the D8 negation cascade; /vendor/sanctionsStatus equals CLEAR; /vendor/countryRisk equals LOW; /vendor/riskScore less-than 40; /vendor/requestedSpend greater-than 500000.00; /vendor/requestedSpend less-than-or-equal 2000000.00; evidence-present insurance-certificate)",
+  "engineSuppliedKill": false,
+  "id": "m-a-179",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 5,
+  "witnessSet": [
+   "d6b-1m-present",
+   "d6b-2m",
+   "d6b-39-500k01-present",
+   "d6b-500k01",
+   "u1-country-39-500k01-present"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [
+    "d6b-2m-absent",
+    "d6b-39-500k01-absent",
+    "d6b-500k01-absent",
+    "u1-country-2m-absent",
+    "u1-country-39-500k01-absent"
+   ],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "cascade-deletion",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[4] deleted (top-level disjunct of the D8 negation cascade; /vendor/sanctionsStatus equals CLEAR; /vendor/countryRisk equals LOW; /vendor/riskScore less-than 40; /vendor/requestedSpend greater-than 500000.00; /vendor/requestedSpend less-than-or-equal 2000000.00; evidence-present insurance-certificate)",
+  "engineSuppliedKill": false,
+  "id": "m-a-180",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 6,
+  "witnessSet": [
+   "d6b-1m-absent",
+   "d6b-2m-absent",
+   "d6b-39-500k01-absent",
+   "d6b-500k01-absent",
+   "u1-country-2m-absent",
+   "u1-country-39-500k01-absent"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "cascade-deletion",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[5] deleted (top-level disjunct of the D8 negation cascade; /vendor/sanctionsStatus equals CLEAR; /vendor/countryRisk equals LOW; /vendor/riskScore greater-than-or-equal 40; /vendor/riskScore less-than 70; /vendor/requestedSpend less-than-or-equal 100000.00)",
+  "engineSuppliedKill": false,
+  "id": "m-a-181",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 4,
+  "witnessSet": [
+   "d6c-40-100k",
+   "d6c-40-50k",
+   "d6c-69-100k",
+   "o1-nv-unreported"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "killed-by-gold",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "killingRowsAddedAtThisGate": [],
+   "search": "adequacy_search.py --search over 419,904 dense derived cells"
+  },
+  "class": "cascade-deletion",
+  "edit": "rules[12](r-d8).when.conditions[1].condition.conditions[6] deleted (top-level disjunct of the D8 negation cascade; /vendor/sanctionsStatus equals CLEAR; /vendor/countryRisk equals MEDIUM; /vendor/riskScore less-than 40; /vendor/requestedSpend less-than-or-equal 100000.00)",
+  "engineSuppliedKill": false,
+  "id": "m-a-182",
+  "notAdequate": false,
+  "validates": true,
+  "witnessCount": 3,
+  "witnessSet": [
+   "d7-0-0",
+   "d7-39-100k",
+   "o1-nv-med"
+  ]
+ },
+ {
+  "adequacy": {
+   "disposition": "dropped",
+   "dropMechanism": "The rule is DELETED outright, together with the now-dangling x-d5-suppress-o1-review. Because r-o1-review's region is a strict subset of r-o1-wide-low's and they name one outcome, and because D5 still suppresses r-o1-wide-low through its own exception, the deletion removes no cell's ANSWER \u2014 which is not the same thing as changing nothing. Measured rather than asserted (adequacy_drops.json, round-4 finding R4-1): deleting a rule removes its entry from the condition-vector trace, so the edit is LIVE at 419,904 of 419,904 cells \u2014 every cell of the dense space \u2014 and the scored surface is identical at all of them: 0 differences by this transcription, 0 by the second independently written transcription (adequacy_crosscheck.json), and 0 over the 120 cells of the live set handed to the pinned jpack on both packs. Each of the three outcomes carries its own label, in the clause the harness suite rebuilds from those artifacts and requires verbatim on this surface and in ADEQUACY.md (round-6 finding R6-2): MEASURED \u2014 trace-live cells: 419,904 of 419,904; scored-surface differences (primary transcription): 0; scored-surface differences (second transcription): 0; pinned-engine differences: 0 of 120 sampled cells (adequacy_drops.json, adequacy_crosscheck.json). The rule the repair made redundant cannot be missed by any single-edit probe \u2014 which is the sharpest statement of the redundancy this corpus can make.",
+   "dropMechanismClass": "subsumed-region-lemma",
+   "gate": "adequacy (PREREGISTRATION SS4), closed 2026-08-15, RE-OPENED by the arm-A reference repair and re-closed 2026-08-18 (round-3 R3-2)",
+   "goldRows": 117,
+   "goldSha256": "1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8",
+   "goldVersion": "0.2-draft",
+   "search": "adequacy_search.py --search over 419,904 dense derived cells",
+   "searchResult": "no cell of the dense derived space distinguishes this mutant from its reference on the scored surface (X1 cells included)"
+  },
+  "class": "cascade-deletion",
+  "edit": "rules[9](r-o1-review) deleted (the O1 companion review rule; dangling targetRule references dropped with it: x-d5-suppress-o1-review)",
+  "engineSuppliedKill": false,
+  "id": "m-a-183",
+  "notAdequate": true,
+  "validates": true,
+  "witnessCount": 0,
+  "witnessSet": []
+ }
+]
