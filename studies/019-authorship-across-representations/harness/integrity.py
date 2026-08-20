@@ -406,12 +406,58 @@ def verify_chain(study: str = STUDY, twelve: str = TWELVE,
 
 # --- the registered label rule ----------------------------------------------
 
+# The literal stand-ins a half-finished registry carries, and the reason they
+# need naming here. Study 012 registered one such refusal — `harness/PORTS.md`
+# and `harness/PINS.json` may carry no `(port time)` cell, because an unfinished
+# port is not a soft state — but it lived in the ports parser and reached the
+# label rule not at all. The salvage audit probed this rule directly: with all
+# eighteen freeze pins set to `""`, `"TODO(prereg)"`, `0`, `[]`, `{}` or
+# `False`, `study_label()` answered REGISTERED and `unfilled_pins()` answered
+# `[]`. A registry of eighteen empty strings is not a registration.
+#
+# Matched on the STRIPPED, case-folded value, so `"  todo  "` is the same
+# refusal as `"TODO"`. `TODO(`-prefixed sentinels (`"TODO(prereg)"`) are matched
+# by prefix rather than by membership, since their parenthetical varies.
+PIN_PLACEHOLDERS = ("(port time)", "todo", "tbd", "fixme", "xxx", "pending",
+                    "n/a", "na", "none", "null", "nil", "-", "?")
+PIN_PLACEHOLDER_PREFIXES = ("todo(", "tbd(", "fixme(")
+
+
+def pin_is_filled(value) -> bool:
+    """Whether a freeze-pin value counts as FILLED.
+
+    Filled means: not null, not empty, and not a stand-in. Concretely — `None`,
+    any falsy value (`""`, `0`, `0.0`, `False`, `[]`, `{}`), a string that is
+    only whitespace, and a string whose stripped case-folded form is one of
+    `PIN_PLACEHOLDERS` or begins with one of `PIN_PLACEHOLDER_PREFIXES` are all
+    UNFILLED. Everything else is filled.
+
+    **This decides FILLED, not CORRECT.** Whether the digest a pin carries is
+    the digest of the bytes on disk is `verify()`'s business and is checked
+    under both labels; whether a filled pin has the right SHAPE is the
+    registry's own gates'. The one thing this function may not do is what it
+    used to do — count a stand-in as a registration, which made REGISTERED
+    reachable without a single real value being determined."""
+    if value is None or not value:
+        return False
+    if isinstance(value, str):
+        candidate = value.strip().lower()
+        if not candidate:
+            return False
+        if candidate in PIN_PLACEHOLDERS:
+            return False
+        if candidate.startswith(PIN_PLACEHOLDER_PREFIXES):
+            return False
+    return True
+
+
 def freeze_pin_state(pins: dict) -> dict:
     """{registered pin name: True when filled} over `FREEZE_PINS`.
 
     A member whose parent object is absent counts as null rather than raising:
     a registry that has not grown the member yet is exactly the pre-freeze state
-    this rule exists to label."""
+    this rule exists to label. `pin_is_filled()` decides what "filled" means, and
+    it is stricter than `is not None` for the reason recorded above it."""
     state = {}
     for name, path in FREEZE_PINS:
         node = pins
@@ -419,7 +465,7 @@ def freeze_pin_state(pins: dict) -> dict:
             node = node.get(key) if isinstance(node, dict) else None
             if node is None:
                 break
-        state[name] = node is not None
+        state[name] = pin_is_filled(node)
     return state
 
 

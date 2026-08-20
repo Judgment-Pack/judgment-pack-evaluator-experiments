@@ -40,7 +40,11 @@ not constrain, and every non-determinism argument built on it is void.
 `capabilities_canary()` compiles a three-line probe under the pinned
 capabilities and requires the compile to fail; the probe's bytes are in this
 reviewed source rather than in a data file, so the gate cannot be defanged by
-editing a fixture.
+editing a fixture. It also compiles the same probe under the binary's OWN
+unfiltered set (`e4lib/capabilities.py`), because refused-both-ways is a broken
+probe rather than a working filter: `bothDirections` is accepted-unfiltered AND
+refused-filtered, and it is REPORTED here while `score.py`'s gate still reads
+`refused` alone.
 
 **`opa exec` is not used.** Verified at v1.19.0: `opa exec` does not accept
 `--capabilities`, so an `exec`-based scorer would evaluate under the FULL
@@ -243,13 +247,19 @@ def jpack_json(tools: Toolchain, argv_tail, workdir: str) -> tuple:
 
 
 def opa_check(tools: Toolchain, path: str, workdir: str,
-              v0_compatible: bool = False) -> tuple:
+              v0_compatible: bool = False, capabilities: str = None) -> tuple:
     """`opa check --strict --capabilities <caps>` on one file.
 
     Returns `(exit_code, sorted error codes)`. Codes only, never message prose:
     an error message is upstream's wording and would put upstream's prose in
-    this study's published record."""
-    argv = [tools.opa, "check", "--strict", "--capabilities", tools.caps,
+    this study's published record.
+
+    `capabilities` overrides the pinned file for ONE caller only: the canary's
+    unfiltered arm, which has to name a DIFFERENT capabilities file rather than
+    omit the flag, so that the two arms of the control differ in exactly one
+    thing. Every scored invocation leaves it None and gets `tools.caps`."""
+    argv = [tools.opa, "check", "--strict", "--capabilities",
+            tools.caps if capabilities is None else capabilities,
             "--format", "json"]
     if v0_compatible:
         argv.append("--v0-compatible")
@@ -279,13 +289,55 @@ def capabilities_canary(tools: Toolchain, workdir: str) -> dict:
     reads both ways in English and section 5's decision rule row 2 spells the
     failure as "capabilities canary passes". A canary that compiles means the
     capabilities file constrains nothing and every determinism claim built on
-    it is void."""
+    it is void.
+
+    THE SECOND ARM. A canary refused under the pinned file is half a control:
+    refused BOTH ways is a broken probe (a typo refuses everywhere) and proves
+    nothing about the filter. `acceptedUnfiltered` is the other half — the same
+    probe, under the binary's OWN capability set, freshly derived and written to
+    a file so the two arms differ in exactly one thing, which capabilities file
+    is named. `bothDirections` is the conjunction and is the only thing that
+    means "the filter has demonstrated power".
+
+    `bothDirections` is REPORTED, not yet gated: `score.py`'s
+    `capabilities-canary-refused` gate reads `refused`, and moving a gate's
+    answer is a change to the registered decision surface rather than to this
+    module. The unfiltered arm never turns a refusal into a pass — it can only
+    add a problem — so recording it is strictly more evidence than before."""
     path = os.path.join(workdir, "canary.rego")
     with open(path, "w", encoding="utf-8") as handle:
         handle.write(CANARY_REGO)
     code, codes = opa_check(tools, path, workdir)
-    return {"refused": code != 0, "exitCode": code, "errorCodes": codes,
-            "gate": "the filtered capabilities file must refuse time.now_ns"}
+    record = {"refused": code != 0, "exitCode": code, "errorCodes": codes,
+              "gate": "the filtered capabilities file must refuse time.now_ns"}
+    record.update(_canary_unfiltered(tools, path, workdir))
+    record["bothDirections"] = bool(record["refused"]
+                                    and record["acceptedUnfiltered"] is True)
+    return record
+
+
+def _canary_unfiltered(tools: Toolchain, policy_path: str,
+                       workdir: str) -> dict:
+    """The canary under the pinned binary's OWN unfiltered capability set.
+
+    Refuses to lie about what it could not measure: when the full set cannot be
+    derived — no `opa` on this seat, a stub in a unit test, a binary that will
+    not answer — `acceptedUnfiltered` is None and `unfilteredProblem` names the
+    reason. None is not False: "the second arm did not run" and "the second arm
+    ran and the probe was refused unfiltered too" are different facts and a
+    boolean would merge them."""
+    from . import capabilities  # deferred: capabilities imports this module
+    blank = {"acceptedUnfiltered": None, "unfilteredExitCode": None,
+             "unfilteredErrorCodes": [], "unfilteredProblem": None}
+    try:
+        full_path = capabilities.write_full_capabilities(tools.opa, workdir)
+    except (capabilities.CapabilitiesError, OSError) as error:
+        blank["unfilteredProblem"] = str(error)
+        return blank
+    code, codes = opa_check(tools, policy_path, workdir,
+                            capabilities=full_path)
+    return {"acceptedUnfiltered": code == 0, "unfilteredExitCode": code,
+            "unfilteredErrorCodes": codes, "unfilteredProblem": None}
 
 
 def facts_documents(inputs: dict) -> tuple:

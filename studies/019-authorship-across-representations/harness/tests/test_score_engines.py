@@ -428,6 +428,111 @@ def test_the_canary_source_lives_in_this_reviewed_module():
     assert "import rego.v1" in engines.CANARY_REGO
 
 
+# --- the canary's SECOND arm ------------------------------------------------
+#
+# A canary refused under the pinned file is half a control. Refused BOTH ways is
+# a broken probe — a typo is refused everywhere — and proves nothing about the
+# filter. The unfiltered arm compiles the same probe under the binary's own
+# capability set, and `bothDirections` is the conjunction.
+
+FULL_SET = {"builtins": [{"name": "time.now_ns", "decl": {"type": "function"},
+                          "nondeterministic": True}],
+            "features": ["rego_v1"], "future_keywords": ["in"],
+            "wasm_abi_versions": [{"version": 1, "minor_version": 3}]}
+
+
+def _two_armed_run(monkeypatch, filtered_code, unfiltered_code, seen=None):
+    """Stub `_run` so `capabilities --current` answers and `check` answers by
+    WHICH capabilities file it was handed."""
+    def fake(argv, cwd, timeout=None):
+        if argv[1] == "capabilities":
+            return 0, json.dumps(FULL_SET), ""
+        if seen is not None:
+            seen.append(list(argv))
+        caps = argv[argv.index("--capabilities") + 1]
+        code = unfiltered_code if caps.endswith("caps-full.json") \
+            else filtered_code
+        if code == 0:
+            return 0, "", ""
+        return code, "", json.dumps({"errors": [{"code": "rego_type_error"}]})
+
+    monkeypatch.setattr(engines, "_run", fake)
+
+
+def test_both_directions_is_accepted_unfiltered_and_refused_filtered(
+        monkeypatch, tmp_path):
+    _two_armed_run(monkeypatch, filtered_code=1, unfiltered_code=0)
+    record = engines.capabilities_canary(StubTools(), str(tmp_path))
+    assert record["refused"] is True
+    assert record["errorCodes"] == ["rego_type_error"]
+    assert record["acceptedUnfiltered"] is True
+    assert record["unfilteredProblem"] is None
+    assert record["bothDirections"] is True
+
+
+def test_a_probe_refused_both_ways_is_a_broken_canary_not_a_working_filter(
+        monkeypatch, tmp_path):
+    """The failure a one-armed canary cannot see: the filtered arm still says
+    `refused`, and only `bothDirections` says the control demonstrated
+    nothing."""
+    _two_armed_run(monkeypatch, filtered_code=1, unfiltered_code=1)
+    record = engines.capabilities_canary(StubTools(), str(tmp_path))
+    assert record["refused"] is True
+    assert record["acceptedUnfiltered"] is False
+    assert record["bothDirections"] is False
+
+
+def test_a_probe_accepted_both_ways_fails_both_the_gate_and_the_conjunction(
+        monkeypatch, tmp_path):
+    _two_armed_run(monkeypatch, filtered_code=0, unfiltered_code=0)
+    record = engines.capabilities_canary(StubTools(), str(tmp_path))
+    assert record["refused"] is False
+    assert record["bothDirections"] is False
+
+
+def test_the_two_arms_differ_only_in_which_capabilities_file_is_named(
+        monkeypatch, tmp_path):
+    """An arm that omitted `--capabilities` would make accepted/refused an
+    artefact of the flag rather than of the file."""
+    seen = []
+    _two_armed_run(monkeypatch, filtered_code=1, unfiltered_code=0, seen=seen)
+    engines.capabilities_canary(StubTools(), str(tmp_path))
+    assert len(seen) == 2
+    for argv in seen:
+        assert "--capabilities" in argv
+    positions = [argv.index("--capabilities") for argv in seen]
+    stripped = [argv[:at] + argv[at + 2:] for argv, at in zip(seen, positions)]
+    assert stripped[0] == stripped[1]
+    named = [argv[at + 1] for argv, at in zip(seen, positions)]
+    assert named[0] == StubTools.caps and named[0] != named[1]
+
+
+def test_an_unrunnable_second_arm_is_recorded_as_unknown_not_as_failure(
+        monkeypatch, tmp_path):
+    """`None` is not `False`: "the second arm did not run" and "the probe was
+    refused unfiltered too" are different facts, and a boolean would merge them.
+    Only the filtered arm is stubbed here, so `StubTools.opa` — not a real path
+    — is what the derivation tries to invoke, and it cannot."""
+    monkeypatch.setattr(engines, "opa_check",
+                        lambda *a, **k: (1, ["rego_type_error"]))
+    record = engines.capabilities_canary(StubTools(), str(tmp_path))
+    assert record["refused"] is True
+    assert record["acceptedUnfiltered"] is None
+    assert record["unfilteredProblem"]
+    assert record["bothDirections"] is False
+
+
+def test_the_second_arm_never_turns_a_refusal_into_a_pass(monkeypatch,
+                                                          tmp_path):
+    """The registered gate reads `refused`, so the additive arm must be unable
+    to move it in the permissive direction."""
+    for unfiltered in (0, 1):
+        _two_armed_run(monkeypatch, filtered_code=1,
+                       unfiltered_code=unfiltered)
+        assert engines.capabilities_canary(StubTools(),
+                                           str(tmp_path))["refused"] is True
+
+
 def test_which_failure_is_recorded_does_not_depend_on_the_report_order(
         monkeypatch, tmp_path):
     """Determinism, and it is a REGISTERED property of what the scorer writes.

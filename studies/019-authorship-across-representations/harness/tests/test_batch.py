@@ -42,6 +42,7 @@ is the proof: pointed at anything under the COMMITTED registry, it refuses at th
 same digest check `--cli-override` refuses at.
 """
 from __future__ import annotations
+import copy
 import hashlib
 import json
 import os
@@ -2069,6 +2070,42 @@ class Controls(StandInStudy):
         self.assertEqual([entry["role"] for entry in golden["entries"]],
                          ["developer", "developer", "user"])
 
+    def test_the_derived_capture_retains_the_evidence_for_its_own_derivation(self):
+        """Salvage audit, the golden lane. `capturedFrom` records slot BASENAMES
+        and `capturedIn` a directory basename, and the source captures live
+        outside the study tree at an operator-named path — so "two agreeing
+        captures from distinct sessions" was true of the run and checkable from
+        no retained byte. That is the shape the archived line diagnosed in Study
+        012, which retained only the derived file. `require_distinct_sessions()`
+        already computes the identities; this asserts they are WRITTEN, that
+        every member the distinctness rule reads is present, and that the
+        document passes the checker that reads them back."""
+        self.assertEqual(self.capture("--runs", "2"), 0)
+        golden = json.load(open(self.out))
+        identities = golden["capturedIdentities"]
+        self.assertEqual(len(identities), 2)
+        self.assertEqual([record["slot"] for record in identities],
+                         golden["capturedFrom"])
+        for record in identities:
+            for member, _prose in batch.CAPTURE_IDENTITY:
+                self.assertIsNotNone(record.get(member), member)
+        self.assertEqual(batch.golden_provenance_problems(golden), [])
+
+    def test_the_retained_identities_are_what_makes_a_copied_capture_visible(self):
+        """The point of retaining them, rather than a shape assertion. A capture
+        derived from two copies of one call is refused at derivation time — but
+        if it ever reached a committed file, the file's own bytes would now say
+        so. Built by editing the DERIVED document, because the derivation cannot
+        produce this state, which is exactly why the retained record has to be
+        checkable on its own."""
+        self.assertEqual(self.capture("--runs", "2"), 0)
+        golden = json.load(open(self.out))
+        golden["capturedIdentities"][1]["sessionSha256"] = \
+            golden["capturedIdentities"][0]["sessionSha256"]
+        problems = batch.golden_provenance_problems(golden)
+        self.assertTrue(any("one call's evidence recorded twice" in problem
+                            for problem in problems), problems)
+
     def test_one_capture_can_never_derive_a_golden(self):
         """The floor is enforced where the DERIVATION happens, not only in the
         command that makes the calls."""
@@ -2355,3 +2392,181 @@ class TranscriptBindingReachesThePopulation(TranscriptBindingAtTheSeal):
         record = score.read_slot(ENTRIES[0], self.arms_root, present)
         self.assertIsNone(record["code"])
         self.assertIsNone(record["transcript"])
+
+
+class GoldenProvenance(unittest.TestCase):
+    """`golden_provenance_problems()` — the derivation re-checked from the
+    derived document's own bytes.
+
+    The capture-time half is sound and is not touched: `capture_golden()`
+    enforces the floor of two where the derivation happens, and
+    `require_distinct_sessions()` checks independence on RAW retained evidence
+    — `sessionSha256`, the session id, and the call record's start/end/cwd/home
+    — deliberately not on the normalized digests two honest calls are supposed
+    to agree on. What was missing is the record: the derived file said
+    `capturedFrom` (basenames) and `capturedIn` (a basename), the source slots
+    live outside the study tree, and so a later reader had nothing to check.
+
+    These cases are the pure function only, over documents built by hand. The
+    two in `Controls` above bind it to what `capture_golden()` actually writes,
+    so this suite cannot pass over a shape the real command never produces.
+    """
+
+    IDENTITIES = [
+        {"slot": "capture-001", "sessionSha256": "a" * 64,
+         "sessionId": "11111111-1111-4111-8111-111111111111",
+         "callIdentity": ["2026-01-01T00:00:00Z", "2026-01-01T00:01:00Z",
+                          "/srv/w/1", "/srv/h/1"]},
+        {"slot": "capture-002", "sessionSha256": "b" * 64,
+         "sessionId": "22222222-2222-4222-8222-222222222222",
+         "callIdentity": ["2026-01-01T00:02:00Z", "2026-01-01T00:03:00Z",
+                          "/srv/w/2", "/srv/h/2"]},
+    ]
+
+    def document(self, **overrides):
+        body = {"contextVersion": "1", "entries": [],
+                "capturedFrom": [record["slot"] for record in self.IDENTITIES],
+                "capturedIdentities": copy.deepcopy(self.IDENTITIES),
+                "capturedIn": "attempt-1"}
+        body.update(overrides)
+        return body
+
+    def test_a_well_formed_record_has_no_problems(self):
+        """The control every refusal below is measured against. Without it, a
+        checker that reported a problem for every document would 'pass' each
+        case and close nothing."""
+        self.assertEqual(batch.golden_provenance_problems(self.document()), [])
+
+    def test_a_document_that_records_no_identities_is_the_defect_itself(self):
+        """The state every golden capture this study could have committed was
+        in: the derivation claimed, and no retained byte behind it."""
+        body = self.document()
+        del body["capturedIdentities"]
+        problems = batch.golden_provenance_problems(body)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("asserted rather than checkable", problems[0])
+
+    def test_one_recorded_identity_is_below_the_floor(self):
+        """The floor is the same floor `capture_golden()` enforces, read off the
+        record instead of off the slots. One capture cannot show that a
+        pre-prompt context reproduces."""
+        body = self.document(capturedIdentities=[copy.deepcopy(self.IDENTITIES[0])],
+                             capturedFrom=["capture-001"])
+        problems = batch.golden_provenance_problems(body)
+        self.assertTrue(any("at least %d" % batch.MIN_CAPTURE_SLOTS in problem
+                            for problem in problems), problems)
+
+    def test_two_captures_sharing_any_identity_member_are_one_call(self):
+        """Member by member rather than as a sentence, because a rule that
+        checked only the session id would admit a copied directory whose
+        transcript was re-written, and one that checked only the transcript
+        digest would admit two records of one call."""
+        for member, _prose in batch.CAPTURE_IDENTITY:
+            body = self.document()
+            body["capturedIdentities"][1][member] = \
+                copy.deepcopy(body["capturedIdentities"][0][member])
+            problems = batch.golden_provenance_problems(body)
+            self.assertTrue(
+                any("one call's evidence recorded twice" in problem
+                    for problem in problems), (member, problems))
+
+    def test_a_missing_identity_member_is_a_problem_and_not_a_skip(self):
+        """Where this departs from `require_distinct_sessions()`, on purpose.
+        There a null member is skipped: the check is live and the other members
+        still discriminate. Here the question is whether the RETAINED bytes show
+        the claim, and a member the record does not carry shows nothing — the
+        archived line's rule, that a check which silently skips is worse than
+        one that stops."""
+        for member, _prose in batch.CAPTURE_IDENTITY:
+            body = self.document()
+            body["capturedIdentities"][1][member] = None
+            problems = batch.golden_provenance_problems(body)
+            self.assertTrue(
+                any("cannot be checked on a member the record does not carry"
+                    in problem for problem in problems), (member, problems))
+
+    def test_a_dropped_identity_member_is_the_same_refusal_as_a_null_one(self):
+        """A member that is absent and a member that is null say the same thing
+        about the evidence, and a rule that caught only one of them would be
+        defeated by `del`."""
+        for member, _prose in batch.CAPTURE_IDENTITY:
+            body = self.document()
+            del body["capturedIdentities"][1][member]
+            self.assertTrue(batch.golden_provenance_problems(body), member)
+
+    def test_a_document_that_disagrees_with_itself_is_evidence_for_neither(self):
+        """`capturedFrom` and the identity list are two claims by one document
+        about one derivation. A file whose identities name slots its own
+        `capturedFrom` does not is not a better record than one with no
+        identities at all — it is a worse one, because it looks like a record."""
+        body = self.document(capturedFrom=["capture-001", "capture-007"])
+        problems = batch.golden_provenance_problems(body)
+        self.assertTrue(any("name different slots" in problem
+                            for problem in problems), problems)
+
+    def test_the_order_of_the_two_claims_is_part_of_the_agreement(self):
+        """Same members, different order: the identity list is written in the
+        order the slots were read, and a record that reorders it is not the
+        record `capture_golden()` wrote."""
+        body = self.document(capturedFrom=["capture-002", "capture-001"])
+        self.assertTrue(batch.golden_provenance_problems(body))
+
+    def test_an_identity_without_a_slot_name_is_a_problem(self):
+        """The slot is what makes a problem message actionable, and it is what
+        the agreement with `capturedFrom` is checked on."""
+        body = self.document()
+        body["capturedIdentities"][0]["slot"] = ""
+        problems = batch.golden_provenance_problems(body)
+        self.assertTrue(any("names no slot" in problem for problem in problems),
+                        problems)
+
+    def test_a_non_object_document_and_a_non_object_identity_are_refused(self):
+        """Fail-closed on shape: the function answers with a problem rather than
+        raising, because its caller is a gate that must be able to report."""
+        self.assertEqual(batch.golden_provenance_problems("a golden capture"),
+                         ["the golden capture is not a JSON object"])
+        self.assertTrue(batch.golden_provenance_problems(
+            self.document(capturedIdentities=["capture-001", "capture-002"])))
+        self.assertTrue(batch.golden_provenance_problems(
+            self.document(capturedIdentities="two captures")))
+
+    def test_a_call_identity_compares_by_contents_not_by_container(self):
+        """`capture_identity()` builds `callIdentity` as a TUPLE and JSON reads
+        it back as a LIST, and this function takes a document from either side
+        of that boundary — `capture_golden()`'s own body before it is written,
+        or a committed file after it is read. A comparison on the container
+        would call two records of ONE call distinct because one of them had been
+        through `json.dumps`, and it would do it on the member carrying the start
+        time, the end time, the working directory and the isolated home. That is
+        the fail-OPEN direction, which is why the normalization is not tidiness.
+
+        The two records are built WITHOUT a round trip on purpose: dumping the
+        whole document would make both sides lists and the case would pass
+        whether or not anything normalized."""
+        body = self.document()
+        body["capturedIdentities"][1]["callIdentity"] = \
+            tuple(body["capturedIdentities"][0]["callIdentity"])
+        problems = batch.golden_provenance_problems(body)
+        self.assertTrue(any("one call's evidence recorded twice" in problem
+                            for problem in problems), problems)
+
+
+def test_two_captures_both_missing_a_member_do_not_read_as_sharing_it():
+    """The G3 mutant: dropping the `value is None or` guard makes two captures
+    that BOTH omit `sessionId` report a spurious "one call's evidence recorded
+    twice" on the shared None — on top of the two correct carries-no-value
+    problems. Absence agreeing with absence is not evidence of a copied capture,
+    and the two problem kinds must not blur: the null-member problems name the
+    records, the sharing problem accuses them."""
+    doc = {"capturedFrom": ["capture-001", "capture-002"],
+           "capturedIn": "attempt-x",
+           "capturedIdentities": [
+               {"slot": "capture-001", "sessionSha256": "sha256:aa",
+                "sessionId": None, "callIdentity": "a" * 64},
+               {"slot": "capture-002", "sessionSha256": "sha256:bb",
+                "sessionId": None, "callIdentity": "b" * 64}]}
+    problems = batch.golden_provenance_problems(doc)
+    null_member = [p for p in problems if "carries no value for" in p]
+    sharing = [p for p in problems if "recorded twice" in p]
+    assert len(null_member) == 2
+    assert sharing == [], sharing

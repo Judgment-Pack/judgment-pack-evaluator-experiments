@@ -304,6 +304,29 @@ def _reasoning_is_inert(payload: dict, number: int) -> None:
                               reason="log-corrupt")
 
 
+def _load_document(path: str) -> dict:
+    """A whole JSON document this gate READS but does not parse line by line —
+    `CALL.json` and the golden capture — under the same duplicate-key rule every
+    transcript line already gets.
+
+    The salvage audit's defect f. Both sites used to be a bare
+    `json.load(open(path))`: no `object_pairs_hook`, and no context manager. The
+    hook is the material half. A golden capture with a duplicated `"entries"`,
+    or a `CALL.json` with a duplicated `"cwd"` or `"goldenSha256"`, means one
+    thing to this gate and another to `score.load_json()` reading the same bytes
+    — and `score.load_json()`, `batch._load_json()` and `integrity.load_json()`
+    all refuse duplicates already, so the shadowed member survives exactly where
+    the admission decision is made. `_refuse_duplicate_keys` raises `ValueError`,
+    which is the class `classify()` already maps to `log-corrupt`/apparatus, so
+    this adds a refusal without adding a reason tag.
+
+    The context manager is the other half: an undecodable document used to leak
+    the open file handle out of the raising frame."""
+    with open(path, "rb") as handle:
+        return json.loads(handle.read().decode("utf-8"),
+                          object_pairs_hook=_refuse_duplicate_keys)
+
+
 NORMALIZERS = (
     # Dynamic values codex quotes that carry no policy information. The
     # golden capture (transcription/GOLDEN-CONTEXT.json) pins what remains,
@@ -465,7 +488,7 @@ def check_golden(session_path: str, call: dict, golden_path: str) -> None:
     and any change refuses. The golden capture was taken from real runs of
     the registered invocation, which reproduce byte-identically after
     normalization."""
-    golden = json.load(open(golden_path))
+    golden = _load_document(golden_path)
     actual = context_digests(session_path, call)
     if golden.get("contextVersion") != actual["contextVersion"]:
         raise TranscriptError("the golden capture is a different context version",
@@ -509,7 +532,7 @@ def check(session_path: str, prompt_path: str, completion_path: str,
         if role in ("user", "developer") and index > position:
             raise TranscriptError("a user/developer message follows %s" % named,
                                   reason="extra-turn")
-    call = json.load(open(call_path))
+    call = _load_document(call_path)
     scratch = call.get("cwd", "")
     for token in LEAK_TOKENS:
         if token in scratch.lower():

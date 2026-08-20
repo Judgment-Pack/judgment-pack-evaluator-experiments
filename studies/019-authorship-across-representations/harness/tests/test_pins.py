@@ -9,6 +9,8 @@ committed registry and over mutated copies of it — one null at a time — so
 """
 import copy
 
+import pytest
+
 import integrity
 
 
@@ -175,3 +177,105 @@ def test_the_resolved_toolchain_blocks_are_marked_and_carry_digests(pins):
 def test_the_anchor_order_is_linear_and_says_so(pins):
     assert pins["anchorOrder"].startswith("LINEAR")
     assert "covers NEITHER itself NOR this file" in pins["anchorOrder"]
+
+
+# --------------------------------------------------------------------------
+# a stand-in is not a value — salvage audit, defect a
+# --------------------------------------------------------------------------
+#
+# The rule above was `node is not None`, and the audit probed it directly: with
+# all EIGHTEEN freeze pins set to `""`, `"TODO(prereg)"`, `0`, `[]`, `{}` or
+# `False`, `study_label()` answered REGISTERED and `unfilled_pins()` answered
+# `[]`. A registry of eighteen empty strings adjudicated a registered attempt.
+# Study 012 registered the neighbouring refusal — no `(port time)` cell may
+# remain in `harness/PORTS.md` or `harness/PINS.json`, because an unfinished
+# port is not a soft state — but it lived in the ports parser and never reached
+# the label rule.
+#
+# Every case below fills the WHOLE set, so none of them can pass because some
+# other pin was null.
+
+STAND_INS = ("", "   ", "\t\n", "TODO", "todo", "  TODO  ", "TODO(prereg)",
+             "tbd", "TBD", "FIXME", "fixme(digest)", "xxx", "pending", "n/a",
+             "N/A", "na", "none", "None", "null", "NULL", "nil", "-", "?",
+             "(port time)", 0, 0.0, False, [], {})
+
+
+def _fill_with(pins, value):
+    filled = copy.deepcopy(pins)
+    for _name, path in integrity.FREEZE_PINS:
+        node = filled
+        for key in path[:-1]:
+            node = node.setdefault(key, {})
+        node[path[-1]] = copy.deepcopy(value)
+    return filled
+
+
+@pytest.mark.parametrize("value", STAND_INS)
+def test_a_registry_of_stand_ins_is_not_a_registration(pins, value):
+    """Eighteen stand-ins are eighteen unfilled pins, and the label says so by
+    naming every one of them — not a REGISTERED run over a registry in which
+    nothing has been determined."""
+    filled = _fill_with(pins, value)
+    assert integrity.study_label(filled) == "PILOT"
+    assert integrity.unfilled_pins(filled) == \
+        [name for name, _path in integrity.FREEZE_PINS]
+
+
+@pytest.mark.parametrize("value", STAND_INS)
+def test_one_stand_in_pin_is_enough_to_make_it_a_pilot(pins, value):
+    """Pin by pin, exactly as the null rule is driven above: a single stand-in
+    on an otherwise-full registry is a PILOT, and the label names THAT pin. A
+    rule that only caught a registry made entirely of stand-ins would miss the
+    case that actually happens — one member a hurried ceremony left behind."""
+    for name, path in integrity.FREEZE_PINS:
+        one_stand_in = _fill(pins)
+        node = one_stand_in
+        for key in path[:-1]:
+            node = node[key]
+        node[path[-1]] = copy.deepcopy(value)
+        assert integrity.study_label(one_stand_in) == "PILOT", (name, value)
+        assert integrity.unfilled_pins(one_stand_in) == [name], (name, value)
+
+
+@pytest.mark.parametrize("value", [
+    "sha256:" + "0" * 64,
+    "granted",                       # isolationNegative.assent's real value
+    "gpt-5-codex",                   # a plausible codex.model
+    True,                            # a build attestation recorded as a flag
+    "0" * 64,
+    "todos",                         # a stand-in PREFIX is not a stand-in
+    "no-tbd-here",
+    ["sha256:" + "0" * 64],
+])
+def test_a_real_value_is_still_filled(pins, value):
+    """The control, and it is the half that decides whether the rule is usable.
+    A refusal that also rejected real values would make REGISTERED unreachable
+    and would look, from the label alone, exactly like the pre-freeze state. The
+    substring cases are here because a rule matching `"todo" in value` would
+    reject `"todos"` and `"no-tbd-here"`; this one matches the STRIPPED, folded
+    WHOLE value, plus the `TODO(`-style prefixes whose parenthetical varies."""
+    assert integrity.study_label(_fill_with(pins, value)) == "REGISTERED"
+    assert integrity.unfilled_pins(_fill_with(pins, value)) == []
+
+
+def test_the_rule_decides_filled_and_not_correct(pins):
+    """Stated as a test so nobody reads more into the label than it carries: a
+    pin filled with a real-shaped digest of the wrong bytes is FILLED. Whether
+    the digest matches the file is `verify()`'s business, it is checked under
+    both labels, and this function is not a second, weaker copy of it."""
+    assert integrity.pin_is_filled("sha256:" + "f" * 64) is True
+    assert integrity.pin_is_filled("not-a-digest-at-all") is True
+
+
+
+def test_every_placeholder_prefix_is_alive_in_a_case():
+    """The independent mutation audit (A1) removed `"tbd("` from
+    `PIN_PLACEHOLDER_PREFIXES` and the suite stayed green: the prefix was dead
+    code, so a registry filled with `tbd(2026-08-19)` would have labelled
+    REGISTERED the day someone typed it. One case per prefix, both cases the
+    audit demonstrated."""
+    assert integrity.pin_is_filled("tbd(2026-08-19)") is False
+    assert integrity.pin_is_filled("TBD(after the freeze)") is False
+    assert integrity.pin_is_filled("todo(prereg)") is False
+    assert integrity.pin_is_filled("fixme(digest)") is False

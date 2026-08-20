@@ -107,9 +107,22 @@
  "opa": {
   "asset": "opa_linux_amd64_static",
   "assetSha256": "sha256:1dd5c5591ff856f5e20a1d66bafae9511ddf3c5552ed3b5070c70b2b6580ee3f",
+  "capabilitiesDenylist": [
+   "clock",
+   "network",
+   "rand",
+   "uuid",
+   "opa.runtime",
+   "print",
+   "trace",
+   "timezone-taking time forms",
+   "net.cidr_expand"
+  ],
+  "capabilitiesDenylistNote": "The nine families PREREGISTRATION.md section 2 calls \"the registered denylist\". Section 2 names the phrase and nowhere names its members, so the members are registered HERE as bytes rather than left to a reading of the sentence; harness/e4lib/capabilities.py transcribes this member into REGISTERED_DENYLIST and harness/tests/test_score_capabilities.py binds the two in both directions. Each word is implemented as a RULE over the builtin's own capability record, never as a list of builtin names - measured against the pinned binary, denying the two builtins literally named print and trace leaves print(\"x\") compiling, because the compiler lowers the call to internal.print. The rules deny a SUPERSET of what these nine words name: the binary's own \"nondeterministic\": true flag also removes io.jwt.decode_verify, io.jwt.encode_sign and io.jwt.encode_sign_raw, which no family word here names, and that over-denial is recorded in capabilities.py's CATCH_ALL_ONLY_AT_PIN rather than hidden.",
+  "capabilitiesPath": "controls/opa-capabilities.json",
   "capabilitiesSha256": null,
   "license": "Apache-2.0 (verified from LICENSE at tag v1.19.0)",
-  "note": "No reproducible-build claim exists - official builds embed a build timestamp - so the pin is against the published artifact, stated rather than glossed. opa exec does not accept --capabilities at this version; scored invocations use per-row opa eval --format json --fail --strict-builtin-errors --capabilities ... --timeout ... under env -i with TZ=UTC. The time.now_ns canary must be REFUSED by the filtered capabilities file, and that is re-verified at attempt time as a control gate. capabilitiesSha256 is null until the capabilities file is generated from the pinned binary and committed.",
+  "note": "No reproducible-build claim exists - official builds embed a build timestamp - so the pin is against the published artifact, stated rather than glossed. opa exec does not accept --capabilities at this version; scored invocations use per-row opa eval --format json --fail --strict-builtin-errors --capabilities ... --timeout ... under env -i with TZ=UTC. The time.now_ns canary must be REFUSED by the filtered capabilities file, and that is re-verified at attempt time as a control gate. The capabilities file is generated from the pinned binary and the registered capabilitiesDenylist by harness/e4lib/capabilities.py and is committed at capabilitiesPath. capabilitiesSha256 is a FREEZE pin and stays null until the freeze fills it; until then capabilities.py's check_committed() re-derives the file from the pinned binary and compares it byte for byte, which is what binds the bytes pre-freeze. Nothing RESOLVES capabilitiesPath at run time: engines.Toolchain still reads the capabilities path from $OPA_CAPS and records the null pin in unenforcedPins, so a scored invocation names whatever file the operator names and the attempt record says which pins were declarations rather than enforcements.",
   "regoVersion": "v1",
   "reproducibleBuild": false,
   "resolvedAtDesignTime": true,
@@ -117,7 +130,7 @@
  },
  "ownPorts": {
   "path": "harness/PORTS.md",
-  "sha256": "sha256:7b92506b9cd4146f8268eafe7fbab3c244036df079a519e22f264cfd6118380a"
+  "sha256": "sha256:d6ca57edbfd638fa538971b3e177334086dfe6ff025abab33096a7bfbfa9da40"
  },
  "pinnedFrom": {
   "alsoTakenFrom": {
