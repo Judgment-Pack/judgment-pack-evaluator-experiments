@@ -80,7 +80,7 @@
  },
  "isolationNegative": {
   "assent": "granted",
-  "assentProvenance": "recorded 2026-08-19: explicit maintainer assent, given in answer to the named question describing exactly this control \u2014 one probe call with the operator's real HOME exposed to the pinned CLI, to prove the golden-context gate has power \u2014 after the parallel fill line's earlier record (a generic 'go' read as assent) was surfaced to the maintainer and superseded by this explicit grant.",
+  "assentProvenance": "recorded 2026-08-19: explicit maintainer assent, given in answer to a named question describing exactly this control \u2014 one probe call with the operator's real HOME exposed to the pinned CLI, to prove the golden-context gate has power. The capture itself is the parallel fill line's run, RATIFIED under this grant rather than re-run: the driver refuses to rewrite a registered control, and the maintainer's explicit answer supersedes that line's earlier reading of a generic 'go' as assent.",
   "note": "The isolation negative control runs against the operator's real home under recorded operator assent, and is a precondition of the batch rather than of its own command."
  },
  "jpack": {
@@ -156,7 +156,7 @@
  },
  "preregistration": {
   "path": "PREREGISTRATION.md",
-  "sha256": "sha256:6ed2dbac43c22376234ea8a575e82964dfaaa6eee83d26fd4d93f78a5650aeb6"
+  "sha256": "sha256:dac90f4912beb9d576a52bc3770d5720802a6c241826acce7dd53af0a34bb237"
  },
  "probePrompt": {
   "path": "transcription/PROBE-PROMPT.txt",
