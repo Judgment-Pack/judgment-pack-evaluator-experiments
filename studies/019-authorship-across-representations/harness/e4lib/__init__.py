@@ -18,6 +18,9 @@ authority and can be tested against that authority alone:
                  verified fail-closed before any of them is invoked
     e4.py        pairing, the X1 filter, the identity control, kill, the tau cut
     census.py    E5 — Study 012's census machinery, ported
+    capabilities.py  the OPA capability filter — derived from the pinned
+                 binary's own set under the registered denylist, with the
+                 both-directions canary (salvaged from the E1-line apparatus)
     decision.py  section 5's ordered exhaustive decision rule
 
 Nothing in this package makes a model call, reads a clock, or looks at an

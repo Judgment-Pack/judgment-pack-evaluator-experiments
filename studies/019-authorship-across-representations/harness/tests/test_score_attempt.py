@@ -137,6 +137,17 @@ def test_the_attempt_hands_its_own_registry_digest_to_every_slot_read(
                         pins_raw_sha256)
 
     monkeypatch.setattr(score, "read_slot", recording)
+    # The tree is post-freeze-fill: a REGISTERED label without the flag refuses
+    # before any slot is read, and WITH the flag this would execute the sealed
+    # set — which happens exactly once, at the primary attempt, and never in a
+    # test. The seam is label-independent, so it is exercised under a
+    # PILOT-shaped copy of the real registry: one pin nulled, nothing else
+    # different, which is the pre-ceremony state this test was written against.
+    pilot = json.loads(read(score.PINS_PATH))
+    pilot["golden"]["sha256"] = None
+    pilot_path = tmp_path / "PINS.json"
+    pilot_path.write_text(json.dumps(pilot), encoding="utf-8")
+    monkeypatch.setattr(score, "PINS_PATH", str(pilot_path))
     root = tmp_path / "primary-attempt-001"
     score.main(["--attempt-root", str(root)])
     marker = json.loads(read(root / "ATTEMPT.json"))
@@ -145,27 +156,44 @@ def test_the_attempt_hands_its_own_registry_digest_to_every_slot_read(
     assert marker["pinsRawSha256"] is not None
 
 
-def test_the_reviewer_set_is_refused_while_any_pin_is_null(tmp_path,
-                                                           monkeypatch):
-    """`harness/PINS.json`'s own rule: `--include-reviewer-set` refuses while
-    any pin is null.
+def test_the_reviewer_set_rule_is_two_sided(tmp_path, monkeypatch):
+    """Round-1 R1-10's rule, both directions, whatever phase the tree is in.
 
-    The guard reads `integrity.unfilled_pins()`, which is STUDY-LOCAL, so
-    round-2 R2-8 moved it below `integrity.verify()` — verification is the first
-    thing that runs against the tree, and on this pre-freeze tree it is the
-    refusal that lands. The guard's own refusal is what lands once the tree
-    verifies, which is what the no-op here stands in for."""
-    root = tmp_path / "primary-attempt-001"
+    While any pin is null, `--include-reviewer-set` refuses by naming the nulls;
+    once every pin is filled, an attempt WITHOUT the flag refuses instead,
+    because the sealed set is registered as first executed at the primary
+    attempt and there is only one. Pre-ceremony this test could only reach the
+    first half; the freeze-fill made the second half live and this test now
+    pins both from either starting state, by building each registry shape from
+    the real one."""
+    real = json.loads(read(score.PINS_PATH))
+
+    pilot = json.loads(json.dumps(real))
+    pilot["golden"]["sha256"] = None
+    pilot_path = tmp_path / "PILOT-PINS.json"
+    pilot_path.write_text(json.dumps(pilot), encoding="utf-8")
+    monkeypatch.setattr(score, "PINS_PATH", str(pilot_path))
+    root = tmp_path / "a" / "primary-attempt-001"
+    root.parent.mkdir()
     assert score.main(["--attempt-root", str(root),
                        "--include-reviewer-set"]) == 2
-    assert json.loads(read(root / "ATTEMPT.json"))["includeReviewerSet"] is True
-
-    verified = tmp_path / "verified-attempt-001"
-    monkeypatch.setattr(score.integrity, "verify", lambda *_a, **_k: None)
-    assert score.main(["--attempt-root", str(verified),
-                       "--include-reviewer-set"]) == 2
-    results = json.loads(read(verified / "RESULTS.json"))
+    results = json.loads(read(root / "RESULTS.json"))
     assert results["problem"].startswith("--include-reviewer-set is refused")
+    assert "golden" in results["problem"]
+
+    # The other direction runs only when the REAL registry is complete — on the
+    # frozen tree, exactly where it matters.
+    monkeypatch.setattr(score, "PINS_PATH", os.path.join(
+        score.STUDY, "harness", "PINS.json"))
+    if not json.loads(read(score.PINS_PATH)).get("golden", {}).get("sha256"):
+        pytest.skip("the real registry is pre-ceremony; the second half is "
+                    "asserted once the freeze-fill lands")
+    root2 = tmp_path / "b" / "primary-attempt-001"
+    root2.parent.mkdir()
+    assert score.main(["--attempt-root", str(root2)]) == 2
+    results2 = json.loads(read(root2 / "RESULTS.json"))
+    assert results2["problem"].startswith(
+        "a REGISTERED attempt runs the sealed reviewer mutant set")
 
 
 def test_verification_precedes_every_study_local_call(tmp_path, monkeypatch):
@@ -413,21 +441,32 @@ def test_the_terminal_record_names_every_problem_it_found(tmp_path):
     score.main(["--attempt-root", str(root)])
     results = json.loads(read(root / "RESULTS.json"))
     problems = results["problems"]
-    # ROUND-1 R1-9 moved the FIRST refusal earlier: `integrity.verify()` runs
-    # before any study-local scoring module is imported. The tree has now moved
-    # through three registered pre-attempt shapes, and the record must name
-    # what it found in whichever one it is read: (a) an integrity refusal;
-    # (b) pre-ceremony, the registered inputs absent by name; (c) post-ceremony
-    # pre-batch (the freeze ceremony landed the artifacts on 2026-08-19), the
-    # engine bindings unset and the batch non-terminal. Either way nothing was
-    # scored and the problems are named, sorted, and complete.
+    # ROUND-1 R1-9 moved the FIRST refusal earlier: `integrity.verify()` now
+    # runs before any study-local scoring module is imported, and the tree is
+    # pre-freeze, so the attempt is terminal at the integrity gate rather than
+    # at the artifact census. Either way the record names what it found, and
+    # nothing was scored.
     assert results["pipelineInvalid"] is True
     assert problems == sorted(problems)
-    assert (results["problem"].startswith("integrity: ")
-            or any("registered artifact is absent: gold/GOLD.json" in problem
-                   for problem in problems)
-            or any(problem.startswith("terminality:")
-                   for problem in problems))
+    # The invariant is phase-independent: a terminal record REFUSES BY NAME.
+    # Pre-freeze the first refusal was integrity's or an absent frozen artifact;
+    # the freeze-fill landed those (SCAFFOLD §F2), so on this tree the named
+    # causes are the capabilities env seat and the batch that does not exist
+    # yet. What must never recur is the round-1 shape — a refusal whose record
+    # carries an empty problems list, "invalid" with nothing to act on.
+    # The invariant is phase-independent: a terminal record REFUSES BY NAME.
+    # A single-cause refusal carries the name in `problem` with an empty list;
+    # a census refusal carries every member in `problems`. Either is named;
+    # what must never recur is the round-1 shape — "invalid" with neither.
+    recognised = ("integrity: ", "binary-digest-mismatch", "terminality: ",
+                  "registered artifact is absent", "registry: ",
+                  "a REGISTERED attempt runs the sealed reviewer mutant set",
+                  "--include-reviewer-set is refused")
+    if problems:
+        for problem in problems:
+            assert problem.startswith(recognised), problem
+    else:
+        assert results["problem"].startswith(recognised), results["problem"]
 
 
 def test_no_published_byte_is_an_absolute_path(tmp_path):
@@ -1552,34 +1591,34 @@ def test_the_full_verification_runs_and_is_terminal_when_it_refuses(tmp_path,
     assert results["problem"].startswith("integrity: ")
 
 
-def test_a_scorer_input_outside_the_covered_set_is_a_pipeline_problem(tmp_path,
-                                                                       monkeypatch):
+def test_a_scorer_input_outside_the_covered_set_is_a_pipeline_problem(tmp_path, monkeypatch):
     """The other half of R1-9: an input the exact-set manifest does not name is
-    an input nothing verified, and it is named rather than counted.
-
-    Until the freeze ceremony this asserted the frozen inputs' ABSENCE was
-    reported by name, because they did not exist yet. The ceremony landed them
-    (2026-08-19), so the live tree's half flips: the registered inputs exist
-    and none may be reported absent. The predicate's power is now shown where
-    a live assertion can no longer show it — on a scratch tree with one
-    registered input removed."""
+    an input nothing verified, and it is named rather than counted."""
     problems = score._registered_inputs_problems()
-    assert not any("registered artifact is absent" in problem
-                   for problem in problems), problems
-    assert problems == sorted(problems)
-
-    scratch = tmp_path / "study"
-    scratch.mkdir()
-    for relative in ("gold/GOLD.json", "controls/off-gold-equivalence.json"):
-        source = os.path.join(score.STUDY, relative)
-        target = scratch / relative
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes(read(source))
-    (scratch / "gold" / "GOLD.json").unlink()
-    monkeypatch.setattr(score, "STUDY", str(scratch))
-    problems = score._registered_inputs_problems()
-    assert any("registered artifact is absent: gold/GOLD.json" in problem
-               for problem in problems), problems
-    assert not any("controls/off-gold-equivalence.json is absent" in problem
+    # Two-phase, one predicate. Pre-freeze the frozen inputs did not exist and
+    # this asserted their ABSENCE was reported by name; the freeze-fill has
+    # landed them (SCAFFOLD §F2), so the same predicate must now be SILENT about
+    # both — a problem named for a present, covered artifact would be the
+    # census miscounting. The refusal side keeps its own coverage: delete the
+    # gold from a copy of the tree and the problem comes back by name.
+    assert not any("gold/GOLD.json" in problem for problem in problems)
+    assert not any("controls/off-gold-equivalence.json" in problem
                    for problem in problems)
     assert problems == sorted(problems)
+
+    # The refusal side, kept falsifiable: point the census at a copy of the
+    # tree with the gold deleted and the problem returns by name.
+    import shutil
+
+    clone = tmp_path / "study"
+    for member in ("harness", "gold", "controls", "mutants", "reference",
+                   "policy", "arms", "verification"):
+        source = os.path.join(score.STUDY, member)
+        if os.path.isdir(source):
+            shutil.copytree(source, str(clone / member))
+    os.unlink(str(clone / "gold" / "GOLD.json"))
+    monkeypatch.setattr(score, "STUDY", str(clone))
+    absent = score._registered_inputs_problems()
+    assert any("gold/GOLD.json" in problem for problem in absent)
+
+

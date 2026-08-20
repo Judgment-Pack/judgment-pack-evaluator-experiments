@@ -440,3 +440,158 @@ def test_the_author_side_is_exactly_the_two_the_review_names():
     the apparatus. A third member here moves runs into a denominator and belongs
     in a registered amendment, not in a refactor."""
     assert transcript_check.AUTHOR_REASONS == ("extra-turn", "tool-use")
+
+
+# --------------------------------------------------------------------------
+# the two whole documents this gate reads — salvage audit, defect f
+# --------------------------------------------------------------------------
+#
+# The gate refuses a duplicate key on every transcript LINE (`_load`), and
+# `score.load_json()`, `batch._load_json()` and `integrity.load_json()` all
+# refuse duplicates on whole documents. The two whole documents THIS gate reads
+# — `CALL.json` and the golden capture — were a bare `json.load(open(path))`,
+# so a shadowed member meant one thing here and another at every other reader of
+# the same bytes. These cases are the difference, and each one is written so
+# that the shadowed value CHANGES the gate's answer: a duplicate that could not
+# change an answer would not discriminate between the fix and its absence.
+
+def _overwrite(path, text):
+    with open(path, "wb") as handle:
+        handle.write(text.encode("utf-8"))
+
+
+def test_a_call_record_with_a_shadowed_cwd_is_refused(tmp_path):
+    """`cwd` is read twice by this gate — screened for leak tokens, and passed
+    to `context_digests()` as the path to normalize out of the context. A
+    `CALL.json` carrying two of them makes the gate's answer depend on which one
+    the parser happened to keep, and the last-wins value here is a directory the
+    golden context was not captured under."""
+    slot = Slot(tmp_path / "dup-cwd")
+    _overwrite(slot.call,
+               '{"cwd": "%s", "home": "%s", "exitStatus": 0, '
+               '"cwd": "/srv/w/9999"}' % (CWD, HOME))
+    verdict = slot.verdict()
+    assert_refused(verdict, "log-corrupt", "apparatus")
+    assert "duplicate object keys" in verdict["message"]
+
+
+def test_a_call_record_with_a_shadowed_exit_status_is_refused(tmp_path):
+    """The same hole at the member that decides the exit-status gate: a record
+    that says 0 and then says 1 is not a record of a successful call."""
+    slot = Slot(tmp_path / "dup-exit")
+    _overwrite(slot.call,
+               '{"cwd": "%s", "home": "%s", "exitStatus": 0, '
+               '"exitStatus": 1}' % (CWD, HOME))
+    assert_refused(slot.verdict(), "log-corrupt", "apparatus")
+
+
+def test_a_golden_capture_with_shadowed_entries_is_refused(tmp_path):
+    """The allowlist itself. The first `entries` is the context this session
+    really has; the second is empty, and an empty allowlist compares equal to a
+    session with no pre-prompt context at all. Whichever the parser keeps, the
+    document does not say one thing — so it is refused rather than read."""
+    slot = Slot(tmp_path / "dup-entries")
+    with open(slot.golden, "rb") as handle:
+        golden = json.loads(handle.read().decode("utf-8"))
+    _overwrite(slot.golden,
+               '{"contextVersion": %s, "entries": %s, "entries": []}'
+               % (json.dumps(golden["contextVersion"]),
+                  json.dumps(golden["entries"])))
+    verdict = slot.verdict()
+    assert_refused(verdict, "log-corrupt", "apparatus")
+    assert "duplicate object keys" in verdict["message"]
+
+
+def test_a_golden_capture_with_a_shadowed_context_version_is_refused(tmp_path):
+    slot = Slot(tmp_path / "dup-version")
+    with open(slot.golden, "rb") as handle:
+        golden = json.loads(handle.read().decode("utf-8"))
+    _overwrite(slot.golden,
+               '{"contextVersion": "99", "entries": %s, "contextVersion": %s}'
+               % (json.dumps(golden["entries"]),
+                  json.dumps(golden["contextVersion"])))
+    assert_refused(slot.verdict(), "log-corrupt", "apparatus")
+
+
+def test_a_duplicate_free_call_and_golden_still_admit(tmp_path):
+    """The control the four cases above are measured against: the new rule
+    refuses SHADOWED members and nothing else. Without this, all four could be
+    passing because the loader broke every document it reads."""
+    assert Slot(tmp_path / "clean-documents").verdict()["admissible"] is True
+
+
+def test_neither_whole_document_is_read_by_a_bare_json_load():
+    """Over the SOURCE, because the behavioural cases above only prove the two
+    CURRENT call sites are covered. A third whole-document read added later with
+    `json.load(open(...))` would reintroduce exactly this defect, and the
+    duplicate-key hook is not something a reviewer can see from a diff of the
+    call site alone."""
+    with open(os.path.join(HARNESS, "transcript_check.py"), "rb") as handle:
+        tree = ast.parse(handle.read().decode("utf-8"))
+    bare = [node.lineno for node in ast.walk(tree)
+            if isinstance(node, ast.Call)
+            and getattr(node.func, "attr", None) in ("load", "loads")
+            and getattr(getattr(node.func, "value", None), "id", None) == "json"
+            and not any(keyword.arg == "object_pairs_hook"
+                        for keyword in node.keywords)]
+    assert bare == []
+
+
+class TestPriorContextExemption(object):
+    """The 2026-08-19 adjudication: word-boundary matching, and the two literal
+    words of the pinned CLI's own boilerplate exempt from this screen only.
+
+    The first golden capture enumerated every token the real boilerplate fires:
+    on boundaries, exactly `rejected` and `absent`; the clause ids d1-d8 fired
+    only as substrings inside hex identifiers, which the boundary rule removes
+    with no exemption at all. check_golden's exact-reproduction allowlist stays
+    the instrument that guards the pre-prompt context against every word,
+    exempt or not."""
+
+    def test_the_pinned_clis_own_boilerplate_passes(self):
+        events = [("developer", "Do not provide sandbox_permissions; commands "
+                                "will be rejected. Some tools are intentionally "
+                                "absent from the functions.exec namespace."),
+                  ("user", "the registered prompt")]
+        transcript_check.screen_prior_context(events, 1)   # must not raise
+
+    def test_a_bare_outcome_id_still_refuses(self):
+        """`rejected` is exempt; `reject` is not, and boundary matching means
+        the exemption of the inflection no longer shadows the stem."""
+        events = [("user", "the pack should reject this vendor"),
+                  ("user", "the registered prompt")]
+        with pytest.raises(transcript_check.TranscriptError):
+            transcript_check.screen_prior_context(events, 1)
+
+    def test_a_clause_id_on_a_word_boundary_still_refuses(self):
+        events = [("developer", "see clause d5 for the exception"),
+                  ("user", "the registered prompt")]
+        with pytest.raises(transcript_check.TranscriptError):
+            transcript_check.screen_prior_context(events, 1)
+
+    def test_a_clause_id_inside_a_hex_identifier_does_not_refuse(self):
+        """The substring artifact the first capture surfaced: every d1-d8 hit
+        was inside an identifier like `87d5ab`. Noise, not vocabulary."""
+        events = [("developer", "session 87d5ab3fd1c2 opened; call id ebd4d600"),
+                  ("user", "the registered prompt")]
+        transcript_check.screen_prior_context(events, 1)   # must not raise
+
+    def test_a_prior_turn_with_a_threshold_still_refuses(self):
+        events = [("user", "remember the spend floor is 100000"),
+                  ("user", "the registered prompt")]
+        with pytest.raises(transcript_check.TranscriptError):
+            transcript_check.screen_prior_context(events, 1)
+
+    def test_the_exemption_is_exactly_the_two_boilerplate_words(self):
+        assert transcript_check.PRIOR_CONTEXT_EXEMPT == frozenset(
+            {"rejected", "absent"})
+
+    def test_the_wrapper_path_screen_is_not_exempted(self):
+        """The other seat, unchanged: the wrapper's own path screen (inside
+        harness/authoring_call.sh's embedded preflight) still refuses a
+        scratch path spelling an outcome id. Asserted on the wrapper's source
+        because the screen runs in the child: the refusal string and the
+        absence of any exemption import are what a reviewer can check."""
+        source = open(os.path.join(HARNESS, "authoring_call.sh")).read()
+        assert "carries leak tokens" in source
+        assert "PRIOR_CONTEXT_EXEMPT" not in source

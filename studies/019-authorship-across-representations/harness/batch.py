@@ -271,8 +271,8 @@ MIN_CAPTURE_SLOTS = 2
 CAPTURE_IDENTITY = (
     ("sessionSha256", "the retained transcript bytes"),
     ("sessionId", "the session id the transcript records"),
-    ("callIdentity", "the call record's own start, end, working directory and "
-                     "isolated home"),
+    ("callIdentity", "a digest over the call record's own start, end, working "
+                     "directory and isolated home"),
 )
 # §6 C7's three registered outcomes. Study 012 kept this tuple in
 # `score_rates.py` and named it here; this study's scorer does not exist yet and
@@ -499,6 +499,11 @@ def _load_json(path: str):
     with open(path, "rb") as handle:
         return json.loads(handle.read().decode("utf-8"),
                           object_pairs_hook=transcript_check._refuse_duplicate_keys)
+
+
+def _digest_text(text: str) -> str:
+    """sha256 of a small in-memory string; the capture identity digest."""
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
 def _digest(path: str) -> str:
@@ -2362,8 +2367,19 @@ def capture_identity(slot: str) -> dict:
         "slot": os.path.basename(slot),
         "sessionSha256": _digest(os.path.join(slot, "session.jsonl")),
         "sessionId": session_identity(os.path.join(slot, "session.jsonl")),
-        "callIdentity": (call.get("startedAt"), call.get("endedAt"),
-                         call.get("cwd"), call.get("home")),
+        # A DIGEST, not the values. The four members distinguish two calls as
+        # well as their raw forms do -- equality of digests is equality of
+        # tuples -- but cwd and home are the operator's absolute paths, and this
+        # record is written into transcription/GOLDEN-CONTEXT.json, a committed
+        # artifact with a freeze pin. C7_REDACTED already states the study's
+        # rule for retained artifacts: every member that names the machine is
+        # dropped before the file is written into the study. An earlier form of
+        # this line retained the raw tuple, and the independent mutation audit
+        # (G10) demonstrated a test positively requiring the operator's paths in
+        # a committed file. Distinctness survives; the paths do not.
+        "callIdentity": _digest_text("\x1f".join(
+            str(call.get(member)) for member in
+            ("startedAt", "endedAt", "cwd", "home"))),
     }
 
 
@@ -2388,6 +2404,104 @@ def require_distinct_sessions(identities: list) -> None:
                     "the same context, and two slots holding one call's evidence "
                     "agree by construction rather than by reproduction"
                     % (first["slot"], second["slot"], prose, first[member]))
+
+
+def _identity_value(record: dict, member: str):
+    """One `CAPTURE_IDENTITY` member off a RETAINED identity record, in a form
+    two records can be compared on. Every member is a string today —
+    `callIdentity` became a digest when the raw start/end/cwd/home tuple was
+    found retained in a committed artifact (mutation audit G10) — but a record
+    written by the earlier form round-trips its tuple through JSON as a list,
+    so a list is still read as a tuple rather than misread as unequal to
+    itself."""
+    value = record.get(member)
+    return tuple(value) if isinstance(value, list) else value
+
+
+def golden_provenance_problems(document: dict) -> list:
+    """The retained golden capture's own provenance, re-checked from its bytes.
+    Returns a list of problem strings; empty means the document CARRIES the
+    evidence for the derivation it claims.
+
+    The gap this closes is a gap in the RECORD, not in the derivation.
+    `capture_golden()` already enforces the floor of two and
+    `require_distinct_sessions()` already checks it on raw retained evidence —
+    that half is sound, and stronger than the `sessionId`-only rule the archived
+    apparatus line proposed. What the committed artifact used to record was
+    `capturedFrom` (slot BASENAMES) and `capturedIn` (a directory basename), and
+    the source captures live outside the study tree at an operator-named path.
+    So "two agreeing captures from distinct sessions" was true of the run and
+    uncheckable from any retained byte — exactly the diagnosis the archived line
+    made of Study 012, which retained only the derived file and whose
+    `capturedFrom` names two captures that are not in its tree. This study was
+    about to publish the same shape. `capture_golden()` now writes the
+    `identities` list it already computes, and this function is what reads it.
+
+    Two departures from `require_distinct_sessions()`, both deliberate:
+
+    * A NULL identity member is a problem here, where there it is skipped. There
+      the check is live and the other members still discriminate; here the
+      question is whether the retained bytes SHOW the claim, and a member that is
+      absent shows nothing. The archived line's `derive_golden` refused a capture
+      with no `sessionId` for this reason — "a check that silently skips is worse
+      than one that stops" — and that is the half of it worth carrying.
+    * `capturedFrom` and the identity list must name the same slots in the same
+      order. They are two claims by one document about one derivation, and a
+      document that disagrees with itself is not evidence for either.
+
+    Pure: it reads a parsed document and touches no disk. **It is not wired into
+    `score.golden_context_gate()` yet** — see PREREG-REVIEW.md's salvage-audit
+    section for why that wiring is the round-4 response's and not this one's."""
+    problems = []
+    if not isinstance(document, dict):
+        return ["the golden capture is not a JSON object"]
+    identities = document.get("capturedIdentities")
+    if not isinstance(identities, list):
+        return ["the golden capture records no capturedIdentities list: its "
+                "derivation from %d independent calls is asserted rather than "
+                "checkable from any retained byte" % MIN_CAPTURE_SLOTS]
+    if len(identities) < MIN_CAPTURE_SLOTS:
+        problems.append(
+            "the golden capture records %d capture identit%s; a derivation needs "
+            "at least %d, because one capture cannot show that a pre-prompt "
+            "context reproduces"
+            % (len(identities), "y" if len(identities) == 1 else "ies",
+               MIN_CAPTURE_SLOTS))
+    for index, record in enumerate(identities):
+        if not isinstance(record, dict):
+            problems.append("capture identity %d is not an object" % index)
+            continue
+        if not record.get("slot"):
+            problems.append("capture identity %d names no slot" % index)
+        for member, prose in CAPTURE_IDENTITY:
+            if _identity_value(record, member) is None:
+                problems.append(
+                    "capture identity %d (%s) carries no value for %s: the derivation's "
+                    "independence cannot be checked on a member the record does "
+                    "not carry"
+                    % (index, record.get("slot"), prose))
+    usable = [record for record in identities if isinstance(record, dict)]
+    for index, first in enumerate(usable):
+        for second in usable[index + 1:]:
+            for member, prose in CAPTURE_IDENTITY:
+                value = _identity_value(first, member)
+                if value is None or value != _identity_value(second, member):
+                    continue
+                problems.append(
+                    "captures %s and %s share %s (%r): they are one call's "
+                    "evidence recorded twice, and two copies of one call agree "
+                    "by construction rather than by reproduction"
+                    % (first.get("slot"), second.get("slot"), prose, value))
+    captured_from = document.get("capturedFrom")
+    if isinstance(captured_from, list):
+        named = [record.get("slot") for record in usable]
+        if named != list(captured_from):
+            problems.append(
+                "the golden capture's capturedFrom (%r) and its recorded capture "
+                "identities (%r) name different slots: one document making two "
+                "claims about one derivation is evidence for neither"
+                % (captured_from, named))
+    return problems
 
 
 def capture_golden(slots_dir: str, out_path: str, min_slots: int,
@@ -2489,6 +2603,13 @@ def capture_golden(slots_dir: str, out_path: str, min_slots: int,
         "contextVersion": first["contextVersion"],
         "entries": first["entries"],
         "capturedFrom": usable,
+        # The evidence for the sentence above, retained rather than asserted.
+        # `require_distinct_sessions()` has just checked these; writing them is
+        # what lets a reader — and `golden_provenance_problems()` — check the
+        # same thing later, from the committed file alone. The source capture
+        # slots live outside the study tree at an operator-named path, so
+        # without this the derivation was a claim no retained byte supported.
+        "capturedIdentities": identities,
         "capturedIn": os.path.basename(os.path.abspath(slots_dir)),
         "note": "The pre-prompt context of this study's registered invocations, "
                 "captured from independent probe-prompt runs that reproduced "

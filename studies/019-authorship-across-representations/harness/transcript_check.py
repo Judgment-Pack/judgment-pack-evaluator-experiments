@@ -304,6 +304,29 @@ def _reasoning_is_inert(payload: dict, number: int) -> None:
                               reason="log-corrupt")
 
 
+def _load_document(path: str) -> dict:
+    """A whole JSON document this gate READS but does not parse line by line —
+    `CALL.json` and the golden capture — under the same duplicate-key rule every
+    transcript line already gets.
+
+    The salvage audit's defect f. Both sites used to be a bare
+    `json.load(open(path))`: no `object_pairs_hook`, and no context manager. The
+    hook is the material half. A golden capture with a duplicated `"entries"`,
+    or a `CALL.json` with a duplicated `"cwd"` or `"goldenSha256"`, means one
+    thing to this gate and another to `score.load_json()` reading the same bytes
+    — and `score.load_json()`, `batch._load_json()` and `integrity.load_json()`
+    all refuse duplicates already, so the shadowed member survives exactly where
+    the admission decision is made. `_refuse_duplicate_keys` raises `ValueError`,
+    which is the class `classify()` already maps to `log-corrupt`/apparatus, so
+    this adds a refusal without adding a reason tag.
+
+    The context manager is the other half: an undecodable document used to leak
+    the open file handle out of the raising frame."""
+    with open(path, "rb") as handle:
+        return json.loads(handle.read().decode("utf-8"),
+                          object_pairs_hook=_refuse_duplicate_keys)
+
+
 NORMALIZERS = (
     # Dynamic values codex quotes that carry no policy information. The
     # golden capture (transcription/GOLDEN-CONTEXT.json) pins what remains,
@@ -432,6 +455,32 @@ def extract_completion(session_path: str) -> str:
     return assistants[-1]
 
 
+#: The two words of the pinned CLI's own fixed boilerplate that are also derived
+#: study tokens, exempted from THIS screen and from no other seat. The first
+#: golden capture (2026-08-19) enumerated every token the real boilerplate fires
+#: (recorded in PREREG-REVIEW.md): on word boundaries, exactly `rejected`
+#: ("commands will be rejected", the sandbox notice) and `absent`
+#: ("intentionally absent from the `functions.exec` namespace", the tool
+#: catalogue). All other hits were substring artifacts — the clause ids d1–d8
+#: matching inside hex identifiers — which the word-boundary rule below removes
+#: without any exemption, keeping their full power for real mentions. What
+#: guards the pre-prompt context against even these two words remains
+#: `check_golden()`'s exact-reproduction allowlist, which refuses ANY change to
+#: it. The exemption does not reach the wrapper's path screen or the negative
+#: corpus.
+PRIOR_CONTEXT_EXEMPT = frozenset({"rejected", "absent"})
+
+
+def _token_pattern(token):
+    """A word-boundary pattern for one token: `d5` in "clause d5" refuses, `d5`
+    inside `87d5ab` does not. leak_tokens residual 2 predicted ordinary-word
+    collisions with the CLI's own boilerplate; the first capture showed the
+    substring rule ALSO manufactured clause-id hits inside every hex identifier,
+    which is noise no reviewer asked for. Boundaries are non-alphanumeric so
+    multi-word and punctuated tokens keep matching as written."""
+    return re.compile(r"(?<![0-9a-z])" + re.escape(token) + r"(?![0-9a-z])")
+
+
 def screen_prior_context(events: list, position: int, paths: list = ()) -> None:
     """No message before the registered prompt may carry study vocabulary.
 
@@ -439,7 +488,10 @@ def screen_prior_context(events: list, position: int, paths: list = ()) -> None:
     quotes the sandbox workspace root and home directory, and a machine
     whose directories happen to spell a study term leaks nothing by it.
     The wrapper independently refuses a scratch path containing a leak
-    token, so the excision cannot hide a planted one."""
+    token, so the excision cannot hide a planted one. Tokens match on word
+    boundaries, and the two words of the pinned CLI's own boilerplate are
+    exempt (`PRIOR_CONTEXT_EXEMPT` above) — `check_golden()`'s
+    exact-reproduction allowlist is what actually guards this context."""
     for index, (role, text) in enumerate(events):
         if index >= position:
             continue
@@ -448,7 +500,9 @@ def screen_prior_context(events: list, position: int, paths: list = ()) -> None:
             if path:
                 lowered = lowered.replace(path.lower(), "<path>")
         for token in LEAK_TOKENS:
-            if token in lowered:
+            if token in PRIOR_CONTEXT_EXEMPT:
+                continue
+            if _token_pattern(token).search(lowered):
                 raise TranscriptError(
                     "prior %s message (item %d) contains the leak token %r"
                     % (role, index, token), reason="leak")
@@ -465,7 +519,7 @@ def check_golden(session_path: str, call: dict, golden_path: str) -> None:
     and any change refuses. The golden capture was taken from real runs of
     the registered invocation, which reproduce byte-identically after
     normalization."""
-    golden = json.load(open(golden_path))
+    golden = _load_document(golden_path)
     actual = context_digests(session_path, call)
     if golden.get("contextVersion") != actual["contextVersion"]:
         raise TranscriptError("the golden capture is a different context version",
@@ -509,7 +563,7 @@ def check(session_path: str, prompt_path: str, completion_path: str,
         if role in ("user", "developer") and index > position:
             raise TranscriptError("a user/developer message follows %s" % named,
                                   reason="extra-turn")
-    call = json.load(open(call_path))
+    call = _load_document(call_path)
     scratch = call.get("cwd", "")
     for token in LEAK_TOKENS:
         if token in scratch.lower():

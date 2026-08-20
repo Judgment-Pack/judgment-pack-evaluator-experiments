@@ -855,3 +855,81 @@ None — zero findings. The review regime closes. What remains before the freeze
 enumerated ceremony: the registered documents not yet authored, the clean-room re-run
 against the final prose, the off-gold certificate at the freeze commit, the freeze-fill,
 and the freeze PR whose squash-merge is the freeze commit.
+
+**Pending — no R4 finding has been dispositioned yet.**
+
+**Pending — no R3 finding has been dispositioned yet.**
+
+## Salvage audit (2026-08-19)
+
+An adversarial audit of the apparatus, run against the round-3 head while the round-3
+response was in flight. Nine candidate defects were probed against the running code
+rather than read off the source; three were real and outside the response's territory,
+and those three landed with their discriminating tests. The rest are recorded here so a
+verdict that was reached is not re-reached later as a finding.
+
+**Landed.**
+
+- *Stand-in freeze pins counted as filled.* `harness/integrity.py`'s
+  `freeze_pin_state()` decided FILLED as `node is not None`, so a registry whose
+  eighteen freeze pins were all `""`, `"TODO(prereg)"`, `0`, `[]`, `{}` or `False`
+  labelled REGISTERED and reported no
+  unfilled pin. `integrity.pin_is_filled()` now decides it; `harness/tests/test_pins.py`
+  drives every stand-in over the whole set and pin by pin, with the control cases that
+  keep a real digest, a real assent and a real model name filled.
+- *Whole documents read without the duplicate-key rule.* `harness/transcript_check.py`
+  read `CALL.json` and the golden capture with a bare `json.load(open(...))`, while
+  `score.load_json()`, `batch._load_json()` and `integrity.load_json()` all refuse
+  duplicates over the same bytes — so a shadowed `cwd`, `exitStatus` or `entries` meant
+  one thing at the admission gate and another everywhere else.
+  `transcript_check._load_document()` closes both sites; the refusal reaches `classify()`
+  as `log-corrupt`/apparatus, which the map already registers, so no reason tag was added.
+- *A golden capture that could not evidence its own derivation.* `batch.capture_golden()`
+  enforces the floor of two and checks independence on raw retained evidence, and that
+  half is sound and stays as it is. What it wrote was `capturedFrom` (slot basenames) and
+  `capturedIn` (a directory basename), with the source slots outside the study tree — so
+  the derivation was checkable from no retained byte, which is the shape Study 012
+  published. `capture_golden()` now writes the identities it already computes, and
+  `batch.golden_provenance_problems()` reads them back.
+
+**Deferred — open findings, not fixed here.**
+
+- `harness/score.py:1725` — a **dangling symlink** at the attempt root: `os.path.exists()`
+  is False, `os.path.lexists()` is True, and `os.makedirs()` at `harness/score.py:1729`
+  then raises an uncaught `FileExistsError` — outside any `try`, and before the
+  `ATTEMPT.json` marker at `harness/score.py:1745` is promised to be written. The
+  registered outcome (message plus exit 2) is replaced by a traceback with no marker. A
+  symlink to an existing directory is handled correctly; only the dangling case is open.
+  Deferred because both the fix and the only natural home for its test
+  (`harness/tests/test_score_attempt.py`) are inside the round-3 response's live territory
+  (R3-2/R3-3).
+- `harness/score.py:972` — `golden_context_gate()` checks that `golden.sha256` is non-null,
+  that the assent is recorded and that the C7 verdict reads `refused`; it does **not** read
+  the capture's provenance. `batch.golden_provenance_problems()` exists and is tested but
+  is **not wired in**. Deferred for the same reason: an artifact-shape requirement reaching
+  that gate would land in `harness/tests/test_score_attempt.py:447`, which holds two of the
+  round-3 failures.
+- **No memory bound is registered anywhere.** The wall-clock bound is doubled at each seat
+  (`harness/e4lib/engines.py`'s `ENGINE_TIMEOUT_S` on the subprocess and `OPA_EVAL_TIMEOUT`
+  given to OPA, and `harness/authoring_call.sh:537`'s
+  `timeout --signal=TERM --kill-after=`), but
+  `PREREGISTRATION.md` names no memory or address-space limit and no harness source uses
+  `resource`/`RLIMIT`/`preexec_fn`. Adding one would be unregistered apparatus, so it is
+  reported rather than built; any registered bound belongs in an amendment.
+
+**Probed and found already sound**, with the round-numbered fix comments that closed them
+where they exist: the freeze-pin set is a code constant the registry answers to
+(`harness/integrity.py:153`), not registry data; the `turn_context` model clause is set
+equality rather than membership (`harness/transcript_check.py:574`, with the comment
+recording that the symmetrical cwd clause was fixed for exactly that reason); an empty
+`content` list refuses (`harness/transcript_check.py:432`); and the engine seat scrubs the
+environment (`harness/e4lib/engines.py`'s `_run` passes `env=clean_env(cwd)`, and the
+wrapper scrubs with `env -i` at `harness/authoring_call.sh:534`). The
+`opa test` JSON normalisation defect does not apply — the record is built from four
+selected fields and never retains a path or a duration — and its real hazard, result
+ordering, is already closed with its own recorded reason in
+`harness/e4lib/engines.py`'s `opa_test()`.
+
+**Manifest note.** These edits stale `harness/STUDY-MANIFEST.sha256` again, which is the
+`GATE(pre-freeze)` R3-1 already names; the manifest was deliberately not regenerated, so
+the three manifest/currency failures stay exactly as the round-3 response left them.
