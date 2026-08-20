@@ -1,6 +1,6 @@
 # Study 019 — authorship across representations
 
-**Status: PREREGISTRATION DRAFT, twelfth major revision. Not frozen, and nothing citable has
+**Status: PREREGISTRATION DRAFT, thirteenth major revision. Not frozen, and nothing citable has
 run — every freeze pin is null and every execution so far is a non-citable pilot. The
 cross-vendor review rounds under the RFC 0009 interim review regime are recorded in
 [`PREREG-REVIEW.md`](PREREG-REVIEW.md), with each round verbatim under
@@ -18,7 +18,7 @@ back to this program's baseline rather than escalating it again. The freeze requ
 verdict of exactly `freezable as written`, which no round has returned.**
 
 <!-- round-status:begin -->
-ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 12 review rounds are on the record, 11 have returned a verdict — rounds 1-3 and 5-10 returned DO NOT FREEZE; rounds 4 and 11 returned FREEZABLE AFTER LISTED FIXES — and round 12 is open, awaiting the reviewer's answer.
+ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 12 review rounds are on the record, 12 have returned a verdict — rounds 1-3 and 5-10 returned DO NOT FREEZE; rounds 4 and 11 returned FREEZABLE AFTER LISTED FIXES; round 12 returned FREEZABLE AS WRITTEN — and no round is open.
 <!-- round-status:end -->
 
 

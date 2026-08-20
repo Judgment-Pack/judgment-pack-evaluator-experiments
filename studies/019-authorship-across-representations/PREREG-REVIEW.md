@@ -177,9 +177,13 @@ mechanical.
   },
   {
    "number": 12,
-   "state": "awaiting-review",
-   "verdict": null,
-   "severities": null,
+   "state": "complete",
+   "verdict": "FREEZABLE AS WRITTEN",
+   "severities": {
+    "BLOCKER": 0,
+    "MAJOR": 0,
+    "MINOR": 0
+   },
    "findings": null
   }
  ]
@@ -829,3 +833,25 @@ archive-verified.)
 
 **Post-revision state.** No open registered-surface findings; no open advisories beyond
 the four recorded; the defense in depth is mutation-sensitive layer by layer.
+
+## Round 12 — 2026-08-19
+
+- Reviewer: codex-cli 0.145.0 / gpt-5.6-sol (OpenAI), reasoning effort ultra, read-only
+  sandbox; completed on the first attempt.
+- Verbatim record: [`reviews/round-12/PROMPT.md`](reviews/round-12/PROMPT.md),
+  [`reviews/round-12/REVIEW.md`](reviews/round-12/REVIEW.md).
+- R11-1 disposition verification: **VERIFIED** — both checks fail independently under
+  single-line deletion.
+- Verdict: **FREEZABLE AS WRITTEN** — zero findings. The regime's requirement is met in
+  the exact words, at the twelfth round, on the tree at the round-12 prompt commit.
+- The R8-1 corollary tripwire (`test_the_freeze_verdict_is_a_token_no_round_has_returned`)
+  exists precisely for this event: recording this verdict makes it fire, forcing this
+  deliberate revisit. It is retired with this round's record — its purpose was to make
+  the first freeze-authorizing verdict impossible to record absent-mindedly, and it did.
+
+### Dispositions
+
+None — zero findings. The review regime closes. What remains before the freeze is the
+enumerated ceremony: the registered documents not yet authored, the clean-room re-run
+against the final prose, the off-gold certificate at the freeze commit, the freeze-fill,
+and the freeze PR whose squash-merge is the freeze commit.

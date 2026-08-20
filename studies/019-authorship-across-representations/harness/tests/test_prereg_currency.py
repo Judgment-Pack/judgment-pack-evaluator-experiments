@@ -1514,9 +1514,21 @@ def _tree_states(record_text=None, reviews=None):
         elif not facts["review"]:
             facts["state"] = AWAITING_REVIEW
         elif not facts["findings"]:
-            facts["state"] = MALFORMED
-            problems.append("round %d's verbatim review carries no finding ids"
-                            % number)
+            # THE CLEAN ROUND (round 12, 2026-08-19): a verbatim review that
+            # carries no finding ids and ends on a contract token is a
+            # zero-finding round. It is COMPLETE exactly when its section
+            # exists and its table is as empty as the review — a row or a
+            # pending cell would name a finding the review never returned.
+            if facts["dispositions"] or facts["pendingRows"]:
+                facts["state"] = MALFORMED
+                problems.append(
+                    "round %d's review carries no finding ids and its table "
+                    "names %s" % (number, ", ".join(
+                        sorted(list(facts["dispositions"])
+                               + facts["pendingRows"]))))
+            else:
+                facts["state"] = COMPLETE
+                facts["severities"] = {}
         elif (sorted(facts["dispositions"], key=_finding_order) == facts["findings"]
               and not facts["pendingRows"]):
             facts["state"] = COMPLETE
@@ -1551,6 +1563,10 @@ def test_the_round_state_block_is_the_registered_shape():
     assert numbers == list(range(1, len(numbers) + 1)), numbers
     for entry in block["rounds"]:
         if entry["state"] == AWAITING_REVIEW:
+            continue
+        if sum(entry["severities"].values()) == 0:
+            # THE CLEAN ROUND (round 12): zero findings, range null.
+            assert entry["findings"] is None, entry
             continue
         assert sum(entry["severities"].values()) == entry["findings"]["last"]
 
@@ -1666,8 +1682,9 @@ def test_every_rounds_finding_range_is_the_one_its_verbatim_review_carries():
         assert ids is not None, (
             "round %d has returned a verdict and carries no verbatim review"
             % number)
-        expected = ["R%d-%d" % (number, index)
-                    for index in range(1, entry["findings"]["last"] + 1)]
+        expected = ([] if entry["findings"] is None else
+                    ["R%d-%d" % (number, index)
+                     for index in range(1, entry["findings"]["last"] + 1)])
         assert ids == expected, (
             "round %d's verbatim review names %s and the block registers %s"
             % (number, ids, expected))
@@ -1688,8 +1705,9 @@ def test_every_rounds_disposition_table_agrees_with_the_block():
             number, sections[number])
         assert duplicates == [], (
             "round %d's table names %s more than once" % (number, duplicates))
-        expected = ["R%d-%d" % (number, index)
-                    for index in range(1, entry["findings"]["last"] + 1)]
+        expected = ([] if entry["findings"] is None else
+                    ["R%d-%d" % (number, index)
+                     for index in range(1, entry["findings"]["last"] + 1)])
         if entry["state"] == COMPLETE:
             assert sorted(written, key=_finding_order) == expected, (
                 "round %d is complete and its table disposes of %s"
@@ -1817,23 +1835,33 @@ def test_a_block_verdict_the_review_did_not_return_is_refused():
     assert render_round_status.parse_block(_record_with(rounds))
 
 
-def test_the_freeze_verdict_is_a_token_no_round_has_returned():
-    """A corollary of R8-3's closed vocabulary, and NOT a freeze gate.
+def test_the_freeze_verdict_was_returned_by_a_clean_round_exactly():
+    """The R8-1 tripwire, RETIRED BY FIRING — its designed successor.
 
-    ROUND-8 FINDING R8-1 asks for a pre-anchor review-eligibility gate; the
-    maintainer's disposition accepts the finding as the regime's own statement —
-    an open round is not a final round, and the round it names is the one this
-    response answers — and adds no gate for it here. What the closed vocabulary
-    makes cheap is the arithmetic itself, as data: the freeze requires exactly
-    `freezable as written`, that token is in the vocabulary, and no round has
-    returned it. When one does, this assertion is what has to be revisited
-    deliberately rather than a sentence somebody forgot to update."""
+    Its predecessor asserted that no round had returned the freeze verdict, so
+    that the first round to do so would force this deliberate revisit instead
+    of a sentence somebody forgot to update. Round 12 returned `freezable as
+    written` on 2026-08-19 and the tripwire fired exactly as registered. What
+    stands in its place is the positive attestation the event now supports:
+    the freeze verdict on the record was returned by a COMPLETE round with
+    ZERO findings, whose verbatim review's final line is the token byte-exact,
+    and by no round that carries findings — a freeze authorized any other way
+    fails here."""
     assert render_round_status.FREEZE_VERDICT in render_round_status.VERDICTS
-    returned = {entry["verdict"] for entry in _block_states().values()
-                if entry["verdict"]}
-    assert render_round_status.FREEZE_VERDICT not in returned, (
-        "a round has returned the freeze verdict; the freeze gate and this "
-        "study's front-door banners must be revisited, not this assertion")
+    states, problems = _tree_states()
+    assert problems == [], "\n  ".join([""] + problems)
+    freeze_rounds = [n for n, entry in _block_states().items()
+                     if entry["verdict"] == render_round_status.FREEZE_VERDICT]
+    assert freeze_rounds, (
+        "no round has returned the freeze verdict; if that is again the state "
+        "of the record, restore the predecessor tripwire from round 12's "
+        "history rather than weakening this attestation")
+    for number in freeze_rounds:
+        facts = states[number]
+        assert facts["state"] == COMPLETE, (number, facts["state"])
+        assert facts["findings"] == [], (number, facts["findings"])
+        assert facts["finalLine"] == \
+            render_round_status.VERDICT_LINES[render_round_status.FREEZE_VERDICT]
 
 
 # --- ROUND-8 FINDING R8-4: the block is schema-closed at every depth ---------
@@ -1903,8 +1931,8 @@ def test_a_duplicate_disposition_row_is_refused_and_not_overwritten():
     text = _review_record()
     states, _problems = _tree_states(text)
     complete = [number for number, facts in states.items()
-                if facts["state"] == COMPLETE]
-    assert complete, "no complete round to mutate"
+                if facts["state"] == COMPLETE and facts["findings"]]
+    assert complete, "no complete round with findings to mutate"
     number = max(complete)
     name = states[number]["findings"][0]
     row = re.search(r"^\|\s*%s\s*\|[^|]*\|.*\|\s*$" % name, text, re.MULTILINE)
@@ -1937,7 +1965,7 @@ def test_a_commented_out_disposition_table_does_not_complete_a_round():
     text = _review_record()
     states, _problems = _tree_states(text)
     complete = [number for number, facts in states.items()
-                if facts["state"] == COMPLETE]
+                if facts["state"] == COMPLETE and facts["findings"]]
     number = max(complete)
     rows = re.findall(r"^\|\s*R%d-\d+\s*\|.*\|\s*$" % number, text, re.MULTILINE)
     assert len(rows) == len(states[number]["findings"]), (rows, number)
@@ -2013,8 +2041,8 @@ def test_a_placeholder_disposition_cell_reopens_its_round():
     text = _review_record()
     states, _problems = _tree_states(text)
     complete = [number for number, facts in states.items()
-                if facts["state"] == COMPLETE]
-    assert complete, "no complete round to mutate"
+                if facts["state"] == COMPLETE and facts["findings"]]
+    assert complete, "no complete round with findings to mutate"
     number = max(complete)
     name = states[number]["findings"][0]
     row = re.search(r"^\|\s*%s\s*\|([^|]*)\|(.*)\|\s*$" % name, text,

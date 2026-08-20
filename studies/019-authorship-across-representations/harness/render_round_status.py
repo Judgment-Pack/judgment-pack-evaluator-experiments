@@ -247,18 +247,29 @@ def parse_block(record_text):
             if not isinstance(count, int) or isinstance(count, bool) or count < 0:
                 raise BlockError("round %d's %s count is %r"
                                  % (number, name, count))
-        if not isinstance(findings, dict) or set(findings) != {"first", "last"}:
-            raise BlockError("round %d must record its finding range as "
-                             "{first, last}" % number)
-        if findings["first"] != 1 or not isinstance(findings["last"], int) \
-                or isinstance(findings["last"], bool) \
-                or findings["last"] < 1:
-            raise BlockError("round %d's finding range must start at 1 and end "
-                             "at a positive integer: %r" % (number, findings))
-        if sum(severities.values()) != findings["last"]:
-            raise BlockError(
-                "round %d states %d findings by severity and %d by id range"
-                % (number, sum(severities.values()), findings["last"]))
+        if sum(severities.values()) == 0:
+            # THE CLEAN ROUND — first representable 2026-08-19, when round 12
+            # returned `freezable as written` with zero findings and this
+            # machinery, which had never seen a clean round, refused to encode
+            # one. Zero findings have no ids, so the range is null by
+            # construction rather than a degenerate {1..0}.
+            if findings is not None:
+                raise BlockError(
+                    "round %d records zero findings by severity and must "
+                    "record its finding range as null: %r" % (number, findings))
+        else:
+            if not isinstance(findings, dict) or set(findings) != {"first", "last"}:
+                raise BlockError("round %d must record its finding range as "
+                                 "{first, last}" % number)
+            if findings["first"] != 1 or not isinstance(findings["last"], int) \
+                    or isinstance(findings["last"], bool) \
+                    or findings["last"] < 1:
+                raise BlockError("round %d's finding range must start at 1 and end "
+                                 "at a positive integer: %r" % (number, findings))
+            if sum(severities.values()) != findings["last"]:
+                raise BlockError(
+                    "round %d states %d findings by severity and %d by id range"
+                    % (number, sum(severities.values()), findings["last"]))
     if numbers != sorted(numbers):
         raise BlockError("the block's rounds are out of order: %s" % numbers)
     if len(set(numbers)) != len(numbers):

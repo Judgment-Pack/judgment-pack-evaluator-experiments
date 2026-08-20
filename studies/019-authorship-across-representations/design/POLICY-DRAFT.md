@@ -20,7 +20,7 @@ round-7 findings **R7-2 … R7-4** and **R7-7** ended the attempt to parse the c
 English at all.) The frozen version will live at `policy/POLICY.md`.**
 
 <!-- round-status:begin -->
-ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 12 review rounds are on the record, 11 have returned a verdict — rounds 1-3 and 5-10 returned DO NOT FREEZE; rounds 4 and 11 returned FREEZABLE AFTER LISTED FIXES — and round 12 is open, awaiting the reviewer's answer.
+ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 12 review rounds are on the record, 12 have returned a verdict — rounds 1-3 and 5-10 returned DO NOT FREEZE; rounds 4 and 11 returned FREEZABLE AFTER LISTED FIXES; round 12 returned FREEZABLE AS WRITTEN — and no round is open.
 <!-- round-status:end -->
 
 Three panel discoveries reshaped v0, all verified against a built runtime: (1) "unreported

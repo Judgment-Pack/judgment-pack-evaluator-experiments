@@ -1,6 +1,6 @@
 # Preregistration — Study 019: authorship across representations
 
-**Status: DRAFT, twelfth major revision (post-round-11). Not frozen. Nothing citable has
+**Status: DRAFT, thirteenth major revision (post-round-12). Not frozen. Nothing citable has
 run. The cross-vendor review rounds are recorded in [`PREREG-REVIEW.md`](PREREG-REVIEW.md),
 each verbatim under [`reviews/`](reviews/), and that record's round-state block is the
 single machine-readable source for round counts, verdicts and open state. The rendered
@@ -12,9 +12,10 @@ whose prompt is committed while its review has not landed is open in the other d
 the lifecycle is a state read from the round's own artifacts (round-6 findings R6-1 and
 R6-3; round-7 findings R7-3 and R7-4 moved the declaration of that state into the block and
 the cross-check onto the tree). Every freeze pin is null; every execution before the freeze
-is a PILOT and supports no claim. Items marked `GATE(pre-freeze)` are work that must land
-before any review round can return `freezable as written` — which no round has returned, so
-this header does not describe a freezable study. (The revision ordinal is stated honestly
+is a PILOT and supports no claim. Items marked `GATE(pre-freeze)` are the freeze
+ceremony's enumerated work. **Round 12 returned `freezable as written` with zero findings**
+— the review regime has concluded; what separates this tree from the freeze is the ceremony
+alone, and every freeze pin remains null until it runs. (The revision ordinal is stated honestly
 rather than continuously: the fourth revision — the round-2 response — left this header
 naming the third revision and the first review round, which is the drift round-3 finding
 R3-10 caught. Rounds 4, 5 and 6 each found the repaired headers stale again in a way the
@@ -24,7 +25,7 @@ states nothing a test parses out of English: it carries a rendered sentence, the
 it is the record's block, and the truth of the surrounding prose rests on review.)**
 
 <!-- round-status:begin -->
-ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 12 review rounds are on the record, 11 have returned a verdict — rounds 1-3 and 5-10 returned DO NOT FREEZE; rounds 4 and 11 returned FREEZABLE AFTER LISTED FIXES — and round 12 is open, awaiting the reviewer's answer.
+ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 12 review rounds are on the record, 12 have returned a verdict — rounds 1-3 and 5-10 returned DO NOT FREEZE; rounds 4 and 11 returned FREEZABLE AFTER LISTED FIXES; round 12 returned FREEZABLE AS WRITTEN — and no round is open.
 <!-- round-status:end -->
 
 
