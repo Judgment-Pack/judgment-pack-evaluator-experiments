@@ -68,14 +68,17 @@ The prose ladder is *P1 → O3 → O2 → D1–D8 (as modified by O1) → U1, ea
 tie*. That is encoded as two `else` chains, because U1 has to be able to *re-run* the lower
 part of the ladder at hypothetical values.
 
-**Entrypoint ladder** (`decision`), top to bottom:
+**Entrypoint ladder** (`decision`), top to bottom *(corrected 2026-08-19 at the freeze
+ceremony: this list still carried the six-rung shape with O2 at the entrypoint after this
+report's own adjudication note — see "single largest reading choice" below — recorded that
+rung's removal; the bytes carry five rungs, and now so does this list. Found by the V8
+ledger's re-derivation, `verification/V8-ASYMMETRY-LEDGER.md`)*:
 
 1. `fin_state == "absent"` → unresolved `missing-required-evidence`
 2. `fin_state == "OMITTED"` → unresolved `unknown`
 3. O3, when country **and** spend are readable → unresolved `exception-escalation`
-4. O2 (`CLEAR` ∧ critical `yes`) → review
-5. U1: `count(u1_determinations) == 1` → that determination
-6. U1: otherwise → unresolved `unknown`
+4. U1: `count(u1_determinations) == 1` → that determination
+5. U1: otherwise → unresolved `unknown`
 
 **Clause ladder** (`determine(risk, spend, country)`), a function over *hypothetical*
 readable values, top to bottom: O3, O2, D1, D2, D3, D4, D5, D6a, D6b-present, D6b-absent,

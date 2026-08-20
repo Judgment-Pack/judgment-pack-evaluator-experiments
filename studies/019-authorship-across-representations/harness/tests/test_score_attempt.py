@@ -413,15 +413,20 @@ def test_the_terminal_record_names_every_problem_it_found(tmp_path):
     score.main(["--attempt-root", str(root)])
     results = json.loads(read(root / "RESULTS.json"))
     problems = results["problems"]
-    # ROUND-1 R1-9 moved the FIRST refusal earlier: `integrity.verify()` now
-    # runs before any study-local scoring module is imported, and the tree is
-    # pre-freeze, so the attempt is terminal at the integrity gate rather than
-    # at the artifact census. Either way the record names what it found, and
-    # nothing was scored.
+    # ROUND-1 R1-9 moved the FIRST refusal earlier: `integrity.verify()` runs
+    # before any study-local scoring module is imported. The tree has now moved
+    # through three registered pre-attempt shapes, and the record must name
+    # what it found in whichever one it is read: (a) an integrity refusal;
+    # (b) pre-ceremony, the registered inputs absent by name; (c) post-ceremony
+    # pre-batch (the freeze ceremony landed the artifacts on 2026-08-19), the
+    # engine bindings unset and the batch non-terminal. Either way nothing was
+    # scored and the problems are named, sorted, and complete.
     assert results["pipelineInvalid"] is True
     assert problems == sorted(problems)
     assert (results["problem"].startswith("integrity: ")
             or any("registered artifact is absent: gold/GOLD.json" in problem
+                   for problem in problems)
+            or any(problem.startswith("terminality:")
                    for problem in problems))
 
 
@@ -1547,15 +1552,34 @@ def test_the_full_verification_runs_and_is_terminal_when_it_refuses(tmp_path,
     assert results["problem"].startswith("integrity: ")
 
 
-def test_a_scorer_input_outside_the_covered_set_is_a_pipeline_problem():
+def test_a_scorer_input_outside_the_covered_set_is_a_pipeline_problem(tmp_path,
+                                                                       monkeypatch):
     """The other half of R1-9: an input the exact-set manifest does not name is
-    an input nothing verified, and it is named rather than counted."""
+    an input nothing verified, and it is named rather than counted.
+
+    Until the freeze ceremony this asserted the frozen inputs' ABSENCE was
+    reported by name, because they did not exist yet. The ceremony landed them
+    (2026-08-19), so the live tree's half flips: the registered inputs exist
+    and none may be reported absent. The predicate's power is now shown where
+    a live assertion can no longer show it — on a scratch tree with one
+    registered input removed."""
     problems = score._registered_inputs_problems()
-    # Pre-freeze the frozen inputs do not exist yet, so what this asserts is
-    # that their ABSENCE is reported by name — the same predicate that reports
-    # an uncovered one once they do.
+    assert not any("registered artifact is absent" in problem
+                   for problem in problems), problems
+    assert problems == sorted(problems)
+
+    scratch = tmp_path / "study"
+    scratch.mkdir()
+    for relative in ("gold/GOLD.json", "controls/off-gold-equivalence.json"):
+        source = os.path.join(score.STUDY, relative)
+        target = scratch / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(read(source))
+    (scratch / "gold" / "GOLD.json").unlink()
+    monkeypatch.setattr(score, "STUDY", str(scratch))
+    problems = score._registered_inputs_problems()
     assert any("registered artifact is absent: gold/GOLD.json" in problem
-               for problem in problems)
-    assert any("controls/off-gold-equivalence.json" in problem
-               for problem in problems)
+               for problem in problems), problems
+    assert not any("controls/off-gold-equivalence.json is absent" in problem
+                   for problem in problems)
     assert problems == sorted(problems)

@@ -368,7 +368,7 @@ Resolved values below were verified empirically on 2026-08-14/15
 
 ## 4. Oracle, references, mutants, and the input domain
 
-- **Gold**: **117 rows** (sha256 `6a41174b…`), hand-authored from the prose with per-row
+- **Gold**: **117 rows** (sha256 `1ca1e5dd…`; the digest moved at the freeze ceremony when V7's mechanical derivation forced a cite-order correction on 13 rows — `verification/V7-COMPLETENESS.md` §4; inputs and expectations byte-untouched), hand-authored from the prose with per-row
   clause citations under the earliest-clause tie-break; structure, boundary witnesses, and
   clause coverage asserted by `check_gold.py`; both engines reproduce every row (floor
   gate); the clean-room oracle (different vendor from the arms' stack; process-isolated;

@@ -57,3 +57,13 @@ engines and by the clean-room oracle on the first run, with no adjudicated corre
 Gold sha256: `6a41174bc6765781d4eae6eec610994240173fcdf97d442c8aeef6ce63bb9cc3`
 (109-row predecessor: `dde57ffe1c8a65d3d50ece3eace33cbca9921fdb70bc761e2b1010a749f3800b`;
 105-row: `df5f93f71c5f67539ffb69467814f230609c8d9bceec012c95381d8a64230c13`).
+
+## Cite-order correction (2026-08-19, freeze ceremony)
+
+V7's mechanical derivation (`verification/V7-COMPLETENESS.md`, §4) proved no total order on
+clauses reproduced all 117 cite lists — two hand-authoring eras had drifted on whether a
+modifier (O1) or the U1 meta-clause leads. Thirteen rows' cite arrays were reordered to
+lead with the derived governing clause under the registered standing-clause dependence
+rule; inputs and expectations are byte-untouched (both engines and the clean-room oracle
+reproduce 117/117 before and after; `git diff --numstat` = 21/21, every hunk inside a
+`cite` array). Gold sha256: `6a41174b…` → `1ca1e5dd86fc2c7766db126cc51a792ab1a9aa5c8c6831321c932ad249361ab8`.

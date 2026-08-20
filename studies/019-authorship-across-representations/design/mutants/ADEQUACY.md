@@ -445,8 +445,14 @@ sentence now has gold rows depending on it and should not be edited casually at 
 
 ## Scope caveats — what "dropped" does and does not mean
 
-**C1 — ten arm-B drops hold only because the sanctions domain is closed.** Every
-`entailed-guard` drop of a `v_sanctions == "CLEAR"` conjunct (and `m-b-166`, `m-b-185`)
+**C1 — eleven arm-B drops hold only because the sanctions domain is closed.** *(Corrected
+2026-08-19 at the freeze ceremony: this caveat said "ten" while the class it defines has
+eleven members — the ten `entailed-guard` sanctions-guard drops, of which `m-b-166` is one,
+plus `m-b-185`, whose `unreachable-rung` drop rests on the same closure. Found by the V8
+ledger's re-derivation, `verification/V8-ASYMMETRY-LEDGER.md` row V8-15; the mechanism and
+direction were never in question, the magnitude was off by one — the arithmetic class
+round-1 finding R1-3 caught in this table's ancestor.)* Every
+`entailed-guard` drop of a `v_sanctions == "CLEAR"` conjunct (and `m-b-185`)
 depends on the registered projection admitting exactly three present-string states. A fourth
 value, or an omitted key, distinguishes those mutants immediately — which is precisely what
 the `determine` ladder's backstop rung exists for. The drops are sound *relative to the

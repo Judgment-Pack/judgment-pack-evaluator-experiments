@@ -16,6 +16,17 @@ exists.
 """
 import json
 
+# CITE-ORDER CORRECTION (2026-08-19, freeze ceremony; V7's mechanical derivation,
+# verification/V7-COMPLETENESS.md): thirteen rows' cite lists led with a modifier (O1) or
+# the U1 meta-clause where the registered ladder's earliest-clause tie-break — under the
+# standing-clause dependence rule the majority of rows already followed (a clause whose
+# readable conjuncts already decide it stands; V7 proved no total order reproduced the old
+# lists) — derives the standing determination clause. The thirteen lists were reordered to
+# lead with the derived governing clause, retaining the contributing clauses after it.
+# INPUTS AND EXPECTATIONS ARE BYTE-UNTOUCHED: outcomes reproduce 117/117 from prose before
+# and after; only cite order moved. Rows: o1-nv-d6c, o1-nv-40-0, o1-nv-40-100k,
+# o1-nv-69-100k, the five x1r-* region rows, u1-ex1, u1-ex3, u1-spend-med-95, u1-country-2m.
+
 BASE = {"sanctions": "CLEAR", "country": "LOW", "risk": "20", "spend": "50000.00",
         "newVendor": "no", "critical": "no", "prior": "no",
         "finEvidence": "present", "insurance": "present"}
@@ -134,7 +145,7 @@ row("d8-high-mid", "HIGH below the rejection band: review", ["D8"], "review",
     country="HIGH", risk="50")
 
 # ---- O1: first-engagement suspension ----------------------------------------------------
-row("o1-nv-d6c", "new vendor: D6c suspended, falls to D8", ["O1", "D8"], "review",
+row("o1-nv-d6c", "new vendor: D6c suspended, falls to D8", ["D8", "O1"], "review",
     newVendor="yes", risk="50")
 row("o1-nv-d6a", "O1 touches only D6c: D6a still approves a new vendor", ["D6a"],
     "approve", newVendor="yes")
@@ -176,11 +187,11 @@ row("d8-low-3m", "no escalation outside HIGH: large LOW spend is review", ["D8"]
     "review", spend="3000000.00")
 
 # ---- U1: unreadable numerics (all outside the registered X1 exclusion) ------------------
-row("u1-ex1", "worked example 1: risk 95 rejects whatever the country", ["U1", "D3"],
+row("u1-ex1", "worked example 1: risk 95 rejects whatever the country", ["D3", "U1"],
     "reject", country=None, risk="95", spend="1000000.00")
 row("u1-ex2", "worked example 2: unreadable spend straddles review and escalation",
     ["U1"], U, ["unknown"], country="HIGH", risk="50", spend=None)
-row("u1-ex3", "worked example 3: O2 decides without the risk score", ["U1", "O2"],
+row("u1-ex3", "worked example 3: O2 decides without the risk score", ["O2", "U1"],
     "review", critical="yes", risk=None, spend="100.00")
 row("u1-ex4", "worked example 4: critical supplier, O3 not excludable", ["U1"], U,
     ["unknown"], critical="yes", country=None, risk=None, spend=None)
@@ -196,7 +207,7 @@ row("u1-spend-low-20", "spend spans approve bands and review above 2M", ["U1"], 
     ["unknown"], spend=None)
 row("u1-spend-high-95", "even risk 95 in HIGH: escalation above 2M keeps it open",
     ["U1"], U, ["unknown"], country="HIGH", risk="95", spend=None)
-row("u1-spend-med-95", "MEDIUM has no O3: rejection is uniform over spend", ["U1", "D3"],
+row("u1-spend-med-95", "MEDIUM has no O3: rejection is uniform over spend", ["D3", "U1"],
     "reject", country="MEDIUM", risk="95", spend=None)
 row("u1-risk-high-50k", "HIGH with small spend: review below 70, reject above", ["U1"],
     U, ["unknown"], country="HIGH", risk=None)
@@ -288,11 +299,11 @@ row("d8-med-500k01-unreported", "same MEDIUM cell, availability unreported: D8, 
 # "For new vendors (yes), clause D6c does not apply; such requests fall to D8." The edges are
 # D6c's own: risk at least 40 and below 70, spend up to and including $100,000.00.
 row("o1-nv-40-0", "O1 at D6c's lower risk edge (risk exactly 40) and the spend floor",
-    ["O1", "D8"], "review", newVendor="yes", risk="40", spend="0.00")
+    ["D8", "O1"], "review", newVendor="yes", risk="40", spend="0.00")
 row("o1-nv-40-100k", "O1 at D6c's lower risk edge and its inclusive spend edge",
-    ["O1", "D8"], "review", newVendor="yes", risk="40", spend="100000.00")
+    ["D8", "O1"], "review", newVendor="yes", risk="40", spend="100000.00")
 row("o1-nv-69-100k", "O1 at D6c's upper risk edge (69) and its inclusive spend edge",
-    ["O1", "D8"], "review", newVendor="yes", risk="69", spend="100000.00")
+    ["D8", "O1"], "review", newVendor="yes", risk="69", spend="100000.00")
 row("d6a-nv-39-0", "risk 39 is D6a's band, which O1 does not touch: a new vendor is still "
     "approved", ["D6a"], "approve", newVendor="yes", risk="39", spend="0.00")
 row("d8-nv-70-100k", "risk 70 is outside D6c's band before O1 is consulted: D8 governs",
@@ -309,7 +320,7 @@ row("u1-country-2m01", "country unreadable one cent above O3's edge: HIGH escala
     country=None, risk="50", spend="2000000.01")
 row("u1-country-2m", "country unreadable at O3's edge exactly: O3 needs spend above "
     "$2,000,000.00, so every readable country reviews under D8 — uniform, so U1 issues it",
-    ["U1", "D8"], "review", country=None, risk="50", spend="2000000.00")
+    ["D8", "U1"], "review", country=None, risk="50", spend="2000000.00")
 
 # ---- U1 against D6b's limbs (unreadable country, spend inside D6b's band) ----------------
 # U1 varies only the unreadable input; "the same determination" means the same outcome, and
@@ -345,16 +356,16 @@ row("d1-match-o3-region", "O3 requires a CLEAR screening result; under MATCH the
 # both pinned engines AND by the clean-room oracle.
 row("x1r-low-spend-unreadable-40", "new vendor, LOW, risk at D6c's lower edge with the "
     "requested spend unreadable: O1 removes D6c and no other clause reaches the band, so "
-    "every spend lands on D8 review and U1 issues it", ["O1", "D8", "U1"], "review",
+    "every spend lands on D8 review and U1 issues it", ["D8", "O1", "U1"], "review",
     newVendor="yes", risk="40", spend=None)
 row("x1r-low-spend-unreadable-69", "the same at D6c's upper edge with the insurance "
     "certificate absent: D6b needs risk below 40, so the certificate cannot change the "
-    "determination either", ["O1", "D8", "U1"], "review",
+    "determination either", ["D8", "O1", "U1"], "review",
     newVendor="yes", risk="69", spend=None, insurance="absent")
 row("x1r-country-unreadable-100k", "new vendor at D6c's inclusive spend edge with the "
     "country risk unreadable: LOW is D6c removed by O1, MEDIUM is out of D7's reach at risk "
     "55, HIGH is out of D4's reach below 70 and O3 begins above $2,000,000.00 - every "
-    "country reviews under D8", ["O1", "D8", "U1"], "review",
+    "country reviews under D8", ["D8", "O1", "U1"], "review",
     newVendor="yes", risk="55", country=None, spend="100000.00")
 # The adjacency control for the two rows above: it is NOT in the former X1 region, and it is
 # what stops the repair's two region rules from being written any wider. With BOTH the
@@ -430,9 +441,9 @@ row("d6b-nv-39-500k01-unreported", "D6b's unreported-certificate limb for a NEW 
 # (D8) - every readable country reviews, so U1 issues review.
 row("x1r-country-unreadable-40", "new vendor, country unreadable, at D6c's lower risk edge "
     "with spend at D6c's inclusive ceiling: every readable country reviews under D8, so U1 "
-    "issues review", ["O1", "D8", "U1"], "review",
+    "issues review", ["D8", "O1", "U1"], "review",
     country=None, risk="40", spend="100000.00", newVendor="yes")
-row("x1r-country-unreadable-69", "the same at D6c's upper risk edge (69)", ["O1", "D8", "U1"],
+row("x1r-country-unreadable-69", "the same at D6c's upper risk edge (69)", ["D8", "O1", "U1"],
     "review", country=None, risk="69", spend="100000.00", newVendor="yes")
 
 with open("gold.json", "w") as f:
