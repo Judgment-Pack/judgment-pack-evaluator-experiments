@@ -1,0 +1,5 @@
+# DCO app configuration: accept individual remediation commits, so a branch whose
+# commit hashes are load-bearing (this program's study review records name clean
+# HEADs by hash) can be signed off retroactively without rewriting history.
+allowRemediationCommits:
+  individual: true
