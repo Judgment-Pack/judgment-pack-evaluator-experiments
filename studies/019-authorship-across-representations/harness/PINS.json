@@ -64,7 +64,7 @@
   "version": "codex-cli 0.145.0"
  },
  "freeze": {
-  "commit": null,
+  "commit": "51cae0225ea2e9e5679c8e496b39a62e93385278",
   "note": "The freeze commit is the squash-merge commit of the freeze PR on main - named by reference because a squash hash cannot exist before the merge. At the freeze every pin above is filled, results/primary-attempt-001 must not exist, and the scorer refuses if it does."
  },
  "goldSuite": {
