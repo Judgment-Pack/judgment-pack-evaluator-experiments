@@ -64,7 +64,7 @@
   "version": "codex-cli 0.145.0"
  },
  "freeze": {
-  "commit": null,
+  "commit": "51cae0225ea2e9e5679c8e496b39a62e93385278",
   "note": "The freeze commit is the squash-merge commit of the freeze PR on main - named by reference because a squash hash cannot exist before the merge. At the freeze every pin above is filled, results/primary-attempt-001 must not exist, and the scorer refuses if it does."
  },
  "goldSuite": {
@@ -185,6 +185,6 @@
  },
  "studyManifest": {
   "path": "harness/STUDY-MANIFEST.sha256",
-  "sha256": "sha256:816eb15276e76502f0a538f540235928206daf2ef884bdb47bc996c1517ab593"
+  "sha256": "sha256:cc279a1b0bebd50bb43862cd4e12bd8b29ceda69bac23129a63f5d3276bdcac8"
  }
 }
