@@ -137,6 +137,17 @@ def test_the_attempt_hands_its_own_registry_digest_to_every_slot_read(
                         pins_raw_sha256)
 
     monkeypatch.setattr(score, "read_slot", recording)
+    # The tree is post-freeze-fill: a REGISTERED label without the flag refuses
+    # before any slot is read, and WITH the flag this would execute the sealed
+    # set — which happens exactly once, at the primary attempt, and never in a
+    # test. The seam is label-independent, so it is exercised under a
+    # PILOT-shaped copy of the real registry: one pin nulled, nothing else
+    # different, which is the pre-ceremony state this test was written against.
+    pilot = json.loads(read(score.PINS_PATH))
+    pilot["golden"]["sha256"] = None
+    pilot_path = tmp_path / "PINS.json"
+    pilot_path.write_text(json.dumps(pilot), encoding="utf-8")
+    monkeypatch.setattr(score, "PINS_PATH", str(pilot_path))
     root = tmp_path / "primary-attempt-001"
     score.main(["--attempt-root", str(root)])
     marker = json.loads(read(root / "ATTEMPT.json"))
@@ -145,27 +156,44 @@ def test_the_attempt_hands_its_own_registry_digest_to_every_slot_read(
     assert marker["pinsRawSha256"] is not None
 
 
-def test_the_reviewer_set_is_refused_while_any_pin_is_null(tmp_path,
-                                                           monkeypatch):
-    """`harness/PINS.json`'s own rule: `--include-reviewer-set` refuses while
-    any pin is null.
+def test_the_reviewer_set_rule_is_two_sided(tmp_path, monkeypatch):
+    """Round-1 R1-10's rule, both directions, whatever phase the tree is in.
 
-    The guard reads `integrity.unfilled_pins()`, which is STUDY-LOCAL, so
-    round-2 R2-8 moved it below `integrity.verify()` — verification is the first
-    thing that runs against the tree, and on this pre-freeze tree it is the
-    refusal that lands. The guard's own refusal is what lands once the tree
-    verifies, which is what the no-op here stands in for."""
-    root = tmp_path / "primary-attempt-001"
+    While any pin is null, `--include-reviewer-set` refuses by naming the nulls;
+    once every pin is filled, an attempt WITHOUT the flag refuses instead,
+    because the sealed set is registered as first executed at the primary
+    attempt and there is only one. Pre-ceremony this test could only reach the
+    first half; the freeze-fill made the second half live and this test now
+    pins both from either starting state, by building each registry shape from
+    the real one."""
+    real = json.loads(read(score.PINS_PATH))
+
+    pilot = json.loads(json.dumps(real))
+    pilot["golden"]["sha256"] = None
+    pilot_path = tmp_path / "PILOT-PINS.json"
+    pilot_path.write_text(json.dumps(pilot), encoding="utf-8")
+    monkeypatch.setattr(score, "PINS_PATH", str(pilot_path))
+    root = tmp_path / "a" / "primary-attempt-001"
+    root.parent.mkdir()
     assert score.main(["--attempt-root", str(root),
                        "--include-reviewer-set"]) == 2
-    assert json.loads(read(root / "ATTEMPT.json"))["includeReviewerSet"] is True
-
-    verified = tmp_path / "verified-attempt-001"
-    monkeypatch.setattr(score.integrity, "verify", lambda *_a, **_k: None)
-    assert score.main(["--attempt-root", str(verified),
-                       "--include-reviewer-set"]) == 2
-    results = json.loads(read(verified / "RESULTS.json"))
+    results = json.loads(read(root / "RESULTS.json"))
     assert results["problem"].startswith("--include-reviewer-set is refused")
+    assert "golden" in results["problem"]
+
+    # The other direction runs only when the REAL registry is complete — on the
+    # frozen tree, exactly where it matters.
+    monkeypatch.setattr(score, "PINS_PATH", os.path.join(
+        score.STUDY, "harness", "PINS.json"))
+    if not json.loads(read(score.PINS_PATH)).get("golden", {}).get("sha256"):
+        pytest.skip("the real registry is pre-ceremony; the second half is "
+                    "asserted once the freeze-fill lands")
+    root2 = tmp_path / "b" / "primary-attempt-001"
+    root2.parent.mkdir()
+    assert score.main(["--attempt-root", str(root2)]) == 2
+    results2 = json.loads(read(root2 / "RESULTS.json"))
+    assert results2["problem"].startswith(
+        "a REGISTERED attempt runs the sealed reviewer mutant set")
 
 
 def test_verification_precedes_every_study_local_call(tmp_path, monkeypatch):
@@ -426,14 +454,19 @@ def test_the_terminal_record_names_every_problem_it_found(tmp_path):
     # causes are the capabilities env seat and the batch that does not exist
     # yet. What must never recur is the round-1 shape — a refusal whose record
     # carries an empty problems list, "invalid" with nothing to act on.
-    if results["problem"].startswith("integrity: "):
-        pass                        # integrity refusals carry the cause inline
-    else:
-        assert problems, "a terminal record with no named problem is a mood"
-        recognised = ("integrity: ", "binary-digest-mismatch", "terminality: ",
-                      "registered artifact is absent", "registry: ")
+    # The invariant is phase-independent: a terminal record REFUSES BY NAME.
+    # A single-cause refusal carries the name in `problem` with an empty list;
+    # a census refusal carries every member in `problems`. Either is named;
+    # what must never recur is the round-1 shape — "invalid" with neither.
+    recognised = ("integrity: ", "binary-digest-mismatch", "terminality: ",
+                  "registered artifact is absent", "registry: ",
+                  "a REGISTERED attempt runs the sealed reviewer mutant set",
+                  "--include-reviewer-set is refused")
+    if problems:
         for problem in problems:
             assert problem.startswith(recognised), problem
+    else:
+        assert results["problem"].startswith(recognised), results["problem"]
 
 
 def test_no_published_byte_is_an_absolute_path(tmp_path):

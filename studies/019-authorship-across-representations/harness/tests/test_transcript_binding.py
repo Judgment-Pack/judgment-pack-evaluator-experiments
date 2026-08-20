@@ -535,3 +535,63 @@ def test_neither_whole_document_is_read_by_a_bare_json_load():
             and not any(keyword.arg == "object_pairs_hook"
                         for keyword in node.keywords)]
     assert bare == []
+
+
+class TestPriorContextExemption(object):
+    """The 2026-08-19 adjudication: word-boundary matching, and the two literal
+    words of the pinned CLI's own boilerplate exempt from this screen only.
+
+    The first golden capture enumerated every token the real boilerplate fires:
+    on boundaries, exactly `rejected` and `absent`; the clause ids d1-d8 fired
+    only as substrings inside hex identifiers, which the boundary rule removes
+    with no exemption at all. check_golden's exact-reproduction allowlist stays
+    the instrument that guards the pre-prompt context against every word,
+    exempt or not."""
+
+    def test_the_pinned_clis_own_boilerplate_passes(self):
+        events = [("developer", "Do not provide sandbox_permissions; commands "
+                                "will be rejected. Some tools are intentionally "
+                                "absent from the functions.exec namespace."),
+                  ("user", "the registered prompt")]
+        transcript_check.screen_prior_context(events, 1)   # must not raise
+
+    def test_a_bare_outcome_id_still_refuses(self):
+        """`rejected` is exempt; `reject` is not, and boundary matching means
+        the exemption of the inflection no longer shadows the stem."""
+        events = [("user", "the pack should reject this vendor"),
+                  ("user", "the registered prompt")]
+        with pytest.raises(transcript_check.TranscriptError):
+            transcript_check.screen_prior_context(events, 1)
+
+    def test_a_clause_id_on_a_word_boundary_still_refuses(self):
+        events = [("developer", "see clause d5 for the exception"),
+                  ("user", "the registered prompt")]
+        with pytest.raises(transcript_check.TranscriptError):
+            transcript_check.screen_prior_context(events, 1)
+
+    def test_a_clause_id_inside_a_hex_identifier_does_not_refuse(self):
+        """The substring artifact the first capture surfaced: every d1-d8 hit
+        was inside an identifier like `87d5ab`. Noise, not vocabulary."""
+        events = [("developer", "session 87d5ab3fd1c2 opened; call id ebd4d600"),
+                  ("user", "the registered prompt")]
+        transcript_check.screen_prior_context(events, 1)   # must not raise
+
+    def test_a_prior_turn_with_a_threshold_still_refuses(self):
+        events = [("user", "remember the spend floor is 100000"),
+                  ("user", "the registered prompt")]
+        with pytest.raises(transcript_check.TranscriptError):
+            transcript_check.screen_prior_context(events, 1)
+
+    def test_the_exemption_is_exactly_the_two_boilerplate_words(self):
+        assert transcript_check.PRIOR_CONTEXT_EXEMPT == frozenset(
+            {"rejected", "absent"})
+
+    def test_the_wrapper_path_screen_is_not_exempted(self):
+        """The other seat, unchanged: the wrapper's own path screen (inside
+        harness/authoring_call.sh's embedded preflight) still refuses a
+        scratch path spelling an outcome id. Asserted on the wrapper's source
+        because the screen runs in the child: the refusal string and the
+        absence of any exemption import are what a reviewer can check."""
+        source = open(os.path.join(HARNESS, "authoring_call.sh")).read()
+        assert "carries leak tokens" in source
+        assert "PRIOR_CONTEXT_EXEMPT" not in source

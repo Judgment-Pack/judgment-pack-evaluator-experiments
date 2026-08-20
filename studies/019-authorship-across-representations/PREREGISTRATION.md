@@ -11,11 +11,15 @@ round is CLOSED when a written maintainer disposition per finding lands there, a
 whose prompt is committed while its review has not landed is open in the other direction:
 the lifecycle is a state read from the round's own artifacts (round-6 findings R6-1 and
 R6-3; round-7 findings R7-3 and R7-4 moved the declaration of that state into the block and
-the cross-check onto the tree). Every freeze pin is null; every execution before the freeze
-is a PILOT and supports no claim. Items marked `GATE(pre-freeze)` are the freeze
-ceremony's enumerated work. **Round 12 returned `freezable as written` with zero findings**
-— the review regime has concluded; what separates this tree from the freeze is the ceremony
-alone, and every freeze pin remains null until it runs. (The revision ordinal is stated honestly
+the cross-check onto the tree). Every execution before the freeze
+is a PILOT and supports no claim, and `integrity.study_label()` says so while any freeze pin
+is null. Items marked `GATE(pre-freeze)` are the freeze ceremony's enumerated work. **Round
+12 returned `freezable as written` with zero findings** — the review regime has concluded,
+and the ceremony (SCAFFOLD §F) is RUNNING: the registered documents, payload sets and
+pre-freeze obligations are landed, the freeze gates hold, and the artifact pins are filled
+from their committed sources. What remains null is the ceremony's tail — the manifest and
+this document's own digests, and the two pins their controls write (the golden capture and
+the isolation assent) — and the label stays PILOT until the last of them fills. (The revision ordinal is stated honestly
 rather than continuously: the fourth revision — the round-2 response — left this header
 naming the third revision and the first review round, which is the drift round-3 finding
 R3-10 caught. Rounds 4, 5 and 6 each found the repaired headers stale again in a way the

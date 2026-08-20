@@ -455,6 +455,32 @@ def extract_completion(session_path: str) -> str:
     return assistants[-1]
 
 
+#: The two words of the pinned CLI's own fixed boilerplate that are also derived
+#: study tokens, exempted from THIS screen and from no other seat. The first
+#: golden capture (2026-08-19) enumerated every token the real boilerplate fires
+#: (recorded in PREREG-REVIEW.md): on word boundaries, exactly `rejected`
+#: ("commands will be rejected", the sandbox notice) and `absent`
+#: ("intentionally absent from the `functions.exec` namespace", the tool
+#: catalogue). All other hits were substring artifacts — the clause ids d1–d8
+#: matching inside hex identifiers — which the word-boundary rule below removes
+#: without any exemption, keeping their full power for real mentions. What
+#: guards the pre-prompt context against even these two words remains
+#: `check_golden()`'s exact-reproduction allowlist, which refuses ANY change to
+#: it. The exemption does not reach the wrapper's path screen or the negative
+#: corpus.
+PRIOR_CONTEXT_EXEMPT = frozenset({"rejected", "absent"})
+
+
+def _token_pattern(token):
+    """A word-boundary pattern for one token: `d5` in "clause d5" refuses, `d5`
+    inside `87d5ab` does not. leak_tokens residual 2 predicted ordinary-word
+    collisions with the CLI's own boilerplate; the first capture showed the
+    substring rule ALSO manufactured clause-id hits inside every hex identifier,
+    which is noise no reviewer asked for. Boundaries are non-alphanumeric so
+    multi-word and punctuated tokens keep matching as written."""
+    return re.compile(r"(?<![0-9a-z])" + re.escape(token) + r"(?![0-9a-z])")
+
+
 def screen_prior_context(events: list, position: int, paths: list = ()) -> None:
     """No message before the registered prompt may carry study vocabulary.
 
@@ -462,7 +488,10 @@ def screen_prior_context(events: list, position: int, paths: list = ()) -> None:
     quotes the sandbox workspace root and home directory, and a machine
     whose directories happen to spell a study term leaks nothing by it.
     The wrapper independently refuses a scratch path containing a leak
-    token, so the excision cannot hide a planted one."""
+    token, so the excision cannot hide a planted one. Tokens match on word
+    boundaries, and the two words of the pinned CLI's own boilerplate are
+    exempt (`PRIOR_CONTEXT_EXEMPT` above) — `check_golden()`'s
+    exact-reproduction allowlist is what actually guards this context."""
     for index, (role, text) in enumerate(events):
         if index >= position:
             continue
@@ -471,7 +500,9 @@ def screen_prior_context(events: list, position: int, paths: list = ()) -> None:
             if path:
                 lowered = lowered.replace(path.lower(), "<path>")
         for token in LEAK_TOKENS:
-            if token in lowered:
+            if token in PRIOR_CONTEXT_EXEMPT:
+                continue
+            if _token_pattern(token).search(lowered):
                 raise TranscriptError(
                     "prior %s message (item %d) contains the leak token %r"
                     % (role, index, token), reason="leak")

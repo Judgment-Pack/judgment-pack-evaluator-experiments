@@ -76,10 +76,11 @@
  "golden": {
   "note": "Captured from at least two independent agreeing probes before the batch, for THIS study's environment. One recapture serves all three arms: the pre-prompt context precedes the prompt and does not depend on it.",
   "path": "transcription/GOLDEN-CONTEXT.json",
-  "sha256": null
+  "sha256": "sha256:0e8c9cb1fd7db6d8b770ebeea669b675ecf69a81e213403212eb1a1bccda7783"
  },
  "isolationNegative": {
-  "assent": null,
+  "assent": "granted",
+  "assentProvenance": "recorded 2026-08-19: the maintainer answered 'go' to the ceremony step that names this control explicitly \u2014 one probe call with the operator's real home exposed to the pinned CLI, both outcomes registered before the batch",
   "note": "The isolation negative control runs against the operator's real home under recorded operator assent, and is a precondition of the batch rather than of its own command."
  },
  "jpack": {
@@ -131,7 +132,7 @@
  },
  "ownPorts": {
   "path": "harness/PORTS.md",
-  "sha256": "sha256:d6ca57edbfd638fa538971b3e177334086dfe6ff025abab33096a7bfbfa9da40"
+  "sha256": "sha256:0016fcf89bf3b971f6ef899b38e2cf975b0c0fc18d79e2acb5901d44dce18362"
  },
  "pinnedFrom": {
   "alsoTakenFrom": {
@@ -155,11 +156,11 @@
  },
  "preregistration": {
   "path": "PREREGISTRATION.md",
-  "sha256": null
+  "sha256": "sha256:6ed2dbac43c22376234ea8a575e82964dfaaa6eee83d26fd4d93f78a5650aeb6"
  },
  "probePrompt": {
   "path": "transcription/PROBE-PROMPT.txt",
-  "sha256": null
+  "sha256": "sha256:128aaa9a67b601c66b11d8d233a336cca1e064401bb24994929b9965f77f45e7"
  },
  "python": {
   "implementation": "CPython",
@@ -184,6 +185,6 @@
  },
  "studyManifest": {
   "path": "harness/STUDY-MANIFEST.sha256",
-  "sha256": null
+  "sha256": "sha256:fed765538751fa09d03fb4514897b9e5d55913f97659a3b0e2cb567642b0a7fd"
  }
 }
