@@ -49,8 +49,20 @@ be scored as a success; the adversarial review recorded that in ``DEVIATIONS.md`
 section 3, and the rule was tightened here on 2026-08-06. So that "N engine
 refusals" can be checked against the retained rows rather than taken on trust,
 *every* return path of ``evaluate_instance`` carries the child process's
-``returncode`` and its ``stderr`` verbatim --- including the paths where no
-process completed, which record ``returncode=None``.
+``returncode`` and its ``stderr`` --- including the paths where no process
+completed, which record ``returncode=None``. Retained stderr is bounded at
+``MAX_RETAINED_STDERR`` characters, and truncation is marked in the retained
+text, so a short stderr can be read as the runtime's whole complaint rather
+than as the harness having quietly dropped the rest of it.
+
+Retained stderr is **not** scrubbed, and does not need to be. It could only
+leak a redacted fact if the child had been given one, and it never is: the
+runtime reads ``_facts_payload``, which is either ``apply_render_policy``
+output or the bare ``facts`` sub-object, and neither carries ``gold``,
+``provenance`` or the ``redaction`` record that names the deleted pointer and
+its value. That is an upstream guarantee rather than a scrubbing pass, so it
+is asserted directly against the payload the child receives --- a scrubber
+tested against a stub's invented stderr would prove nothing about the corpus.
 
 **What this makes auditable, exactly.** The original retained rows in
 ``results/pilot-B-runtime.jsonl`` predate the change: they are
@@ -127,6 +139,12 @@ __all__ = [
     "evaluate_instance",
     "fired_rule_ids",
 ]
+
+# Retained stderr is bounded so that one pathological child cannot inflate the
+# result file past the point where it can be read back. The bound is generous:
+# the runtime's own diagnostics run to a few hundred characters, so a row that
+# reaches it is already anomalous and the head is what identifies the anomaly.
+MAX_RETAINED_STDERR = 8000
 
 _ILLEGAL_MARKERS = ("illegal", "violat", "prohibit", "disallow", "noncompliant",
                     "non-compliant", "not-permitted", "not_permitted", "reject", "deny")
@@ -313,6 +331,22 @@ def _decoded(stream: Any) -> str:
     return str(stream)
 
 
+def _bounded_stderr(text: str) -> str:
+    """Bound one captured stderr to ``MAX_RETAINED_STDERR`` characters.
+
+    Truncation is *marked*, never silent: an unmarked short stderr is a claim
+    that it is the whole stderr, and a reader auditing a refusal has to be able
+    to tell "the runtime said only this" from "the runtime said much more and
+    the harness kept the front of it". The count of dropped characters is part
+    of the marker so the scale of what is missing is legible without it.
+    """
+    if len(text) <= MAX_RETAINED_STDERR:
+        return text
+    dropped = len(text) - MAX_RETAINED_STDERR
+    return "%s\n[truncated by harness: %d further characters of stderr]" % (
+        text[:MAX_RETAINED_STDERR], dropped)
+
+
 def evaluate_instance(instance: Mapping[str, Any], config: ArmBConfig) -> Dict[str, Any]:
     """Run the pack against one instance.
 
@@ -321,8 +355,9 @@ def evaluate_instance(instance: Mapping[str, Any], config: ArmBConfig) -> Dict[s
     verbatim, kept so an arm-B refusal is as auditable as a model's malformed
     reply. ``returncode`` is the child's exit status, or ``None`` on the two paths
     where no process completed (timeout, and a CLI that could not be executed);
-    ``stderr`` is the child's stderr decoded verbatim, ``""`` where none was
-    captured. Both are present on every return path, success included.
+    ``stderr`` is the child's decoded stderr bounded by ``_bounded_stderr``,
+    ``""`` where none was captured. Both are present on every return path,
+    success included.
     """
     instance_id = str(instance.get("instance_id", "<unknown>"))
     payload = _facts_payload(instance, config.facts_root)
@@ -367,12 +402,12 @@ def evaluate_instance(instance: Mapping[str, Any], config: ArmBConfig) -> Dict[s
                 "error": "engine-refusal:timeout after %ss" % config.timeout_s,
                 "raw_text": _decoded(exc.stdout), "raw": None,
                 "latency_ms": latency_ms, "argv": argv,
-                "returncode": None, "stderr": _decoded(exc.stderr)}
+                "returncode": None, "stderr": _bounded_stderr(_decoded(exc.stderr))}
     latency_ms = int((time.monotonic() - started) * 1000)
     _cleanup(tmpdir, facts_path)
 
     stdout = proc.stdout.decode("utf-8", "replace")
-    stderr = proc.stderr.decode("utf-8", "replace")
+    stderr = _bounded_stderr(proc.stderr.decode("utf-8", "replace"))
 
     # The registered rule, implemented literally: a non-zero exit is a refusal.
     # stdout is not consulted, because a runtime that printed an envelope and then

@@ -1,0 +1,11 @@
+# Interpreter artifacts, not source. Studies 016-018 already carry the same two
+# rules locally; this lifts them to the root so a test run anywhere in the tree
+# cannot add bytecode to a commit.
+#
+# Nothing here ignores a retained study artifact. Study harnesses that pin
+# bytecode caches do so by digesting them at run time and comparing against
+# compile() -- they never commit a .pyc, and a committed one would describe an
+# interpreter rather than the source it was built from.
+__pycache__/
+*.py[cod]
+.pytest_cache/

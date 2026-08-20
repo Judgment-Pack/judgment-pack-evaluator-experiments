@@ -1,0 +1,107 @@
+#!/usr/bin/env python3
+"""Refuse a study whose freeze set covers a file meant to be appended after it.
+
+A whole-study manifest exists to pin what MUST NOT change. `DEVIATIONS.md` is
+the opposite: its purpose is to be written *after* the freeze, when a study finds
+something its registration did not anticipate. Covering it turns recording a
+deviation into an edit of a frozen artifact, so the study must choose between
+leaving the problem unrecorded and breaking its own anchor. Both are worse than
+the problem. `README.md` is the same shape for a different reason: its status
+banner is false the moment the attempt runs.
+
+This reads each study's GENERATED manifest, not its builder's source. That is
+deliberate. The first version of this guard parsed `make_manifest.py` for string
+literals and reported Study 015 as clean — 015 covers every top-level `*.md` by
+glob and names neither file, so a source scan sees nothing while the manifest
+would have carried both. 015 is in fact the strongest implementation: it globs
+widely and then excludes the two BY CONSTRUCTION, after its own round 6 found an
+earlier exclusion tautological because no glob had ever reached a top-level
+`.md`. A guard that could be defeated by a glob would repeat exactly that defect.
+The manifest is the covered set; anything else is a description of it.
+
+Run: python tools/check_freeze_sets.py
+"""
+
+from __future__ import annotations
+
+import pathlib
+import sys
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+STUDIES = ROOT / "studies"
+
+# A file whose purpose is to change after the freeze must not be pinned by it.
+APPEND_AFTER_FREEZE = ("DEVIATIONS.md", "README.md")
+
+# Frozen before this guard existed. Their pins are correct and their anchors are
+# published; re-scoping a frozen manifest now would rewrite an anchor to repair a
+# mechanism none of these three ever used, which is the worse trade. Corrections
+# for them belong in ANALYSIS.md, outside every covered set. Issue #65 proposes
+# exactly this: fix it forward and leave these alone.
+GRANDFATHERED = {
+    "016-policy-currency-anchor",
+    "017-witnessed-currency",
+    "018-transition-rules",
+}
+
+
+def covered_paths(manifest: pathlib.Path) -> set[str]:
+    """Every study-relative path a manifest pins.
+
+    Each line is "<digest>  <path>"; the path is everything after the separator,
+    so a name containing spaces survives.
+    """
+    covered = set()
+    for line in manifest.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        _, separator, path = line.partition("  ")
+        if separator:
+            covered.add(path.strip())
+    return covered
+
+
+def main() -> int:
+    problems: list[str] = []
+    checked = 0
+    grandfathered_hits = 0
+
+    for manifest in sorted(STUDIES.glob("*/harness/STUDY-MANIFEST.sha256")):
+        study = manifest.parent.parent.name
+        checked += 1
+        covered = covered_paths(manifest)
+        for name in APPEND_AFTER_FREEZE:
+            if name not in covered:
+                continue
+            if study in GRANDFATHERED:
+                grandfathered_hits += 1
+                continue
+            problems.append(
+                f"{study}: the freeze set covers {name}, which exists to be written "
+                f"after the freeze. Pinning it means recording a deviation breaks the "
+                f"anchor that deviation is recorded against. Exclude it by construction "
+                f"and say so, as studies/015-cloudflare-os-boundary does (issue #65)."
+            )
+
+    if not checked:
+        print("no study manifests found: this guard would pass vacuously", file=sys.stderr)
+        return 1
+    if not grandfathered_hits:
+        # The exemptions describe three studies that really do carry these files.
+        # If none does, the list is stale and the guard is weaker than it reads.
+        print(
+            "no grandfathered study still covers an append-after-freeze file; "
+            "the GRANDFATHERED set is stale and should be removed",
+            file=sys.stderr,
+        )
+        return 1
+
+    for problem in problems:
+        print(problem, file=sys.stderr)
+    print(f"checked {checked} study freeze set(s); {len(problems)} problem(s)")
+    return 1 if problems else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
