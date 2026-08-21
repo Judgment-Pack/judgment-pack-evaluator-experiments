@@ -3622,7 +3622,14 @@ def test_the_lifecycle_check_survives_the_scaffolds_registered_deletion(tmp_path
         target = scratch / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source, target)
-    (scratch / "harness" / "SCAFFOLD.md").unlink()
+    # The scaffold's deletion LANDED in the first post-freeze commit, so on the
+    # live tree there is nothing to copy and nothing to unlink: the scratch
+    # tree is already the post-deletion shape this test simulates. Pre-freeze
+    # checkouts (and history) still carry the file, and there the simulation
+    # deletes the copy as before.
+    scaffold_copy = scratch / "harness" / "SCAFFOLD.md"
+    if scaffold_copy.exists():
+        scaffold_copy.unlink()
     assert _stale_lifecycle_offenders(str(scratch)) == [], (
         "the lifecycle check must pass over a post-freeze tree; the scaffold's "
         "deletion is registered, not a defect")
