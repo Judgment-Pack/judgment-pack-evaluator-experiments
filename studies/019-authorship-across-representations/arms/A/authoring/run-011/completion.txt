@@ -1,0 +1,1518 @@
+PACK:
+```json
+{
+  "specVersion": "0.2.0-draft",
+  "id": "https://example.org/judgment-packs/vendor-approval-policy",
+  "version": "1.0.0",
+  "title": "Vendor Approval Policy",
+  "description": "Determines vendor onboarding spend requests, including mandatory financial evidence, sanctions handling, automatic determinations, overrides, and escalation.",
+  "decision": {
+    "intent": "Determine the disposition of a vendor onboarding spend request.",
+    "question": "Should the vendor request be approved, reviewed, placed under enhanced review, rejected, or left unresolved?"
+  },
+  "evidenceRequirements": [
+    {
+      "id": "financial-evidence",
+      "description": "Audited financial statements must be on file before any determination can be issued.",
+      "required": true,
+      "kind": "document"
+    },
+    {
+      "id": "insurance-certificate",
+      "description": "Insurance certificate consulted only for the applicable D6b spend band.",
+      "required": false,
+      "kind": "document"
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "approve",
+      "label": "Approve"
+    },
+    {
+      "id": "review",
+      "label": "Review"
+    },
+    {
+      "id": "enhanced-review",
+      "label": "Enhanced review"
+    },
+    {
+      "id": "reject",
+      "label": "Reject"
+    }
+  ],
+  "rules": [
+    {
+      "id": "d1-sanctions-match",
+      "description": "Reject a sanctions match.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/sanctionsStatus",
+        "operator": "equals",
+        "value": "MATCH"
+      },
+      "outcome": "reject",
+      "onUnknown": "ignore",
+      "evidenceRequirementRefs": [
+        "financial-evidence"
+      ]
+    },
+    {
+      "id": "d3-critical-low-medium",
+      "description": "Reject risk scores of at least 90 in LOW or MEDIUM countries.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "greater-than-or-equal",
+            "value": "90"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/countryRisk",
+            "operator": "in",
+            "value": [
+              "LOW",
+              "MEDIUM"
+            ]
+          }
+        ]
+      },
+      "outcome": "reject",
+      "onUnknown": "ignore",
+      "evidenceRequirementRefs": [
+        "financial-evidence"
+      ]
+    },
+    {
+      "id": "d3-critical-nonlarge",
+      "description": "Reject risk scores of at least 90 when spend is no more than two million dollars, independently of country.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "greater-than-or-equal",
+            "value": "90"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/requestedSpend",
+            "operator": "less-than-or-equal",
+            "value": "2000000.00"
+          }
+        ]
+      },
+      "outcome": "reject",
+      "onUnknown": "ignore",
+      "evidenceRequirementRefs": [
+        "financial-evidence"
+      ]
+    },
+    {
+      "id": "d4-high-elevated",
+      "description": "Reject risk scores of at least 70 in a HIGH-risk country when O3 does not escalate the exposure.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/countryRisk",
+            "operator": "equals",
+            "value": "HIGH"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "greater-than-or-equal",
+            "value": "70"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/requestedSpend",
+            "operator": "less-than-or-equal",
+            "value": "2000000.00"
+          }
+        ]
+      },
+      "outcome": "reject",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": [
+        "financial-evidence"
+      ]
+    },
+    {
+      "id": "d5-prior-enforcement",
+      "description": "Reject a vendor with a recorded prior enforcement action.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/priorEnforcement",
+            "operator": "equals",
+            "value": "yes"
+          }
+        ]
+      },
+      "outcome": "reject",
+      "onUnknown": "ignore",
+      "evidenceRequirementRefs": [
+        "financial-evidence"
+      ]
+    },
+    {
+      "id": "d6a-low-basic",
+      "description": "Approve LOW-country requests below risk 40 with spend no greater than five hundred thousand dollars.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/countryRisk",
+            "operator": "equals",
+            "value": "LOW"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "less-than",
+            "value": "40"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/requestedSpend",
+            "operator": "less-than-or-equal",
+            "value": "500000.00"
+          }
+        ]
+      },
+      "outcome": "approve",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": [
+        "financial-evidence"
+      ]
+    },
+    {
+      "id": "d6b-insured",
+      "description": "Approve the D6b spend band when an insurance certificate is available.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/countryRisk",
+            "operator": "equals",
+            "value": "LOW"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "less-than",
+            "value": "40"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/requestedSpend",
+            "operator": "greater-than",
+            "value": "500000.00"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/requestedSpend",
+            "operator": "less-than-or-equal",
+            "value": "2000000.00"
+          },
+          {
+            "op": "evidence-present",
+            "evidenceRequirement": "insurance-certificate"
+          }
+        ]
+      },
+      "outcome": "approve",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": [
+        "financial-evidence",
+        "insurance-certificate"
+      ]
+    },
+    {
+      "id": "d6b-uninsured",
+      "description": "Apply enhanced review in the D6b spend band when an insurance certificate is absent.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/countryRisk",
+            "operator": "equals",
+            "value": "LOW"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "less-than",
+            "value": "40"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/requestedSpend",
+            "operator": "greater-than",
+            "value": "500000.00"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/requestedSpend",
+            "operator": "less-than-or-equal",
+            "value": "2000000.00"
+          },
+          {
+            "op": "not",
+            "condition": {
+              "op": "evidence-present",
+              "evidenceRequirement": "insurance-certificate"
+            }
+          }
+        ]
+      },
+      "outcome": "enhanced-review",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": [
+        "financial-evidence",
+        "insurance-certificate"
+      ]
+    },
+    {
+      "id": "d6c-low-moderate",
+      "description": "Approve LOW-country requests from risk 40 through risk below 70 with spend no greater than one hundred thousand dollars.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/countryRisk",
+            "operator": "equals",
+            "value": "LOW"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "greater-than-or-equal",
+            "value": "40"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "less-than",
+            "value": "70"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/requestedSpend",
+            "operator": "less-than-or-equal",
+            "value": "100000.00"
+          }
+        ]
+      },
+      "outcome": "approve",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": [
+        "financial-evidence"
+      ]
+    },
+    {
+      "id": "d7-medium-basic",
+      "description": "Approve MEDIUM-country requests below risk 40 with spend no greater than one hundred thousand dollars.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/countryRisk",
+            "operator": "equals",
+            "value": "MEDIUM"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "less-than",
+            "value": "40"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/requestedSpend",
+            "operator": "less-than-or-equal",
+            "value": "100000.00"
+          }
+        ]
+      },
+      "outcome": "approve",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": [
+        "financial-evidence"
+      ]
+    },
+    {
+      "id": "d8-low-lowrisk-large",
+      "description": "Review LOW-country requests below risk 40 with spend above two million dollars.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/countryRisk",
+            "operator": "equals",
+            "value": "LOW"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "less-than",
+            "value": "40"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/requestedSpend",
+            "operator": "greater-than",
+            "value": "2000000.00"
+          }
+        ]
+      },
+      "outcome": "review",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": [
+        "financial-evidence"
+      ]
+    },
+    {
+      "id": "d8-low-moderate-large",
+      "description": "Review LOW-country risk 40 through below 70 requests above one hundred thousand dollars.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/countryRisk",
+            "operator": "equals",
+            "value": "LOW"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "greater-than-or-equal",
+            "value": "40"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "less-than",
+            "value": "70"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/requestedSpend",
+            "operator": "greater-than",
+            "value": "100000.00"
+          }
+        ]
+      },
+      "outcome": "review",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": [
+        "financial-evidence"
+      ]
+    },
+    {
+      "id": "d8-low-elevated",
+      "description": "Review LOW-country requests from risk 70 through below 90.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/countryRisk",
+            "operator": "equals",
+            "value": "LOW"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "greater-than-or-equal",
+            "value": "70"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "less-than",
+            "value": "90"
+          }
+        ]
+      },
+      "outcome": "review",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": [
+        "financial-evidence"
+      ]
+    },
+    {
+      "id": "d8-medium-lowrisk-large",
+      "description": "Review MEDIUM-country requests below risk 40 with spend above one hundred thousand dollars.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/countryRisk",
+            "operator": "equals",
+            "value": "MEDIUM"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "less-than",
+            "value": "40"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/requestedSpend",
+            "operator": "greater-than",
+            "value": "100000.00"
+          }
+        ]
+      },
+      "outcome": "review",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": [
+        "financial-evidence"
+      ]
+    },
+    {
+      "id": "d8-medium-moderate",
+      "description": "Review MEDIUM-country requests from risk 40 through below 90.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/countryRisk",
+            "operator": "equals",
+            "value": "MEDIUM"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "greater-than-or-equal",
+            "value": "40"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "less-than",
+            "value": "90"
+          }
+        ]
+      },
+      "outcome": "review",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": [
+        "financial-evidence"
+      ]
+    },
+    {
+      "id": "d8-high-below-elevated",
+      "description": "Review HIGH-country requests below risk 70 when spend does not trigger O3.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/countryRisk",
+            "operator": "equals",
+            "value": "HIGH"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "less-than",
+            "value": "70"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/requestedSpend",
+            "operator": "less-than-or-equal",
+            "value": "2000000.00"
+          }
+        ]
+      },
+      "outcome": "review",
+      "onUnknown": "escalate",
+      "evidenceRequirementRefs": [
+        "financial-evidence"
+      ]
+    },
+    {
+      "id": "d8-new-d6c",
+      "description": "Review a new vendor that otherwise falls within D6c.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/newVendor",
+            "operator": "equals",
+            "value": "yes"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/countryRisk",
+            "operator": "equals",
+            "value": "LOW"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "greater-than-or-equal",
+            "value": "40"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/riskScore",
+            "operator": "less-than",
+            "value": "70"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/requestedSpend",
+            "operator": "less-than-or-equal",
+            "value": "100000.00"
+          }
+        ]
+      },
+      "outcome": "review",
+      "onUnknown": "ignore",
+      "evidenceRequirementRefs": [
+        "financial-evidence"
+      ]
+    }
+  ],
+  "exceptions": [
+    {
+      "id": "o3-large-high-exposure",
+      "description": "Escalate a CLEAR request from a HIGH-risk country when spend exceeds two million dollars.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/countryRisk",
+            "operator": "equals",
+            "value": "HIGH"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/requestedSpend",
+            "operator": "greater-than",
+            "value": "2000000.00"
+          }
+        ]
+      },
+      "effect": "escalate",
+      "onUnknown": "escalate",
+      "sourceRefs": []
+    },
+    {
+      "id": "o2-critical-supplier",
+      "description": "Force review for a critical supplier with CLEAR screening unless O3 applies.",
+      "when": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "fact",
+            "path": "/vendor/sanctionsStatus",
+            "operator": "equals",
+            "value": "CLEAR"
+          },
+          {
+            "op": "fact",
+            "path": "/vendor/criticalSupplier",
+            "operator": "equals",
+            "value": "yes"
+          }
+        ]
+      },
+      "effect": "force-outcome",
+      "outcome": "review",
+      "onUnknown": "ignore",
+      "sourceRefs": []
+    },
+    {
+      "id": "o1-suspend-d6c",
+      "description": "Suppress D6c for a reported new vendor.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/newVendor",
+        "operator": "equals",
+        "value": "yes"
+      },
+      "effect": "suppress-rule",
+      "targetRule": "d6c-low-moderate",
+      "onUnknown": "ignore",
+      "sourceRefs": []
+    },
+    {
+      "id": "d5-suppress-d6a",
+      "description": "Prevent D6a from conflicting with prior-enforcement rejection.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/priorEnforcement",
+        "operator": "equals",
+        "value": "yes"
+      },
+      "effect": "suppress-rule",
+      "targetRule": "d6a-low-basic",
+      "onUnknown": "ignore",
+      "sourceRefs": []
+    },
+    {
+      "id": "d5-suppress-d6b-insured",
+      "description": "Prevent insured D6b approval from conflicting with prior-enforcement rejection.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/priorEnforcement",
+        "operator": "equals",
+        "value": "yes"
+      },
+      "effect": "suppress-rule",
+      "targetRule": "d6b-insured",
+      "onUnknown": "ignore",
+      "sourceRefs": []
+    },
+    {
+      "id": "d5-suppress-d6b-uninsured",
+      "description": "Prevent D6b enhanced review from conflicting with prior-enforcement rejection.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/priorEnforcement",
+        "operator": "equals",
+        "value": "yes"
+      },
+      "effect": "suppress-rule",
+      "targetRule": "d6b-uninsured",
+      "onUnknown": "ignore",
+      "sourceRefs": []
+    },
+    {
+      "id": "d5-suppress-d6c",
+      "description": "Prevent D6c from conflicting with prior-enforcement rejection.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/priorEnforcement",
+        "operator": "equals",
+        "value": "yes"
+      },
+      "effect": "suppress-rule",
+      "targetRule": "d6c-low-moderate",
+      "onUnknown": "ignore",
+      "sourceRefs": []
+    },
+    {
+      "id": "d5-suppress-d7",
+      "description": "Prevent D7 from conflicting with prior-enforcement rejection.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/priorEnforcement",
+        "operator": "equals",
+        "value": "yes"
+      },
+      "effect": "suppress-rule",
+      "targetRule": "d7-medium-basic",
+      "onUnknown": "ignore",
+      "sourceRefs": []
+    },
+    {
+      "id": "d5-suppress-review-low-lowrisk",
+      "description": "Prevent LOW-country low-risk review from conflicting with prior-enforcement rejection.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/priorEnforcement",
+        "operator": "equals",
+        "value": "yes"
+      },
+      "effect": "suppress-rule",
+      "targetRule": "d8-low-lowrisk-large",
+      "onUnknown": "ignore",
+      "sourceRefs": []
+    },
+    {
+      "id": "d5-suppress-review-low-moderate",
+      "description": "Prevent LOW-country moderate-risk review from conflicting with prior-enforcement rejection.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/priorEnforcement",
+        "operator": "equals",
+        "value": "yes"
+      },
+      "effect": "suppress-rule",
+      "targetRule": "d8-low-moderate-large",
+      "onUnknown": "ignore",
+      "sourceRefs": []
+    },
+    {
+      "id": "d5-suppress-review-low-elevated",
+      "description": "Prevent LOW-country elevated-risk review from conflicting with prior-enforcement rejection.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/priorEnforcement",
+        "operator": "equals",
+        "value": "yes"
+      },
+      "effect": "suppress-rule",
+      "targetRule": "d8-low-elevated",
+      "onUnknown": "ignore",
+      "sourceRefs": []
+    },
+    {
+      "id": "d5-suppress-review-medium-lowrisk",
+      "description": "Prevent MEDIUM-country low-risk review from conflicting with prior-enforcement rejection.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/priorEnforcement",
+        "operator": "equals",
+        "value": "yes"
+      },
+      "effect": "suppress-rule",
+      "targetRule": "d8-medium-lowrisk-large",
+      "onUnknown": "ignore",
+      "sourceRefs": []
+    },
+    {
+      "id": "d5-suppress-review-medium-moderate",
+      "description": "Prevent MEDIUM-country moderate-risk review from conflicting with prior-enforcement rejection.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/priorEnforcement",
+        "operator": "equals",
+        "value": "yes"
+      },
+      "effect": "suppress-rule",
+      "targetRule": "d8-medium-moderate",
+      "onUnknown": "ignore",
+      "sourceRefs": []
+    },
+    {
+      "id": "d5-suppress-review-high",
+      "description": "Prevent HIGH-country review from conflicting with prior-enforcement rejection.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/priorEnforcement",
+        "operator": "equals",
+        "value": "yes"
+      },
+      "effect": "suppress-rule",
+      "targetRule": "d8-high-below-elevated",
+      "onUnknown": "ignore",
+      "sourceRefs": []
+    },
+    {
+      "id": "d5-suppress-new-review",
+      "description": "Prevent O1's review result from conflicting with prior-enforcement rejection.",
+      "when": {
+        "op": "fact",
+        "path": "/vendor/priorEnforcement",
+        "operator": "equals",
+        "value": "yes"
+      },
+      "effect": "suppress-rule",
+      "targetRule": "d8-new-d6c",
+      "onUnknown": "ignore",
+      "sourceRefs": []
+    }
+  ],
+  "escalation": {
+    "triggers": [
+      "missing-required-evidence",
+      "no-match",
+      "unknown"
+    ],
+    "target": {
+      "kind": "queue",
+      "name": "vendor-compliance-desk"
+    }
+  }
+}
+```
+
+MATRIX:
+```json
+{
+  "matrixVersion": "2",
+  "cases": [
+    {
+      "id": "p1-financial-evidence-absent",
+      "facts": {
+        "vendor": {
+          "riskScore": "95",
+          "requestedSpend": "1000.00",
+          "sanctionsStatus": "MATCH",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "absent"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "missing-required-evidence"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "missing-required-evidence"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      },
+      "focus": "P1 prevents even a sanctions rejection."
+    },
+    {
+      "id": "p1-financial-evidence-unreported",
+      "facts": {
+        "vendor": {
+          "riskScore": "10",
+          "requestedSpend": "1000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW"
+        }
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      },
+      "focus": "Unreported mandatory evidence is unknown."
+    },
+    {
+      "id": "d1-sanctions-match",
+      "facts": {
+        "vendor": {
+          "riskScore": "10",
+          "requestedSpend": "1000.00",
+          "sanctionsStatus": "MATCH",
+          "countryRisk": "LOW",
+          "criticalSupplier": "yes"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null,
+      "focus": "MATCH prevents the critical-supplier override."
+    },
+    {
+      "id": "d2-sanctions-unknown",
+      "facts": {
+        "vendor": {
+          "riskScore": "10",
+          "requestedSpend": "1000.00",
+          "sanctionsStatus": "UNKNOWN",
+          "countryRisk": "LOW"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "no-match"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "no-match"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      },
+      "focus": "A present UNKNOWN sanctions value yields no matching clause."
+    },
+    {
+      "id": "o3-high-country-large-exposure",
+      "facts": {
+        "vendor": {
+          "riskScore": "95",
+          "requestedSpend": "2000000.01",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "HIGH",
+          "criticalSupplier": "yes",
+          "priorEnforcement": "yes"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "exception-escalation"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "exception-escalation"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      },
+      "focus": "O3 takes precedence over O2 and all rejection clauses."
+    },
+    {
+      "id": "o2-critical-supplier-review",
+      "facts": {
+        "vendor": {
+          "riskScore": "95",
+          "requestedSpend": "1000000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "criticalSupplier": "yes",
+          "priorEnforcement": "yes"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null,
+      "focus": "O2 displaces critical-risk and prior-enforcement rejection."
+    },
+    {
+      "id": "d3-country-unreadable-stable-reject",
+      "facts": {
+        "vendor": {
+          "riskScore": "95",
+          "requestedSpend": "1000000.00",
+          "sanctionsStatus": "CLEAR",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null,
+      "focus": "Worked example 1: every readable country value rejects."
+    },
+    {
+      "id": "d4-high-risk-70-boundary",
+      "facts": {
+        "vendor": {
+          "riskScore": "70",
+          "requestedSpend": "2000000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "HIGH",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null,
+      "focus": "D4 begins at risk 70 and O3 begins only above two million dollars."
+    },
+    {
+      "id": "d5-prior-enforcement-unreported-treated-no",
+      "facts": {
+        "vendor": {
+          "riskScore": "20",
+          "requestedSpend": "500000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "criticalSupplier": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "approve",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null,
+      "focus": "Omitted prior-enforcement status is treated as no."
+    },
+    {
+      "id": "d5-prior-enforcement-rejects",
+      "facts": {
+        "vendor": {
+          "riskScore": "20",
+          "requestedSpend": "1000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "criticalSupplier": "no",
+          "priorEnforcement": "yes"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "reject",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null,
+      "focus": "D5 suppresses otherwise applicable approval."
+    },
+    {
+      "id": "d6a-spend-boundary",
+      "facts": {
+        "vendor": {
+          "riskScore": "39",
+          "requestedSpend": "500000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "no",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "approve",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null,
+      "focus": "D6a includes exactly five hundred thousand dollars."
+    },
+    {
+      "id": "d6b-insurance-present",
+      "facts": {
+        "vendor": {
+          "riskScore": "39",
+          "requestedSpend": "500000.01",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present",
+        "insurance-certificate": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "approve",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null,
+      "focus": "D6b approves when insurance is available."
+    },
+    {
+      "id": "d6b-insurance-absent",
+      "facts": {
+        "vendor": {
+          "riskScore": "39",
+          "requestedSpend": "2000000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present",
+        "insurance-certificate": "absent"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "enhanced-review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null,
+      "focus": "D6b decides the absent-insurance limb itself."
+    },
+    {
+      "id": "d6b-insurance-unreported",
+      "facts": {
+        "vendor": {
+          "riskScore": "39",
+          "requestedSpend": "1000000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      },
+      "focus": "Unreported insurance availability makes the D6b result unknown."
+    },
+    {
+      "id": "o1-new-vendor-suspends-d6c",
+      "facts": {
+        "vendor": {
+          "riskScore": "40",
+          "requestedSpend": "100000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "newVendor": "yes",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null,
+      "focus": "O1 removes a new vendor from D6c and sends it to D8."
+    },
+    {
+      "id": "d7-medium-approval-boundary",
+      "facts": {
+        "vendor": {
+          "riskScore": "39",
+          "requestedSpend": "100000.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "MEDIUM",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "approve",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null,
+      "focus": "D7 includes one hundred thousand dollars and risk 39."
+    },
+    {
+      "id": "d8-medium-over-spend",
+      "facts": {
+        "vendor": {
+          "riskScore": "39",
+          "requestedSpend": "100000.01",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "MEDIUM",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null,
+      "focus": "A MEDIUM-country request just above D7's spend limit falls to D8."
+    },
+    {
+      "id": "u1-high-spend-unreadable",
+      "facts": {
+        "vendor": {
+          "riskScore": "50",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "HIGH",
+          "criticalSupplier": "no",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      },
+      "focus": "Worked example 2: readable spends can yield review or O3 escalation."
+    },
+    {
+      "id": "u1-critical-risk-unreadable",
+      "facts": {
+        "vendor": {
+          "requestedSpend": "100.00",
+          "sanctionsStatus": "CLEAR",
+          "countryRisk": "LOW",
+          "criticalSupplier": "yes",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "outcome",
+        "outcomeId": "review",
+        "reasons": [],
+        "handoff": {
+          "state": "none"
+        }
+      },
+      "expectedHandoffTarget": null,
+      "focus": "Worked example 3: O2 is independent of unreadable risk."
+    },
+    {
+      "id": "u1-critical-country-and-spend-unreadable",
+      "facts": {
+        "vendor": {
+          "riskScore": "50",
+          "sanctionsStatus": "CLEAR",
+          "criticalSupplier": "yes",
+          "priorEnforcement": "no"
+        }
+      },
+      "evidenceAvailability": {
+        "financial-evidence": "present"
+      },
+      "expectedDisposition": {
+        "kind": "unresolved",
+        "reasons": [
+          "unknown"
+        ],
+        "handoff": {
+          "state": "requested",
+          "triggeredBy": [
+            "unknown"
+          ]
+        }
+      },
+      "expectedHandoffTarget": {
+        "kind": "queue",
+        "name": "vendor-compliance-desk"
+      },
+      "focus": "Worked example 4: O2 review and possible O3 escalation differ."
+    }
+  ]
+}
+```

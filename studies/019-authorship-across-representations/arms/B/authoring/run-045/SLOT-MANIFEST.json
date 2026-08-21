@@ -1,0 +1,49 @@
+{
+  "arm": "B",
+  "files": [
+    [
+      ".",
+      -1,
+      "type:directory"
+    ],
+    [
+      "CALL.json",
+      2102,
+      "0493869981bf4735595dd78442d2ebf1a22b96a8002dc5f5922984b00adc0f2f"
+    ],
+    [
+      "TRANSCRIPT.json",
+      1082,
+      "66e5fa249d364908201a48cec985282c8c99af0ff8fda2aa17749bc2296cf78e"
+    ],
+    [
+      "completion.txt",
+      12648,
+      "acf108c1ac1cc47e430fe6ba9daabd5b3e162ed7b0ef4b4b3d5aa4880fea2904"
+    ],
+    [
+      "context.json",
+      621,
+      "545c1000c564c80b5d9135a0f5c5df3aa0cd86da7cf64435555cedafcd92eb0b"
+    ],
+    [
+      "session.jsonl",
+      511530,
+      "88f0761b1abc1e2bda05e505aed253decbdeae0ca6a617dddeac11ee1d39159b"
+    ],
+    [
+      "stderr.raw",
+      217594,
+      "5a49896b8663d4766c6f983a7f2f366d79aa3fba4238b0fc607b661a5a565f95"
+    ],
+    [
+      "stdout.raw",
+      12649,
+      "00eb06b44f91cae62c5d817c1944ca49dd2224ae1a392e4dc3fb3421cb6ac9c5"
+    ]
+  ],
+  "filesSha256": "sha256:97aa352c20de26748f4ae775d4890017cd040f1a96dcdfcca8ea6f13cd7355a0",
+  "globalIndex": 135,
+  "note": "The terminal seal of this slot: the slot ROOT itself, at the relative path `.`, and EVERY entry beneath it by relative path \u2014 regular files by byte length and sha256, everything else (symlinks, directories, FIFOs, sockets, devices) by a -1 length and a type: marker \u2014 sorted by path, and the sha256 of that sorted list. Every entry, so that an entry ADDED after the seal breaks it rather than passing it and then buying that slot a pipeline-invalid code and the denominator change it carries; and the root, so that renaming this directory and planting a symlink at its old path breaks it for the same reason. This file is not a member of its own list \u2014 a file cannot carry its own digest \u2014 and is sealed instead by the ledger, whose record for this slot carries the digest of THIS FILE and the previous record's digest, so BATCH.json is a hash chain in schedule order. A slot whose recomputed manifest differs from the ledger's, or a chain that does not verify, invalidates confirmatory scoring for the WHOLE batch rather than moving this slot out of a denominator.",
+  "slot": "run-045"
+}

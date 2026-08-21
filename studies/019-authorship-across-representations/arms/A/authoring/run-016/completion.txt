@@ -1,0 +1,10 @@
+No conforming Judgment Pack can implement this policy on every described input.
+
+The blocker is the policy’s treatment of omitted `newVendor`, `criticalSupplier`, and `priorEnforcement` as `"no"`. Under JPS §7.4, an omitted fact path evaluates to `unknown`; Core provides no presence test, default-value operator, or way to distinguish omission from another unknown fact result. Consequently, a condition cannot implement “equals no or is omitted.”
+
+For example, O2 must force `review` when `criticalSupplier` is `"yes"` but behave exactly as `"no"` when the member is omitted. An exception can force review for `"yes"` with `onUnknown: ignore`, but ordinary rules involving the field cannot establish the required omitted-as-no branch. Similar non-representability affects O1 and D5, especially where their precedence must interact with unreadable risk, spend, or country under U1.
+
+Because the requested behavior is not expressible in the supplied language, any pack block would either fail hidden policy cases or misrepresent itself as a complete implementation. A valid solution requires either:
+
+- inputs normalized to report all three statuses explicitly as `"yes"` or `"no"`; or
+- a JPS extension/operator for fact presence or defaulting, which the task forbids by requiring no extensions.

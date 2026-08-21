@@ -1,0 +1,309 @@
+POLICY:
+```rego
+package study
+
+decision := {"disposition": "unresolved", "reasons": ["missing-required-evidence"]} if {
+	object.get(input, "evidence", {})["financial-evidence"] == "absent"
+} else := {"disposition": "unresolved", "reasons": ["unknown"]} if {
+	not "financial-evidence" in object.get(input, "evidence", {})
+} else := result if {
+	outcomes := possible_outcomes
+	count(outcomes) == 1
+	some result in outcomes
+} else := {"disposition": "unresolved", "reasons": ["unknown"]}
+
+possible_outcomes := {
+	result |
+		some risk in risk_values(input.vendor)
+		some spend in spend_values(input.vendor)
+		some country in country_values(input.vendor)
+		vendor := object.union(input.vendor, {
+			"riskScore": risk,
+			"requestedSpend": spend,
+			"countryRisk": country,
+		})
+		result := outcome_for(vendor)
+}
+
+risk_values(vendor) := [vendor.riskScore] if {
+	"riskScore" in vendor
+} else := [0, 39, 40, 69, 70, 89, 90, 100]
+
+spend_values(vendor) := [vendor.requestedSpend] if {
+	"requestedSpend" in vendor
+} else := [0, 100000, 500000, 500000.01, 2000000, 2000000.01, 10000000]
+
+country_values(vendor) := [vendor.countryRisk] if {
+	"countryRisk" in vendor
+} else := ["LOW", "MEDIUM", "HIGH"]
+
+outcome_for(vendor) := {"disposition": "reject", "reasons": []} if {
+	vendor.sanctionsStatus == "MATCH"
+} else := {"disposition": "unresolved", "reasons": ["no-match"]} if {
+	vendor.sanctionsStatus == "UNKNOWN"
+} else := {"disposition": "unresolved", "reasons": ["exception-escalation"]} if {
+	vendor.sanctionsStatus == "CLEAR"
+	vendor.countryRisk == "HIGH"
+	vendor.requestedSpend > 2000000
+} else := {"disposition": "review", "reasons": []} if {
+	vendor.sanctionsStatus == "CLEAR"
+	object.get(vendor, "criticalSupplier", "no") == "yes"
+} else := {"disposition": "reject", "reasons": []} if {
+	vendor.riskScore >= 90
+} else := {"disposition": "reject", "reasons": []} if {
+	vendor.countryRisk == "HIGH"
+	vendor.riskScore >= 70
+} else := {"disposition": "reject", "reasons": []} if {
+	object.get(vendor, "priorEnforcement", "no") == "yes"
+} else := {"disposition": "approve", "reasons": []} if {
+	vendor.countryRisk == "LOW"
+	vendor.riskScore < 40
+	vendor.requestedSpend <= 500000
+} else := {"disposition": "approve", "reasons": []} if {
+	vendor.countryRisk == "LOW"
+	vendor.riskScore < 40
+	vendor.requestedSpend > 500000
+	vendor.requestedSpend <= 2000000
+	object.get(input, "evidence", {})["insurance-certificate"] == "present"
+} else := {"disposition": "enhanced-review", "reasons": []} if {
+	vendor.countryRisk == "LOW"
+	vendor.riskScore < 40
+	vendor.requestedSpend > 500000
+	vendor.requestedSpend <= 2000000
+	object.get(input, "evidence", {})["insurance-certificate"] == "absent"
+} else := {"disposition": "unresolved", "reasons": ["unknown"]} if {
+	vendor.countryRisk == "LOW"
+	vendor.riskScore < 40
+	vendor.requestedSpend > 500000
+	vendor.requestedSpend <= 2000000
+	not "insurance-certificate" in object.get(input, "evidence", {})
+} else := {"disposition": "approve", "reasons": []} if {
+	vendor.countryRisk == "LOW"
+	vendor.riskScore >= 40
+	vendor.riskScore < 70
+	vendor.requestedSpend <= 100000
+	object.get(vendor, "newVendor", "no") != "yes"
+} else := {"disposition": "approve", "reasons": []} if {
+	vendor.countryRisk == "MEDIUM"
+	vendor.riskScore < 40
+	vendor.requestedSpend <= 100000
+} else := {"disposition": "review", "reasons": []} if {
+	vendor.sanctionsStatus == "CLEAR"
+}
+```
+
+TESTS:
+```rego
+package study_test
+
+import data.study
+
+financial_present := {"financial-evidence": "present"}
+
+test_p1_absent_blocks_sanctions_rejection if {
+	study.decision == {
+		"disposition": "unresolved",
+		"reasons": ["missing-required-evidence"],
+	} with input as {
+		"vendor": {"sanctionsStatus": "MATCH"},
+		"evidence": {"financial-evidence": "absent"},
+	}
+}
+
+test_p1_unreported_is_unknown if {
+	study.decision == {
+		"disposition": "unresolved",
+		"reasons": ["unknown"],
+	} with input as {
+		"vendor": {"sanctionsStatus": "MATCH"},
+		"evidence": {},
+	}
+}
+
+test_d1_match_rejects_without_numeric_inputs if {
+	study.decision == {
+		"disposition": "reject",
+		"reasons": [],
+	} with input as {
+		"vendor": {"sanctionsStatus": "MATCH"},
+		"evidence": financial_present,
+	}
+}
+
+test_d2_unknown_screening_has_no_match if {
+	study.decision == {
+		"disposition": "unresolved",
+		"reasons": ["no-match"],
+	} with input as {
+		"vendor": {"sanctionsStatus": "UNKNOWN"},
+		"evidence": financial_present,
+	}
+}
+
+test_o3_precedes_critical_supplier_and_rejection if {
+	study.decision == {
+		"disposition": "unresolved",
+		"reasons": ["exception-escalation"],
+	} with input as {
+		"vendor": {
+			"sanctionsStatus": "CLEAR",
+			"countryRisk": "HIGH",
+			"riskScore": 95,
+			"requestedSpend": 2000000.01,
+			"criticalSupplier": "yes",
+			"priorEnforcement": "yes",
+		},
+		"evidence": financial_present,
+	}
+}
+
+test_o2_critical_supplier_reviews_rejectable_case if {
+	study.decision == {
+		"disposition": "review",
+		"reasons": [],
+	} with input as {
+		"vendor": {
+			"sanctionsStatus": "CLEAR",
+			"countryRisk": "HIGH",
+			"riskScore": 95,
+			"requestedSpend": 2000000,
+			"criticalSupplier": "yes",
+			"priorEnforcement": "yes",
+		},
+		"evidence": financial_present,
+	}
+}
+
+test_d4_high_country_rejects_at_70 if {
+	study.decision.disposition == "reject" with input as {
+		"vendor": {
+			"sanctionsStatus": "CLEAR",
+			"countryRisk": "HIGH",
+			"riskScore": 70,
+			"requestedSpend": 100,
+		},
+		"evidence": financial_present,
+	}
+}
+
+test_d5_unreported_prior_enforcement_is_no if {
+	study.decision.disposition == "approve" with input as {
+		"vendor": {
+			"sanctionsStatus": "CLEAR",
+			"countryRisk": "LOW",
+			"riskScore": 20,
+			"requestedSpend": 500000,
+		},
+		"evidence": financial_present,
+	}
+}
+
+test_d6b_present_insurance_approves if {
+	study.decision.disposition == "approve" with input as {
+		"vendor": {
+			"sanctionsStatus": "CLEAR",
+			"countryRisk": "LOW",
+			"riskScore": 39,
+			"requestedSpend": 500000.01,
+		},
+		"evidence": {
+			"financial-evidence": "present",
+			"insurance-certificate": "present",
+		},
+	}
+}
+
+test_d6b_absent_insurance_enhanced_review if {
+	study.decision.disposition == "enhanced-review" with input as {
+		"vendor": {
+			"sanctionsStatus": "CLEAR",
+			"countryRisk": "LOW",
+			"riskScore": 39,
+			"requestedSpend": 2000000,
+		},
+		"evidence": {
+			"financial-evidence": "present",
+			"insurance-certificate": "absent",
+		},
+	}
+}
+
+test_d6b_unreported_insurance_is_unknown if {
+	study.decision == {
+		"disposition": "unresolved",
+		"reasons": ["unknown"],
+	} with input as {
+		"vendor": {
+			"sanctionsStatus": "CLEAR",
+			"countryRisk": "LOW",
+			"riskScore": 20,
+			"requestedSpend": 1000000,
+		},
+		"evidence": financial_present,
+	}
+}
+
+test_o1_new_vendor_suspends_d6c if {
+	study.decision.disposition == "review" with input as {
+		"vendor": {
+			"sanctionsStatus": "CLEAR",
+			"countryRisk": "LOW",
+			"riskScore": 40,
+			"requestedSpend": 100000,
+			"newVendor": "yes",
+		},
+		"evidence": financial_present,
+	}
+}
+
+test_u1_country_unreadable_but_all_assignments_reject if {
+	study.decision.disposition == "reject" with input as {
+		"vendor": {
+			"sanctionsStatus": "CLEAR",
+			"riskScore": 95,
+			"requestedSpend": 1000000,
+		},
+		"evidence": financial_present,
+	}
+}
+
+test_u1_unreadable_spend_has_review_and_escalation_outcomes if {
+	study.decision == {
+		"disposition": "unresolved",
+		"reasons": ["unknown"],
+	} with input as {
+		"vendor": {
+			"sanctionsStatus": "CLEAR",
+			"countryRisk": "HIGH",
+			"riskScore": 50,
+		},
+		"evidence": financial_present,
+	}
+}
+
+test_u1_critical_supplier_does_not_depend_on_unreadable_risk if {
+	study.decision.disposition == "review" with input as {
+		"vendor": {
+			"sanctionsStatus": "CLEAR",
+			"countryRisk": "LOW",
+			"requestedSpend": 100,
+			"criticalSupplier": "yes",
+		},
+		"evidence": financial_present,
+	}
+}
+
+test_u1_critical_supplier_with_unreadable_country_and_spend_is_unknown if {
+	study.decision == {
+		"disposition": "unresolved",
+		"reasons": ["unknown"],
+	} with input as {
+		"vendor": {
+			"sanctionsStatus": "CLEAR",
+			"riskScore": 20,
+			"criticalSupplier": "yes",
+		},
+		"evidence": financial_present,
+	}
+}
+```
