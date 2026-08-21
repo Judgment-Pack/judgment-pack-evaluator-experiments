@@ -319,9 +319,15 @@ fi
 # wrapper's own header has claimed "the prompt passed byte-exact" all along. The
 # `printf x` idiom is the standard one: append a byte the substitution cannot
 # strip, then remove exactly that byte.
-PROMPT="$(cat "$PROMPT_FILE"; printf x)"
-PROMPT="${PROMPT%x}"
-[ -n "$PROMPT" ] || { echo "refused: empty prompt" >&2; exit 1; }
+# DEVIATION D-1 (2026-08-21, DEVIATIONS.md): the prompt is no longer passed as
+# an argv string — Linux caps one exec argument at 128KiB and arms B/C's
+# registered prompts are ~204KiB, so every such call died at exec. The call
+# redirects "$PROMPT_FILE" into codex's stdin, which the pinned CLI reads as
+# the instructions when no prompt argument is given; the kernel streams the
+# file's exact bytes, so byte-exactness is by construction and the printf-x
+# idiom (port difference 8) is retired with the string it protected. The
+# emptiness refusal stays: a zero-byte prompt is still a refusal, not a call.
+[ -s "$PROMPT_FILE" ] || { echo "refused: empty prompt" >&2; exit 1; }
 
 # The scratch: an exclusively created directory whose resolved path is
 # outside every git worktree and free of study vocabulary (the transcript
@@ -556,7 +562,7 @@ set +e
     "$CALL_TIMEOUT_SECONDS" \
     "$CODEX_BIN" exec --ignore-user-config -m "$PINNED_MODEL" \
     --sandbox workspace-write -c 'mcp_servers={}' \
-    "$PROMPT" < /dev/null > "$OUT/stdout.raw" 2> "$OUT/stderr.raw" )
+    < "$PROMPT_FILE" > "$OUT/stdout.raw" 2> "$OUT/stderr.raw" )
 EXIT=$?
 set -e
 # THE PHASE BOUNDARY (R1-4). Everything below this line runs after the model
@@ -649,8 +655,7 @@ digits = "".join(ch for ch in slot_name if ch.isdigit())
 with open(out + "/CALL.json", "w") as handle:
     json.dump({
         "argv": ["codex", "exec", "--ignore-user-config", "-m", model,
-                 "--sandbox", "workspace-write", "-c", "mcp_servers={}",
-                 "<the exact bytes of %s>" % prompt_name],
+                 "--sandbox", "workspace-write", "-c", "mcp_servers={}"],
         "slot": slot_name,
         "slotIndex": int(digits) if digits else None,
         "arm": None if arm == "none" else arm,
@@ -684,7 +689,7 @@ with open(out + "/CALL.json", "w") as handle:
         "timeoutKillAfterSeconds": int(timeout_kill_after),
         "timedOut": timed_out == "true",
         "newSessionCount": int(count),
-        "stdin": "closed (/dev/null)",
+        "stdin": "the exact bytes of %s, piped (deviation D-1)" % prompt_name,
         "note": "One run of one of Study 019's three cells; session.jsonl is the transcript evidence.",
     }, handle, indent=2)
     handle.write("\n")

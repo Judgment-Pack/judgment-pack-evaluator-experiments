@@ -1,0 +1,13 @@
+{
+  "admissible": false,
+  "arm": "A",
+  "armPromptSha256": "sha256:9d8b4f41c6cbb1c2ff5216c7758ad8f25d274802b5f07b2f54ac14d19e85d83a",
+  "code": "transcript-refused",
+  "globalIndex": 50,
+  "goldenSha256": "sha256:0e8c9cb1fd7db6d8b770ebeea669b675ecf69a81e213403212eb1a1bccda7783",
+  "message": "prior developer message (item 0) contains the leak token 'review'",
+  "note": "The full transcript binding for this slot: the arm's prompt bytes, the golden pre-prompt context, the retained completion, the turn-context model and cwd, and the recorded exit status. Written by batch.py before the seal, so it is inside the manifest and the ledger chain. Recorded by batch.py; harness/score.py recomputes this verdict from the same retained bytes and does not trust this record. `side` is what \u00a71a does with the run: an author protocol violation (a tool call, a turn after the registered prompt) is an AUTHORING outcome, retained in the denominator and scoring zero; every other refusal is APPARATUS and leaves it.",
+  "reason": "leak",
+  "side": "apparatus",
+  "slot": "run-017"
+}

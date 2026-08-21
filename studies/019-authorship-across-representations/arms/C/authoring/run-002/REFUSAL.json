@@ -1,0 +1,7 @@
+{
+  "code": "slot-shape",
+  "note": "Recorded by batch.py. harness/score.py recomputes admission from the retained bytes and does not trust this record.",
+  "run": "run-002",
+  "wrapperExit": 11,
+  "wrapperStderrTail": "refused: expected exactly one new session for this call, found 0 (slot retained)\n"
+}

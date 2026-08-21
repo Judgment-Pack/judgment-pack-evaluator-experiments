@@ -184,7 +184,12 @@ def main(argv):
     step = plan[index] if index < len(plan) else plan[-1]
     if step.get("sleep"):
         time.sleep(step["sleep"])
-    prompt = argv[-1]
+    # DEVIATION D-1: the wrapper pipes the prompt file into stdin (the pinned
+    # CLI reads instructions from stdin when no prompt argument is given), so
+    # the stand-in reads stdin exactly as the real CLI does. argv carries no
+    # prompt any more; a stub that still read argv[-1] would record "mcp_servers={}"
+    # as the prompt and every binding test would fail against the fixed wrapper.
+    prompt = sys.stdin.read()
     model = argv[argv.index("-m") + 1]
     home = os.environ["HOME"]
     sessions = os.path.join(os.environ["CODEX_HOME"], "sessions")

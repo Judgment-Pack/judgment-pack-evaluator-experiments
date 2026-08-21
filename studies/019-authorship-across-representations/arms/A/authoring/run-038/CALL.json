@@ -1,0 +1,63 @@
+{
+  "argv": [
+    "codex",
+    "exec",
+    "--ignore-user-config",
+    "-m",
+    "gpt-5.6-sol",
+    "--sandbox",
+    "workspace-write",
+    "-c",
+    "mcp_servers={}"
+  ],
+  "arm": "A",
+  "armPromptSha256": "sha256:9d8b4f41c6cbb1c2ff5216c7758ad8f25d274802b5f07b2f54ac14d19e85d83a",
+  "binarySha256": "sha256:a2a05dafaa1acb002a45eaec0a462de5b13694fcfcd7bc43305f14781ce7be14",
+  "cli": "codex-cli 0.145.0",
+  "codexHome": "/tmp/gcap-run/s019-home-A-run-038-3137545/.codex",
+  "codexHomeIsolated": true,
+  "credentialCopied": true,
+  "credentialRemoved": false,
+  "cwd": "/tmp/gcap-run/s019-authoring-A-run-038-3137545",
+  "endedAt": "2026-08-21T13:23:33Z",
+  "environment": [
+    "PATH",
+    "HOME",
+    "TMPDIR",
+    "CODEX_HOME"
+  ],
+  "environmentScrubbed": true,
+  "environmentValues": {
+    "CODEX_HOME": "/tmp/gcap-run/s019-home-A-run-038-3137545/.codex",
+    "HOME": "/tmp/gcap-run/s019-home-A-run-038-3137545",
+    "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/tmp/gcap-run/s019-bin-A-run-038-3137545",
+    "TMPDIR": "/tmp/gcap-run/s019-authoring-A-run-038-3137545/tmp"
+  },
+  "exitStatus": 0,
+  "globalIndex": 114,
+  "goldenSha256": "sha256:0e8c9cb1fd7db6d8b770ebeea669b675ecf69a81e213403212eb1a1bccda7783",
+  "home": "/tmp/gcap-run/s019-home-A-run-038-3137545",
+  "homeIsolated": true,
+  "ignoreUserConfig": true,
+  "isolatedHomeInventory": [
+    ".codex",
+    ".codex/auth.json"
+  ],
+  "isolation": "isolated",
+  "model": "gpt-5.6-sol",
+  "newSessionCount": 0,
+  "note": "One run of one of Study 019's three cells; session.jsonl is the transcript evidence.",
+  "operatorHomeSkillsPresent": true,
+  "pinsSha256": "sha256:0596acde69750e5672ac534c03b46444f5d40ad331809906c8c8decebc17a95a",
+  "position": 3,
+  "promptKind": "registered",
+  "promptSha256": "sha256:9d8b4f41c6cbb1c2ff5216c7758ad8f25d274802b5f07b2f54ac14d19e85d83a",
+  "round": 38,
+  "slot": "run-038",
+  "slotIndex": 38,
+  "startedAt": "2026-08-21T13:20:22Z",
+  "stdin": "the exact bytes of PROMPT.txt, piped (deviation D-1)",
+  "timedOut": false,
+  "timeoutKillAfterSeconds": 60,
+  "timeoutSeconds": 2700
+}

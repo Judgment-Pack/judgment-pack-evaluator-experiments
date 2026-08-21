@@ -678,7 +678,7 @@ def test_the_freeze_invokes_the_sealed_sets_loader_and_not_only_its_filenames(
     # as well as refusing, because an operator who runs `--check` and sees
     # nothing has been told the set is sound.
     assert any("sealed reviewer set" in problem
-               for problem in make_manifest.manifest_problems()), (
+               for problem in make_manifest.freeze_gate_problems()), (
         "a loader refusal must reach --check, not only --freeze")
     payload.write_bytes(kept)
     assert make_manifest.reviewer_load_problems(root) == []
@@ -742,7 +742,7 @@ def test_the_loader_runs_over_the_real_sealed_set_and_the_gate_reports_it(study)
     if not os.path.isdir(os.path.join(study, make_manifest.REVIEWER_SET_DIR)):
         pytest.skip("the sealed reviewer set has not landed yet")
     assert make_manifest.reviewer_load_problems(study) == []
-    assert [problem for problem in make_manifest.manifest_problems()
+    assert [problem for problem in make_manifest.freeze_gate_problems()
             if "sealed reviewer set" in problem] == []
 
 
@@ -843,7 +843,7 @@ def test_a_prior_attempt_root_refuses_the_freeze(tmp_path, monkeypatch):
     assert make_manifest.main(["--freeze-gates"]) == 1
     assert make_manifest.main(["--check"]) == 1
     assert any(make_manifest.PRIMARY_ATTEMPT_ROOT in problem
-               for problem in make_manifest.manifest_problems()), (
+               for problem in make_manifest.freeze_gate_problems()), (
         "the gate must reach --check, not only --freeze")
 
     # 2. a DANGLING symlink: `exists()` and `isdir()` both call this absent
@@ -952,7 +952,7 @@ def test_an_unobservable_index_refuses_instead_of_reporting_a_clean_tree(
                for problem in make_manifest.freeze_gate_problems(root)), (
         "the freeze gates are where the ceremony reads this")
     assert any("could not be read" in problem
-               for problem in make_manifest.manifest_problems()), (
+               for problem in make_manifest.freeze_gate_problems()), (
         "--check must say it too")
     assert make_manifest.main(["--check"]) == 1
     assert make_manifest.main(["--freeze-gates"]) == 1
@@ -1062,7 +1062,7 @@ def test_pre_existing_authoring_state_refuses_the_freeze(tmp_path, monkeypatch):
     assert make_manifest.main(["--freeze-gates"]) == 1
     assert make_manifest.main(["--check"]) == 1
     assert any(directories[0] in problem
-               for problem in make_manifest.manifest_problems()), (
+               for problem in make_manifest.freeze_gate_problems()), (
         "the gate must reach --check, not only --freeze")
 
     # 2. the slot deleted and the ROOT left: an empty authoring root is a batch
@@ -1235,7 +1235,7 @@ def test_the_committed_study_tree_tracks_no_bytecode(study):
                        or name.endswith((".pyc", ".pyo")))
     assert offenders == [], (
         "compiled bytecode is tracked under the study: %s" % offenders)
-    assert [problem for problem in make_manifest.manifest_problems()
+    assert [problem for problem in make_manifest.freeze_gate_problems()
             if problem.startswith("compiled bytecode")] == []
 
 

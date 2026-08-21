@@ -1,0 +1,7 @@
+{
+  "code": "post-call-failure",
+  "note": "Recorded by batch.py. harness/score.py recomputes admission from the retained bytes and does not trust this record.",
+  "run": "run-018",
+  "wrapperExit": 13,
+  "wrapperStderrTail": "cp: error writing '/tmp/s19run/studies/019-authorship-across-representations/arms/B/authoring/run-018/session.jsonl': No space left on device\nrefused: a post-call wrapper stage failed at line 591 with status 1; the call had already returned and the slot is retained with whatever that stage had written\n"
+}

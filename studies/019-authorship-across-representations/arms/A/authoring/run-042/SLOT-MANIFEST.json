@@ -1,0 +1,34 @@
+{
+  "arm": "A",
+  "files": [
+    [
+      ".",
+      -1,
+      "type:directory"
+    ],
+    [
+      "CALL.json",
+      2103,
+      "b320b7f760aa2a22e27e4b3eb8559ec962f5c7aecf3a23f347294bc4a194277e"
+    ],
+    [
+      "REFUSAL.json",
+      306,
+      "95a36192a472b82c533edf62c6f03bba9674324363f518750448304411323955"
+    ],
+    [
+      "stderr.raw",
+      121686,
+      "bd9bc26782cc42493528c8ae5ca65cee98e5e4840b0b1b786ef9a36e70f01ec5"
+    ],
+    [
+      "stdout.raw",
+      36785,
+      "91fdc47c15ac39f14e13f3e1aab96e0f064ce23e2282be11b2265d0a09635898"
+    ]
+  ],
+  "filesSha256": "sha256:147b3ecce44a8f64a939814b0c7d95d5cab75eb1c375424fc50631bee542a6f5",
+  "globalIndex": 124,
+  "note": "The terminal seal of this slot: the slot ROOT itself, at the relative path `.`, and EVERY entry beneath it by relative path \u2014 regular files by byte length and sha256, everything else (symlinks, directories, FIFOs, sockets, devices) by a -1 length and a type: marker \u2014 sorted by path, and the sha256 of that sorted list. Every entry, so that an entry ADDED after the seal breaks it rather than passing it and then buying that slot a pipeline-invalid code and the denominator change it carries; and the root, so that renaming this directory and planting a symlink at its old path breaks it for the same reason. This file is not a member of its own list \u2014 a file cannot carry its own digest \u2014 and is sealed instead by the ledger, whose record for this slot carries the digest of THIS FILE and the previous record's digest, so BATCH.json is a hash chain in schedule order. A slot whose recomputed manifest differs from the ledger's, or a chain that does not verify, invalidates confirmatory scoring for the WHOLE batch rather than moving this slot out of a denominator.",
+  "slot": "run-042"
+}

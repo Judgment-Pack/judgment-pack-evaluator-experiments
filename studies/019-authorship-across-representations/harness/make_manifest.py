@@ -998,7 +998,17 @@ def manifest_problems():
     # registers as absent at this moment, and any authoring slot tree or ledger,
     # which the same document registers as absent one step earlier. `--check`
     # says all four, and `--freeze` refuses on all four.
-    problems.extend(freeze_gate_problems())
+    #
+    # DEVIATION D-2 (2026-08-21, DEVIATIONS.md): all four fire HERE, in the
+    # command-line seats the registered sentence above names — and no longer
+    # inside this function, which `integrity.verify()` calls at every driver
+    # start and at the attempt itself. Wired here, the no-batch and no-attempt
+    # gates made the registered post-freeze protocol impossible: a crashed
+    # batch could never resume (the ledger it must continue is the "prior
+    # authoring" the gate refuses), and the scorer would have refused every
+    # COMPLETED batch for existing. The gates' registered moment is the freeze;
+    # their seat is `--check`/`--freeze`/`--freeze-gates`, where `main()` calls
+    # `freeze_gate_problems()` directly.
     return problems
 
 
@@ -1045,7 +1055,7 @@ def main(argv=None):
         if gates:
             return 1
     if arguments.check:
-        problems = manifest_problems()
+        problems = manifest_problems() + freeze_gate_problems()
         for problem in problems:
             print(problem)
         for name in pending:

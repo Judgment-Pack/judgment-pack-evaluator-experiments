@@ -1,0 +1,456 @@
+POLICY:
+```rego
+package study
+
+# P1: financial evidence is an absolute precondition.
+decision := {
+	"disposition": "unresolved",
+	"reasons": ["missing-required-evidence"],
+} if {
+	object.get(input, "evidence", {})["financial-evidence"] == "absent"
+} else := {
+	"disposition": "unresolved",
+	"reasons": ["unknown"],
+} if {
+	not "financial-evidence" in object.get(input, "evidence", {})
+} else := result if {
+	count(possible_outcomes) == 1
+	some result in possible_outcomes
+}
+
+# U1 evaluates every outcome-relevant equivalence class for each unreadable
+# numeric or country input. The written policy's comparisons partition the
+# input domains at precisely these representative values.
+risk_candidates := [input.vendor.riskScore] if {
+	"riskScore" in input.vendor
+} else := [0, 39, 40, 69, 70, 89, 90, 100]
+
+spend_candidates := [input.vendor.requestedSpend] if {
+	"requestedSpend" in input.vendor
+} else := [
+	0,
+	100000,
+	100000.01,
+	500000,
+	500000.01,
+	2000000,
+	2000000.01,
+	10000000,
+]
+
+country_candidates := [input.vendor.countryRisk] if {
+	"countryRisk" in input.vendor
+} else := ["LOW", "MEDIUM", "HIGH"]
+
+possible_outcomes contains result if {
+	some risk in risk_candidates
+	some spend in spend_candidates
+	some country in country_candidates
+
+	vendor := object.union(input.vendor, {
+		"riskScore": risk,
+		"requestedSpend": spend,
+		"countryRisk": country,
+	})
+
+	result := readable_outcome(vendor, input.evidence)
+}
+
+# Clause order: D1/D2, O3, O2, D3-D8 as modified by O1.
+readable_outcome(vendor, evidence) := {
+	"disposition": "reject",
+	"reasons": [],
+} if {
+	vendor.sanctionsStatus == "MATCH"
+} else := {
+	"disposition": "unresolved",
+	"reasons": ["no-match"],
+} if {
+	vendor.sanctionsStatus == "UNKNOWN"
+} else := {
+	"disposition": "unresolved",
+	"reasons": ["exception-escalation"],
+} if {
+	vendor.sanctionsStatus == "CLEAR"
+	vendor.countryRisk == "HIGH"
+	vendor.requestedSpend > 2000000
+} else := {
+	"disposition": "review",
+	"reasons": [],
+} if {
+	vendor.sanctionsStatus == "CLEAR"
+	object.get(vendor, "criticalSupplier", "no") == "yes"
+} else := {
+	"disposition": "reject",
+	"reasons": [],
+} if {
+	vendor.sanctionsStatus == "CLEAR"
+	vendor.riskScore >= 90
+} else := {
+	"disposition": "reject",
+	"reasons": [],
+} if {
+	vendor.sanctionsStatus == "CLEAR"
+	vendor.countryRisk == "HIGH"
+	vendor.riskScore >= 70
+} else := {
+	"disposition": "reject",
+	"reasons": [],
+} if {
+	vendor.sanctionsStatus == "CLEAR"
+	object.get(vendor, "priorEnforcement", "no") == "yes"
+} else := {
+	"disposition": "approve",
+	"reasons": [],
+} if {
+	vendor.sanctionsStatus == "CLEAR"
+	object.get(vendor, "priorEnforcement", "no") != "yes"
+	vendor.countryRisk == "LOW"
+	vendor.riskScore < 40
+	vendor.requestedSpend <= 500000
+} else := d6b_outcome(evidence) if {
+	vendor.sanctionsStatus == "CLEAR"
+	object.get(vendor, "priorEnforcement", "no") != "yes"
+	vendor.countryRisk == "LOW"
+	vendor.riskScore < 40
+	vendor.requestedSpend > 500000
+	vendor.requestedSpend <= 2000000
+} else := {
+	"disposition": "approve",
+	"reasons": [],
+} if {
+	vendor.sanctionsStatus == "CLEAR"
+	object.get(vendor, "priorEnforcement", "no") != "yes"
+	vendor.countryRisk == "LOW"
+	vendor.riskScore >= 40
+	vendor.riskScore < 70
+	vendor.requestedSpend <= 100000
+	object.get(vendor, "newVendor", "no") != "yes"
+} else := {
+	"disposition": "approve",
+	"reasons": [],
+} if {
+	vendor.sanctionsStatus == "CLEAR"
+	object.get(vendor, "priorEnforcement", "no") != "yes"
+	vendor.countryRisk == "MEDIUM"
+	vendor.riskScore < 40
+	vendor.requestedSpend <= 100000
+} else := {
+	"disposition": "review",
+	"reasons": [],
+} if {
+	vendor.sanctionsStatus == "CLEAR"
+}
+
+d6b_outcome(evidence) := {
+	"disposition": "approve",
+	"reasons": [],
+} if {
+	evidence["insurance-certificate"] == "present"
+} else := {
+	"disposition": "enhanced-review",
+	"reasons": [],
+} if {
+	evidence["insurance-certificate"] == "absent"
+} else := {
+	"disposition": "unresolved",
+	"reasons": ["unknown"],
+} if {
+	not "insurance-certificate" in evidence
+}
+```
+
+TESTS:
+```rego
+package study_test
+
+import data.study
+
+financial := {"financial-evidence": "present"}
+
+test_policy_cases[name] if {
+	some name, tc in {
+		"missing financial evidence blocks rejection": {
+			"input": {
+				"vendor": {
+					"sanctionsStatus": "MATCH",
+					"riskScore": 95,
+					"requestedSpend": 100,
+					"countryRisk": "LOW",
+				},
+				"evidence": {"financial-evidence": "absent"},
+			},
+			"expected": {
+				"disposition": "unresolved",
+				"reasons": ["missing-required-evidence"],
+			},
+		},
+		"unreported financial evidence is unknown": {
+			"input": {
+				"vendor": {
+					"sanctionsStatus": "CLEAR",
+					"riskScore": 10,
+					"requestedSpend": 100,
+					"countryRisk": "LOW",
+				},
+				"evidence": {},
+			},
+			"expected": {
+				"disposition": "unresolved",
+				"reasons": ["unknown"],
+			},
+		},
+		"sanctions match rejects critical supplier": {
+			"input": {
+				"vendor": {
+					"sanctionsStatus": "MATCH",
+					"criticalSupplier": "yes",
+					"riskScore": 10,
+					"requestedSpend": 100,
+					"countryRisk": "LOW",
+				},
+				"evidence": financial,
+			},
+			"expected": {"disposition": "reject", "reasons": []},
+		},
+		"unknown sanctions has no matching clause": {
+			"input": {
+				"vendor": {
+					"sanctionsStatus": "UNKNOWN",
+					"criticalSupplier": "yes",
+					"riskScore": 10,
+					"requestedSpend": 100,
+					"countryRisk": "LOW",
+				},
+				"evidence": financial,
+			},
+			"expected": {
+				"disposition": "unresolved",
+				"reasons": ["no-match"],
+			},
+		},
+		"O3 displaces critical supplier and rejection": {
+			"input": {
+				"vendor": {
+					"sanctionsStatus": "CLEAR",
+					"criticalSupplier": "yes",
+					"priorEnforcement": "yes",
+					"riskScore": 95,
+					"requestedSpend": 2000000.01,
+					"countryRisk": "HIGH",
+				},
+				"evidence": financial,
+			},
+			"expected": {
+				"disposition": "unresolved",
+				"reasons": ["exception-escalation"],
+			},
+		},
+		"O2 displaces enhanced review": {
+			"input": {
+				"vendor": {
+					"sanctionsStatus": "CLEAR",
+					"criticalSupplier": "yes",
+					"riskScore": 20,
+					"requestedSpend": 1000000,
+					"countryRisk": "LOW",
+				},
+				"evidence": {
+					"financial-evidence": "present",
+					"insurance-certificate": "absent",
+				},
+			},
+			"expected": {"disposition": "review", "reasons": []},
+		},
+		"critical risk rejects": {
+			"input": {
+				"vendor": {
+					"sanctionsStatus": "CLEAR",
+					"riskScore": 90,
+					"requestedSpend": 100,
+					"countryRisk": "MEDIUM",
+				},
+				"evidence": financial,
+			},
+			"expected": {"disposition": "reject", "reasons": []},
+		},
+		"high country rejects at seventy": {
+			"input": {
+				"vendor": {
+					"sanctionsStatus": "CLEAR",
+					"riskScore": 70,
+					"requestedSpend": 100,
+					"countryRisk": "HIGH",
+				},
+				"evidence": financial,
+			},
+			"expected": {"disposition": "reject", "reasons": []},
+		},
+		"prior enforcement defaults only when unreported": {
+			"input": {
+				"vendor": {
+					"sanctionsStatus": "CLEAR",
+					"priorEnforcement": "yes",
+					"riskScore": 10,
+					"requestedSpend": 100,
+					"countryRisk": "LOW",
+				},
+				"evidence": financial,
+			},
+			"expected": {"disposition": "reject", "reasons": []},
+		},
+		"D6a includes five hundred thousand": {
+			"input": {
+				"vendor": {
+					"sanctionsStatus": "CLEAR",
+					"riskScore": 39,
+					"requestedSpend": 500000,
+					"countryRisk": "LOW",
+				},
+				"evidence": financial,
+			},
+			"expected": {"disposition": "approve", "reasons": []},
+		},
+		"D6b approves with insurance": {
+			"input": {
+				"vendor": {
+					"sanctionsStatus": "CLEAR",
+					"riskScore": 20,
+					"requestedSpend": 2000000,
+					"countryRisk": "LOW",
+				},
+				"evidence": {
+					"financial-evidence": "present",
+					"insurance-certificate": "present",
+				},
+			},
+			"expected": {"disposition": "approve", "reasons": []},
+		},
+		"D6b absent insurance enhances review": {
+			"input": {
+				"vendor": {
+					"sanctionsStatus": "CLEAR",
+					"riskScore": 20,
+					"requestedSpend": 500000.01,
+					"countryRisk": "LOW",
+				},
+				"evidence": {
+					"financial-evidence": "present",
+					"insurance-certificate": "absent",
+				},
+			},
+			"expected": {
+				"disposition": "enhanced-review",
+				"reasons": [],
+			},
+		},
+		"D6b unreported insurance is unknown": {
+			"input": {
+				"vendor": {
+					"sanctionsStatus": "CLEAR",
+					"riskScore": 20,
+					"requestedSpend": 1000000,
+					"countryRisk": "LOW",
+				},
+				"evidence": financial,
+			},
+			"expected": {
+				"disposition": "unresolved",
+				"reasons": ["unknown"],
+			},
+		},
+		"O1 suspends D6c": {
+			"input": {
+				"vendor": {
+					"sanctionsStatus": "CLEAR",
+					"newVendor": "yes",
+					"riskScore": 40,
+					"requestedSpend": 100000,
+					"countryRisk": "LOW",
+				},
+				"evidence": financial,
+			},
+			"expected": {"disposition": "review", "reasons": []},
+		},
+		"D7 approves at its spend boundary": {
+			"input": {
+				"vendor": {
+					"sanctionsStatus": "CLEAR",
+					"riskScore": 39,
+					"requestedSpend": 100000,
+					"countryRisk": "MEDIUM",
+				},
+				"evidence": financial,
+			},
+			"expected": {"disposition": "approve", "reasons": []},
+		},
+		"worked example one rejects": {
+			"input": {
+				"vendor": {
+					"sanctionsStatus": "CLEAR",
+					"riskScore": 95,
+					"requestedSpend": 1000000,
+					"priorEnforcement": "no",
+					"criticalSupplier": "no",
+				},
+				"evidence": financial,
+			},
+			"expected": {"disposition": "reject", "reasons": []},
+		},
+		"worked example two is unknown": {
+			"input": {
+				"vendor": {
+					"sanctionsStatus": "CLEAR",
+					"countryRisk": "HIGH",
+					"riskScore": 50,
+					"criticalSupplier": "no",
+				},
+				"evidence": financial,
+			},
+			"expected": {
+				"disposition": "unresolved",
+				"reasons": ["unknown"],
+			},
+		},
+		"worked example three reviews": {
+			"input": {
+				"vendor": {
+					"sanctionsStatus": "CLEAR",
+					"criticalSupplier": "yes",
+					"countryRisk": "LOW",
+					"requestedSpend": 100,
+				},
+				"evidence": financial,
+			},
+			"expected": {"disposition": "review", "reasons": []},
+		},
+		"worked example four is unknown": {
+			"input": {
+				"vendor": {
+					"sanctionsStatus": "CLEAR",
+					"criticalSupplier": "yes",
+					"riskScore": 10,
+				},
+				"evidence": financial,
+			},
+			"expected": {
+				"disposition": "unresolved",
+				"reasons": ["unknown"],
+			},
+		},
+		"unreadable spend remains review when all values review": {
+			"input": {
+				"vendor": {
+					"sanctionsStatus": "CLEAR",
+					"riskScore": 50,
+					"countryRisk": "MEDIUM",
+				},
+				"evidence": financial,
+			},
+			"expected": {"disposition": "review", "reasons": []},
+		},
+	}
+
+	study.decision == tc.expected with input as tc.input
+}
+```

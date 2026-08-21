@@ -1,0 +1,11 @@
+No conforming Judgment Pack can implement this policy exactly under JPS Core `0.2.0-draft`, so valid `PACK` and `MATRIX` blocks cannot truthfully be supplied.
+
+The policy treats omitted `priorEnforcement`, `criticalSupplier`, and `newVendor` as `"no"`. JPS fact conditions instead evaluate an omitted JSON Pointer as `unknown`; the language has no operator for testing whether a fact is omitted or defaulting that omission to a value.
+
+This difference is observable. For example, with financial evidence present, sanctions CLEAR, LOW country risk, risk 20, and spend $100:
+
+- omitted `priorEnforcement` must behave as `"no"` and allow approval;
+- in JPS, testing `/vendor/priorEnforcement` yields `unknown`;
+- ignoring that unknown cannot reliably enforce D5 when the value is `"yes"`, while escalating it incorrectly leaves the omitted case unresolved.
+
+Exceptions and `onUnknown` cannot repair this because `onUnknown` is fixed per condition and cannot reinterpret omission as `"no"`. The same representational mismatch affects O1 and O2. Any pack supplied would therefore necessarily disagree with the policy on some permitted inputs.

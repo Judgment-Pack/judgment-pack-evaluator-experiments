@@ -132,7 +132,7 @@
  },
  "ownPorts": {
   "path": "harness/PORTS.md",
-  "sha256": "sha256:0016fcf89bf3b971f6ef899b38e2cf975b0c0fc18d79e2acb5901d44dce18362"
+  "sha256": "sha256:e646c31e4e47227ec0450ebf47b00cadeef8f2e30c1292f597ead18843a391e7"
  },
  "pinnedFrom": {
   "alsoTakenFrom": {
@@ -185,6 +185,6 @@
  },
  "studyManifest": {
   "path": "harness/STUDY-MANIFEST.sha256",
-  "sha256": "sha256:816eb15276e76502f0a538f540235928206daf2ef884bdb47bc996c1517ab593"
+  "sha256": "sha256:ffbb1acc12775c6eefbcceb2a0dc62216041e08833cb7eb07aad7f93f90b3fbd"
  }
 }
