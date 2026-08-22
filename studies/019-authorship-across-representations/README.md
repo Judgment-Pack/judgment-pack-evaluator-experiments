@@ -1,21 +1,6 @@
 # Study 019 — authorship across representations
 
-**Status: PREREGISTRATION DRAFT, thirteenth major revision. Not frozen, and nothing citable has
-run — every freeze pin is null and every execution so far is a non-citable pilot. The
-cross-vendor review rounds under the RFC 0009 interim review regime are recorded in
-[`PREREG-REVIEW.md`](PREREG-REVIEW.md), with each round verbatim under
-[`reviews/`](reviews/). The rendered sentence below is this file's ONLY statement of how
-many rounds have run, what each returned, and which round is open: it comes from that
-record's round-state block through `harness/render_round_status.py`, and the currency suite
-requires it here verbatim. Round 4's verdict was the first of the regime that was not a
-refusal, and round 5 took it back on a blocker that was the maintainer's own commit hygiene:
-a bytecode cache committed with the round-4 response, which made `integrity.py` refuse the
-committed tree and the round-4 suite claim describe a tree that HEAD was not. Round 6 found
-that class one level up, and round 7 found it a third time — the round-opening commit itself
-was red — beside a fourth consecutive round of currency-guard bypasses, which the registered
-maintainer decision of 2026-08-19 answers by DESCOPING the English-semantics guard layer
-back to this program's baseline rather than escalating it again. The freeze requires a round
-verdict of exactly `freezable as written`, which no round has returned.**
+**Status: FROZEN (thirteenth major revision) and RUN. The freeze commit is `51cae0225ea2e9e5679c8e496b39a62e93385278`; the primary attempt is `results/primary-attempt-001`, label REGISTERED, and its published verdict is **R1 inconclusive — control gate failed (`e1-floor`)**: the E1 floor breached in all three arms, so no contrast, interval or direction exists. `ANALYSIS.md` is the post-run analysis; `CORRECTION.md` records the registered no-correction audit; the preregistration and its pinned artifacts govern.**
 
 <!-- round-status:begin -->
 ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 12 review rounds are on the record, 12 have returned a verdict — rounds 1-3 and 5-10 returned DO NOT FREEZE; rounds 4 and 11 returned FREEZABLE AFTER LISTED FIXES; round 12 returned FREEZABLE AS WRITTEN — and no round is open.
