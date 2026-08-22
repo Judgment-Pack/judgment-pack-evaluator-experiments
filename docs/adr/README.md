@@ -11,3 +11,4 @@ implementation and methodology decisions — not specification proposals. Normat
 | [0002](0002-trustworthy-input-acquisition-research-line.md) | Open a trustworthy-input-acquisition research line: the trust decomposition and build order | proposed |
 | [0003](0003-answer-evidence-sufficiency-with-a-frozen-case-set.md) | Answer the evidence-sufficiency question with a frozen case set before any RFC | proposed |
 | [0004](0004-keep-appendable-files-out-of-the-freeze-set.md) | Keep appendable files out of a study's freeze set — `DEVIATIONS.md` and `README.md` excluded by construction | proposed |
+| [0005](0005-verify-the-record-from-its-own-commit.md) | Verify the record from its own commit — archive-verified suites of record, state as rendered data, and a two-tier threat model for the guard layer | proposed |
