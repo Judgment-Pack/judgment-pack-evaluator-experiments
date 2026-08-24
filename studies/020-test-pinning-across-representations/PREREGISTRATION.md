@@ -436,6 +436,57 @@ recorded as **out of budget** and is not swept further. Aborted settings are pub
 call that aborted them. The sweep's total is capped at **27 calls**; the cap is not raised by a
 deviation without a `DEVIATIONS.md` entry naming the reason and republishing the price.
 
+**The three swept settings, registered 2026-08-24, before the sweep — the maintainer's decision.**
+The sweep's registered shape (`3 settings × 3/arm`) names a cardinality and no members, and a set
+whose members are chosen after the durations are seen is not a swept set but a picked one. The
+three settings are therefore registered here, dated, before the first sweep call:
+
+> **The swept set is the pinned CLI's own named reasoning-effort tiers `low`, `medium`, `high`,
+> in that order.**
+
+Measured against the pinned binary rather than asserted, on 2026-08-24, with no model call:
+
+- `codex exec --help` at `codex-cli 0.145.0`, digest `sha256:a2a05daf…` (`codex.binarySha256`),
+  names **no reasoning-effort flag at all**. The only spelling the pinned CLI accepts is the
+  config override **`-c model_reasoning_effort=<tier>`** — `-c` is the argv flag and
+  `model_reasoning_effort` is a `ConfigToml` field of this build. This resolves the *spelling*
+  half of the `TODO(prereg)` below; the *witness* half stays open, because it needs a call.
+- `codex debug models` renders the build's own model catalog offline. Over its **eight** models the
+  tier vocabulary is `low`, `medium`, `high`, `xhigh`, `max`, `ultra`; the four universally
+  supported ones are **`low`, `medium`, `high`, `xhigh`** (8/8 each), while `max` is absent from
+  five models and `ultra` from six. The swept set is the **three lowest of that universally
+  supported four**, so it survives whichever model `codex.model` is eventually pinned to.
+- Every model's own `default_reasoning_level` lies **inside** that set — `low` for `gpt-5.6-sol`,
+  the model Study 019's batch ran, and `medium` for the other seven. The set therefore contains
+  the default 019's batch implicitly ran at, and extends from it monotonically upward in cost.
+
+**Why the set stops below `xhigh`, stated rather than implied.** `xhigh` is as available as the
+three swept tiers, so its exclusion is a **budget** decision and not an availability one, and it
+is registered as such: the dual-pricing table above already puts a 27-call sweep at 2.57 h and an
+`N = 60` batch at 51.46 h *at pilot-like durations under the default effort*, and a fourth tier
+above `high` adds nine more calls to a sweep whose own abort rule is written for the case where
+the tiers already registered run long. `xhigh`, `max` and `ultra` are therefore **not swept**, and
+are reachable only by a `DEVIATIONS.md` entry naming the reason and republishing the price, under
+the cap clause immediately above — the same clause that governs raising the 27-call cap, because
+reaching a costlier tier is the same act as buying more calls. `max` and `ultra` carry the further
+defect that they are absent from most of the catalog, so a sweep over them would not be a sweep
+the model pin is free to move within.
+
+**What this registers, and what it does not.** It names the swept SET, which must exist before the
+sweep can run. It does **not** name the chosen condition: the `TODO(prereg)` above — the
+`codex.reasoningEffort` value and the per-arm N together — stays open, and both remain outputs of
+the sweep. Naming three tiers is not choosing one.
+
+**Where the set is carried, and the mode's name.** The set is `harness/PINS.json`'s
+`sweep.settings` and `harness/batch.py`'s `SWEEP_SETTINGS`; `harness/tests/test_sweep.py` binds
+both spellings to this paragraph, so a set edited in one place and not the others fails the suite.
+The mode this section calls `--sweep` is the driver subcommand **`harness/batch.py sweep`** — the
+subcommand form every other mode of this driver takes — and `PIN_LABEL=SWEEP` is what that mode
+claims at the wrapper. The sweep writes under **`sweeps/<UTC date>-effort-sweep/<setting>/arm-<ARM>/run-NNN`**,
+outside `arms/` by construction, so R10-1's prior-authoring freeze gate — which derives its paths
+from the driver's own `arms/` constants — does not see the sweep's slots and needs no exclusion
+list to not see them.
+
 **M-25, ruled as drafted: the sweep's pin state.** `authoring_call.sh:203` refuses while
 `codex.model` is null, and `registeredLabelRule` names design-time-resolved pins as checked
 *whether or not the freeze has happened* — so a sweep that must run **before** the effort value
@@ -466,9 +517,18 @@ sets the flag and inspects the resulting `session.jsonl` for a non-null member n
   published record of the condition. 019's medians, for the band's calibration: **A 2067.5** over
   48 runs, **B 502.5** over 38, **C 696** over 39.
 
-> **TODO(prereg) — the effort flag's exact spelling and the witness-resolution outcome.** Both are
-> resolved empirically at pin time, before the sweep; the branch taken is recorded here and the
-> corresponding gate-5 change (or its registered absence) lands with it.
+> **TODO(prereg) — the witness-resolution outcome.** The FLAG'S SPELLING half of this TODO is
+> **CLOSED, 2026-08-24**: the pinned CLI exposes no reasoning-effort flag, and the registered
+> spelling is the config override `-c model_reasoning_effort=<tier>`, carried as
+> `codex.reasoningEffortFlag` (`-c`) and `codex.reasoningEffortConfigKey`
+> (`model_reasoning_effort`) so the wrapper still reads it from the registry and still refuses to
+> guess it. The WITNESS half stays open, because it needs a call: it is resolved as **step zero of
+> the sweep** — `harness/batch.py sweep` inspects the FIRST sweep call's own `session.jsonl` for a
+> non-null member naming the effort and records which M-24 branch fired into `SWEEP.json`, so the
+> resolution is made from a call the sweep was going to spend anyway rather than from an extra
+> probe. The branch taken is recorded here afterwards and the corresponding gate-5 change (or its
+> registered absence) lands with it; the sweep publishes the branch, it does not amend gate 5 on
+> its own authority.
 
 ## 2a. Calibration under registered conditions — C1 to C5
 

@@ -99,6 +99,25 @@
 #                      only caller; it retains a verdict, a stripped call
 #                      record and — when there is one — the context digests,
 #                      never the transcript, whose deletion it verifies.)
+#        PIN_LABEL   - "PRIMARY" (default) or "SWEEP" (§2.1, M-25: the one
+#                      registered exemption, one value and one label wide).
+#                      harness/batch.py sets it UNCONDITIONALLY, so an
+#                      operator's stray PIN_LABEL=SWEEP cannot reach here.
+#        SWEEP_EFFORT - the pre-pilot sweep's setting for THIS call, threaded
+#                      by harness/batch.py's `sweep` subcommand and by nothing
+#                      else. Legal only under PIN_LABEL=SWEEP, refused under
+#                      PRIMARY, and refused when it names a tier outside the
+#                      registry's `sweep.settings` — the swept SET is
+#                      registered before the sweep runs (§2.1, 2026-08-24), and
+#                      a wrapper that would run an unregistered tier is a
+#                      wrapper the cap clause cannot bind. Empty under the
+#                      sweep label means the CLI's own default, which the slot
+#                      records as `reasoningEffortSource: "sweep-default"`.
+#                      Under this label the slot is written at
+#                      sweeps/<UTC date>-effort-sweep/<setting>/arm-<ARM>/run-NNN
+#                      instead of arms/<ARM>/authoring/run-NNN, and the anchor
+#                      guard and the resolve-before-create descent both move
+#                      with it.
 #
 # Retains into <slot-dir>/:
 #   CALL.json      - argv, cwd, isolated home, environment names AND values,
@@ -229,13 +248,49 @@ fi
 # primary one, and it marks the slot citable:false. Running the sweep outside the
 # harness is rejected on sight — that is the 019 failure exactly (section 2a.1).
 #
-# The FLAG'S SPELLING is read from the registry (codex.reasoningEffortFlag) and
-# is not written into this shell: section 2.1 registers the spelling as resolved
-# empirically at pin time, and a spelling hard-coded here would be a guess the
-# registry could not correct.
+# The FLAG'S SPELLING is read from the registry (codex.reasoningEffortFlag and
+# codex.reasoningEffortConfigKey) and is not written into this shell: section 2.1
+# registers the spelling as resolved empirically at pin time, and a spelling
+# hard-coded here would be a guess the registry could not correct.
+#
+# IT IS TWO MEMBERS AND NOT ONE, because the empirical resolution (2026-08-24,
+# recorded under codex.reasoningEffortFlagProvenance) found that the pinned CLI
+# HAS NO reasoning-effort flag: `codex exec --help` at codex-cli 0.145.0 names
+# none, and the only spelling the build accepts is the config override
+#   -c model_reasoning_effort=<tier>
+# whose value is KEY=VALUE and not the bare tier. This seat emits FLAG then
+# VALUE, so one member cannot carry both halves: collapsing them would either
+# write `model_reasoning_effort` into this shell — the guess section 2.1
+# forbids — or send the bare tier after -c, which this build reads as a
+# malformed override. So the registry carries the flag and the key separately
+# and the composition happens here, from the registry's own bytes.
+#
+# A NULL config key is not an error: it is the state in which the CLI grows a
+# real flag and the registry names it alone, and then the pair emitted is
+# `FLAG VALUE` exactly as 019's seat would have emitted it.
+#
+# THE SWEEP'S PER-CALL SETTING (§2.1, the three registered settings). Under
+# PIN_LABEL=SWEEP the driver threads the setting for THIS call in SWEEP_EFFORT,
+# which harness/batch.py sets UNCONDITIONALLY beside PIN_LABEL under its `sweep`
+# subcommand and nowhere else. It travels the same road as PIN_LABEL for the
+# same reason: a sweep an operator's shell could configure is the sweep run
+# outside the harness, which is the 019 failure exactly (§2a.1). It is refused
+# under PRIMARY, and it is refused when it names a setting the registry's
+# sweep.settings does not — the swept SET is registered before the sweep, and a
+# wrapper that would run an unregistered tier is a wrapper the cap clause cannot
+# bind.
 PINNED_EFFORT="$(pin codex reasoningEffort)"
 PINNED_EFFORT_FLAG="$(pin codex reasoningEffortFlag)"
+# PRESENT-OR-REFUSE, and null is a legitimate present value. `pin` raises on an
+# ABSENT member, which under `set -e` would kill this wrapper with a traceback
+# and no refusal line; the member's absence is a registry this seat does not
+# recognise, and it says so.
+if ! PINNED_EFFORT_KEY="$(pin codex reasoningEffortConfigKey 2>/dev/null)"; then
+  echo "refused: harness/PINS.json carries no codex.reasoningEffortConfigKey member; the effort-flag seat composes the CLI argument from codex.reasoningEffortFlag AND that key (section 2.1, resolved 2026-08-24: the pinned CLI has no reasoning-effort flag and takes -c model_reasoning_effort=<tier>), and a registry missing the member is one this wrapper cannot compose from" >&2
+  exit 1
+fi
 PIN_LABEL="${PIN_LABEL:-PRIMARY}"
+SWEEP_EFFORT="${SWEEP_EFFORT:-}"
 EFFORT_SOURCE="registry"
 case "$PINNED_EFFORT" in
   ""|None|null) EFFORT_NULL=true ;;
@@ -245,14 +300,40 @@ case "$PINNED_EFFORT_FLAG" in
   ""|None|null) EFFORT_FLAG_NULL=true ;;
   *)            EFFORT_FLAG_NULL=false ;;
 esac
+case "$PINNED_EFFORT_KEY" in
+  ""|None|null) PINNED_EFFORT_KEY="" ;;
+esac
 if [ "$PIN_LABEL" = "SWEEP" ]; then
-  # The registered exemption. The effort is left at the CLI default, the flag is
-  # omitted, and the slot says so in its own bytes.
-  PINNED_EFFORT=""
-  EFFORT_SOURCE="sweep-default"
+  # The registered exemption, and the sweep's own setting on top of it. The
+  # slot says which of the two states it is in, in its own bytes.
   CITABLE=false
+  if [ -n "$SWEEP_EFFORT" ]; then
+    if ! "$PYTHON" -c 'import json,sys
+registry = json.load(open(sys.argv[1]))
+settings = (registry.get("sweep") or {}).get("settings")
+sys.exit(0 if isinstance(settings, list) and sys.argv[2] in settings else 1)' \
+        "$PINS" "$SWEEP_EFFORT"; then
+      echo "refused: SWEEP_EFFORT=$SWEEP_EFFORT is not one of harness/PINS.json's registered sweep.settings; section 2.1 registers the swept SET before the sweep runs, and a tier outside it needs a DEVIATIONS.md entry naming the reason and republishing the price" >&2
+      exit 1
+    fi
+    if [ "$EFFORT_FLAG_NULL" = true ]; then
+      echo "refused: SWEEP_EFFORT=$SWEEP_EFFORT and codex.reasoningEffortFlag is null; the flag's spelling is resolved at pin time (section 2.1) and this wrapper will not guess it, under the sweep label any more than under the primary one" >&2
+      exit 1
+    fi
+    PINNED_EFFORT="$SWEEP_EFFORT"
+    EFFORT_SOURCE="sweep-setting"
+  else
+    # No setting threaded: the call runs at the CLI default, the flag is
+    # omitted, and the slot records that rather than a value.
+    PINNED_EFFORT=""
+    EFFORT_SOURCE="sweep-default"
+  fi
 elif [ "$PIN_LABEL" = "PRIMARY" ]; then
   CITABLE=true
+  if [ -n "$SWEEP_EFFORT" ]; then
+    echo "refused: SWEEP_EFFORT=$SWEEP_EFFORT was supplied under PIN_LABEL=PRIMARY; the sweep's per-call setting travels under the sweep label alone, and a primary call runs the registry's codex.reasoningEffort or it does not run" >&2
+    exit 1
+  fi
   if [ "$EFFORT_NULL" = true ]; then
     echo "refused: harness/PINS.json names no codex reasoning effort (codex.reasoningEffort is null); section 2.1 registers it as a design-time pin the pre-pilot sweep resolves, and only the sweep's own label (PIN_LABEL=SWEEP) is exempt" >&2
     exit 1
@@ -264,6 +345,17 @@ elif [ "$PIN_LABEL" = "PRIMARY" ]; then
 else
   echo "refused: PIN_LABEL=$PIN_LABEL is not a registered label; the registered labels are PRIMARY and SWEEP, and an unrecognised one is refused rather than treated as PRIMARY" >&2
   exit 1
+fi
+# The one argv token the effort travels as, composed from the registry's two
+# members. Empty when no effort is passed at all, which is what the `${VAR:+…}`
+# expansion at the call site tests.
+EFFORT_ARG=""
+if [ -n "$PINNED_EFFORT" ]; then
+  if [ -n "$PINNED_EFFORT_KEY" ]; then
+    EFFORT_ARG="$PINNED_EFFORT_KEY=$PINNED_EFFORT"
+  else
+    EFFORT_ARG="$PINNED_EFFORT"
+  fi
 fi
 
 # The registry this run was made under, stamped into CALL.json below.
@@ -331,12 +423,52 @@ case "$PROMPT_KIND" in
     # is already resolved from this script's own location above, so the whole
     # path is required — no new argument and no new environment member
     # (batch.py's environment contract stays 011's four).
+    #
+    # …and the sweep writes somewhere ELSE, under the same rule. §2.1 registers
+    # the sweep's slots at `sweeps/<UTC date>-effort-sweep/<setting>/arm-<ARM>/run-NNN`,
+    # deliberately outside `arms/` so that R10-1's prior-authoring freeze gate —
+    # which derives every path it refuses from the driver's own `arms/`
+    # constants — does not see them. The anchor is therefore a function of the
+    # LABEL, and it is computed from the registry (`sweep.root`) and from the
+    # setting the driver threaded, never from the slot path's own text: a slot
+    # that named its own anchor would make this guard a tautology. The one
+    # component this wrapper cannot know is the sweep's dated label, so that one
+    # is read from the path and checked against the registered SHAPE.
     SLOT_NAME_GUARD="$(basename "$SLOT")"
-    ARMS_ANCHOR="$STUDY/arms/$ARM/authoring"
     SLOT_SHAPE=ok
     case "$SLOT_NAME_GUARD" in run-[0-9][0-9][0-9]) ;; *) SLOT_SHAPE=bad;; esac
-    if [ "$SLOT" != "$ARMS_ANCHOR/$SLOT_NAME_GUARD" ] || [ "$SLOT_SHAPE" != "ok" ]; then
-      echo "refused: slot $SLOT is not under arms/$ARM/authoring/ as this study's arms/$ARM/authoring/run-NNN path" >&2
+    if [ "$PIN_LABEL" = "SWEEP" ]; then
+      # PRESENT-OR-REFUSE, as at the effort seat: `pin` raises on an ABSENT
+      # member, which under `set -e` would kill this wrapper with a traceback
+      # and no refusal line at all.
+      if ! SWEEP_ROOT_NAME="$(pin sweep root 2>/dev/null)"; then
+        echo "refused: harness/PINS.json carries no sweep.root member, so this wrapper cannot compute the sweep's registered slot anchor (section 2.1)" >&2
+        exit 1
+      fi
+      case "$SWEEP_ROOT_NAME" in
+        ""|None|null|*/*|*" "*)
+          echo "refused: harness/PINS.json's sweep.root is ${SWEEP_ROOT_NAME:-null}, which is not a single directory name this wrapper can anchor a sweep slot under (section 2.1)" >&2
+          exit 1;;
+      esac
+      # The setting's directory is the setting the DRIVER threaded, already
+      # checked against `sweep.settings` above; a sweep call made at the CLI
+      # default carries no setting and lands under the registered literal.
+      SWEEP_SETTING_DIR="${SWEEP_EFFORT:-default}"
+      SWEEP_LABEL_DIR="$(basename "$(dirname "$(dirname "$(dirname "$SLOT")")")")"
+      case "$SWEEP_LABEL_DIR" in
+        [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]-effort-sweep) ;;
+        *) SLOT_SHAPE=bad;;
+      esac
+      SLOT_ANCHOR="$STUDY/$SWEEP_ROOT_NAME/$SWEEP_LABEL_DIR/$SWEEP_SETTING_DIR/arm-$ARM"
+      SLOT_ANCHOR_COMPONENTS="$SWEEP_ROOT_NAME $SWEEP_LABEL_DIR $SWEEP_SETTING_DIR arm-$ARM"
+      SLOT_ANCHOR_NAME="$SWEEP_ROOT_NAME/<UTC date>-effort-sweep/$SWEEP_SETTING_DIR/arm-$ARM"
+    else
+      SLOT_ANCHOR="$STUDY/arms/$ARM/authoring"
+      SLOT_ANCHOR_COMPONENTS="arms $ARM authoring"
+      SLOT_ANCHOR_NAME="arms/$ARM/authoring"
+    fi
+    if [ "$SLOT" != "$SLOT_ANCHOR/$SLOT_NAME_GUARD" ] || [ "$SLOT_SHAPE" != "ok" ]; then
+      echo "refused: slot $SLOT is not under $SLOT_ANCHOR_NAME/ as this study's $SLOT_ANCHOR_NAME/run-NNN path" >&2
       exit 1
     fi;;
   probe)
@@ -492,9 +624,17 @@ if [ "$PROMPT_KIND" = "registered" ]; then
   # each component only after the one above it has resolved to itself, so
   # nothing is ever made beneath a component that resolves elsewhere. Still
   # pre-call. $STUDY is this script's own physically resolved location, so the
-  # three components below it are the whole of what a replacement can reach.
+  # components below it are the whole of what a replacement can reach.
+  #
+  # The COMPONENT LIST is the one the guard above computed — `arms/<ARM>/authoring`
+  # under the primary label, the sweep's four under the sweep label — so the
+  # descent protects both trees with one implementation rather than gaining a
+  # second copy that could drift. It is deliberately word-split: every component
+  # is a registry root, a shape-checked date label, a checked setting name or an
+  # arm id, and none of them can contain a space.
   ANCHOR_PHYS="$STUDY"
-  for COMPONENT in arms "$ARM" authoring; do
+  # shellcheck disable=SC2086
+  for COMPONENT in $SLOT_ANCHOR_COMPONENTS; do
     # -e OR -L, as at the slot path below: a DANGLING symlink is absent to `-e`
     # and present to `mkdir`, so the mkdir is skipped, the `cd` fails, and the
     # refusal below says so rather than `set -e` killing the run silently.
@@ -503,7 +643,7 @@ if [ "$PROMPT_KIND" = "registered" ]; then
     fi
     NEXT="$(cd "$ANCHOR_PHYS/$COMPONENT" 2>/dev/null && pwd -P || true)"
     if [ "$NEXT" != "$ANCHOR_PHYS/$COMPONENT" ]; then
-      echo "refused: arms/$ARM/authoring resolves to ${NEXT:-nothing} at $COMPONENT, outside this study's tree" >&2
+      echo "refused: $SLOT_ANCHOR_NAME resolves to ${NEXT:-nothing} at $COMPONENT, outside this study's tree" >&2
       exit 1
     fi
     ANCHOR_PHYS="$NEXT"
@@ -622,7 +762,7 @@ set +e
     "$TIMEOUT_BIN" --signal=TERM --kill-after="$TIMEOUT_KILL_AFTER_SECONDS" \
     "$CALL_TIMEOUT_SECONDS" \
     "$CODEX_BIN" exec --ignore-user-config -m "$PINNED_MODEL" \
-    ${PINNED_EFFORT:+"$PINNED_EFFORT_FLAG" "$PINNED_EFFORT"} \
+    ${EFFORT_ARG:+"$PINNED_EFFORT_FLAG" "$EFFORT_ARG"} \
     --sandbox workspace-write -c 'mcp_servers={}' \
     < "$PROMPT_FILE" > "$OUT/stdout.raw" 2> "$OUT/stderr.raw" )
 EXIT=$?
@@ -707,7 +847,7 @@ rm -rf "$RUN_BIN"
     "$GOLDEN_SHA256" "$ARM" "$CALL_TIMEOUT_SECONDS" \
     "$TIMEOUT_KILL_AFTER_SECONDS" "$TIMED_OUT" \
     "$PINNED_EFFORT" "$PINNED_EFFORT_FLAG" "$EFFORT_SOURCE" "$PIN_LABEL" \
-    "$CITABLE" <<'PY'
+    "$CITABLE" "$PINNED_EFFORT_KEY" "$EFFORT_ARG" <<'PY'
 import json, sys
 (out, scratch, exit_status, digest, count, model, home, version,
  credential, inventory, skills, prompt_kind, prompt_name, prompt_digest,
@@ -715,12 +855,12 @@ import json, sys
  home_isolated, credential_removed, isolation, pins_digest,
  golden_digest, arm, timeout_seconds, timeout_kill_after,
  timed_out, effort, effort_flag, effort_source, pin_label,
- citable) = sys.argv[1:35]
+ citable, effort_key, effort_arg) = sys.argv[1:37]
 digits = "".join(ch for ch in slot_name if ch.isdigit())
 with open(out + "/CALL.json", "w") as handle:
     json.dump({
         "argv": (["codex", "exec", "--ignore-user-config", "-m", model]
-                 + ([effort_flag, effort] if effort else [])
+                 + ([effort_flag, effort_arg] if effort_arg else [])
                  + ["--sandbox", "workspace-write", "-c", "mcp_servers={}"]),
         "slot": slot_name,
         "slotIndex": int(digits) if digits else None,
@@ -753,8 +893,19 @@ with open(out + "/CALL.json", "w") as handle:
         # `reasoningEffortWitnessed: false` says in the slot's own bytes rather
         # than leaving a reader to infer it from an absence. `pinLabel` and
         # `citable` are what separate a sweep call from a registered one.
+        #
+        # FOUR members and not two, because the resolved spelling (2026-08-24)
+        # is a config override and not a flag: `reasoningEffort` is the TIER
+        # this call ran at, `reasoningEffortFlag` and `reasoningEffortConfigKey`
+        # are the two registry members it was composed from, and
+        # `reasoningEffortArg` is the exact argv token the CLI received. A slot
+        # that recorded only the tier could not be checked against the argv it
+        # sits beside; a slot that recorded only the argv could not be grouped
+        # by tier without re-parsing it.
         "reasoningEffort": effort or None,
-        "reasoningEffortFlag": (effort_flag or None) if effort else None,
+        "reasoningEffortFlag": (effort_flag or None) if effort_arg else None,
+        "reasoningEffortConfigKey": (effort_key or None) if effort_arg else None,
+        "reasoningEffortArg": effort_arg or None,
         "reasoningEffortSource": effort_source,
         "reasoningEffortWitnessed": False,
         "pinLabel": pin_label,

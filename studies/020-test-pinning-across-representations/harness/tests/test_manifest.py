@@ -1357,3 +1357,46 @@ def test_a_calibration_tree_does_not_trip_the_prior_authoring_gate(
     problems = make_manifest.prior_authoring_problems(root)
     assert problems and "arms/A/authoring" in problems[0]
     assert make_manifest.main(["--freeze"]) == 1
+
+
+def test_a_sweep_tree_does_not_trip_the_prior_authoring_gate_either(
+        tmp_path, monkeypatch):
+    """§2.1's PRE-PILOT EFFORT SWEEP root, the same permission one ceremony step
+    earlier — and the asymmetry with `calibration/` is deliberate and asserted.
+
+    PERMITTED for the calibration root's structural reason: `sweeps/` is not
+    under `batch.ARMS_ROOT`, so `authoring_state_paths()` never names it. NOT
+    REQUIRED, because §2a registers the PILOT as a freeze precondition and
+    nothing registers the sweep's TREE as one — a freeze that refused while
+    `sweeps/` was absent would be `make_manifest.py` legislating a gate no
+    section states. Both halves are asserted here; `tests/test_sweep.py` drives
+    the rest of the sweep's own behaviour."""
+    import batch
+    assert make_manifest.SWEEP_ROOT == "sweeps"
+    assert os.path.basename(batch.SWEEP_ROOT) == "sweeps"
+    assert batch.SWEEP_ROOT not in (batch.ARMS_ROOT, batch.CALIBRATION_ROOT)
+
+    root = _scratch_study(tmp_path / "study")
+    _fill_payloads(root)
+    _fill_calibration(root)
+    monkeypatch.setattr(make_manifest, "STUDY", root)
+    monkeypatch.setattr(make_manifest, "MANIFEST_PATH",
+                        root / "harness" / "STUDY-MANIFEST.sha256")
+    # The freeze holds with NO sweep tree at all: permitted, not required.
+    assert make_manifest.prior_authoring_problems(root) == []
+    assert make_manifest.main(["--freeze"]) == 0
+
+    slot = (root / make_manifest.SWEEP_ROOT / "2026-08-24-effort-sweep" / "low"
+            / "arm-A" / "run-001")
+    slot.mkdir(parents=True)
+    (slot / "CALL.json").write_text('{"citable": false}\n', encoding="utf-8")
+    assert make_manifest.prior_authoring_problems(root) == []
+    assert make_manifest.main(["--freeze"]) == 0
+
+    # …and the gate the permission must not have widened, with the sweep tree
+    # still in place: a permitted tree does not buy silence about a forbidden
+    # one.
+    (root / "arms" / "C" / "authoring").mkdir(parents=True)
+    problems = make_manifest.prior_authoring_problems(root)
+    assert len(problems) == 1 and "arms/C/authoring" in problems[0]
+    assert make_manifest.main(["--freeze"]) == 1
