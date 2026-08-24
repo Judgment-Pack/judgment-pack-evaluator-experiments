@@ -16,14 +16,16 @@ is registered here rather than discovered in review.
 ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 0 review rounds are on the record, 0 have returned a verdict — none has returned a verdict — and no round is open.
 <!-- round-status:end -->
 
-> **On the sentence above.** `harness/render_round_status.py` is 019 machinery and ports with
-> the rest of the harness (§7). Until that port lands, the sentence between the markers is
-> **hand-written to be byte-identical to what the block in `PREREG-REVIEW.md` renders**, and it
-> is marked here for **mechanical regeneration at harness-port time**: the first act of the
-> port is `render_round_status.py --write`, and the currency suite requires the rendered string
-> of both front doors verbatim thereafter. A hand-written status sentence is exactly the
-> failure mode ADR 0005 registers against; it is tolerated here only because the renderer does
-> not yet exist in this tree, and it is a `GATE(pre-freeze)` that it stops being hand-written.
+> **On the sentence above — the gate is CLOSED.** `harness/render_round_status.py` is 019
+> machinery and ported with the rest of the harness (§7, delta 10). The sentence between the
+> markers was hand-written to be byte-identical to what the block in `PREREG-REVIEW.md`
+> renders, and it was marked here for mechanical regeneration at harness-port time. **The
+> first act of the port was `render_round_status.py --write`, and it reported `nothing
+> moved`**: the hand-written sentence was already byte-identical to the rendered one on both
+> front doors. The sentence is machine-produced from here on and the currency suite requires
+> the rendered string of both front doors verbatim. A hand-written status sentence is exactly
+> the failure mode ADR 0005 registers against; it was tolerated only while the renderer did not
+> exist in this tree, and it no longer is.
 
 ---
 
@@ -664,10 +666,13 @@ a repair, not an exclusion, and not a prompt edit.**
   faults) stands **unexplained** by this mechanism and is published as Tier D material —
   descriptive, direction-free, and no decision reads it.
 
-**The obligation, and it is a freeze gate.** `GATE(pre-freeze)`: **the guard is registered with
-its own power analysis, computed and published before the freeze.** The analysis is mechanical and
-its inputs already exist in 019's frozen tree, so it is an obligation with a deadline rather than
-a hope. It must report, at minimum: (i) **sensitivity** — the detector run over 019's 76 retained
+**The obligation, and it is a freeze gate — SATISFIED for (i), (ii), (iii) and (v).**
+`GATE(pre-freeze)`: **the guard is registered with its own power analysis, computed and published
+before the freeze.** The analysis is mechanical and its inputs already exist in 019's frozen tree,
+so it was an obligation with a deadline rather than a hope; it has been executed and is published
+at `harness/POWER-PRESENCE-IDIOM.md`, with the numbers reprinted in the filled entry below and
+`harness/PINS.json`'s `presenceIdiomGuard` block carrying the verdict as data. **(iv) alone
+remains open**, and what blocks it is named there. It must report, at minimum: (i) **sensitivity** — the detector run over 019's 76 retained
 B+C policies must fire on the 40 that use bare-object `in`; (ii) **specificity** — it must fire on
 **none** of the 22 perfect runs; (iii) the **false-positive rate on lawful `in` uses** (over sets
 and arrays) across the same 76 policies and across both reference implementations; (iv) the
@@ -677,11 +682,32 @@ figures, so the code's effect on the family is a measured quantity rather than a
 (v) a **mutation check** in the program's standing discipline: break the detector, confirm the
 test that certifies it fails, and label any assertion that cannot discriminate.
 
-> **TODO(prereg) — the presence-idiom guard's power-analysis numbers (i)–(v).** They require
-> executing the new detector over 019's retained artifacts, which the detector does not yet exist
-> to do. Registered as a `GATE(pre-freeze)`: if the detector cannot meet (i) and (ii) exactly —
-> 40/40 and 0/22 — **the guard is not registered at all** and the mechanism is carried as a Tier D
-> descriptive finding only.
+> **FILLED — the presence-idiom guard's power-analysis numbers (i), (ii), (iii) and (v); (iv)
+> remains a `TODO(prereg)` and names what blocks it.** The detector exists
+> (`harness/e4lib/presence_idiom.py`), it was run over Study 019's retained arm-B/arm-C
+> policies with the pinned binary, and the analysis is published in full at
+> **`harness/POWER-PRESENCE-IDIOM.md`**, which is a registered document (`harness/
+> make_manifest.py`) and a `CORRECTION-TARGETS.md` entry.
+>
+> **The kill switch did NOT fire and the guard IS registered.** `harness/PINS.json`'s
+> `presenceIdiomGuard.registered` carries that verdict as data, and
+> `harness/e4lib/admit.py`'s `guard_is_registered()` — fail-shut toward not-registered — is the
+> only code that reads it.
+>
+> | | result |
+> |---|---|
+> | **(i) sensitivity** | **40/40 in-class runs receive an authoring code.** The in-class set was re-derived from the policy SOURCE BYTES by an independent oracle sharing no code and no input representation with the detector, and it is 40 of the 76 — arm B 21, arm C 19 — reproducing M-14's discriminator by a method M-14 did not use. The detector flags **39/39** of the policies the pinned parser accepts and **32/32** of the admitted policies, the population §3.2 registers it to run over; the fortieth (`B run-040`) is refused by the parser and receives the earlier registered code `unparseable-artifact`. Agreement with the oracle is exact at the USE level too: 178 flagged uses against 178, with zero per-run count mismatches over all 73 parseable policies. |
+> | **(ii) specificity** | **0/22 perfect runs flagged**, in every population; all 22 parse and all 22 are admitted. |
+> | **(iii) false positives on lawful `in`** | **0/392 lawful uses, 0/15 over sets and arrays** — the two forms this section names. 599 membership terms were read over the 73 parseable policies: 248 presence tests (178 flagged, 38 lawful over set-returning calls, 3 over non-object names, 29 unclassified — 178 + 38 + 3 + 29 = 248) and 351 iterations and bindings, none flagged. 29 uses are UNCLASSIFIED and none is flagged: an unresolvable name is reported, never guessed at. |
+> | **(iv) counterfactual per-member shift** | **NOT COMPUTED, and the blocker is named**: it requires all eighteen of §5.2's members recomputed with the flagged runs coded `presence-idiom-unsound`, and the eighteen-member family scorer is §7's delta 5 (`harness/SCAFFOLD.md` item S4), which has not landed and which the freeze is gated on. Computing it with an ad-hoc implementation would publish eighteen numbers no registered code path can reproduce. **This sub-item stays open.** What is stated instead, as a bound rather than an estimate: the flagged set is 32 of the 60 admitted 019 runs — arm B 15 of 30, arm C 17 of 30. |
+> | **(v) mutation check** | Break the detector by dropping the object-type branch: flagged runs fall **39/39 → 23/39** and flagged uses 178 → 83, so condition (i) fails and the certifying measurement discriminates. Driven in CI as `harness/tests/test_score_presence_idiom.py::test_breaking_the_object_branch_makes_the_sensitivity_case_fail`. **One assertion was found not to discriminate and was rebuilt** — its first version patched a function the scan does not call — and the finding is recorded in the published analysis. |
+>
+> **Two measured ceilings are published with it**, rather than discovered later: a presence
+> test over a FUNCTION PARAMETER is not detected (2 runs of the 76, both non-perfect, so the
+> semantic class may be 42 rather than 40 — the analysis does not count them, because moving
+> the boundary after seeing which side the runs fell on is the choice §5.2's admission test
+> forbids); and the detector's alias map over-approximates scope, which costs nothing on this
+> corpus and is measured rather than assumed.
 
 ## 4. Oracle, references, mutants, and the input domain
 
@@ -1356,7 +1382,9 @@ deterministic controls only; the batch never runs in CI.
 **Enforced:** pins, digests, population membership, the registered input-domain check on every arm's
 enumerated cases, `referenceIdentity`, the extraction rule, the schedule, the transcript binding on
 every completed slot, the C4 transfer gate, the survivor-vector schema, and the presence-idiom
-detector if §3.2's power analysis certifies it.
+detector — whose §3.2 power analysis has been executed and CERTIFIES it (40/40 in-class runs coded,
+0/22 perfect runs flagged, 0/392 lawful `in` uses), so the conditional is discharged and the code
+`presence-idiom-unsound` is registered.
 
 **Recorded:** durations, token counts including `reasoning_output_tokens`, per-case diagnostics,
 every completion verbatim, the sweep's full per-setting table, the pilot's rates, and `E6`.
