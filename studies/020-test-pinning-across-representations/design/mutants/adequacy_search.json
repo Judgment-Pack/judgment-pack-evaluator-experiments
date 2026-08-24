@@ -1,0 +1,2860 @@
+{
+ "armA": {
+  "m-a-006": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-006",
+   "witnesses": []
+  },
+  "m-a-016": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-016",
+   "witnesses": []
+  },
+  "m-a-017": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-017",
+   "witnesses": []
+  },
+  "m-a-018": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-018",
+   "witnesses": []
+  },
+  "m-a-020": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-020",
+   "witnesses": []
+  },
+  "m-a-021": {
+   "diffCells": 108,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 108,
+   "id": "m-a-021",
+   "witnesses": [
+    {
+     "cellIndex": 40860,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 40861,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 40862,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 40869,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 40870,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 40871,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 40887,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": null,
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 40888,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": null,
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    }
+   ]
+  },
+  "m-a-022": {
+   "diffCells": 36,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 36,
+   "id": "m-a-022",
+   "witnesses": [
+    {
+     "cellIndex": 84600,
+     "inputs": {
+      "country": "HIGH",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "70",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "conflict"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "reject",
+      []
+     ]
+    },
+    {
+     "cellIndex": 84601,
+     "inputs": {
+      "country": "HIGH",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "70",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "conflict"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "reject",
+      []
+     ]
+    },
+    {
+     "cellIndex": 84602,
+     "inputs": {
+      "country": "HIGH",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "70",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "conflict"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "reject",
+      []
+     ]
+    },
+    {
+     "cellIndex": 84609,
+     "inputs": {
+      "country": "HIGH",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "70",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "conflict"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "reject",
+      []
+     ]
+    },
+    {
+     "cellIndex": 84610,
+     "inputs": {
+      "country": "HIGH",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "70",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "conflict"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "reject",
+      []
+     ]
+    },
+    {
+     "cellIndex": 84611,
+     "inputs": {
+      "country": "HIGH",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "70",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "conflict"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "reject",
+      []
+     ]
+    },
+    {
+     "cellIndex": 84627,
+     "inputs": {
+      "country": "HIGH",
+      "critical": null,
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "70",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "conflict"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "reject",
+      []
+     ]
+    },
+    {
+     "cellIndex": 84628,
+     "inputs": {
+      "country": "HIGH",
+      "critical": null,
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "70",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "conflict"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "reject",
+      []
+     ]
+    }
+   ]
+  },
+  "m-a-029": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-029",
+   "witnesses": []
+  },
+  "m-a-032": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-032",
+   "witnesses": []
+  },
+  "m-a-042": {
+   "diffCells": 36,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 36,
+   "id": "m-a-042",
+   "witnesses": [
+    {
+     "cellIndex": 110844,
+     "inputs": {
+      "country": null,
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 110845,
+     "inputs": {
+      "country": null,
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 110846,
+     "inputs": {
+      "country": null,
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 110853,
+     "inputs": {
+      "country": null,
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 110854,
+     "inputs": {
+      "country": null,
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 110855,
+     "inputs": {
+      "country": null,
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 110871,
+     "inputs": {
+      "country": null,
+      "critical": null,
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 110872,
+     "inputs": {
+      "country": null,
+      "critical": null,
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    }
+   ]
+  },
+  "m-a-056": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-056",
+   "witnesses": []
+  },
+  "m-a-066": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-066",
+   "witnesses": []
+  },
+  "m-a-075": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-075",
+   "witnesses": []
+  },
+  "m-a-077": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-077",
+   "witnesses": []
+  },
+  "m-a-078": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-078",
+   "witnesses": []
+  },
+  "m-a-079": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-079",
+   "witnesses": []
+  },
+  "m-a-080": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-080",
+   "witnesses": []
+  },
+  "m-a-083": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-083",
+   "witnesses": []
+  },
+  "m-a-085": {
+   "diffCells": 108,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 108,
+   "id": "m-a-085",
+   "witnesses": [
+    {
+     "cellIndex": 40860,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 40861,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 40862,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 40869,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 40870,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 40871,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 40887,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": null,
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 40888,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": null,
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    }
+   ]
+  },
+  "m-a-087": {
+   "diffCells": 36,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 36,
+   "id": "m-a-087",
+   "witnesses": [
+    {
+     "cellIndex": 84600,
+     "inputs": {
+      "country": "HIGH",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "70",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "conflict"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "reject",
+      []
+     ]
+    },
+    {
+     "cellIndex": 84601,
+     "inputs": {
+      "country": "HIGH",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "70",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "conflict"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "reject",
+      []
+     ]
+    },
+    {
+     "cellIndex": 84602,
+     "inputs": {
+      "country": "HIGH",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "70",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "conflict"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "reject",
+      []
+     ]
+    },
+    {
+     "cellIndex": 84609,
+     "inputs": {
+      "country": "HIGH",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "70",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "conflict"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "reject",
+      []
+     ]
+    },
+    {
+     "cellIndex": 84610,
+     "inputs": {
+      "country": "HIGH",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "70",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "conflict"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "reject",
+      []
+     ]
+    },
+    {
+     "cellIndex": 84611,
+     "inputs": {
+      "country": "HIGH",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "70",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "conflict"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "reject",
+      []
+     ]
+    },
+    {
+     "cellIndex": 84627,
+     "inputs": {
+      "country": "HIGH",
+      "critical": null,
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "70",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "conflict"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "reject",
+      []
+     ]
+    },
+    {
+     "cellIndex": 84628,
+     "inputs": {
+      "country": "HIGH",
+      "critical": null,
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "70",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "conflict"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "reject",
+      []
+     ]
+    }
+   ]
+  },
+  "m-a-088": {
+   "diffCells": 108,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 108,
+   "id": "m-a-088",
+   "witnesses": [
+    {
+     "cellIndex": 46692,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "69",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 46693,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "69",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 46694,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "69",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 46701,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "69",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 46702,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "69",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 46703,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "69",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 46719,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": null,
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "69",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 46720,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": null,
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "69",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    }
+   ]
+  },
+  "m-a-089": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-089",
+   "witnesses": []
+  },
+  "m-a-102": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-102",
+   "witnesses": []
+  },
+  "m-a-108": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-108",
+   "witnesses": []
+  },
+  "m-a-112": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-112",
+   "witnesses": []
+  },
+  "m-a-124": {
+   "diffCells": 48,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 48,
+   "id": "m-a-124",
+   "witnesses": [
+    {
+     "cellIndex": 4412,
+     "inputs": {
+      "country": "LOW",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "39",
+      "sanctions": "CLEAR",
+      "spend": "500000.01"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ]
+    },
+    {
+     "cellIndex": 4421,
+     "inputs": {
+      "country": "LOW",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "39",
+      "sanctions": "CLEAR",
+      "spend": "500000.01"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ]
+    },
+    {
+     "cellIndex": 4439,
+     "inputs": {
+      "country": "LOW",
+      "critical": null,
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "39",
+      "sanctions": "CLEAR",
+      "spend": "500000.01"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ]
+    },
+    {
+     "cellIndex": 4448,
+     "inputs": {
+      "country": "LOW",
+      "critical": null,
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "39",
+      "sanctions": "CLEAR",
+      "spend": "500000.01"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ]
+    },
+    {
+     "cellIndex": 4655,
+     "inputs": {
+      "country": "LOW",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "39",
+      "sanctions": "CLEAR",
+      "spend": "1999999.99"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ]
+    },
+    {
+     "cellIndex": 4664,
+     "inputs": {
+      "country": "LOW",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "39",
+      "sanctions": "CLEAR",
+      "spend": "1999999.99"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ]
+    },
+    {
+     "cellIndex": 4682,
+     "inputs": {
+      "country": "LOW",
+      "critical": null,
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "39",
+      "sanctions": "CLEAR",
+      "spend": "1999999.99"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ]
+    },
+    {
+     "cellIndex": 4691,
+     "inputs": {
+      "country": "LOW",
+      "critical": null,
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "39",
+      "sanctions": "CLEAR",
+      "spend": "1999999.99"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ]
+    }
+   ]
+  },
+  "m-a-127": {
+   "diffCells": 36,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 36,
+   "id": "m-a-127",
+   "witnesses": [
+    {
+     "cellIndex": 110844,
+     "inputs": {
+      "country": null,
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 110845,
+     "inputs": {
+      "country": null,
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 110846,
+     "inputs": {
+      "country": null,
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 110853,
+     "inputs": {
+      "country": null,
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 110854,
+     "inputs": {
+      "country": null,
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 110855,
+     "inputs": {
+      "country": null,
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 110871,
+     "inputs": {
+      "country": null,
+      "critical": null,
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 110872,
+     "inputs": {
+      "country": null,
+      "critical": null,
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    }
+   ]
+  },
+  "m-a-128": {
+   "diffCells": 72,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 72,
+   "id": "m-a-128",
+   "witnesses": [
+    {
+     "cellIndex": 72936,
+     "inputs": {
+      "country": "HIGH",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "39",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 72937,
+     "inputs": {
+      "country": "HIGH",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "39",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 72938,
+     "inputs": {
+      "country": "HIGH",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "39",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 72945,
+     "inputs": {
+      "country": "HIGH",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "39",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 72946,
+     "inputs": {
+      "country": "HIGH",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "39",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 72947,
+     "inputs": {
+      "country": "HIGH",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "39",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 72963,
+     "inputs": {
+      "country": "HIGH",
+      "critical": null,
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "39",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 72964,
+     "inputs": {
+      "country": "HIGH",
+      "critical": null,
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "39",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    }
+   ]
+  },
+  "m-a-130": {
+   "diffCells": 36,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 36,
+   "id": "m-a-130",
+   "witnesses": [
+    {
+     "cellIndex": 116676,
+     "inputs": {
+      "country": null,
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "69",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 116677,
+     "inputs": {
+      "country": null,
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "69",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 116678,
+     "inputs": {
+      "country": null,
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "69",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 116685,
+     "inputs": {
+      "country": null,
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "69",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 116686,
+     "inputs": {
+      "country": null,
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "69",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 116687,
+     "inputs": {
+      "country": null,
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "69",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 116703,
+     "inputs": {
+      "country": null,
+      "critical": null,
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "69",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 116704,
+     "inputs": {
+      "country": null,
+      "critical": null,
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "69",
+      "sanctions": "CLEAR",
+      "spend": "0.00"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "unknown"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    }
+   ]
+  },
+  "m-a-131": {
+   "diffCells": 108,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 108,
+   "id": "m-a-131",
+   "witnesses": [
+    {
+     "cellIndex": 41589,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "100000.01"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 41590,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "100000.01"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 41591,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "100000.01"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 41598,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "100000.01"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 41599,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "100000.01"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 41600,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": "no",
+      "finEvidence": "present",
+      "insurance": null,
+      "newVendor": "yes",
+      "prior": null,
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "100000.01"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 41616,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": null,
+      "finEvidence": "present",
+      "insurance": "present",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "100000.01"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    },
+    {
+     "cellIndex": 41617,
+     "inputs": {
+      "country": "MEDIUM",
+      "critical": null,
+      "finEvidence": "present",
+      "insurance": "absent",
+      "newVendor": "yes",
+      "prior": "no",
+      "risk": "40",
+      "sanctions": "CLEAR",
+      "spend": "100000.01"
+     },
+     "mutant": [
+      "unresolved",
+      null,
+      [
+       "no-match"
+      ]
+     ],
+     "reference": [
+      "outcome",
+      "review",
+      []
+     ]
+    }
+   ]
+  },
+  "m-a-133": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-133",
+   "witnesses": []
+  },
+  "m-a-137": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-137",
+   "witnesses": []
+  },
+  "m-a-138": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-138",
+   "witnesses": []
+  },
+  "m-a-139": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-139",
+   "witnesses": []
+  },
+  "m-a-140": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-140",
+   "witnesses": []
+  },
+  "m-a-141": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-141",
+   "witnesses": []
+  },
+  "m-a-183": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-a-183",
+   "witnesses": []
+  }
+ },
+ "armB": {
+  "m-b-007": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-007",
+   "witnesses": []
+  },
+  "m-b-010": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-010",
+   "witnesses": []
+  },
+  "m-b-013": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-013",
+   "witnesses": []
+  },
+  "m-b-033": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-033",
+   "witnesses": []
+  },
+  "m-b-039": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-039",
+   "witnesses": []
+  },
+  "m-b-045": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-045",
+   "witnesses": []
+  },
+  "m-b-049": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-049",
+   "witnesses": []
+  },
+  "m-b-060": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-060",
+   "witnesses": []
+  },
+  "m-b-062": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-062",
+   "witnesses": []
+  },
+  "m-b-083": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-083",
+   "witnesses": []
+  },
+  "m-b-084": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-084",
+   "witnesses": []
+  },
+  "m-b-085": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-085",
+   "witnesses": []
+  },
+  "m-b-086": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-086",
+   "witnesses": []
+  },
+  "m-b-088": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-088",
+   "witnesses": []
+  },
+  "m-b-090": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-090",
+   "witnesses": []
+  },
+  "m-b-124": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-124",
+   "witnesses": []
+  },
+  "m-b-125": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-125",
+   "witnesses": []
+  },
+  "m-b-132": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-132",
+   "witnesses": []
+  },
+  "m-b-134": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-134",
+   "witnesses": []
+  },
+  "m-b-137": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-137",
+   "witnesses": []
+  },
+  "m-b-138": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-138",
+   "witnesses": []
+  },
+  "m-b-142": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-142",
+   "witnesses": []
+  },
+  "m-b-145": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-145",
+   "witnesses": []
+  },
+  "m-b-147": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-147",
+   "witnesses": []
+  },
+  "m-b-150": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-150",
+   "witnesses": []
+  },
+  "m-b-152": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-152",
+   "witnesses": []
+  },
+  "m-b-155": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-155",
+   "witnesses": []
+  },
+  "m-b-157": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-157",
+   "witnesses": []
+  },
+  "m-b-159": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-159",
+   "witnesses": []
+  },
+  "m-b-162": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-162",
+   "witnesses": []
+  },
+  "m-b-166": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-166",
+   "witnesses": []
+  },
+  "m-b-171": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-171",
+   "witnesses": []
+  },
+  "m-b-174": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-174",
+   "witnesses": []
+  },
+  "m-b-185": {
+   "diffCells": 0,
+   "diffCellsInX1": 0,
+   "diffCellsOutsideX1": 0,
+   "id": "m-b-185",
+   "witnesses": []
+  }
+ },
+ "space": {
+  "cells": 419904,
+  "country": [
+   "LOW",
+   "MEDIUM",
+   "HIGH",
+   null
+  ],
+  "risk": [
+   "0",
+   "39",
+   "40",
+   "41",
+   "69",
+   "70",
+   "71",
+   "89",
+   "90",
+   "91",
+   "100",
+   null
+  ],
+  "sanctions": [
+   "CLEAR",
+   "MATCH",
+   "UNKNOWN"
+  ],
+  "spend": [
+   "0.00",
+   "99999.99",
+   "100000.00",
+   "100000.01",
+   "499999.99",
+   "500000.00",
+   "500000.01",
+   "1999999.99",
+   "2000000.00",
+   "2000000.01",
+   "10000000.00",
+   null
+  ]
+ }
+}

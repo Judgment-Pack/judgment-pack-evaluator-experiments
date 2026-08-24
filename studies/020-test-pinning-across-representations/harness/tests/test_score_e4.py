@@ -1,4 +1,5 @@
-"""E4 — the X1 filter, the pairing rule, the identity control and the tau cut.
+"""E4 — the X1 filter, the pairing rule, the two identity relations, the
+survivor vector, the per-language denominators and the coverage rule.
 
 The X1 predicate gets its own block, because section 4 makes it an exclusion
 class AND a registered inexpressibility result: a filter that is a condition
@@ -317,16 +318,11 @@ def test_an_all_false_marking_is_an_empty_registered_class_and_not_a_refusal(
     assert e4.engine_supplied_ids(mutants, "rego") == []
 
 
-def test_the_committed_mutant_manifests_carry_the_registered_member(
-        study, requires_artifact):
+def test_the_committed_mutant_manifests_carry_the_registered_member(study):
     """SCAFFOLD item S9, closed, against the DESIGN manifests the freeze copies
     into `mutants/MANIFEST-*.json`: arm A's marking is
     `design/mutants/refA/REGISTRY.json`'s conflict-only list, cell for cell, and
     arm B carries the member with an empty class and its reason."""
-    requires_artifact("design/mutants/refA/REGISTRY.json",
-                      "design/mutants/refA/MANIFEST.json",
-                      "design/mutants/refB/MANIFEST.json",
-                      "design/mutants/adequacy_engine_supplied.json")
     design = os.path.join(study, "design", "mutants")
     registry = json.loads(open(os.path.join(design, "refA",
                                             "REGISTRY.json")).read())
@@ -410,40 +406,170 @@ def test_kill_rates_split_the_paired_subset_on_the_engine_supplied_list(
     assert plain["pairedExcludingEngineSupplied"] == plain["paired"]
 
 
-def test_the_high_kill_cut_is_stated_with_the_arithmetic_that_produced_it():
-    cut = e4.high_kill_cut(39)
-    assert cut["integerCut"] == 38
-    assert cut["tau"] == "19/20"
-    assert cut["cutReachable"] is True
-    assert "38 of the 39" in cut["statement"]
+# --- §7 delta 1: the survivor vector, and the token collision ---------------
+
+def test_the_survivor_vector_is_total_over_the_paired_denominator(mutant_tree):
+    """§5.1: "The scorer emits an explicit per-mutant survivor vector for every
+    admitted run". Total means one entry per paired-adequate mutant, in manifest
+    order, each carrying that mutant's own outcome — so the record says what
+    happened to every mutant rather than listing the ones that survived."""
+    mutants = e4.load_mutants(*mutant_tree)
+    _table, paired = e4.build_pairing(mutants)
+    rates = e4.kill_rates({"m-a-001": e4.KILLED}, mutants["jps"], paired["jps"])
+    assert [entry["id"] for entry in rates["survivorVector"]] == ["m-a-001"]
+    assert rates["survivorVector"][0]["outcome"] == e4.KILLED
+    assert len(rates["survivorVector"]) == rates["paired"]
+    assert rates["evaluatedPaired"] == 1
 
 
-def test_is_high_kill_reads_the_integer_cut():
-    assert e4.is_high_kill(38, 39, 38) is True
-    assert e4.is_high_kill(37, 39, 38) is False
+def test_nothing_evaluated_and_everything_killed_are_different_bytes(
+        mutant_tree):
+    """§5.2's Fact 1, as an assertion rather than as a warning.
+
+    Two arm-A runs of 019 (`run-025`, `run-046`, both identity-failing) carried
+    `survivorsPaired: []` with `killedPaired: 0`. Read naively — "no survivors,
+    therefore everything killed" — they score a perfect 33/33 having killed
+    nothing, and correcting that single collision moved 019's group-level ITT
+    A−C contrast from +0.19112 to +0.13849.
+
+    The two states are told apart HERE, in the bytes: the vector's outcomes are
+    `not-evaluated` in one and `killed` in the other, and `evaluatedPaired`
+    names the difference in one integer."""
+    mutants = e4.load_mutants(*mutant_tree)
+    _table, paired = e4.build_pairing(mutants)
+    nothing = e4.kill_rates({}, mutants["jps"], paired["jps"])
+    everything = e4.kill_rates({"m-a-001": e4.KILLED}, mutants["jps"],
+                               paired["jps"])
+    # 019's two published members are IDENTICAL between the two states…
+    assert nothing["survivorsPaired"] == everything["survivorsPaired"] == []
+    assert nothing["killedPaired"] == 0
+    # …and the vector is not.
+    assert nothing["survivorVector"][0]["outcome"] == e4.NOT_EVALUATED
+    assert everything["survivorVector"][0]["outcome"] == e4.KILLED
+    assert nothing["evaluatedPaired"] == 0
+    assert everything["evaluatedPaired"] == 1
 
 
-# --- R1-1: one cut per language, from its own denominator -------------------
+def test_the_empty_survivor_record_is_refused_at_write_time(mutant_tree):
+    """§7 delta 1: "`survivorsPaired: []` with `killedPaired: 0` is refused at
+    write time rather than read as 33/33". The refusal is at the WRITE, not at
+    the read, because a reader who has to know about the trap is a reader who
+    can forget about it."""
+    mutants = e4.load_mutants(*mutant_tree)
+    _table, paired = e4.build_pairing(mutants)
+    run = {"run": "run-001", "admitted": True, "suitePresent": True,
+           "caseCount": 4,
+           "kill": e4.kill_rates({}, mutants["jps"], paired["jps"])}
+    with pytest.raises(e4.SurvivorSchemaError) as raised:
+        e4.require_survivor_schema(run)
+    assert str(raised.value).startswith("E4-SURVIVOR-EMPTY")
+    assert "0.0526" in str(raised.value)
 
-def test_the_cut_is_derived_per_language_at_the_real_current_counts(
-        requires_artifact):
-    """ROUND-1 R1-1's enforcing test, on the counts the repaired corpus actually
-    has — READ FROM THE COMMITTED MANIFESTS rather than written down here.
 
-    ROUND-3 R3-2 is why they are read: the counts were 75 JPS / 65 Rego when
-    this test was written and are 69 / 62 after the adequacy repair, and a
-    literal pair here would have made the repair fail an arithmetic test that
-    has nothing to do with it. What R1-1 is about is that there are TWO cuts,
-    each from its own denominator, and that the other language's cut is
-    unreachable — properties of the rule, not of the numbers.
+def test_a_kill_block_without_the_vector_is_refused(mutant_tree):
+    """The vector is the SCHEMA, not an annotation on it: a hand-built kill
+    block — which is exactly how 019's no-suite and unparseable-suite paths
+    wrote theirs — carries no vector and is refused rather than published."""
+    run = {"run": "run-002", "admitted": True, "suitePresent": True,
+           "caseCount": 0, "kill": {"killedPaired": 0, "paired": 62}}
+    with pytest.raises(e4.SurvivorSchemaError) as raised:
+        e4.require_survivor_schema(run)
+    assert str(raised.value).startswith("E4-SURVIVOR-SCHEMA")
 
-    The blocker was that ONE cut was derived from the JPS count and handed to
-    every arm while each arm's kill denominator stayed language-specific: the
-    single-cut scorer would have judged a Rego suite against the JPS cut, out of
-    a smaller possible total, so a PERFECT B/C suite could never be high-kill
-    and the primary endpoint was impossible for two of the three arms."""
-    requires_artifact("design/mutants/refA/MANIFEST.json",
-                      "design/mutants/refB/MANIFEST.json")
+
+def test_an_admitted_run_with_a_suite_carries_casecount(mutant_tree):
+    """§5.2's pinned definition 4 and §7 delta 1. 019's six runs that carried a
+    kill block with neither `survivorsPaired` nor `caseCount` — B
+    run-026/027/032/036 and C run-035/050, arm A zero — cannot recur, because
+    the write refuses rather than the analysis imputing."""
+    mutants = e4.load_mutants(*mutant_tree)
+    _table, paired = e4.build_pairing(mutants)
+    kill = e4.kill_rates({"m-a-001": e4.KILLED}, mutants["jps"], paired["jps"])
+    run = {"run": "run-003", "admitted": True, "suitePresent": True,
+           "kill": kill}
+    with pytest.raises(e4.SurvivorSchemaError) as raised:
+        e4.require_survivor_schema(run)
+    assert str(raised.value).startswith("E4-CASECOUNT-ABSENT")
+    # 0 is a number and passes; an absence is what is refused.
+    run["caseCount"] = 0
+    assert e4.require_survivor_schema(run) is run
+
+
+def test_a_run_with_no_suite_at_all_needs_no_casecount(mutant_tree):
+    """The other side of the same rule: §5.2 pins `caseCount` = 0 for a suite
+    that parses to no cases, and a run that emitted no suite is a different
+    state. The schema tells them apart with `suitePresent` rather than writing
+    0 for both, which would make the covariate a function of the missingness."""
+    mutants = e4.load_mutants(*mutant_tree)
+    _table, paired = e4.build_pairing(mutants)
+    kill = e4.kill_rates({"m-a-001": e4.KILLED}, mutants["jps"], paired["jps"])
+    run = {"run": "run-004", "admitted": True, "suitePresent": False,
+           "kill": kill}
+    assert e4.require_survivor_schema(run) is run
+
+
+# --- §7 delta 2: the per-language machinery, WITHOUT a threshold ------------
+
+def test_no_threshold_survives_anywhere_in_the_e4_module():
+    """§7 delta 2, and §5.1's "**No cut, no τ, no dichotomy**", asserted by
+    ABSENCE and by name.
+
+    019's `is_high_kill()`, `high_kill_cut()` and `high_kill_cuts()` are gone.
+    They are not kept and disabled: a predicate left in the module is a
+    predicate a later edit can call, and the delta's whole content is that
+    there is no threshold for a registered decision path to read."""
+    for name in ("is_high_kill", "high_kill_cut", "high_kill_cuts", "TAU"):
+        assert not hasattr(e4, name), name
+    code = "\n".join(line for line in open(e4.__file__, encoding="utf-8")
+                     if not line.lstrip().startswith("#"))
+    for token in ("is_high_kill", "high_kill_cut", "tau_cut", "integerCut"):
+        assert token not in code, token
+
+
+def test_no_registered_decision_path_reads_a_cut():
+    """§7 delta 2's own sentence: "A harness test asserts **no registered
+    decision path reads a cut**."
+
+    The decision path is not a file, it is a REACHABILITY: §5.9's rows, the
+    predicates they are made of, and the publisher's route into them. This
+    walks the table's own rows — so a row added later is covered without this
+    test being edited — and reads the source of every predicate and of the two
+    functions that drive them, then the publisher's family entry point."""
+    import inspect
+    from e4lib import decision
+    import score
+
+    sources = [inspect.getsource(row.predicate) for row in decision.ROWS]
+    sources += [inspect.getsource(decision.decide),
+                inspect.getsource(decision.gate_causes),
+                inspect.getsource(decision.direction),
+                inspect.getsource(score.registered_family),
+                inspect.getsource(score.e4_endpoint)]
+    for token in ("cut", "tau", "highKill", "high_kill", "threshold"):
+        for source in sources:
+            code = "\n".join(line for line in source.split("\n")
+                             if not line.lstrip().startswith("#"))
+            # Docstrings are prose about the registration and may NAME the
+            # thing that was removed; what may not appear is a read of one.
+            code = code.replace('"""', "\x00").split("\x00")
+            executable = "".join(code[::2])
+            assert token not in executable, (token, source[:80])
+
+
+def test_the_two_denominators_stay_separate_at_the_real_current_counts():
+    """019's round-1 R1-1, kept as the property it actually was.
+
+    R1-1 was not "a threshold existed". It was that ONE number derived from the
+    JPS subset was applied to a Rego run whose subset was smaller, so a PERFECT
+    B/C suite could not reach it and the primary endpoint was impossible for two
+    of the three arms. 020 keeps the two denominators separate and publishes
+    both, and removes the single number entirely — so the shape of R1-1 has
+    nowhere to recur.
+
+    The counts are READ FROM THE COMMITTED MANIFESTS rather than written here
+    (019's round-3 R3-2: they were 75/65 before the adequacy repair and 69/62
+    after, and a literal pair would have made the repair fail an arithmetic test
+    that has nothing to do with it)."""
     design = os.path.join(_STUDY, "design", "mutants")
     mutants = e4.load_mutants(os.path.join(design, "refA", "MANIFEST.json"),
                               os.path.join(design, "refB", "MANIFEST.json"),
@@ -452,34 +578,141 @@ def test_the_cut_is_derived_per_language_at_the_real_current_counts(
     _pairing, paired = e4.build_pairing(mutants)
     n_jps, n_rego = len(paired["jps"]), len(paired["rego"])
     assert n_jps > n_rego > 0, (n_jps, n_rego)
-    cuts = e4.high_kill_cuts(paired)
-    ceil95 = lambda n: -(-19 * n // 20)
-    assert cuts["jps"]["pairedAdequateMutants"] == n_jps
-    assert cuts["jps"]["integerCut"] == ceil95(n_jps)
-    assert cuts["rego"]["pairedAdequateMutants"] == n_rego
-    assert cuts["rego"]["integerCut"] == ceil95(n_rego)
-    assert cuts["jps"]["integerCut"] != cuts["rego"]["integerCut"]
-    assert cuts["jps"]["language"] == "jps"
-    assert cuts["rego"]["language"] == "rego"
-    # Each cut is reachable by a perfect suite of its OWN language...
-    assert e4.is_high_kill(n_rego, n_rego, cuts["rego"]["integerCut"]) is True
-    assert e4.is_high_kill(n_jps, n_jps, cuts["jps"]["integerCut"]) is True
-    # ...and the JPS cut is not reachable at the Rego denominator at all, which
-    # is the defect stated as an assertion rather than as a comment.
-    with pytest.raises(e4.E4Error) as raised:
-        e4.is_high_kill(n_rego, n_rego, cuts["jps"]["integerCut"])
-    assert str(raised.value).startswith("E4-CUT-UNREACHABLE")
+    block = e4.paired_denominators(paired)
+    assert block["jps"]["pairedAdequateMutants"] == n_jps
+    assert block["rego"]["pairedAdequateMutants"] == n_rego
+    assert block["jps"]["language"] == "jps"
+    assert block["rego"]["language"] == "rego"
+    # Each language's lattice is its OWN 1/n and never the other's.
+    assert block["jps"]["lattice"] == 1 / n_jps
+    assert block["rego"]["lattice"] == 1 / n_rego
+    assert block["jps"]["lattice"] != block["rego"]["lattice"]
+    # No member of either block is a threshold, by name or by shape.
+    for language in ("jps", "rego"):
+        assert set(block[language]) == {"language", "pairedAdequateMutants",
+                                        "lattice", "statement"}
 
 
-def test_a_cut_above_its_own_denominator_refuses_at_derivation(monkeypatch):
-    """The assertion the reviewer asked for, at the place the cut is made: no
-    cut is published that its run's denominator cannot reach."""
-    from fractions import Fraction
-    from e4lib import stats
-    monkeypatch.setattr(stats, "TAU", Fraction(21, 20))
-    with pytest.raises(e4.E4Error) as raised:
-        e4.high_kill_cut(65)
-    assert str(raised.value).startswith("E4-CUT-UNREACHABLE")
+def test_an_empty_denominator_reports_no_lattice_rather_than_dividing():
+    assert e4.paired_denominators({"jps": set()})["jps"]["lattice"] is None
+
+
+def test_the_shared_classes_publish_the_membership_imbalance(mutant_tree):
+    """§5.2's Fact 2 and §5.8's mandatory publication: unequal per-class member
+    counts are what make the native mutant level structurally biased BETWEEN
+    languages, so the imbalance is counted whether or not any member reads it.
+    On 019's corpus it is 20 of 33 classes."""
+    mutants = e4.load_mutants(*mutant_tree)
+    table, _paired = e4.build_pairing(mutants)
+    shared = e4.shared_classes(table)
+    assert shared["count"] == 1                      # only g1|g2 pairs here
+    assert shared["classes"][0]["jpsCount"] == 1
+    assert shared["classes"][0]["regoCount"] == 1
+    assert shared["classes"][0]["equalMembership"] is True
+    assert shared["unequalCount"] == 0
+
+
+# --- §5.2's coverage rule ---------------------------------------------------
+
+def test_a_class_is_covered_only_when_all_its_members_are_killed(mutant_tree):
+    """§5.2's pinned definition 1, in code: "A run covers class g iff its suite
+    kills **all** of g's members in the run's own language."
+
+    Both readings are computed and their agreement is published, because §5.2
+    registers `gall == gany` as a STATED FACT with a condition (88 of 88
+    checkable runs), and a fact registered as such has to stay checkable on
+    020's own batch rather than being assumed forward."""
+    mutants = e4.load_mutants(*mutant_tree)
+    table, _paired = e4.build_pairing(mutants)
+    classes = e4.shared_classes(table)["classes"]
+    covered = e4.coverage_classes({"m-a-001": e4.KILLED}, classes, "jps")
+    assert covered["coveredCount"] == 1
+    assert covered["allEqualsAny"] is True
+    survived = e4.coverage_classes({"m-a-001": e4.SURVIVED}, classes, "jps")
+    assert survived["coveredCount"] == 0
+    assert survived["unevaluatedClasses"] == []
+
+
+def test_an_unevaluated_class_is_not_a_covered_one_and_says_so(mutant_tree):
+    """The same distinction the survivor vector draws one level down: a class
+    nothing was asked about is reported as unevaluated, not as uncovered — the
+    two are different states and §5.2's Fact 1 is what collapsing them costs."""
+    mutants = e4.load_mutants(*mutant_tree)
+    table, _paired = e4.build_pairing(mutants)
+    classes = e4.shared_classes(table)["classes"]
+    block = e4.coverage_classes({}, classes, "jps")
+    assert block["coveredCount"] == 0
+    assert block["unevaluatedClasses"] == ["g1|g2"]
+
+
+# --- §7 delta 4: ownPolicyIdentity is a SECOND NAMED RELATION ---------------
+
+def test_the_two_identity_relations_are_named_and_distinct():
+    """§7 delta 4: "`referenceIdentity` and `ownPolicyIdentity` are two named
+    relations in the scorer, never one field with two meanings."
+
+    Named here as constants and asserted distinct, so a scorer cannot write one
+    under the other's name — which is the whole of the delta: 019 had one
+    `identityPass` member and the population "runs whose suite is consistent
+    with their own policy" was therefore invisible."""
+    assert e4.REFERENCE_IDENTITY == "referenceIdentity"
+    assert e4.OWN_POLICY_IDENTITY == "ownPolicyIdentity"
+    assert e4.IDENTITY_RELATIONS == (e4.REFERENCE_IDENTITY,
+                                     e4.OWN_POLICY_IDENTITY)
+    assert len(set(e4.IDENTITY_RELATIONS)) == 2
+
+
+def test_own_policy_identity_names_its_relation_and_gates_nothing():
+    """§5.1: E6 is "Published per run and per arm; gates nothing; conditions
+    R1's construct statement". The block says so in its own bytes, so a reader
+    of a published record cannot mistake it for a control."""
+    class _Tools(object):
+        pass
+
+    class _Engines(object):
+        TEST_PASS = "pass"
+        TEST_SUITE_STATUSES = ("pass", "failed")
+
+        @staticmethod
+        def opa_test(tools, policy, suite, workdir):
+            return {"status": "pass", "exitCode": 0}
+
+    import e4lib.e4 as module
+    saved = module.engines
+    module.engines = _Engines()
+    try:
+        block = module.own_policy_identity(_Tools(), "B", "policy.rego", None,
+                                           "suite.rego", "/tmp")
+    finally:
+        module.engines = saved
+    assert block["relation"] == e4.OWN_POLICY_IDENTITY
+    assert block["pass"] is True
+    assert "gates" in block and "nothing" in block["gates"]
+
+
+def test_own_policy_identity_refuses_on_an_engine_refusal_rather_than_failing():
+    """§6, as amended for 020: `engine-execution-clean` "now covers E6's extra
+    invocation too". A pinned engine that could not run is an apparatus failure
+    and adjudicates R1 in no direction — recording it as `pass: false` would
+    put an apparatus fact into a published per-arm rate."""
+    class _Engines(object):
+        TEST_PASS = "pass"
+        TEST_SUITE_STATUSES = ("pass", "failed")
+
+        @staticmethod
+        def opa_test(tools, policy, suite, workdir):
+            return {"status": "compile-error", "exitCode": 1}
+
+    import e4lib.e4 as module
+    saved = module.engines
+    module.engines = _Engines()
+    try:
+        with pytest.raises(e4.ExecutionRefusal) as raised:
+            module.own_policy_identity(None, "C", "policy.rego", None,
+                                       "suite.rego", "/tmp")
+    finally:
+        module.engines = saved
+    assert str(raised.value).startswith("E6-OWN-POLICY-ENGINE-REFUSED")
 
 
 # --- R1-6: total matrixVersion-2 schema validation --------------------------
@@ -670,254 +903,3 @@ def test_every_non_assertion_outcome_is_a_refusal_in_both_roles(monkeypatch):
         assert str(raised.value).startswith("E4-IDENTITY-ENGINE-REFUSED")
         # Against a mutant: neither killed nor survived.
         assert e4.kill_arm_rego(None, "m", "suite", "/tmp")[0] == e4.REFUSED
-
-
-# ==========================================================================
-# §7's DELTA 1 — the survivor-vector schema, and the token collision it fixes
-# ==========================================================================
-#
-# Study 019's scorer had three outcome tokens (killed, survived, refused) and a
-# fourth STATE it had no token for: a mutant never evaluated at all, because the
-# run failed the identity control before the kill loop ran. `kill_rates({}, …)`
-# then produced `killedPaired: 0` with `survivorsPaired: []`, which is
-# BYTE-IDENTICAL to the record of a suite that killed every paired mutant. Two
-# arm-A runs of 019 (`run-025`, `run-046`) scored a perfect 33/33 having killed
-# nothing, and the collision moves the group-level ITT A−C contrast from
-# +0.19112 to +0.13849 — magnitude 0.0526, a 38 % shift, and it LOWERS A−C.
-#
-# §5.2 registers the repair as a day-one requirement and §7's delta 1 states it:
-# "the scorer emits an explicit per-mutant survivor vector for every admitted
-# run and never encodes 'nothing evaluated' and 'everything killed' with the
-# same token; `survivorsPaired: []` with `killedPaired: 0` is refused at write
-# time rather than read as 33/33. A harness test drives both refusals, and the
-# mutation check is required: break the refusal, confirm the test fails."
-
-
-def _mutants(count=3):
-    return [{"id": "m%d" % index, "notAdequate": False}
-            for index in range(1, count + 1)]
-
-
-def _paired(count=3):
-    return {"m%d" % index for index in range(1, count + 1)}
-
-
-class TheEmptySurvivorTrap:
-    """Namespaced by a plain class so the collision's cases read together."""
-
-
-def test_nothing_evaluated_and_everything_killed_are_two_documents():
-    """THE regression, stated as the two records the collision made one.
-
-    The assertion is not that either block is 'right' — it is that a reader
-    cannot mistake one for the other, which is the property Study 019's schema
-    did not have."""
-    nothing = e4.unevaluated_kill_block(_mutants(), _paired(), (),
-                                        "the identity control was not decided")
-    everything = e4.kill_rates({name: e4.KILLED for name in _paired()},
-                               _mutants(), _paired(), (), evaluated=True)
-    assert nothing != everything
-    # Both have an EMPTY survivor list, which is exactly why the list alone
-    # cannot be the schema.
-    assert nothing["survivorsPaired"] == everything["survivorsPaired"] == []
-    # …and every member that distinguishes them.
-    assert nothing["killedPaired"] == 0 and everything["killedPaired"] == 3
-    assert nothing["killsEvaluated"] is False
-    assert everything["killsEvaluated"] is True
-    assert nothing["evaluatedPaired"] == 0 and everything["evaluatedPaired"] == 3
-    assert sorted(nothing["notEvaluatedPaired"]) == ["m1", "m2", "m3"]
-    assert everything["notEvaluatedPaired"] == []
-    assert [token for _identifier, token in nothing["survivorVector"]] == \
-        [e4.NOT_EVALUATED] * 3
-    assert [token for _identifier, token in everything["survivorVector"]] == \
-        [e4.KILLED] * 3
-
-
-def test_a_survivor_vector_is_emitted_for_every_admitted_run():
-    """§7's delta 1's first clause. Every paired-adequate mutant carries its own
-    token, in the manifest's order, whatever the run's identity outcome."""
-    for block in (e4.unevaluated_kill_block(_mutants(), _paired()),
-                  e4.kill_rates({"m1": e4.KILLED, "m2": e4.SURVIVED,
-                                 "m3": e4.REFUSED}, _mutants(), _paired())):
-        assert [name for name, _token in block["survivorVector"]] == \
-            ["m1", "m2", "m3"]
-        for member in e4.KILL_BLOCK_REQUIRED:
-            assert member in block, member
-        e4.validate_kill_block(block)
-
-
-def test_the_ambiguous_shape_is_refused_at_write_time():
-    """The registered refusal, driven at the exact document §5.2 names: no
-    survivors, no kills, nothing recorded as not-evaluated, over a non-empty
-    paired denominator."""
-    block = e4.kill_rates({}, _mutants(), _paired(), (), evaluated=True)
-    block["notEvaluatedPaired"] = []
-    block["evaluatedPaired"] = 3
-    block["survivorVector"] = [[name, e4.SURVIVED] for name in ("m1", "m2", "m3")]
-    block["survivorsPaired"] = []
-    with pytest.raises(e4.E4Error) as caught:
-        e4.validate_kill_block(block)
-    assert "E4-KILL-VECTOR-DISAGREES" in str(caught.value)
-    # …and the shape with nothing at all in it.
-    bare = dict(block, survivorVector=[], evaluatedPaired=0,
-                notEvaluatedPaired=[], killsEvaluated=False)
-    with pytest.raises(e4.E4Error) as caught:
-        e4.validate_kill_block(bare)
-    assert "E4-KILL-VECTOR-SHORT" in str(caught.value)
-
-
-def test_the_019_shape_is_refused_by_name():
-    """The literal block Study 019's scorer wrote at two of its five sites —
-    `{"killedPaired": 0, "paired": n}`, with no survivor member and no
-    `caseCount` — which is §5.2's definition-4 defect and this one at once."""
-    with pytest.raises(e4.E4Error) as caught:
-        e4.validate_kill_block({"killedPaired": 0, "paired": 3})
-    assert "E4-KILL-BLOCK-INCOMPLETE" in str(caught.value)
-
-
-def test_the_naive_coverage_reading_can_no_longer_score_a_perfect_run():
-    """The consequence, in the reader's terms. A coverage set computed as "the
-    classes with no survivor" scores the not-evaluated block 3/3 — which is what
-    happened on 019 — and the same computation over `survivorVector` scores it
-    0/3, because a not-evaluated mutant is neither killed nor survived."""
-    nothing = e4.unevaluated_kill_block(_mutants(), _paired())
-    naive = len(_paired()) - len(nothing["survivorsPaired"])
-    assert naive == 3, "the naive reading is what §5.2 says it is"
-    corrected = sum(1 for _name, token in nothing["survivorVector"]
-                    if token == e4.KILLED)
-    assert corrected == 0
-
-
-def test_every_disagreement_between_the_counts_and_the_vector_refuses():
-    """Four refusals, one case each, so a validator that had lost one of them
-    fails here rather than passing a block nobody can read."""
-    good = e4.kill_rates({"m1": e4.KILLED, "m2": e4.SURVIVED,
-                          "m3": e4.REFUSED}, _mutants(), _paired())
-    for mutate, expected in (
-            (lambda b: b.update(killedPaired=2), "E4-KILL-VECTOR-DISAGREES"),
-            (lambda b: b.update(survivorsPaired=[]), "E4-KILL-VECTOR-DISAGREES"),
-            (lambda b: b.update(evaluatedPaired=1), "E4-KILL-CENSUS"),
-            (lambda b: b.update(killsEvaluated=False),
-             "E4-KILL-EVALUATED-CONTRADICTION"),
-            (lambda b: b.update(
-                survivorVector=[["m1", "invented"], ["m2", e4.SURVIVED],
-                                ["m3", e4.REFUSED]]),
-             "E4-KILL-VECTOR-TOKEN")):
-        block = json.loads(json.dumps(good))
-        mutate(block)
-        with pytest.raises(e4.E4Error) as caught:
-            e4.validate_kill_block(block)
-        assert expected in str(caught.value), expected
-
-
-def test_breaking_the_refusal_makes_the_regression_fail():
-    """§7's delta 1 requires the mutation check by name: break the refusal,
-    confirm the test fails.
-
-    The mutation is the refusal's own condition — the branch that names the
-    collision — removed. Under it the ambiguous document validates, and the case
-    above stops discriminating."""
-    block = e4.kill_rates({}, _mutants(), _paired(), (), evaluated=False)
-    block["notEvaluatedPaired"] = []
-    block["evaluatedPaired"] = 0
-    block["survivorVector"] = []
-    block["paired"] = 3
-    original = e4.validate_kill_block
-
-    def mutated(candidate, where="a kill block"):
-        """`validate_kill_block()` with the ambiguity branch removed."""
-        if (candidate["paired"] and not candidate["survivorsPaired"]
-                and not candidate["killedPaired"]
-                and not candidate["notEvaluatedPaired"]):
-            return candidate
-        return original(candidate, where)
-
-    # The control first: the real validator refuses this document.
-    with pytest.raises(e4.E4Error):
-        original(block)
-    # …and the mutant accepts it, which is what makes the case above a test.
-    assert mutated(block) is block
-
-
-# ==========================================================================
-# §7's DELTA 4 — TWO identity relations, and only one of them gates
-# ==========================================================================
-
-
-def test_the_two_relations_are_named_separately():
-    """M-13, §1.2: "`referenceIdentity` and `ownPolicyIdentity` are two named
-    relations in the scorer, never one field with two meanings." The names are
-    constants, and which one GATES is a constant too — so "the gate is the
-    reference relation" is something a test can read rather than a sentence a
-    reader has to trust."""
-    assert e4.IDENTITY_RELATIONS == ("referenceIdentity", "ownPolicyIdentity")
-    assert e4.GATING_IDENTITY_RELATION == "referenceIdentity"
-    assert e4.OWN_POLICY_RELATION not in (e4.GATING_IDENTITY_RELATION,)
-
-
-def test_the_own_policy_record_says_it_gates_nothing():
-    record = e4.own_policy_identity_arm_a(None, None, [], "/tmp")
-    assert record["relation"] == "ownPolicyIdentity"
-    assert record["gates"] is False
-    assert record["evaluated"] is False and record["pass"] is None
-    assert "no admitted artifact" in record["note"]
-
-
-def test_no_decision_path_reads_the_own_policy_relation():
-    """The registered NON-GATING property, as a property of the SOURCE rather
-    than as a sentence. §1.2: the score "gates nothing"; §5.1: it "conditions
-    R1's construct statement" and adjudicates nothing.
-
-    Read out of the modules that decide: the ordered decision table, the control
-    gates and the contrast. A future edit that made a verdict read E6 would fail
-    here, which a prose ceiling would not."""
-    import ast
-    import score
-    from e4lib import decision
-    for module in (decision, score):
-        with open(module.__file__, "rb") as handle:
-            tree = ast.parse(handle.read().decode("utf-8"))
-        reads = [node for node in ast.walk(tree)
-                 if isinstance(node, ast.Constant)
-                 and node.value == "ownPolicyIdentity"]
-        if module is decision:
-            assert reads == [], (
-                "the ordered decision rule must not name E6 at all")
-    # In the scorer the name appears only where E6 is BUILT and PUBLISHED, never
-    # inside the decision, the gates or the contrast.
-    with open(score.__file__, "rb") as handle:
-        source = handle.read().decode("utf-8")
-    tree = ast.parse(source)
-    owners = set()
-    for node in ast.walk(tree):
-        if not isinstance(node, ast.FunctionDef):
-            continue
-        for inner in ast.walk(node):
-            if isinstance(inner, ast.Constant) and \
-                    inner.value == "ownPolicyIdentity":
-                owners.add(node.name)
-    # The four sites are all CONSTRUCTION or PUBLICATION: the per-run record's
-    # default and its two arms (`score_run`, `_identity_and_kill`), the block
-    # that builds the per-arm aggregate (`own_policy_identity_block`) and the
-    # E4 endpoint that publishes that block beside the relation which does gate
-    # (`e4_endpoint`). None of them is a verdict, a gate or a contrast.
-    assert owners <= {"own_policy_identity_block", "score_run",
-                      "_identity_and_kill", "e4_endpoint"}, sorted(owners)
-    for name in ("decide", "contrast", "control_gates", "registered_contrasts"):
-        function = getattr(score, name, None) or getattr(decision, name, None)
-        if function is None:
-            continue
-        import inspect
-        assert "ownPolicyIdentity" not in inspect.getsource(function), name
-
-
-def test_the_gate_is_the_reference_relation_and_the_scorer_reads_that_one():
-    """The other half: the per-protocol population and every rate that reports
-    an identity pass read `referenceIdentityPass`, and nothing reads a member
-    called `identityPass` any more — a name with two meanings is what M-13
-    registers against."""
-    import score
-    with open(score.__file__, "rb") as handle:
-        source = handle.read().decode("utf-8")
-    assert '"identityPass"' not in source
-    assert '"referenceIdentityPass"' in source

@@ -127,7 +127,6 @@ def test_the_attempt_hands_its_own_registry_digest_to_every_slot_read(
     handed the reader: the value must be the same `pinsRawSha256` the attempt
     wrote into `ATTEMPT.json` before it parsed anything, and it must not be
     `None`."""
-    _requires_a_batch()
     seen = []
     original = score.read_slot
 
@@ -167,7 +166,6 @@ def test_the_reviewer_set_rule_is_two_sided(tmp_path, monkeypatch):
     first half; the freeze-fill made the second half live and this test now
     pins both from either starting state, by building each registry shape from
     the real one."""
-    _requires_sealed_set()
     real = json.loads(read(score.PINS_PATH))
 
     pilot = json.loads(json.dumps(real))
@@ -322,32 +320,6 @@ def test_a_pre_verification_failure_does_not_bind_the_tree(tmp_path,
 
 # --- ROUND-2 R2-7: the mandatory holdout is loaded FIRST and fatally ---------
 
-def _requires_sealed_set():
-    """The sealed reviewer set is `harness/SCAFFOLD.md` item A4: Study 019's is
-    SPENT (§4.3) and 020's is authored during the review rounds, so this tree
-    carries none. Every case about the set skips BY NAME rather than being
-    deleted or softened — the discipline Study 019 set for a subject the tree
-    does not carry."""
-    if not os.path.isdir(os.path.join(score.STUDY, score.REVIEWER_SET_RELATIVE)):
-        pytest.skip("§4.3 registers a FRESH sealed reviewer mutant set, "
-                    "authored during the review rounds; harness/SCAFFOLD.md "
-                    "item A4 carries it as a GATE(pre-freeze) and it is not in "
-                    "this tree yet")
-
-
-def _requires_a_batch():
-    """§1a registers that NO authoring run exists at freeze time, and the
-    registered batch is the study's whole prospective content. A case that needs
-    slots on disk cannot run before the batch does, and the freeze gate refuses
-    a tree that has them (`make_manifest.prior_authoring_problems()`)."""
-    roots = [os.path.join(score.STUDY, "arms", arm, "authoring")
-             for arm in ("A", "B", "C")]
-    if not any(os.path.isdir(root) for root in roots):
-        pytest.skip("§1a registers that no authoring run exists at freeze "
-                    "time; the registered batch has not run, and this case "
-                    "needs retained slots")
-
-
 def _reachable(monkeypatch, label="PILOT"):
     """A tree the integrity gate accepts and a registry with no unfilled pin, so
     the reviewer-set branch is reachable at all on this pre-freeze checkout."""
@@ -376,6 +348,28 @@ def _defective_set(tmp_path, monkeypatch):
     payload.write_bytes(payload.read_bytes() + b"\n")
     monkeypatch.setattr(score, "REVIEWER_SET_RELATIVE", str(copy))
     return copy
+
+
+def _requires_sealed_set():
+    """§4.3 and §7 delta 9: Study 019's reviewer set is SPENT and 020's FRESH
+    sealed set is AUTHORED DURING THE REVIEW ROUNDS, so it is not in this tree
+    yet — `harness/SCAFFOLD.md` item A4 carries it and `reviewerMutantSet.sha256`
+    is a null freeze pin that `make_manifest.py --freeze` refuses on.
+
+    The three cases below read the committed set. The registered discipline for
+    a test whose subject is a `GATE(pre-freeze)` artifact is `tests/conftest.py`'s:
+    SKIP with the reason named, rather than delete it (which loses the check),
+    soften it (worse than losing it) or leave it red (which makes a red suite the
+    normal state and hides the next real failure). Each becomes an assertion again,
+    unchanged, the moment the set lands."""
+    import pytest as _pytest
+    where = os.path.join(score.STUDY, score.REVIEWER_SET_RELATIVE)
+    if not os.path.isdir(where):
+        _pytest.skip(
+            "PREREGISTRATION.md §4.3 / §7 delta 9 register a FRESH sealed "
+            "reviewer set authored during the review rounds (harness/SCAFFOLD.md "
+            "item A4); it is not in this tree yet: %s"
+            % score.REVIEWER_SET_RELATIVE)
 
 
 def test_the_committed_sealed_set_loads_as_the_reviewer_re_issued_it(
@@ -489,18 +483,8 @@ def test_the_terminal_record_names_every_problem_it_found(tmp_path):
     # A single-cause refusal carries the name in `problem` with an empty list;
     # a census refusal carries every member in `problems`. Either is named;
     # what must never recur is the round-1 shape — "invalid" with neither.
-    # 020 adds two prefixes, and they are the difference between the two trees
-    # this suite is run against. In the WORKING TREE the harness sources are
-    # untracked, so `integrity.verify()` refuses first and the record names
-    # that; in the ARCHIVE RECONSTRUCTION every source is staged, integrity
-    # passes, and the attempt reaches the artifact census — which names the
-    # corpora §4.1 has not ported yet (`harness/SCAFFOLD.md` item A1). Both are
-    # named refusals and both must be recognised here, or the suite is green on
-    # one tree and red on the other for a reason that is neither's defect.
     recognised = ("integrity: ", "binary-digest-mismatch", "terminality: ",
                   "registered artifact is absent", "registry: ",
-                  "registered mutant payload directory is absent",
-                  "registered mutant payload is absent",
                   "a REGISTERED attempt runs the sealed reviewer mutant set",
                   "--include-reviewer-set is refused")
     if problems:
@@ -1293,69 +1277,126 @@ def test_a_declaration_that_is_not_an_object_is_not_a_declaration(tmp_path):
 # --- the endpoint aggregations ---------------------------------------------
 
 def run(name, arm="A", admitted=True, identity=True, killed=38, paired=39,
-        gold_perfect=True, code=None, out_of_domain=()):
-    # ROUND-3 R3-9: no `x1Excluded` member. §4 registers no per-case filter and
-    # no per-run excluded-case count, and a fixture that kept publishing one
-    # would let the field come back without a test noticing.
+        gold_perfect=True, code=None, out_of_domain=(), covered=None,
+        own_policy=True, case_count=12):
+    """One scored run in 020's published shape.
+
+    Three deltas are visible in this fixture and each is deliberate. §7 delta 1:
+    the kill block carries the explicit per-mutant survivor VECTOR and
+    `caseCount` is always a number. §7 delta 2: there is no `highKill` member,
+    because there is no threshold. §7 delta 4: `ownPolicyIdentity` is its own
+    named member beside `identityPass`, never merged into it.
+
+    ROUND-3 R3-9, carried: no `x1Excluded` member. §4 registers no per-case
+    filter and no per-run excluded-case count, and a fixture that kept
+    publishing one would let the field come back without a test noticing."""
+    covered = killed if covered is None else covered
+    vector = [{"id": "m-%03d" % index,
+               "outcome": "killed" if index < killed else "survived",
+               "engineSupplied": False}
+              for index in range(paired)]
     return {"run": name, "arm": arm, "code": code, "admitted": admitted,
-            "goldPerfect": gold_perfect, "referenceIdentityPass": identity,
+            "goldPerfect": gold_perfect, "identityPass": identity,
+            "identityRelation": "referenceIdentity",
+            "ownPolicyIdentity": {"relation": "ownPolicyIdentity",
+                                  "pass": own_policy, "failures": [],
+                                  "failureCount": 0},
+            "suitePresent": True, "caseCount": case_count,
             "durationSeconds": 100.0,
             "outOfDomainCases": list(out_of_domain),
-            "kill": {"killedPaired": killed, "paired": paired},
-            "goldFailures": [], "referenceIdentityFailures": []}
+            "kill": {"killedPaired": killed, "paired": paired,
+                     "survivorVector": vector,
+                     "evaluatedPaired": paired,
+                     "survivorsPaired": [entry["id"] for entry in vector
+                                         if entry["outcome"] == "survived"]},
+            "coverage": {"language": "jps", "covered": [], "coveredCount":
+                         covered, "coveredAny": [], "coveredAnyCount": covered,
+                         "allEqualsAny": True, "unevaluatedClasses": [],
+                         "classCount": 33},
+            "goldFailures": [], "identityFailures": []}
 
 
-def test_e4_keeps_authoring_outcomes_in_the_denominator_as_not_high_kill():
-    """Section 5, verbatim: "Runs carrying authoring-outcome codes remain in the
-    E4 denominator as not-high-kill (no-marker included)"."""
-    cut = {"integerCut": 38}
-    runs = [run("run-001"), run("run-002", killed=10),
+DENOMINATOR = {"language": "jps", "pairedAdequateMutants": 69,
+               "lattice": 1 / 69.0, "statement": "…"}
+
+
+def test_e4_keeps_authoring_outcomes_in_the_itt_denominator_scoring_zero():
+    """§5.1, verbatim: "Runs carrying authoring-outcome codes remain in the ITT
+    members' denominators scoring 0; only apparatus codes leave."
+
+    §7 delta 2 changes what is asserted about them: there is no `highKill`
+    member to be false, so what is checked is that the run is IN the ITT
+    denominator and contributes a coverage count of zero — the quantity the
+    ITT family members actually weight."""
+    runs = [run("run-001"), run("run-002", killed=10, covered=10),
             run("run-003", admitted=False, identity=False,
-                code="no-marker-block", killed=0)]
-    endpoint = score.e4_endpoint("A", runs, cut)
+                code="no-marker-block", killed=0, covered=0)]
+    endpoint = score.e4_endpoint("A", runs, DENOMINATOR)
     assert endpoint["denominator"] == 3
-    assert endpoint["highKill"] == 1
-    assert endpoint["highKillRate"]["trials"] == 3
+    assert endpoint["coverageCounts"] == [38, 10, 0]
+    assert "highKill" not in endpoint and "cut" not in endpoint
 
 
 def test_e4_reports_identity_failures_as_a_first_class_rate():
-    cut = {"integerCut": 38}
     runs = [run("run-001"), run("run-002", identity=False, killed=39)]
-    endpoint = score.e4_endpoint("A", runs, cut)
+    endpoint = score.e4_endpoint("A", runs, DENOMINATOR)
     assert endpoint["identityFail"] == 1
     assert endpoint["identityFailedRuns"] == ["run-002"]
     assert endpoint["identityRate"]["count"] == 1
-    # …and an identity-failing suite is never high-kill, whatever it killed.
-    assert endpoint["highKillRuns"] == ["run-001"]
+    # …and the identity-passing subset is published as its OWN denominator,
+    # because §5.2 makes it a family POPULATION POLE rather than a filter: the
+    # per-protocol members score over it and the ITT members do not.
+    assert endpoint["perProtocolDenominator"] == 1
+    assert endpoint["denominator"] == 2
+
+
+def test_e4_publishes_both_named_identity_relations_and_their_conjunction():
+    """§7 delta 4 and §5.1's E6. `ownPolicyIdentity` is published per run and
+    per arm, gates nothing, and the CONJUNCTION is published as §5.8's Tier D
+    population disposition — "so the population 020 did not register is visible
+    beside the one it did"."""
+    runs = [run("run-001"),
+            run("run-002", identity=False),                # reference fails
+            run("run-003", own_policy=False)]              # own policy fails
+    endpoint = score.e4_endpoint("A", runs, DENOMINATOR)
+    assert endpoint["identityPass"] == 2
+    assert endpoint["ownPolicyIdentityPass"] == 2
+    assert endpoint["bothIdentitiesPass"] == 1
+    # The two are DIFFERENT populations, which is the whole point of naming
+    # them separately: neither count is a function of the other.
+    assert endpoint["identityPass"] != endpoint["bothIdentitiesPass"]
 
 
 def test_the_identity_failure_denominator_is_the_registered_one(tmp_path):
-    """ROUND-2 FINDING R2-2, as the reviewer's own two-run probe.
+    """019's ROUND-2 FINDING R2-2, as the reviewer's own two-run probe, carried
+    onto 020's two population POLES.
 
     "A direct two-run probe — one identity-pass/high-kill run and one identity
-    failure — produced primary E4 1/2, while the pilot rule produces 1/1." §5
-    registers §1a's denominator, "attempted runs whose apparatus succeeded",
-    with identity-control exclusions "reported, never silently dropped". So 1/2
-    is the registered answer, the primary scorer has always given it, and the
-    PILOT scorer was the one taking the other reading — it now takes this one
-    (`design/mutants/E4-PILOT-v4.json`).
+    failure — produced primary E4 1/2, while the pilot rule produces 1/1." Two
+    scorers disagreed about one registered rule. §5.2 dissolves the
+    disagreement rather than picking a winner: BOTH readings are registered
+    family poles — ITT is §1a's "attempted runs whose apparatus succeeded" with
+    identity-control exclusions kept in and scoring 0, and per-protocol is the
+    `referenceIdentity`-passing subset — and §5.5's drop-a-pole table shows why
+    that matters, since an ITT-only family would have CLAIMED on 019 while
+    §5.6 puts the ITT members' rejection rate at 66–68 % under a null in which
+    coverage is identical and only authoring validity differs.
 
-    The per-run marker is asserted here too, because it is the other half of the
-    same sentence: an identity-failing run carries `highKill: null` and never
-    `False`, since it was never asked, and it is in the denominator all the
-    same."""
-    cut = {"integerCut": 38}
-    passing = run("run-001", killed=39)
-    failing = run("run-002", identity=False, killed=39)
-    endpoint = score.e4_endpoint("A", [passing, failing], cut)
-    assert (endpoint["highKill"], endpoint["denominator"]) == (1, 2)
-    assert endpoint["highKillRate"]["count"] == 1
-    assert endpoint["highKillRate"]["trials"] == 2
+    So the assertion is that BOTH denominators are published, from one endpoint,
+    under names that cannot be read as each other."""
+    passing = run("run-001", killed=39, covered=33)
+    failing = run("run-002", identity=False, killed=39, covered=0)
+    endpoint = score.e4_endpoint("A", [passing, failing], DENOMINATOR)
+    assert endpoint["denominator"] == 2                       # ITT pole
+    assert endpoint["perProtocolDenominator"] == 1            # PP pole
     assert endpoint["identityFail"] == 1
     assert endpoint["identityFailedRuns"] == ["run-002"]
-    assert passing["highKill"] is True
-    assert failing["highKill"] is None
     assert "identity-control exclusions" in endpoint["denominatorRule"]
+    assert "family member's population" in endpoint["perProtocolRule"]
+    # …and neither rule is a filter applied before the endpoint: the coverage
+    # counts carry BOTH runs, in run order, so the family scorer selects its
+    # own population rather than receiving one already selected.
+    assert endpoint["coverageCounts"] == [33, 0]
 
 
 def test_the_pilot_scorer_now_computes_the_same_denominator():
@@ -1370,9 +1411,9 @@ def test_the_pilot_scorer_now_computes_the_same_denominator():
     spec.loader.exec_module(module)
     doc = {"perArm": {
         "A": {"mutantsPairedAdequate": 75, "identityFailedRuns": ["run-002"],
-              "perRun": [{"run": "run-001", "referenceIdentityPass": True,
+              "perRun": [{"run": "run-001", "identityPass": True,
                           "killedPaired": 72},
-                         {"run": "run-002", "referenceIdentityPass": False}]},
+                         {"run": "run-002", "identityPass": False}]},
         "B": {"mutantsPairedAdequate": 65, "identityFailedRuns": [],
               "perRun": []},
         "C": {"mutantsPairedAdequate": 65, "identityFailedRuns": [],
@@ -1410,7 +1451,7 @@ def test_the_published_report_has_no_excluded_cases_column():
     "Excluded cases" teaches every reader of RESULTS.md that a filter ran."""
     results = {"label": "PILOT", "unfilledPins": [], "cuts": {},
                "e1": {}, "e2": {}, "e5": None, "contrasts": {},
-               "contrastsGatedBy": ["control-gate-failed: c4-transfer-gate"],
+               "contrastsGatedBy": ["control-gate-failed: e1-floor"],
                "refusals": {}, "pairing": {},
                "e4": {"A": score.e4_endpoint("A", [run("run-001")],
                                              {"integerCut": 38,
@@ -1431,17 +1472,28 @@ def test_the_retired_predicate_survives_and_gates_nothing():
     assert callable(e4_module.in_x1)
 
 
-def test_e1_reports_the_ceiling_and_the_floor_separately():
+def test_e1_reports_the_rate_and_carries_no_floor_at_all():
+    """§5.7, ruled 2026-08-23 (M-23 option (a)): there is NO author-side control
+    gate, so E1 is fully descriptive and this block carries no `floor` and no
+    `floorHeld`. A reader cannot read a gate off a record that does not contain
+    one, and `score.E1_FLOOR` does not exist to be read from anywhere else."""
     runs = [run("run-001"), run("run-002", gold_perfect=False)]
     control = score.e1_control("A", runs)
     assert control["perfect"] == 1 and control["runs"] == 2
-    assert control["floor"] == score.E1_FLOOR
-    assert control["floorHeld"] is False
-    assert score.e1_control("A", [run("run-001")])["floorHeld"] is True
+    assert "floor" not in control and "floorHeld" not in control
+    assert not hasattr(score, "E1_FLOOR")
+    assert "no author-side control gate" in control["gates"]
 
 
-def test_e1_on_an_empty_arm_holds_rather_than_dividing_by_zero():
-    assert score.e1_control("A", [])["floorHeld"] is True
+def test_e1_on_an_empty_arm_publishes_no_rate_rather_than_a_held_gate():
+    """The 019 defect this replaces: `len(runs) == 0 or …` made an arm with no
+    admitted runs PASS the floor by definition, which is how the control rows
+    let an empty arm through to a contrast that could not exist. With no gate
+    there is nothing to pass, and the empty denominator is reported as one."""
+    control = score.e1_control("A", [])
+    assert control["runs"] == 0
+    assert control["rate"]["rate"] is None
+    assert "floorHeld" not in control
 
 
 def test_e2_publishes_the_ordered_code_table_with_both_sides_named():
@@ -1475,78 +1527,194 @@ def test_e2_refuses_an_apparatus_code_on_a_run_record():
 
 def test_e3_counts_within_arm_only():
     runs = [{"goldFailures": [{"category": "disagreement"}],
-             "referenceIdentityFailures": [{"got": "outcome:reject"}]}]
+             "identityFailures": [{"got": "outcome:reject"}]}]
     taxonomy = score.e3_taxonomy(runs)
     assert taxonomy["goldFailureCategories"] == {"disagreement": 1}
-    assert taxonomy["referenceIdentityFailureCategories"] == {"outcome:reject": 1}
+    assert taxonomy["identityFailureCategories"] == {"outcome:reject": 1}
 
 
-def test_the_contrast_scores_unequal_denominators_rather_than_refusing():
-    """SCAFFOLD item S8, closed. Section 1a excludes apparatus failures from the
-    denominator, so unequal admitted counts are the registered case, and section
-    5 registers the general unequal-N FM-score inversion for it. The scorer used
-    to raise `FM-UNEQUAL-N` here."""
-    e4_by_arm = {"A": {"highKill": 10, "denominator": 50},
-                 "C": {"highKill": 40, "denominator": 49}}
-    result = score.contrast("A", "C", e4_by_arm, endpoints=False)
-    assert result["equalArms"] is False
-    assert result["nLeft"] == 50 and result["nRight"] == 49
-    assert result["excludesZero"] is True
-    assert decision.direction(result) == "C above A"
+# --- §7 delta 2: what the family scorer is handed, and what it is not -------
+
+def test_the_endpoint_hands_over_measurements_and_no_weighting():
+    """§7 delta 2 and delta 5's seam, asserted as a SHAPE.
+
+    019 fused what was measured with how it was weighted: one registered
+    quantity, a native-denominator kill fraction, computed inside the endpoint —
+    and §5.5's single-choice ledger shows what that cost, eight defensible
+    readings of the same batch of which two reject at α = 0.05 IN OPPOSITE
+    DIRECTIONS at p = 0.0007 and p = 0.0031. 020 separates them: this endpoint
+    publishes coverage counts and denominators, and every weighting decision is
+    `e4lib/family.py`'s.
+
+    So the assertion is on the KEYS: no member of the published block is a
+    weight, a threshold, a contrast or a p-value."""
+    endpoint = score.e4_endpoint("A", [run("run-001")], DENOMINATOR,
+                                 classes=[{"classId": "g1"}] * 33)
+    forbidden = ("cut", "tau", "highkill", "weight", "offset", "contrast",
+                 "difference", "reject", "claim")
+    for key in endpoint:
+        for token in forbidden:
+            assert token not in key.lower(), (key, token)
+    # …and the measurements the family needs ARE there.
+    assert endpoint["coverageCounts"] == [38]
+    assert endpoint["sharedClassCount"] == 33
+    assert endpoint["pairedDenominator"] is DENOMINATOR
 
 
-def test_the_contrast_carries_the_arm_names_so_direction_is_readable():
-    e4_by_arm = {"A": {"highKill": 10, "denominator": 50},
-                 "C": {"highKill": 45, "denominator": 50}}
-    result = score.contrast("A", "C", e4_by_arm, endpoints=False)
-    assert result["arms"] == ["A", "C"]
-    assert decision.direction(result) == "C above A"
+def test_the_endpoint_computes_nothing_inferential_at_all():
+    """§5.9's "No inferential quantity is computed, let alone published, at or
+    above row 3" has a structural half: an endpoint that computed a p-value
+    would have computed it before any gate was read. The marginal rate blocks
+    it does build are PENDING and are settled after `decide()` (019's R2-12)."""
+    endpoint = score.e4_endpoint("A", [run("run-001")], DENOMINATOR)
+    assert endpoint["identityRate"]["ci95"] is None
+    assert endpoint["identityRate"]["ci95State"] == score.stats.CI_PENDING
+    assert endpoint["ownPolicyIdentityRate"]["ci95State"] == \
+        score.stats.CI_PENDING
 
 
-def test_the_contrast_publishes_the_swept_interval_beside_the_decision():
-    """Section 10 commits to publishing every interval, and section 5 says the
-    reported endpoints come from the full Delta0 sweep of the same
-    construction. Small denominators here because the sweep's cost is the whole
-    Delta0 mesh; `tests/test_score_stats.py` holds the construction itself.
+# --- §7 delta 8: the freeze gate's calibration rule -------------------------
 
-    ROUND-3 R3-8: the sweep runs at SETTLEMENT rather than at construction, so
-    the two steps are driven in the publisher's order here — the endpoints are
-    the same endpoints, computed once the row is known."""
-    e4_by_arm = {"A": {"highKill": 6, "denominator": 6},
-                 "C": {"highKill": 0, "denominator": 5}}
-    result = score.contrast("A", "C", e4_by_arm)
-    assert result["intervalState"] == score.stats.INTERVAL_PENDING
-    assert result["interval"] is None
-    score.stats.fill_intervals(result, True)
-    assert result["excludesZero"] is True
-    assert result["intervalState"] == score.stats.INTERVAL_COMPUTED
-    assert result["interval"]["lower"] == "43/100"
-    assert result["interval"]["upper"] == "1"
-    assert result["interval"]["deltaMeshDenominator"] == \
-        score.stats.FM_DELTA_MESH_DEN
+def _sealed_pilot(root):
+    (root / "calibration" / "pilot-001").mkdir(parents=True)
+    (root / "calibration" / "pilot-001" / "CALIBRATION.json").write_text(
+        "{}", encoding="utf-8")
 
 
-def test_an_endpoint_refusal_leaves_the_decision_intact():
-    """The endpoints are a REPORT; section 5's rule reads `excludesZero` and
-    nothing else, so a sweep that cannot report a hull must not take the verdict
-    down with it."""
-    e4_by_arm = {"A": {"highKill": 6, "denominator": 6},
-                 "C": {"highKill": 0, "denominator": 5}}
+def test_the_freeze_requires_the_calibration_subtree(tmp_path):
+    """§7 delta 8, REQUIRE. §2a registers C1–C5 as calibration under registered
+    conditions and §2a.6 puts the pilot's label, N and output digest into
+    `PINS.json` BEFORE the primary attempt, so a freeze with no calibration
+    subtree is a freeze that skipped the pilot."""
+    problems = batch.calibration_freeze_problems(str(tmp_path))
+    assert any("calibration/ is absent" in problem for problem in problems)
+    # An EMPTY subtree is the same fact as an absent one: §2a.4 registers
+    # `calibration/derive_floor.py` as committed and sealed before the pilot
+    # runs, so there is always something in it by the freeze.
+    (tmp_path / "calibration").mkdir()
+    problems = batch.calibration_freeze_problems(str(tmp_path))
+    assert any("exists and is empty" in problem for problem in problems)
 
-    def refuse(*_args, **_kwargs):
-        raise score.stats.StatsError("FM-EMPTY-ACCEPTANCE synthetic")
 
-    saved = score.stats.interval_endpoints
-    score.stats.interval_endpoints = refuse
-    try:
-        result = score.contrast("A", "C", e4_by_arm)
-        score.stats.fill_intervals(result, True)
-    finally:
-        score.stats.interval_endpoints = saved
-    assert result["excludesZero"] is True
-    assert result["interval"] is None
-    assert result["intervalState"] == score.stats.INTERVAL_REFUSED
-    assert result["intervalRefusal"].startswith("FM-EMPTY-ACCEPTANCE")
+def test_the_freeze_permits_a_populated_calibration_subtree(tmp_path):
+    """§7 delta 8, PERMIT — and the permission is structural, not an exception.
+
+    `make_manifest.py`'s `prior_authoring_problems()` refuses ANY pre-freeze
+    authoring state, deriving the tree that must not exist from `batch.py`'s own
+    `arms/<ARM>/authoring` constant. §2a.2 puts calibration output under
+    `calibration/<label>/`, which is outside that tree — so a sealed pilot is
+    permitted because of where it lives, and this asserts that separation rather
+    than assuming it."""
+    _sealed_pilot(tmp_path)
+    assert batch.calibration_freeze_problems(str(tmp_path)) == []
+
+
+def test_a_calibration_slot_written_into_the_arms_tree_is_refused(tmp_path):
+    """The permission's failure mode, named. A calibration slot under
+    `arms/<ARM>/authoring` would be refused by the freeze gate for a reason
+    that names the WRONG cause — "no authoring run exists at the freeze" — so it
+    is caught here, under the rule it actually breaks."""
+    _sealed_pilot(tmp_path)
+    (tmp_path / "arms" / "A" / "authoring").mkdir(parents=True)
+    problems = batch.calibration_freeze_problems(str(tmp_path))
+    assert any("arms/A/authoring exists" in problem for problem in problems)
+    assert any("names the wrong cause" in problem for problem in problems)
+
+
+def test_the_freeze_still_refuses_any_primary_attempt_root(tmp_path):
+    """§7 delta 8's third clause, unchanged from 019's R9-2 and restated at the
+    registered spelling: "still refuse any `results/primary-attempt-*`". The
+    registered root and an attempt root under ANY other name are the same fact,
+    because `results/` holds attempt roots and nothing else."""
+    _sealed_pilot(tmp_path)
+    (tmp_path / "results" / "primary-attempt-001").mkdir(parents=True)
+    problems = batch.calibration_freeze_problems(str(tmp_path))
+    assert any("primary-attempt-001 exists" in problem for problem in problems)
+    (tmp_path / "results" / "primary-attempt-002").mkdir()
+    problems = batch.calibration_freeze_problems(str(tmp_path))
+    assert any("primary-attempt-002 exists" in problem for problem in problems)
+    assert any("under a second name is the same fact" in problem
+               for problem in problems)
+
+
+def test_a_dangling_symlink_at_the_attempt_root_is_an_attempt_root(tmp_path):
+    """019's R9-2 reason for `lexists` over `exists`, carried: a dangling
+    symlink named `results/primary-attempt-001` is a root that exists and that
+    `isdir`/`exists` both call absent."""
+    _sealed_pilot(tmp_path)
+    (tmp_path / "results").mkdir()
+    os.symlink(str(tmp_path / "nowhere"),
+               str(tmp_path / "results" / "primary-attempt-001"))
+    problems = batch.calibration_freeze_problems(str(tmp_path))
+    assert any("primary-attempt-001 exists" in problem for problem in problems)
+
+
+def test_a_calibration_label_cannot_leave_the_calibration_subtree():
+    """§2a.2 registers the output as `calibration/<label>/`, so a label is a
+    directory NAME. `..`, an absolute path and a separator all reach outside the
+    one subtree the freeze rule is about."""
+    for label in ("..", ".", "", "/etc", "a/b", "../results"):
+        with pytest.raises(batch.BatchError) as raised:
+            batch.calibration_root(label)
+        assert "not a calibration label" in str(raised.value)
+    assert batch.calibration_root("pilot-001").endswith(
+        os.path.join("calibration", "pilot-001"))
+
+
+def test_the_calibration_record_carries_the_four_registered_differences():
+    """§2a.2: "The registered differences between the pilot and the primary
+    batch are exactly four, and they are enumerated here so a fifth cannot be
+    discovered later." They are enumerated in the RECORD, so a fifth cannot be
+    discovered in a runbook either."""
+    registry = {"codex": {"model": "m", "reasoningEffort": "high",
+                          "binarySha256": "sha256:x"},
+                "jpack": {"binarySha256": "sha256:y"},
+                "opa": {"assetSha256": "sha256:z"}}
+    record = batch.calibration_record("pilot", "pilot-001", registry)
+    assert record["registeredDifferences"] == [
+        "output under calibration/<label>/",
+        "the pilot slot count",
+        "citable: false",
+        "the pin state (§2.1's design-time-resolved rule)"]
+    assert record["citable"] is False
+    assert record["outsideEveryPopulation"] is True
+    assert record["runsPerArm"] == batch.PILOT_RUNS_PER_ARM == 12
+    assert record["designTimePinState"]["codex.reasoningEffort"] == "high"
+    assert record["sweepExemption"] == []
+    # M-24's sentence travels with the record, not with a runbook.
+    assert "not independently witnessed" in record["note"]
+
+
+def test_a_sweep_record_stamps_its_setting_and_names_the_exemption():
+    """§2.1: "each sweep call's setting stamped into its `CALL.json`". A swept
+    condition that is not in the bytes is a condition no observed duration can
+    be priced against, so a sweep record without one is refused."""
+    registry = {"codex": {"model": "m", "reasoningEffort": None,
+                          "binarySha256": "sha256:x"},
+                "jpack": {"binarySha256": "sha256:y"},
+                "opa": {"assetSha256": "sha256:z"}}
+    with pytest.raises(batch.BatchError) as raised:
+        batch.calibration_record("sweep", "sweep-001", registry)
+    assert "carries no setting" in str(raised.value)
+    record = batch.calibration_record("sweep", "sweep-001", registry,
+                                      setting="reasoningEffort=high")
+    assert record["setting"] == "reasoningEffort=high"
+    assert record["sweepExemption"] == ["codex.reasoningEffort"]
+    assert record["runsPerArm"] == batch.SWEEP_RUNS_PER_ARM == 3
+    assert batch.SWEEP_CALL_CAP == 27
+
+
+def test_the_registered_calibration_counts_are_the_registrations(
+        preregistration):
+    """The three numbers §2.1 and §2a.2 state in their own bytes, against the
+    driver's constants — a one-sided edit names its own drift site."""
+    flat = " ".join(preregistration.replace("*", "").replace("`", "").split())
+    assert "n = 3/arm across three settings — 27 calls" in flat
+    assert "The sweep's total is capped at 27 calls" in flat
+    assert "Pilot N: 12/arm" in flat
+    assert batch.SWEEP_RUNS_PER_ARM == 3
+    assert batch.SWEEP_CALL_CAP == 27
+    assert batch.PILOT_RUNS_PER_ARM == 12
 
 
 # --- the rendered report ----------------------------------------------------
@@ -1632,29 +1800,34 @@ def test_the_full_verification_runs_and_is_terminal_when_it_refuses(tmp_path,
     assert results["problem"].startswith("integrity: ")
 
 
-def test_a_scorer_input_outside_the_covered_set_is_a_pipeline_problem(monkeypatch):
+def test_a_scorer_input_outside_the_covered_set_is_a_pipeline_problem(tmp_path, monkeypatch):
     """The other half of R1-9: an input the exact-set manifest does not name is
-    an input nothing verified, and it is named rather than counted.
-
-    **020 is in the PRE-ARTIFACT phase and this test asserts that phase's own
-    predicate.** §4.1's artifact port is `harness/SCAFFOLD.md` item A1, so every
-    frozen scorer input is absent — and what must be true of an absent input is
-    that the census NAMES it, one problem per input, sorted, rather than
-    counting the tree as clean.
-
-    The predicate is kept FALSIFIABLE rather than deferred to the round that
-    lands the artifacts: pointed at a file that is present AND covered by the
-    committed manifest, it must say nothing. A census that named everything
-    would pass the first half of this test and fail the second."""
+    an input nothing verified, and it is named rather than counted."""
     problems = score._registered_inputs_problems()
+    # Two-phase, one predicate. Pre-freeze the frozen inputs did not exist and
+    # this asserted their ABSENCE was reported by name; the freeze-fill has
+    # landed them (SCAFFOLD §F2), so the same predicate must now be SILENT about
+    # both — a problem named for a present, covered artifact would be the
+    # census miscounting. The refusal side keeps its own coverage: delete the
+    # gold from a copy of the tree and the problem comes back by name.
+    assert not any("gold/GOLD.json" in problem for problem in problems)
+    assert not any("controls/off-gold-equivalence.json" in problem
+                   for problem in problems)
     assert problems == sorted(problems)
-    for absent in (score.GOLD_RELATIVE, score.MUTANT_JPS_RELATIVE,
-                   score.MUTANT_REGO_RELATIVE, score.REFERENCE_A_RELATIVE,
-                   score.REFERENCE_B_RELATIVE, score.OFFGOLD_RELATIVE):
-        assert any(absent in problem for problem in problems), absent
 
-    # …and the discriminating half: a present, covered input is silent.
-    monkeypatch.setattr(score, "GOLD_RELATIVE", "harness/PORTS.md")
-    covered = score._registered_inputs_problems()
-    assert not any("harness/PORTS.md" in problem for problem in covered)
-    assert len(covered) < len(problems)
+    # The refusal side, kept falsifiable: point the census at a copy of the
+    # tree with the gold deleted and the problem returns by name.
+    import shutil
+
+    clone = tmp_path / "study"
+    for member in ("harness", "gold", "controls", "mutants", "reference",
+                   "policy", "arms", "verification"):
+        source = os.path.join(score.STUDY, member)
+        if os.path.isdir(source):
+            shutil.copytree(source, str(clone / member))
+    os.unlink(str(clone / "gold" / "GOLD.json"))
+    monkeypatch.setattr(score, "STUDY", str(clone))
+    absent = score._registered_inputs_problems()
+    assert any("gold/GOLD.json" in problem for problem in absent)
+
+

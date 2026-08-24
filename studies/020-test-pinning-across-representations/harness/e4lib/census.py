@@ -1,5 +1,12 @@
 """E5 — the interpretive-spread census. Study 012's machinery, ported.
 
+**STUDY 020 PORT NOTE.** These are Study 019's bytes, taken by digest under
+`harness/PORTS.md`'s two-sided table. The lineage sentence below is 019's own and is
+kept as history; the binding that RUNS is 020's — `harness/integrity.py` verifies
+Study 019's lock first (`harness/STUDY-MANIFEST.sha256`, at the digest 019's own
+registry pins for it) and binds this file's source cell to 019's line for it.
+`PREREGISTRATION.md` §7 lists this file under "ported with no design change".
+
 PORTED FROM Study 012's `harness/census.py`
 (sha256 `911eb25773923789e5ddeae20f0bfa68032f932ae9c62fd7e9a21ad8aa8b73ea`), the
 digest `harness/SCAFFOLD.md` item S6 names. `harness/PORTS.md` carries the

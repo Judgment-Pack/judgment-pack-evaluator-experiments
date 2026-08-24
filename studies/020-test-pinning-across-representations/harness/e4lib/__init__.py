@@ -16,7 +16,11 @@ authority and can be tested against that authority alone:
                  authoring codes, which the pilot's three do not cover
     engines.py   the two-engine execution layer, with the pinned binaries
                  verified fail-closed before any of them is invoked
-    e4.py        pairing, the X1 filter, the identity control, kill, the tau cut
+    e4.py        pairing, the identity control, BOTH named identity relations
+                 (`referenceIdentity` and `ownPolicyIdentity`), kill, the
+                 explicit per-mutant survivor vector, the per-language paired
+                 denominators and the shared-class coverage set. NO threshold:
+                 §7 delta 2 removes tau, the integer cut and `highKill`.
     census.py    E5 — Study 012's census machinery, ported
     capabilities.py  the OPA capability filter — derived from the pinned
                  binary's own set under the registered denylist, with the

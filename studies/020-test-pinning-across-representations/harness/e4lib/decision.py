@@ -1,36 +1,56 @@
-"""Section 5's ordered decision rule, as an ordered exhaustive table.
+"""§5.9's ordered exhaustive decision rule, as an ordered exhaustive table.
+
+WHAT THIS FILE DOES
+-------------------
+Holds PREREGISTRATION.md §5.9's five rows as DATA, in registered order, and
+walks them first-match-wins. Each row is a named constant with the
+registration's own text beside it, so a row moved or a verdict reworded is a
+diff in one place, and `harness/tests/test_score_decision.py` drives a synthetic
+outcome through EVERY row and asserts the row it lands on is the row the
+registration names.
+
+DELIBERATELY DOES NOT DO
+------------------------
+* **Reads no cut, no threshold and no interval** (§7 delta 2, §5.1's "No cut,
+  no τ, no dichotomy"). 019's substantive row read one binomial contrast's
+  zero-exclusion over a high-kill run count derived from tau = 0.95. 020's
+  substantive row reads the eighteen-member family's two unanimities and
+  nothing else. `tests/test_score_decision.py` asserts that no registered
+  decision path here reads a cut, by name.
+* **Computes nothing.** The family's members, offsets, permutation p-values and
+  BCa intervals are `e4lib/family.py`'s (§7 delta 5); this file reads the
+  verdict that module produced and never re-derives one.
+* **Carries no `e1-floor` row** (§5.7, M-23 option (a); §5.9 row 3's "There is
+  no `e1-floor` row"). The author-side existence gate is not registered, so it
+  is not a member of `CONTROL_GATES` and cannot be silently satisfied by an
+  absence.
 
 ASSEMBLED FROM the program shape Studies 015-018 carry (`decide()` in
 `studies/018-transition-rules/harness/score.py`, lines 599-620), generalised
 from that line's if-ladder to a TABLE for one reason: Study 018's round-8
 finding 1 was a decision rule whose code and whose registration disagreed about
-which cells adjudicate, and the ladder gave nothing to enumerate. Here the rule
-is data — one named constant per registered row, in registered order — and
-`tests/test_score.py` drives a synthetic outcome through EVERY row and asserts
-that the row it lands on is the row the registration names.
+which cells adjudicate, and the ladder gave nothing to enumerate.
 
-PREREGISTRATION.md section 5, verbatim:
+PREREGISTRATION.md §5.9, verbatim:
 
     Ordered, exhaustive decision rule (first matching row; last row always
-    matches):
-    1. Any pin/schema/manifest failure, or apparatus failure making the batch
-       non-terminal -> R1 inconclusive - pipeline-invalid.
-    2. Any control-gate failure (reference-vs-gold imperfect at attempt time;
-       capabilities canary passes; golden-context gate; per-arm timeout rate >
-       cap; E1 floor breached) -> R1 inconclusive - control gate failed.
-    3. A-C interval excludes zero -> R1 decided, direction as observed; then A-B
-       likewise.
-    4. Otherwise -> INDETERMINATE; no claim in any direction is licensed.
+    matches)
 
-TWO ROWS ARE AHEAD OF THAT TEXT, and the prose lane owes them (round 1). The
-table below carries FIVE rows: a declared short batch is `UNRESOLVED-BY-DESIGN`
-above every substantive row (R1-7 — the driver and the scaffold already register
-that price, and the scorer was scoring the prefix anyway), and
-`engine-execution-clean` joins the control gates (R1-8 — a pinned engine that
-refused on a frozen artifact adjudicates R1 in no direction). Until §5's own
-bytes carry both, `tests/test_score_decision.py` reads the four rows the
-registration does name and asserts the two new ones by their own registrations
-(`harness/batch.py`'s `declare_shortfall()` and `harness/SCAFFOLD.md`).
+    1. Any pin/schema/manifest failure, or apparatus failure making the batch
+       non-terminal, or C4's `pipeline-invalid` outcome (§2a.5) -> R1
+       inconclusive - pipeline-invalid.
+    2. A validated shortfall declaration (§1a) -> UNRESOLVED-BY-DESIGN - no
+       endpoint, no rate and no contrast is computed.
+    3. Any control-gate failure - both references reproduce gold imperfectly at
+       attempt time; the capabilities canary passes; golden-context gate;
+       `engine-execution-clean`; per-arm timeout rate above cap; C4's
+       `calibration-invalid` outcome -> R1 inconclusive - control gate failed.
+       There is no `e1-floor` row (§5.7).
+    4. All eighteen family members agree in the sign of the A-C difference and
+       all eighteen reject at two-sided alpha = 0.05 -> R1 = CLAIM, direction
+       the common sign; then A-B under the identical rule.
+    5. Otherwise -> INDETERMINATE-BY-DISAGREEMENT. No claim in any direction is
+       licensed, and this row triggers nothing.
 
 Three properties this module is built to make checkable rather than believed:
 
@@ -38,20 +58,19 @@ Three properties this module is built to make checkable rather than believed:
   `decide()` asserts that the last row matched when no earlier one did. A rule
   that can fall off the end is a rule with an unregistered outcome.
 * **Ordered, and the order is the registration's.** `ROWS` is the tuple; a row
-  moved is a diff in one place. Row 2 is above row 3 because a control-gate
-  failure "adjudicates R1 in neither direction" — reading the contrast first
-  and then discarding it is not the same rule, because it publishes a direction
-  the registration says is not licensed.
-* **Fixed-sequence gatekeeping, inside row 3.** A-C is tested first and A-B is
-  tested only if A-C decided; section 5 controls FWER at alpha that way and
-  registers no further adjustment. `decide()` therefore returns the A-B result
-  only when A-C decided, and says so in the record rather than leaving a reader
-  to notice an absent member.
+  moved is a diff in one place. The gate rows are above the substantive one
+  because a control-gate failure "adjudicates R1 in neither direction", and
+  §5.9 says so twice: "No inferential quantity is computed, let alone
+  published, at or above row 3."
+* **Fixed-sequence gatekeeping, inside row 4.** A-C is tested first and A-B
+  only if A-C CLAIMED; §5.4 point 5 registers that the fixed sequence spends no
+  alpha. `decide()` therefore returns the A-B result only when A-C claimed, and
+  says so in the record rather than leaving a reader to notice an absent member.
 
-INDETERMINATE licenses nothing — not equivalence, not either direction's
-negation (section 1's R1, section 5's last row, and section 9). The verdict
-strings below are the only ones this study publishes, so an outcome cannot be
-described in prose the registration does not carry.
+INDETERMINATE-BY-DISAGREEMENT licenses nothing — not equivalence, not either
+direction's negation (§1.3's R1, §5.9's last row "this row triggers nothing",
+and §9). The verdict strings below are the only ones this study publishes, so an
+outcome cannot be described in prose the registration does not carry.
 """
 from __future__ import annotations
 
@@ -65,27 +84,21 @@ CONTRAST_ORDER = (CONTRAST_PRIMARY, CONTRAST_SECONDARY)
 # The registered control gates (section 5 row 2, section 6). Named here so the
 # scorer cannot invent a gate and so an absent gate is a missing key rather than
 # a silently-passing one.
+# §5.9 row 3's list, verbatim, plus §2a.5's C4 outcome. `e1-floor` IS NOT HERE:
+# §5.7 rules the author-side existence gate out (M-23 option (a)) and §5.9 row 3
+# says "There is no `e1-floor` row" in its own bytes.
 CONTROL_GATES = (
     "references-reproduce-gold",
     "capabilities-canary-refused",
     "golden-context",
     "timeout-rate-within-cap",
-    # `e1-floor` IS GONE, and its absence is the registered change rather than
-    # an omission. Ruling M-23 (§5.7) is option (a) — no author-side control
-    # gate — and §5.9 says it in terms: "There is no `e1-floor` row". The gate
-    # was a MAX statistic whose stringency ran the wrong way in n, it spuriously
-    # refused arm A with probability 1.3–6.1 % at 019-scale N even with a
-    # perfect stimulus, and certifying P(fire) ≥ 0.95 would have needed ~2,926
-    # degraded runs. An uncertified gate is not registered as if certified, so
-    # E1 is fully descriptive here and the derived threshold survives only as
-    # §2a.4's pre-freeze go/no-go.
-    #
-    # NEW IN 020, and it takes the vacated seat: C4's transfer gate (§2a.5),
-    # which is TWO-SIDED. `calibration-invalid` reaches THIS row — the pilot is
-    # suspect and a re-pilot is required under C5 — while C4's other outcome,
-    # `pipeline-invalid`, reaches row 1 through `pipelineProblems`, because a
-    # batch that is suspect is not a control that merely failed.
-    "c4-transfer-gate",
+    # §2a.5's transfer gate, two-sided: `calibration-invalid` (every
+    # exact-equality row holds and only band rows differ -> the PILOT is
+    # suspect) lands HERE, on row 3; `pipeline-invalid` (an exact-equality row
+    # differs -> the BATCH is suspect) lands on row 1, in
+    # `_pipeline_invalid()`'s problems. One observable, two rows, because the
+    # two outcomes say different things about which artifact is wrong.
+    "c4-transfer-calibration",
     # ROUND-1 R1-8. A pinned engine that refused on a FROZEN study artifact —
     # a reference during the identity control, a manifest mutant during
     # mutation execution — is an apparatus failure, and the old code counted it
@@ -95,25 +108,6 @@ CONTROL_GATES = (
     # PROSE LANE: §5 row 2's parenthetical and §6's gate list must name it.
     "engine-execution-clean",
 )
-
-# §1.3's CLOSED verdict vocabulary, registered here as data and NOT YET
-# IMPLEMENTED by the table below — which is stated rather than glossed.
-#
-# 020 registers exactly two substantive verdicts, CLAIM and
-# INDETERMINATE-BY-DISAGREEMENT, and registers that "the word UNSUPPORTED is not
-# used anywhere in 020 for this rule; it reads as evidence of no effect, which
-# INDETERMINATE explicitly is not". Both are verdicts of the EIGHTEEN-MEMBER
-# intersection–union family (§5.2, §5.4): a CLAIM requires every member to agree
-# in the sign of the A−C difference AND every member's own test to reject.
-#
-# The family scorer is §7's delta 5 and `harness/SCAFFOLD.md` item S4. It has
-# not landed, so rows 4 and 5 below are still Study 019's single-contrast rows
-# and still carry 019's verdict strings. That is a KNOWN GAP with the freeze
-# gated on it, not a reading of §1.3, and
-# `harness/tests/test_score_decision.py` asserts the gap in both directions so
-# that closing it fails a test rather than passing silently.
-REGISTERED_VERDICT_VOCABULARY = ("CLAIM", "INDETERMINATE-BY-DISAGREEMENT")
-FAMILY_MEMBERS_REGISTERED = 18
 
 # The E4 denominators §5's contrast is computed over must be POSITIVE for the
 # contrast to be a statement about anything (round-1 R1-14: an arm with zero
@@ -168,18 +162,58 @@ def _control_gate(outcome):
     return failed
 
 
-def _primary_decided(outcome):
-    """Row 4. The A-C interval excludes zero.
+# §5.4 point 4: two-sided alpha per member, no correction. The IU test's size
+# is <= alpha and is attained only in the least-favourable configuration; for a
+# DIRECTIONAL claim, two-sided p < 0.05 plus a sign is a one-sided level-0.025
+# test, so the family-wise type-I rate for a signed R1 is <= 0.025.
+REGISTERED_ALPHA = 0.05
+# §5.2: eighteen members, and membership is append-only after registration. The
+# number is asserted rather than assumed because under §5.4's intersection-union
+# logic REMOVING a member is the anti-conservative direction — a family scorer
+# that silently produced seventeen would make the claim EASIER.
+REGISTERED_FAMILY_SIZE = 18
 
-    A MISSING primary contrast decides nothing (round-1 R1-14). It used to fall
-    through to the last row, which publishes a substantive `INDETERMINATE` —
-    "the interval straddles zero" — over an attempt in which no interval was ever
-    computed. An absent contrast is not a straddling one; the scorer is required
-    to have refused above this row, and `decide()` asserts it."""
-    contrast = (outcome.get("contrasts") or {}).get(CONTRAST_PRIMARY)
-    if contrast is None:
+
+def _family_claims(outcome):
+    """Row 4. All eighteen members agree in the sign of the A-C difference AND
+    all eighteen reject at two-sided alpha = 0.05.
+
+    THE ROW READS TWO UNANIMITIES AND NOTHING ELSE. It does not read an
+    interval (§5.3: "The word 'exact' is used only of a permutation null
+    distribution, never of an interval... Intervals are Tier D... no decision
+    reads them"), and it does not read a cut (§5.1: "No cut, no τ, no
+    dichotomy"; §7 delta 2).
+
+    A MISSING primary family decides nothing (019's round-1 R1-14, carried
+    unchanged in force). It used to fall through to the last row, which
+    publishes a substantive verdict — 020's is
+    INDETERMINATE-BY-**DISAGREEMENT** — over an attempt in which no member was
+    ever computed. Eighteen members that were never computed did not disagree;
+    §5.9 says "An absent primary contrast is not a disagreeing one and never
+    reaches row 5", the scorer is required to have refused above this row, and
+    `decide()` asserts it.
+
+    The family size is checked here rather than trusted: a verdict carrying
+    fewer than the registered eighteen is refused, because §5.2 makes
+    membership append-only precisely so that the family cannot shrink between
+    registration and adjudication."""
+    verdict = (outcome.get("family") or {}).get(CONTRAST_PRIMARY)
+    if verdict is None:
         return []
-    return [CONTRAST_PRIMARY] if contrast.get("excludesZero") else []
+    members = verdict.get("members") or []
+    if len(members) < REGISTERED_FAMILY_SIZE:
+        raise DecisionError(
+            "DECISION-FAMILY-SHRANK the registered family is %d members (§5.2, "
+            "append-only after registration) and the %s verdict carries %d: "
+            "under §5.4's intersection-union rule a SMALLER family is the "
+            "anti-conservative direction, so a short family is refused rather "
+            "than adjudicated"
+            % (REGISTERED_FAMILY_SIZE, CONTRAST_PRIMARY, len(members)))
+    if not verdict.get("claim"):
+        return []
+    return ["all %d members agree in sign (%s) and all %d reject at two-sided "
+            "alpha = %s" % (len(members), verdict.get("sign"), len(members),
+                            REGISTERED_ALPHA)]
 
 
 def _always(outcome):
@@ -205,32 +239,36 @@ ROW_SHORTFALL_DECLARED = Row(
 ROW_CONTROL_GATE = Row(
     name="control-gate-failed",
     verdict="R1 inconclusive - control gate failed",
-    registered="Any control-gate failure (reference-vs-gold imperfect at "
-               "attempt time; capabilities canary passes; golden-context gate; "
-               "per-arm timeout rate > cap; E1 floor breached)",
+    registered="Any control-gate failure - both references reproduce gold "
+               "imperfectly at attempt time; the capabilities canary passes; "
+               "golden-context gate; engine-execution-clean; per-arm timeout "
+               "rate above cap; C4's calibration-invalid outcome. There is no "
+               "e1-floor row (§5.7)",
     predicate=_control_gate)
 
-ROW_PRIMARY_DECIDED = Row(
-    name="decided",
-    verdict="R1 decided",
-    registered="A-C interval excludes zero -> R1 decided, direction as "
-               "observed; then A-B likewise",
-    predicate=_primary_decided)
+ROW_CLAIM = Row(
+    name="claim",
+    verdict="R1 = CLAIM",
+    registered="All eighteen family members agree in the sign of the A-C "
+               "difference and all eighteen reject at two-sided alpha = 0.05 "
+               "-> R1 = CLAIM, direction the common sign; then A-B under the "
+               "identical rule",
+    predicate=_family_claims)
 
 ROW_INDETERMINATE = Row(
-    name="indeterminate",
-    verdict="INDETERMINATE",
-    registered="Otherwise -> INDETERMINATE; no claim in any direction is "
-               "licensed",
+    name="indeterminate-by-disagreement",
+    verdict="INDETERMINATE-BY-DISAGREEMENT",
+    registered="Otherwise -> INDETERMINATE-BY-DISAGREEMENT. No claim in any "
+               "direction is licensed, and this row triggers nothing",
     predicate=_always)
 
 # The table. Order IS the rule.
 ROWS = (ROW_PIPELINE_INVALID, ROW_SHORTFALL_DECLARED, ROW_CONTROL_GATE,
-        ROW_PRIMARY_DECIDED, ROW_INDETERMINATE)
+        ROW_CLAIM, ROW_INDETERMINATE)
 
 # The rows at or above which NO inferential quantity may be computed, let alone
-# published (round-1 R1-14). `harness/score.py` evaluates the gate rows FIRST,
-# and computes a contrast only when the outcome would reach `ROW_PRIMARY_DECIDED`
+# published (§5.9, in its own bytes). `harness/score.py` evaluates the gate rows
+# FIRST, and evaluates the family only when the outcome would reach `ROW_CLAIM`
 # — because "adjudicates R1 in neither direction" is not satisfied by computing a
 # direction and then declining to act on it.
 GATING_ROWS = (ROW_PIPELINE_INVALID, ROW_SHORTFALL_DECLARED, ROW_CONTROL_GATE)
@@ -255,62 +293,71 @@ def gate_causes(outcome: dict) -> list:
     return causes
 
 
-def direction(contrast: dict) -> str:
-    """The direction of a decided contrast, spelled in arms rather than in the
-    contrast machinery's left/right.
+def direction(verdict: dict) -> str:
+    """The direction of a CLAIMING family verdict, spelled in arms rather than
+    in the family machinery's sign.
 
-    Section 1: "Direction is reported as observed; the design-phase pilot
-    pointed B/C above A, and this registration deliberately does not presuppose
-    it." So the direction is read off the observation and never assumed.
+    §1.3: direction is reported as observed and never presupposed — §0.2 states
+    the prior in full and states that it is not one direction.
 
-    IT IS READ OFF THE RATES, THROUGH THE STATISTICAL FUNCTION'S OWN `decision`
-    FIELD (round-1 R1-13). It used to compare the raw COUNTS, which is the same
-    thing only at equal denominators — and §1a makes unequal denominators the
-    expected case, because apparatus exclusions leave them. The reviewer's
-    permitted contrast is the whole of the argument: at 6/50 versus 5/6,
-    `excludes_zero()` reports a difference of -0.7133 with the right arm far
-    above the left, and comparing 6 > 5 reported "A above C" — the study's
-    conclusion, reversed, on the registered decision's own numbers.
-    `stats.excludes_zero()` already computes the comparison in exact
-    `Fraction`s; this reads that answer instead of recomputing a worse one."""
-    if not contrast.get("excludesZero"):
-        return "none - INDETERMINATE"
-    left, right = contrast["arms"]
-    verdict = contrast.get("decision")
-    if verdict == "left-above-right":
+    IT IS READ OFF THE COMMON SIGN, and only off a verdict that claims. §5.9
+    row 4 registers "direction the common sign", which exists only when all
+    eighteen members agree; a verdict that does not claim has no direction to
+    report, and reporting one would publish a direction §5.9's last row says is
+    not licensed. Study 019's round-1 R1-13 is the reason this reads a computed
+    field rather than recomputing a comparison: its predecessor compared raw
+    COUNTS, which agrees with the rate comparison only at equal denominators,
+    and §1a makes unequal denominators the expected case.
+
+    `arms` is the ordered pair the family evaluated, so "+" means the LEFT arm
+    is above the right one and the naming is the family's, not this file's."""
+    if not verdict.get("claim"):
+        return "none - INDETERMINATE-BY-DISAGREEMENT"
+    arms = verdict.get("arms")
+    if not isinstance(arms, (list, tuple)) or len(arms) != 2:
+        raise DecisionError(
+            "DECISION-DIRECTION-UNREADABLE a claiming family verdict carries "
+            "the arms %r, and a direction is a statement about an ordered pair "
+            "of arms" % (arms,))
+    left, right = arms
+    sign = verdict.get("sign")
+    if sign == "+":
         return "%s above %s" % (left, right)
-    if verdict == "right-above-left":
+    if sign == "-":
         return "%s above %s" % (right, left)
     raise DecisionError(
-        "DECISION-DIRECTION-UNREADABLE a contrast that excludes zero carries "
-        "the decision field %r, and the direction of a decided contrast is that "
-        "field and nothing else" % (verdict,))
+        "DECISION-DIRECTION-UNREADABLE a family verdict that CLAIMS carries "
+        "the common sign %r, and §5.9 row 4 registers the direction as the "
+        "common sign and nothing else" % (sign,))
 
 
 def decide(outcome: dict) -> dict:
     """Walk the table in registered order and return the first matching row.
 
-    `outcome` carries `pipelineProblems`, `controlGates`, `contrasts` and —
-    round-3 R3-8 — `secondaryRefusal`, the cause of an absent A-B once A-C has
-    decided; every member is optional and an absent one is treated as the state
-    that FAILS, never as the state that passes."""
+    `outcome` carries `pipelineProblems`, `shortfallDeclared`, `controlGates`,
+    `family` and — 019's round-3 R3-8 — `secondaryRefusal`, the cause of an
+    absent A-B once A-C has claimed; every member is optional and an absent one
+    is treated as the state that FAILS, never as the state that passes."""
     for row in ROWS:
         causes = row.predicate(outcome)
         if not causes:
             continue
         if row is ROW_INDETERMINATE \
-                and (outcome.get("contrasts") or {}).get(CONTRAST_PRIMARY) is None:
-            # Round-1 R1-14, the second scenario. The last row's verdict is a
-            # SUBSTANTIVE one — the interval straddles zero — and reaching it
-            # with no interval in existence publishes a measured null that
-            # nothing measured. The scorer is required to have filed the
-            # missing contrast as a pipeline problem above; if it did not, this
-            # refuses rather than substituting the substantive row.
+                and (outcome.get("family") or {}).get(CONTRAST_PRIMARY) is None:
+            # 019's round-1 R1-14, second scenario, carried unchanged in force.
+            # The last row's verdict is a SUBSTANTIVE one — the eighteen
+            # members disagreed — and reaching it with no member in existence
+            # publishes a disagreement that nothing measured. §5.9: "An absent
+            # primary contrast is not a disagreeing one and never reaches row
+            # 5." The scorer is required to have filed the missing family as a
+            # pipeline problem above; if it did not, this refuses rather than
+            # substituting the substantive row.
             raise DecisionError(
-                "DECISION-NO-PRIMARY-CONTRAST no gating row matched and the "
-                "registered primary contrast %s was never computed: the last "
-                "row's INDETERMINATE is the statement that an interval straddles "
-                "zero, and there is no interval" % CONTRAST_PRIMARY)
+                "DECISION-NO-PRIMARY-FAMILY no gating row matched and the "
+                "registered primary family %s was never evaluated: the last "
+                "row's INDETERMINATE-BY-DISAGREEMENT is the statement that "
+                "eighteen members disagreed, and no member exists"
+                % CONTRAST_PRIMARY)
         record = {
             "row": row.name,
             "rowIndex": ROWS.index(row) + 1,
@@ -318,16 +365,16 @@ def decide(outcome: dict) -> dict:
             "registeredText": row.registered,
             "causes": causes,
         }
-        if row is ROW_PRIMARY_DECIDED:
-            contrasts = outcome.get("contrasts") or {}
-            primary = contrasts[CONTRAST_PRIMARY]
-            record["verdict"] = "R1 decided - %s" % direction(primary)
+        if row is ROW_CLAIM:
+            verdicts = outcome.get("family") or {}
+            primary = verdicts[CONTRAST_PRIMARY]
+            record["verdict"] = "R1 = CLAIM - %s" % direction(primary)
             record["primary"] = {CONTRAST_PRIMARY: direction(primary)}
             # Fixed-sequence gatekeeping: A-B is tested SECOND and only because
-            # A-C decided. Reported with that condition attached, so no reader
-            # can lift the secondary contrast out of the sequence that controls
-            # its error rate.
-            secondary = contrasts.get(CONTRAST_SECONDARY)
+            # A-C claimed. §5.4 point 5 registers that the fixed sequence spends
+            # no alpha. Reported with that condition attached, so no reader can
+            # lift the secondary family out of the sequence.
+            secondary = verdicts.get(CONTRAST_SECONDARY)
             refusal = outcome.get("secondaryRefusal")
             if secondary is None and not refusal:
                 # ROUND-3 FINDING R3-8. An absent secondary used to be published
@@ -341,15 +388,17 @@ def decide(outcome: dict) -> dict:
                 # contrast set — from publishing a decided row with a null
                 # beside it and no reader able to tell which happened.
                 raise DecisionError(
-                    "DECISION-SECONDARY-UNEXPLAINED the primary contrast %s "
-                    "decided, so the registered sequence reached %s, and it is "
+                    "DECISION-SECONDARY-UNEXPLAINED the primary family %s "
+                    "claimed, so the registered sequence reached %s, and it is "
                     "neither computed nor refused: an absent secondary must "
                     "carry its cause in `secondaryRefusal`"
                     % (CONTRAST_PRIMARY, CONTRAST_SECONDARY))
             record["secondary"] = {
                 "contrast": CONTRAST_SECONDARY,
-                "testedBecause": "A-C decided (fixed-sequence gatekeeping; FWER "
-                                 "controlled at alpha, no further adjustment)",
+                "testedBecause": "A-C claimed (fixed-sequence gatekeeping; "
+                                 "§5.4 point 5: the fixed sequence spends no "
+                                 "alpha, and no further adjustment is "
+                                 "registered)",
                 "result": None if secondary is None else direction(secondary),
                 "refusal": refusal if secondary is None else None,
             }

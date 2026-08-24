@@ -406,12 +406,13 @@ def test_scan_refuses_a_policy_the_parser_rejects(tmp_path, monkeypatch):
     parse refusal AFTER a passing check is an apparatus fact — never a silent
     "not flagged"."""
     from e4lib import engines
-    monkeypatch.setattr(engines, "opa_parse",
+    monkeypatch.setattr(engines, "opa_parse_tree",
                         lambda *a, **k: (1, "", "rego_parse_error"))
     with pytest.raises(presence_idiom.PresenceIdiomError) as caught:
         presence_idiom.scan(None, "policy.rego", str(tmp_path))
     assert "PRESENCE-IDIOM-PARSE-REFUSED" in str(caught.value)
-    monkeypatch.setattr(engines, "opa_parse", lambda *a, **k: (0, "not json", ""))
+    monkeypatch.setattr(engines, "opa_parse_tree",
+                        lambda *a, **k: (0, "not json", ""))
     with pytest.raises(presence_idiom.PresenceIdiomError) as caught:
         presence_idiom.scan(None, "policy.rego", str(tmp_path))
     assert "PRESENCE-IDIOM-PARSE-UNREADABLE" in str(caught.value)
@@ -504,3 +505,47 @@ def test_the_power_analysis_is_published_and_registered_beside_the_switch(pins):
         block["specificity"].startswith("0/22")
     assert block["registered"] is meets, (
         "§3.2's kill switch: registered iff (i) 40/40 and (ii) 0/22 exactly")
+
+
+# --- the merge's own regression case ----------------------------------------
+
+
+def test_the_detectors_parse_is_not_the_suites_parse():
+    """A NAME COLLISION that made the certified detector unreachable, kept as a
+    test because the suite could not see it.
+
+    `e4lib/engines.py` inherited an `opa_parse()` from Study 019 returning
+    `(exit, stdout)` — `e4lib/e4.py` reads it that way for the suite's case
+    inputs — and §3.2's detector arrived with a second definition of the SAME
+    name returning `(exit, stdout, stderr)`. Python does not add a function
+    there, it replaces one: the later `def` won, `parse_policy()` unpacked two
+    values into three names, and `scan()` raised `ValueError` on its first real
+    call. Every case in this file monkeypatches the parse with a three-tuple
+    stub, and the one case that uses the pinned binary calls `subprocess.run`
+    directly — so nothing on either line ever executed the real path.
+
+    Two distinct names, two arities, both alive."""
+    from e4lib import engines
+    assert engines.opa_parse is not engines.opa_parse_tree
+    assert "e4lib/domain.py" in engines.opa_parse.__doc__
+    assert "NEW IN 020" in engines.opa_parse_tree.__doc__
+
+
+def test_the_detector_runs_end_to_end_against_the_pinned_binary(tmp_path):
+    """`scan()` itself, not `memberships()` over a tree somebody else parsed.
+    This is the case whose absence let the collision above live: it is the only
+    one that reaches `engines.opa_parse_tree()` through the detector's own
+    entry point."""
+    opa = _pinned_opa()
+    policy = tmp_path / "policy.rego"
+    policy.write_text(REAL_POLICY, encoding="utf-8")
+
+    class Pinned:
+        pass
+
+    tools = Pinned()
+    tools.opa = opa
+    report = presence_idiom.scan(tools, str(policy), str(tmp_path))
+    assert report["flagged"] is True
+    assert report["memberships"] == 5
+    assert len(report["findings"]) == 2

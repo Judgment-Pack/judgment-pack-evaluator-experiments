@@ -1,6 +1,40 @@
 #!/usr/bin/env python3
 """The batch driver.
 
+**STUDY 020 PORT NOTE.** These are Study 019's bytes, taken by digest under
+`harness/PORTS.md`'s two-sided table. The lineage sentence below is 019's own and is
+kept as history; the binding that RUNS is 020's — `harness/integrity.py` verifies
+Study 019's lock first (`harness/STUDY-MANIFEST.sha256`, at the digest 019's own
+registry pins for it) and binds this file's source cell to 019's line for it.
+`PREREGISTRATION.md` §7 lists this file under "ported with no design change" —
+and THREE REGISTERED DELTAS have since landed in it, each named where it lives:
+
+* **§7 delta 7 (the schedule).** This file holds NO round count of its own. 019
+  hard-coded `ROUNDS = 50`, `RUNS_PER_ARM = 50`, `REGISTERED_SLOTS = 150`, a
+  two-element `TAIL` and the pair (1, 1) as the registered balance floor; §2
+  says "at any other round count that assertion is wrong by construction", and
+  §2.1 makes 020's N an OUTPUT of the pre-pilot effort sweep. So the shape is
+  read from `harness/PINS.json` (`_registered_batch_shape()`), the authority is
+  `derive_order(rounds)` at any N, `schedule()` asserts the expansion attains
+  the spreads the registry PUBLISHES, and `derive-schedule --rounds N` prints
+  the block the registry takes at the swept N.
+* **§7 delta 6 (`registeredLabelRule`).** `require_design_time_pins()` checks
+  §2's `resolvedAtDesignTime` pins under EVERY label — the freeze rule is
+  `integrity.study_label()`'s and is untouched here — with §2.1's M-25 ruling
+  as its one exemption: a `--sweep` label exempts `codex.reasoningEffort` ALONE,
+  because the sweep is what resolves it.
+* **§7 delta 8 (the freeze gate's `calibration/` rule).**
+  `calibration_freeze_problems()` permits the subtree, requires it, and still
+  refuses any `results/primary-attempt-*`.
+
+WHAT THIS FILE DELIBERATELY DOES NOT DO
+---------------------------------------
+It does not write `harness/PINS.json`. `derive-schedule` PRINTS the block a
+person then edits in: a driver that rewrote its own pins is a driver that could
+rewrite them after the freeze. It also never runs the sweep or the pilot outside
+the harness — §2.1: "Running the sweep outside the harness is rejected on sight:
+that is the 019 failure exactly."
+
 PORTED from Study 012's `harness/batch.py`
 (sha256 `6ee3bf3e2b217257fe38976df4610461c9ed9866db485678348b3ad8036fdcf3`, the
 destination digest Study 012's own `harness/PORTS.md` records for it, at commit
@@ -236,6 +270,12 @@ ARMS_ROOT = os.path.join(STUDY, "arms")
 # by an exception list, and `make_manifest.calibration_problems()` is where the
 # freeze REQUIRES it. `harness/tests/test_manifest.py` asserts the two roots are
 # these two and that neither gate reaches the other's tree.
+#
+# §7 DELTA 8 states the other half in this file: §2a.2 enumerates the registered
+# differences between the pilot and the primary batch as exactly four, "so a
+# fifth cannot be discovered later", and the first of them is "output under
+# `calibration/<label>/`". `calibration_freeze_problems()` below permits the
+# subtree, requires it, and still refuses any `results/primary-attempt-*`.
 CALIBRATION_ROOT = os.path.join(STUDY, "calibration")
 # NEW IN 020 (§2.1). The PRE-PILOT EFFORT SWEEP's root, and it is a THIRD root
 # for the same structural reason `CALIBRATION_ROOT` is a second one — one step
@@ -274,6 +314,17 @@ CANONICAL_PINS = DEFAULT_PINS
 # scorer takes `--attempt-root results/primary-attempt-001` and refuses if it
 # exists (SCAFFOLD S1), so that directory is what "after a rate" names here.
 ATTEMPT_ROOT = os.path.join(STUDY, "results", "primary-attempt-001")
+RESULTS_DIR = os.path.join(STUDY, "results")
+CALIBRATION_LEDGER_NAME = "CALIBRATION.json"
+# §2.1 and §2a.2: the two registered calibration modes and the pilot's per-arm
+# count. The sweep's own three settings, its per-arm count and its DERIVED call
+# cap are registered once, beside the sweep mode itself (`SWEEP_SETTINGS`,
+# `SWEEP_PER_ARM`, `SWEEP_CALL_CAP`) — a registered number carried under two
+# names in one file is the drift `sweep_preflight()` exists to refuse.
+CALIBRATION_MODES = ("sweep", "pilot")
+PILOT_RUNS_PER_ARM = 12           # §2a.2: "Pilot N: 12/arm"
+# §2a.2's third registered difference, stamped into every calibration record.
+CALIBRATION_CITABLE = False
 LEDGER_NAME = "BATCH.json"
 # Change 9: a REGISTERED CONSTANT and not a `mkstemp` name. A constant is a
 # destination a static reader of this file can resolve, which is what lets
@@ -358,16 +409,80 @@ ARMS = ("A", "B", "C")
 WILLIAMS_FIRST_ROW = ("A", "B", "C")
 POSITIONS = len(ARMS)
 SEQUENCES = 2 * POSITIONS  # six: the three cyclic rows and those three reversed
-# 50 rounds of three arms: eight whole blocks of the six sequences (48 rounds)
-# and a registered two-sequence tail. The tail exists because 50 is not a
-# multiple of 6 — stated here rather than hidden in an expansion, because it is
-# the reason exact balance is unavailable and a floor is registered instead.
-BLOCKS = 8
-BLOCK_ORDER = ("W1", "W2", "W3", "W4", "W6", "W5")
-TAIL = ("W4", "W6")
-ROUNDS = BLOCKS * SEQUENCES + len(TAIL)          # 50
-RUNS_PER_ARM = ROUNDS                            # 50 slots per arm
-REGISTERED_SLOTS = ROUNDS * POSITIONS            # 150
+# §7 DELTA 7: THE SCHEDULE IS RE-DERIVED AT THE REGISTERED ROUND COUNT, AND
+# THIS FILE HOLDS NO ROUND COUNT OF ITS OWN.
+#
+# 019 hard-coded `SEQUENCES = 6`, `ROUNDS = 50`, `RUNS_PER_ARM = 50`,
+# `REGISTERED_SLOTS = 150` and a two-element `TAIL`, and `derive_order()`'s
+# docstring recorded the registered floor (1, 1) as the cached answer to a
+# search AT 50 ROUNDS. §2 says it plainly: "at any other round count that
+# assertion is wrong by construction". 020's N is an OUTPUT of §2.1's pre-pilot
+# sweep and does not exist yet, so a literal here would be a number this file
+# invented — which is precisely the defect the delta names.
+#
+# What is registered instead is the DERIVATION. The round count, the block
+# order, the tail and the attained spreads are read from `harness/PINS.json`'s
+# `batch` member; `derive_order(rounds)` is the authority that produced them and
+# is re-run by `tests/test_schedule.py` at whatever round count the registry
+# names; and `schedule()` asserts the expansion attains the spreads the registry
+# PUBLISHES rather than the pair (1, 1) that happens to be the floor at 50.
+#
+# Re-pinning at the swept N is therefore a registry edit plus
+# `batch.py derive-schedule --rounds N`, and no constant in this file moves.
+def _registered_batch_shape(path: str = None) -> dict:
+    """§2's `batch` member, read once, as the shape every expansion here is
+    over. Refuses rather than defaulting: a driver that invents a round count
+    when the registry has none is the 019 defect with a fallback in front of
+    it."""
+    where = path or os.path.join(HERE, "PINS.json")
+    try:
+        with open(where, "rb") as handle:
+            registry = json.loads(handle.read().decode("utf-8"))
+    except (IOError, OSError, ValueError) as error:
+        raise BatchError(
+            "harness/PINS.json could not be read (%s): §2 registers the call "
+            "order, its round count and its slot count as REGISTRY members, "
+            "and this driver holds no copy of them to fall back to" % error)
+    block = registry.get("batch")
+    if not isinstance(block, dict):
+        raise BatchError(
+            "harness/PINS.json registers no batch member: §2's call order, its "
+            "N and its slot count are registry members")
+    order = block.get("order")
+    if not isinstance(order, dict):
+        raise BatchError("harness/PINS.json registers no batch.order")
+    rounds = block.get("n")
+    if not isinstance(rounds, int) or rounds < 1:
+        raise BatchError(
+            "harness/PINS.json registers batch.n = %r: §2's round count is a "
+            "positive integer and §2.1 registers it as an output of the "
+            "pre-pilot effort sweep. Until the sweep has run and the registry "
+            "has been re-pinned there is no order to expand" % (rounds,))
+    blocks, tail_length = divmod(rounds, SEQUENCES)
+    return {
+        "rounds": rounds,
+        "blocks": blocks,
+        "tailLength": tail_length,
+        "blockOrder": tuple(order.get("blockOrder") or ()),
+        "tail": tuple(order.get("tail") or ()),
+        # Delta 7's "with the new attained position spread published": the
+        # spreads are registry members, so `schedule()` asserts against the
+        # PUBLISHED pair at this N rather than against 019's (1, 1).
+        "positionSpread": order.get("positionSpread"),
+        "transitionSpread": order.get("transitionSpread"),
+    }
+
+
+REGISTERED_BATCH_SHAPE = _registered_batch_shape()
+ROUNDS = REGISTERED_BATCH_SHAPE["rounds"]
+BLOCKS = REGISTERED_BATCH_SHAPE["blocks"]
+TAIL_LENGTH = REGISTERED_BATCH_SHAPE["tailLength"]
+BLOCK_ORDER = REGISTERED_BATCH_SHAPE["blockOrder"]
+TAIL = REGISTERED_BATCH_SHAPE["tail"]
+REGISTERED_POSITION_SPREAD = REGISTERED_BATCH_SHAPE["positionSpread"]
+REGISTERED_TRANSITION_SPREAD = REGISTERED_BATCH_SHAPE["transitionSpread"]
+RUNS_PER_ARM = ROUNDS                            # one slot per arm per round
+REGISTERED_SLOTS = ROUNDS * POSITIONS
 # The members that make a slot a slot of the registered order. The ledger
 # carries them per record and the driver compares them position by position
 # against the expansion.
@@ -458,10 +573,17 @@ APPARATUS_CODES = (
     ("registry-mismatch", "registry mismatch"),
     ("transcript-refused", "transcript refusal"),
 )
-# The six ADMISSION codes: what `admit()` reads off the retained artifact.
-# `e4lib/admit.py`'s DROP_ORDER is this list in the registered publication order,
+# The SEVEN ADMISSION codes: what `admit()` reads off the retained artifact.
+# `e4lib/admit.py`'s DROP_ORDER is this list in the order that module decides in,
 # and a test diffs the two — so this tuple stays the admission surface and does
 # not grow a member no `admit()` branch can return.
+#
+# STUDY 020, §7 DELTA 3: the seventh is `presence-idiom-unsound` (§3.2), and it
+# is registered in this table WHETHER OR NOT IT EVER FIRES — §5's E2 entry says
+# so in those words, so the row is published at count zero while §3.2's
+# GATE(pre-freeze) power analysis is open rather than appearing only if the
+# guard is activated. A table whose rows depend on the outcome is a table that
+# reports a different partition in each branch.
 AUTHORING_CODES = (
     ("no-marker-block", "no extractable marker block"),
     ("unparseable-artifact", "unparseable artifact"),
@@ -703,13 +825,19 @@ def williams(first_row=WILLIAMS_FIRST_ROW) -> dict:
     return rows
 
 
-def round_order(block=BLOCK_ORDER, tail=TAIL) -> tuple:
-    """The 50 round names: the block order eight times, then the tail.
+def round_order(block=BLOCK_ORDER, tail=TAIL, blocks=None, rounds=None) -> tuple:
+    """The registered round names: the block order `blocks` times, then the tail.
 
     A permutation check on both, for the same reason Study 012 checked its three
     blocks: every sequence holds every arm once, so a block that ran W4 twice
-    and W3 never still gives 50 slots per arm and destroys the transition
-    balance the registration is about."""
+    and W3 never still gives the registered slots per arm and destroys the
+    transition balance the registration is about.
+
+    §7 delta 7: `blocks` and `rounds` default to the REGISTRY's shape and are
+    arguments so `derive_order()` can search at a round count the registry does
+    not yet name. No number in this function is this file's own."""
+    blocks = BLOCKS if blocks is None else blocks
+    rounds = ROUNDS if rounds is None else rounds
     rows = williams()
     if not all(isinstance(name, str) for name in block) \
             or sorted(block) != sorted(rows):
@@ -718,12 +846,12 @@ def round_order(block=BLOCK_ORDER, tail=TAIL) -> tuple:
     if len(tail) != len(set(tail)) or any(name not in rows for name in tail):
         raise BatchError("the registered tail is %r, which is not a sequence of "
                          "distinct members of W1…W%d" % (list(tail), SEQUENCES))
-    if len(block) * BLOCKS + len(tail) != ROUNDS:
+    if len(block) * blocks + len(tail) != rounds:
         raise BatchError("%d blocks of %d and a tail of %d is %d rounds; the "
                          "registration is %d"
-                         % (BLOCKS, len(block), len(tail),
-                            len(block) * BLOCKS + len(tail), ROUNDS))
-    return tuple(list(block) * BLOCKS + list(tail))
+                         % (blocks, len(block), len(tail),
+                            len(block) * blocks + len(tail), rounds))
+    return tuple(list(block) * blocks + list(tail))
 
 
 def expand(order) -> list:
@@ -760,25 +888,43 @@ def balance(slots) -> dict:
                                    if left == right)}
 
 
-def derive_order(blocks=BLOCKS, tail_length=None):
-    """The registered order, DERIVED: the search `BLOCK_ORDER` and `TAIL` are
-    the answer to.
+def derive_order(blocks=None, tail_length=None, rounds=None):
+    """The registered order, DERIVED at a ROUND COUNT: the search `BLOCK_ORDER`
+    and `TAIL` are the answer to, and the authority the registry answers to.
 
-    Over every one of the 720 orderings of W1…W6 and every one of the 30 ordered
-    two-sequence tails, keep the orders in which no arm ever immediately follows
-    itself, and return the lexicographically-least (by W-index) of those that
-    minimize the pair (position spread, transition spread). Exact balance is
-    arithmetically unavailable at three arms and 50 rounds — 50 slots do not
-    divide over 3 positions and 149 transitions do not divide over 6 ordered
-    pairs — so the registration is the FLOOR of both spreads, which this search
-    establishes rather than assumes: it reports the minimum it found, and the
-    harness test requires that minimum to be (1, 1) and to be attained by the
-    constants above.
+    Over every one of the 720 orderings of W1…W6 and every one of the ordered
+    tails of the required length, keep the orders in which no arm ever
+    immediately follows itself, and return the lexicographically-least (by
+    W-index) of those that minimize the pair (position spread, transition
+    spread).
 
-    Deliberately not run at import: it is a second of work and the driver plans
-    the same order every time. The constants are the cache; this is the
-    authority."""
-    tail_length = ROUNDS - blocks * SEQUENCES if tail_length is None else tail_length
+    **§7 DELTA 7: THE FLOOR IS REPORTED, NOT ASSERTED.** 019's docstring
+    recorded "(1, 1)" as the registered floor — true at 50 rounds and wrong by
+    construction at any other N, because exact balance depends on arithmetic
+    that N decides: whether the slots divide over the three positions and
+    whether the transitions divide over the six ordered pairs. This function
+    therefore RETURNS the minimum it found at the round count it was asked
+    about, and `tests/test_schedule.py` requires the registry's published
+    spreads to equal that minimum. Neither the code nor the registry states a
+    floor; the search does, at whatever N is registered.
+
+    `rounds` defaults to the registry's; `blocks`/`tail_length` are derived from
+    it, so the three cannot disagree.
+
+    Deliberately not run at import: it is a second of work per round count and
+    the driver plans the same order every time. The registry is the cache; this
+    is the authority."""
+    rounds = ROUNDS if rounds is None else rounds
+    if blocks is None:
+        blocks = rounds // SEQUENCES
+    if tail_length is None:
+        tail_length = rounds - blocks * SEQUENCES
+    if tail_length < 0 or tail_length >= SEQUENCES + 1:
+        raise BatchError(
+            "%d rounds is %d whole blocks of %d and a tail of %d: a tail is a "
+            "PREFIX of one block, so a tail at or above %d is another whole "
+            "block and the shape is not derived"
+            % (rounds, blocks, SEQUENCES, tail_length, SEQUENCES))
     rows = williams()
     names = tuple(sorted(rows, key=lambda name: int(name[1:])))
     best = None
@@ -793,17 +939,19 @@ def derive_order(blocks=BLOCKS, tail_length=None):
             if best is None or key < best:
                 best = key
     if best is None:
-        raise BatchError("no order of W1…W%d avoids an arm following itself"
-                         % SEQUENCES)
+        raise BatchError("no order of W1…W%d over %d rounds avoids an arm "
+                         "following itself" % (SEQUENCES, rounds))
     (spreads, permutation, tail) = best
-    return {"blockOrder": permutation, "tail": tail,
-            "positionSpread": spreads[0], "transitionSpread": spreads[1]}
+    return {"rounds": rounds, "blocks": blocks, "tailLength": tail_length,
+            "blockOrder": permutation, "tail": tail,
+            "positionSpread": spreads[0], "transitionSpread": spreads[1],
+            "slots": rounds * POSITIONS, "runsPerArm": rounds}
 
 
 def schedule(block=BLOCK_ORDER, tail=TAIL) -> list:
-    """The 150 slots of §2's registered call order, expanded deterministically
-    from the table above: `[(globalIndex, round, position, arm)]`, global index
-    1…150, round 1…50, within-round position 1…3.
+    """The registered call order's slots, expanded deterministically from the
+    REGISTRY's table: `[(globalIndex, round, position, arm)]`, global index
+    1…`REGISTERED_SLOTS`, round 1…`ROUNDS`, within-round position 1…3.
 
     The arms are interleaved, not blocked, because blocked execution would
     confound the arm with the drift across the batch; the order is
@@ -834,16 +982,34 @@ def schedule(block=BLOCK_ORDER, tail=TAIL) -> list:
             % (len(slots), dict(profile["perArm"]), REGISTERED_SLOTS, ROUNDS,
                RUNS_PER_ARM))
     # …and this is the one place the BALANCE is asserted rather than described.
-    # Both spreads are at the arithmetic floor for three arms over 50 rounds, so
-    # a schedule that drifted from the registered order would have to attain the
-    # same floor to pass here, and the harness test pins the order itself.
-    if profile["selfSuccessions"] or profile["positionSpread"] > 1 \
-            or profile["transitionSpread"] > 1:
+    #
+    # §7 DELTA 7: AGAINST THE REGISTRY'S PUBLISHED SPREADS, NOT AGAINST (1, 1).
+    # 019 asserted `> 1` here, which is the arithmetic floor for three arms over
+    # FIFTY rounds and is wrong by construction at any other N — at a round
+    # count that divides evenly the floor is (0, 0) and a drifted order
+    # attaining (1, 1) would pass. The registry publishes the attained spreads
+    # `derive_order()` found at the registered round count, the test re-runs
+    # that search, and this asserts EQUALITY: a schedule that drifted would have
+    # to attain exactly the published pair, and one that is better than the
+    # published pair means the registry is stale and refuses too.
+    if REGISTERED_POSITION_SPREAD is None \
+            or REGISTERED_TRANSITION_SPREAD is None:
+        raise BatchError(
+            "harness/PINS.json's batch.order publishes no positionSpread or "
+            "transitionSpread: §2 registers the attained spread as part of the "
+            "order (§7 delta 7, 'with the new attained position spread "
+            "published'), and an order whose balance is not published is an "
+            "order whose balance nothing checks")
+    if profile["selfSuccessions"] \
+            or profile["positionSpread"] != REGISTERED_POSITION_SPREAD \
+            or profile["transitionSpread"] != REGISTERED_TRANSITION_SPREAD:
         raise BatchError(
             "the expanded call order has %d self-successions, position spread "
-            "%d and transition spread %d; §2 registers none, 1 and 1"
+            "%d and transition spread %d; the registry publishes none, %r and "
+            "%r at %d rounds"
             % (profile["selfSuccessions"], profile["positionSpread"],
-               profile["transitionSpread"]))
+               profile["transitionSpread"], REGISTERED_POSITION_SPREAD,
+               REGISTERED_TRANSITION_SPREAD, ROUNDS))
     return slots
 
 
@@ -1144,6 +1310,20 @@ def check_registry(pins: dict) -> None:
             "harness/PINS.json registers batch.order.blocks = %r and §2's order "
             "is %d whole blocks of the %d sequences"
             % (order.get("blocks"), BLOCKS, SEQUENCES))
+    # §7 delta 7. The spreads are part of the ORDER, not a description of it:
+    # the registry publishes what `derive_order()` attained at the registered
+    # round count, and `schedule()` asserts equality against them. A registry
+    # that names an order without naming its balance is refused here, before a
+    # call is spent, rather than at the expansion.
+    for member, mine in (("positionSpread", REGISTERED_POSITION_SPREAD),
+                         ("transitionSpread", REGISTERED_TRANSITION_SPREAD)):
+        if order.get(member) != mine:
+            raise BatchError(
+                "harness/PINS.json registers batch.order.%s = %r and the "
+                "canonical registry this driver derived its shape from "
+                "publishes %r: the attained spread is a registered member "
+                "(§7 delta 7) and two registries naming two balances is two "
+                "orders" % (member, order.get(member), mine))
     registered = schedule(tuple(block_order), tuple(tail))
     derived = schedule()
     if registered != derived:
@@ -1427,7 +1607,7 @@ def require_isolation_negative(pins: dict, golden_path: str) -> dict:
 
 def preflight(entries: list, slots: list, scratch_parent: str, pins_path: str,
               cli_override: str, prompt_kind: str,
-              golden_path: str = None) -> dict:
+              golden_path: str = None, calibration_mode: str = None) -> dict:
     """The pins, or BatchError. Everything checkable before the first call is
     checked before the first call: a batch that would run drifted bytes, collide
     with retained slots, publish after an attempt has been scored, run a prompt
@@ -1446,6 +1626,12 @@ def preflight(entries: list, slots: list, scratch_parent: str, pins_path: str,
     if not os.path.isdir(scratch_parent):
         raise BatchError("scratch parent %s is not a directory" % scratch_parent)
     pins = load_registry(pins_path)
+    # §7 delta 6, before any branch: the design-time-resolved pins are checked
+    # under EVERY label — the primary batch, the pilot, the sweep and the probe
+    # calls alike — because §2 marks them resolvedAtDesignTime and
+    # registeredLabelRule checks them "whether or not the freeze has happened".
+    # `calibration_mode` carries §2.1's ONE exemption and nothing else.
+    require_design_time_pins(pins, calibration_mode)
     if prompt_kind == "registered":
         if not entries:
             raise BatchError("a batch of the registered order is planned from the "
@@ -1566,6 +1752,10 @@ SWEEP_EFFORT_ENV = "SWEEP_EFFORT"
 # before either will run it.
 SWEEP_SETTINGS = ("low", "medium", "high")
 SWEEP_PER_ARM = 3
+# The same registered number under the name §2a.2's calibration record reads it
+# by. An ALIAS and not a second literal: §2.1 states "n = 3/arm" once, so the
+# two readers share one binding and a drift between them is not expressible.
+SWEEP_RUNS_PER_ARM = SWEEP_PER_ARM
 # 3 settings × 3 arms × 3 runs. Derived, so a fourth setting cannot silently
 # leave the registered cap behind — and checked against the registry's own
 # `sweep.callCap`, so a cap raised in one place and not the other refuses.
@@ -4228,6 +4418,270 @@ def _publish_sweep(root: str, label: str, pins_path: str, pins: dict, n: int,
     return published
 
 
+
+# --- §7 delta 6: the registered label rule's design-time half ---------------
+#
+# §2.1, M-25, ruled as drafted. `authoring_call.sh` refuses while `codex.model`
+# is null, and `registeredLabelRule` names design-time-resolved pins as checked
+# *whether or not the freeze has happened* — so a sweep that must run BEFORE the
+# effort value exists is either refused or unenforced. Registered: a distinct
+# `--sweep` label that exempts `codex.reasoningEffort` ALONE from the null check.
+#
+# The exemption is one member, at one label, and nothing else moves: `model`,
+# the two binary digests and the interpreter are checked under every label, and
+# the freeze pins are `integrity.study_label()`'s business and are untouched
+# here. §2.1 also registers what the exemption costs — the sweep's outputs are
+# `citable: false` and outside every population — and `calibration_record()`
+# stamps that beside the exemption rather than leaving it to a runbook.
+
+# The pins §2 marks `resolvedAtDesignTime`, as (registry path, why) pairs.
+# `codex.reasoningEffort` joins them under §2.1's M-25 ruling: it and
+# `codex.model` are "registered as design-time-resolved pins, NOT freeze pins",
+# so neither is in `integrity.FREEZE_PINS` and neither makes a run a PILOT on
+# its own — what they do is refuse the CALL, under both labels.
+DESIGN_TIME_PINS = (
+    (("codex", "model"),
+     "§2: the model is named by explicit flag at batch time and the wrapper "
+     "refuses rather than passing the string None to -m"),
+    (("codex", "reasoningEffort"),
+     "§2.1/M-24: PINS.json gains codex.reasoningEffort beside model / version "
+     "/ binarySha256; the wrapper passes it explicitly and CALL.json stamps "
+     "it. There is no transcript witness to bind it to today, so the pin is a "
+     "CALL.json self-report where no transcript witness exists — a recorded "
+     "intention, and this driver says so in every record it writes"),
+    (("codex", "binarySha256"), "§2: the authoring binary's digest"),
+    (("jpack", "binarySha256"), "§2: the pinned jpack binary's digest"),
+    (("opa", "assetSha256"), "§2: the pinned OPA asset's digest"),
+)
+
+# The ONE member the `--sweep` label exempts, and nothing else. Named as a tuple
+# so the exemption is enumerable: a second member added here is a diff a
+# reviewer can see, which is what "written into the gate and its test before the
+# first sweep call" asks for.
+SWEEP_EXEMPT_PINS = (("codex", "reasoningEffort"),)
+
+
+def _pin_at(pins: dict, path):
+    node = pins
+    for key in path:
+        node = node.get(key) if isinstance(node, dict) else None
+        if node is None:
+            return None
+    return node
+
+
+def design_time_unfilled(pins: dict, mode: str = None) -> list:
+    """The design-time-resolved pins still null, in registered order — with
+    §2.1's `--sweep` exemption applied to `codex.reasoningEffort` ALONE.
+
+    `mode` is None for the primary batch and the pilot (no exemption) and
+    `"sweep"` for the pre-pilot effort sweep. The exemption exists because the
+    sweep is what RESOLVES the effort value: a gate that required it would
+    require the value the command exists to create, which is the same circularity
+    `integrity.CEREMONY_LIFECYCLE_PINS` answers for the golden capture and the
+    isolation assent — and the answer is the same shape, at one place, named.
+
+    `integrity.pin_is_filled()` decides FILLED, so a registry of empty strings
+    and `TODO(prereg)` sentinels is not a registration here either."""
+    if mode is not None and mode not in CALIBRATION_MODES:
+        raise BatchError("%r is not a registered calibration mode; §2.1 and "
+                         "§2a.2 register %s"
+                         % (mode, " and ".join(CALIBRATION_MODES)))
+    exempt = SWEEP_EXEMPT_PINS if mode == "sweep" else ()
+    unfilled = []
+    for path, _why in DESIGN_TIME_PINS:
+        if path in exempt:
+            continue
+        if not integrity.pin_is_filled(_pin_at(pins, path)):
+            unfilled.append(".".join(path))
+    return unfilled
+
+
+def require_design_time_pins(pins: dict, mode: str = None) -> None:
+    """The design-time half of the label rule, before any call — under EVERY
+    label, which is what "checked whether or not the freeze has happened"
+    means.
+
+    §2.1: "Running the sweep outside the harness is rejected on sight: that is
+    the 019 failure exactly." So the sweep goes through this gate too; the only
+    thing its label changes is the one exempt member."""
+    unfilled = design_time_unfilled(pins, mode)
+    if unfilled:
+        raise BatchError(
+            "these design-time-resolved pins are still null: %s. §2 marks them "
+            "resolvedAtDesignTime and registeredLabelRule checks them whether "
+            "or not the freeze has happened, so no call is spent under a "
+            "registry that does not name them%s"
+            % (", ".join(unfilled),
+               "" if mode != "sweep" else
+               " (the --sweep label exempts %s alone, and nothing else)"
+               % ", ".join(".".join(path) for path in SWEEP_EXEMPT_PINS)))
+
+
+def calibration_record(mode: str, label: str, pins: dict,
+                       setting=None) -> dict:
+    """The header every calibration output carries — §2a.2's four registered
+    differences from the primary batch, as data.
+
+    They are enumerated here "so a fifth cannot be discovered later": output
+    under `calibration/<label>/`, the pilot slot count, `citable: false`, and
+    the pin state. A run of the sweep additionally stamps its SETTING, because
+    §2.1 registers "each sweep call's setting stamped into its `CALL.json`" —
+    a swept condition that is not in the bytes is a condition nobody can bind a
+    duration to afterwards."""
+    if mode not in CALIBRATION_MODES:
+        raise BatchError("%r is not a registered calibration mode; §2.1 and "
+                         "§2a.2 register %s"
+                         % (mode, " and ".join(CALIBRATION_MODES)))
+    if mode == "sweep" and setting is None:
+        raise BatchError(
+            "a sweep call carries no setting: §2.1 registers that each sweep "
+            "call's setting is stamped into its CALL.json, and a swept "
+            "condition absent from the bytes is a condition no observed "
+            "duration can be priced against")
+    return {
+        "mode": mode,
+        "label": label,
+        "root": os.path.relpath(calibration_root(label), STUDY),
+        "runsPerArm": (SWEEP_RUNS_PER_ARM if mode == "sweep"
+                       else PILOT_RUNS_PER_ARM),
+        "citable": CALIBRATION_CITABLE,
+        "outsideEveryPopulation": True,
+        "setting": setting,
+        "designTimePinState": {
+            ".".join(path): _pin_at(pins, path) for path, _why
+            in DESIGN_TIME_PINS},
+        "sweepExemption": ([".".join(path) for path in SWEEP_EXEMPT_PINS]
+                           if mode == "sweep" else []),
+        "registeredDifferences": [
+            "output under calibration/<label>/",
+            "the pilot slot count",
+            "citable: false",
+            "the pin state (§2.1's design-time-resolved rule)",
+        ],
+        "note": "§1a: the calibration pilot, the pre-pilot effort sweep and the "
+                "smoke are non-citable and outside every population. §2.1: the "
+                "effort condition is asserted by the wrapper and not "
+                "independently witnessed, and that sentence travels with every "
+                "published record of the condition.",
+    }
+
+
+def calibration_root(label: str) -> str:
+    """`calibration/<label>/`, refused if the label would leave the subtree.
+
+    A label is a directory NAME and never a path: `..`, an absolute path and a
+    separator all reach outside the one subtree §2a.2 registers, and the freeze
+    gate's whole rule is about what is inside it."""
+    if not label or label != os.path.basename(label) or label in (".", "..") \
+            or os.path.isabs(label) or os.sep in label:
+        raise BatchError(
+            "%r is not a calibration label: §2a.2 registers the output as "
+            "calibration/<label>/, so the label names one directory inside "
+            "that subtree and cannot reach out of it" % (label,))
+    return os.path.join(CALIBRATION_ROOT, label)
+
+
+# --- §7 delta 8: the freeze gate's calibration rule -------------------------
+
+def calibration_freeze_problems(study=None) -> list:
+    """§7 DELTA 8: "The freeze gate's `calibration/` rule — permit and require
+    the subtree, still refuse any `results/primary-attempt-*`; written into the
+    gate and its test before the first pilot call."
+
+    Three rules, and each is a different sentence of the registration:
+
+    * **PERMIT.** `calibration/` exists at the freeze and must not refuse it.
+      019 had no such subtree, and `make_manifest.py`'s
+      `prior_authoring_problems()` refuses any pre-freeze authoring state — so
+      the permission is structural rather than an exception: §2a.2 puts
+      calibration output under `calibration/<label>/`, which is outside the
+      `arms/<ARM>/authoring` tree that gate derives from `batch.py`'s own
+      constants. This function asserts that separation rather than assuming it,
+      because the day a calibration slot lands under `arms/` the freeze would
+      refuse for a reason nobody would connect to this delta.
+    * **REQUIRE.** §2a registers C1–C5 as calibration UNDER REGISTERED
+      CONDITIONS and §2a.6 puts the pilot's label, N and output digest into
+      `PINS.json` before the primary attempt; §2a.4 requires
+      `calibration/derive_floor.py` "committed and sealed before the pilot
+      runs". A freeze with no calibration subtree is a freeze that skipped
+      C1–C5, so the absence refuses.
+    * **STILL REFUSE ANY `results/primary-attempt-*`.** Unchanged from 019's
+      R9-2 rule and restated here at the registered spelling: the registered
+      root, an attempt root under ANY other name, and a dangling symlink at
+      either are all a prior attempt. `lexists`, not `exists`, for R9-2's
+      reason.
+
+    Returns problems; the caller composes them with the rest of the freeze
+    gate. It is a pure filesystem read and makes no call."""
+    root = study if study is not None else STUDY
+    problems = []
+    calibration = os.path.join(root, "calibration")
+    if not os.path.isdir(calibration):
+        problems.append(
+            "calibration/ is absent and §2a registers C1–C5 as calibration "
+            "under registered conditions, with §2a.6 putting the pilot's "
+            "label, N and output digest into PINS.json BEFORE the primary "
+            "attempt: a freeze with no calibration subtree is a freeze that "
+            "skipped the pilot")
+    elif not sorted(os.listdir(calibration)):
+        problems.append(
+            "calibration/ exists and is empty: §2a.2 registers the pilot's "
+            "output under calibration/<label>/ and §2a.4 registers "
+            "calibration/derive_floor.py as committed and sealed before the "
+            "pilot runs, so an empty subtree is the same fact as an absent one")
+    # PERMIT, asserted rather than assumed: calibration output must not sit in
+    # the authoring tree the freeze gate refuses.
+    for arm in ARMS:
+        stray = os.path.join(root, "arms", arm, "authoring")
+        if os.path.lexists(stray):
+            problems.append(
+                "arms/%s/authoring exists: §2a.2 registers calibration output "
+                "under calibration/<label>/ and the freeze refuses any "
+                "pre-freeze authoring tree, so a calibration slot written here "
+                "would be refused for a reason that names the wrong cause"
+                % arm)
+    # STILL REFUSE ANY results/primary-attempt-*.
+    results = os.path.join(root, "results")
+    if os.path.lexists(os.path.join(root, "results", "primary-attempt-001")):
+        problems.append(
+            "results/primary-attempt-001 exists and the preregistration "
+            "registers its ABSENCE at the freeze")
+    if os.path.isdir(results):
+        for name in sorted(os.listdir(results)):
+            if name == "primary-attempt-001":
+                continue                  # already named above
+            problems.append(
+                "results/%s exists: an attempt root under a second name is the "
+                "same fact the freeze forbids, and results/ holds attempt roots "
+                "and nothing else" % name)
+    return problems
+
+
+def derive_schedule(rounds: int) -> int:
+    """`batch.py derive-schedule --rounds N` — §7 delta 7's re-pin command.
+
+    Runs the search at N and prints the `batch` block the registry takes, so
+    re-pinning at §2.1's swept round count is a registry edit against a DERIVED
+    answer rather than a hand-written table. It writes nothing: the registry is
+    edited by a person, and a driver that rewrites its own pins is a driver that
+    can rewrite them after the freeze."""
+    derived = derive_order(rounds=rounds)
+    print("derived at %d rounds: %d blocks of %d + a tail of %d"
+          % (derived["rounds"], derived["blocks"], SEQUENCES,
+             derived["tailLength"]))
+    print("blockOrder %s" % (list(derived["blockOrder"]),))
+    print("tail       %s" % (list(derived["tail"]),))
+    print("attained   position spread %d, transition spread %d, "
+          "self-successions 0"
+          % (derived["positionSpread"], derived["transitionSpread"]))
+    print("batch.n %d, batch.slots %d"
+          % (derived["runsPerArm"], derived["slots"]))
+    print("These are the values harness/PINS.json's batch member takes; §2.1's "
+          "sweep decides N and this decides nothing else.")
+    return 0
+
+
 # --- the argument surface ----------------------------------------------------
 
 def _argument(argv: list, flag: str, default=None):
@@ -4259,6 +4713,7 @@ USAGE = (
     "SWEEP.json and SWEEP.md, citable: false and outside every population.\n"
     "--settings names a SUBSET of the registered three (a resumed or a\n"
     "single-setting run); it cannot introduce a fourth.\n"
+    "       batch.py derive-schedule --rounds N\n"
     "\n"
     "--pins names a registry only under the stand-in study of the harness\n"
     "tests. In this tree it is refused unless it names harness/PINS.json:\n"
@@ -4266,7 +4721,8 @@ USAGE = (
     "(round-10 finding R10-1).")
 
 COMMANDS = ("plan", "run", "capture", "capture-golden",
-            "capture-isolation-negative", "shortfall", "sweep")
+            "capture-isolation-negative", "shortfall", "sweep",
+            "derive-schedule")
 
 # Flags a command line may still carry from an earlier driver, each removed by a
 # registered decision. They refuse by name rather than being ignored: a command
@@ -4319,6 +4775,14 @@ def main(argv: list) -> int:
                                      % (flag, command, why))
         if command == "plan":
             return print_plan()
+        if command == "derive-schedule":
+            rounds = _argument(argv, "--rounds")
+            if rounds is None:
+                raise BatchError("--rounds is required: §7 delta 7 re-derives "
+                                 "the schedule AT a round count, and §2.1 "
+                                 "registers that count as an output of the "
+                                 "pre-pilot effort sweep")
+            return derive_schedule(int(rounds))
         if command == "run":
             runs = _argument(argv, "--runs")
             scratch_parent = _argument(argv, "--scratch-parent")

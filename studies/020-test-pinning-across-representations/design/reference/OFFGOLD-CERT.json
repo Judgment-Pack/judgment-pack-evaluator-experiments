@@ -1,0 +1,1304 @@
+{
+ "allDivergencesInRegisteredClasses": true,
+ "cells": 236196,
+ "censusRefA": {
+  "approve": 576,
+  "enhanced-review": 48,
+  "reject": 33696,
+  "review": 11514,
+  "unresolved[exception-escalation]": 1458,
+  "unresolved[missing-required-evidence]": 78732,
+  "unresolved[no-match]": 26244,
+  "unresolved[unknown]": 83928
+ },
+ "censusRefB": {
+  "approve": 576,
+  "enhanced-review": 48,
+  "reject": 33696,
+  "review": 11514,
+  "unresolved[exception-escalation]": 1458,
+  "unresolved[missing-required-evidence]": 78732,
+  "unresolved[no-match]": 26244,
+  "unresolved[unknown]": 83928
+ },
+ "certificate": "study-019 off-gold equivalence certificate",
+ "divergenceCountsByClass": {},
+ "divergences": [],
+ "elapsedSeconds": 182.2,
+ "fullResults": {
+  "committed": false,
+  "file": "offgold-results.jsonl.gz",
+  "note": "236,196 rows (3.2 MB gzipped); regenerable, not committed \u2014 the refB/inputs precedent from AGREEMENT.md",
+  "regenerate": "reference/cert_offgold.py --stage all",
+  "sha256Archive": "b8f88741201f4e1a8c6c59e78e988bd61f453e62c4168ec33e02f6b157a4227c",
+  "sha256Uncompressed": "08aa57f01be2cb97642014705dea302d0057bc54843f6c2f1ff96cf5f3794ac4"
+ },
+ "gate": "PREREGISTRATION.md \u00a74 GATE(pre-freeze) \u2014 off-gold equivalence check",
+ "interim": false,
+ "method": {
+  "armA": "reference/refA/jps_sim.py (engine-validated simulator) for the sweep; pinned jpack 0.17.0 for every reported divergence and for all three validation records. Every divergence verdict printed in this certificate for refA is an ENGINE verdict.",
+  "armB": "opa-exec-bundle (measured against the alternative on 200 cells; both methods required to agree cell-for-cell before use)",
+  "diff": "(disposition, sorted reason set) per cell \u2014 diff_refs.py's protocol",
+  "oracleRole": "clean-room oracle consulted as a THIRD OPINION on divergence cells only; recorded, never substituted for a reference"
+ },
+ "methodChoice": {
+  "canary": {
+   "diagnostic": "error: 1 error occurred: canary.rego:3: rego_type_error: undefined function time.now_ns",
+   "exit": 1,
+   "refused": true
+  },
+  "cells": 200,
+  "chosen": "opa-exec-bundle",
+  "disagreementCells": 0,
+  "methodsAgree": true,
+  "opaEvalPerCell": {
+   "capabilitiesEnforcedAt": "invocation (opa eval --capabilities)",
+   "measuredSeconds": 4.351,
+   "msPerCell": 21.753,
+   "projectedFullSpaceMinutes": 85.63
+  },
+  "opaExecBundle": {
+   "capabilitiesEnforcedAt": "build (opa build --capabilities); opa exec has no --capabilities at v1.19.0",
+   "measuredSeconds": 0.062,
+   "msPerCell": 0.31,
+   "projectedFullSpaceMinutes": 1.22
+  },
+  "speedup": 70.2
+ },
+ "registeredExclusionClasses": {},
+ "reproduce": "reference/cert_offgold.py --stage all [--with-sanctions-omitted]",
+ "retiredExclusionClasses": {
+  "X1": {
+   "implementation": "cert_offgold.py in_retired_x1(); gates nothing, and is re-measured every run as the retired-x1-regression record",
+   "predicateReadings": [
+    "'risk in [40,70)' required a READABLE risk in that band; an unreadable risk score is not a value in an interval",
+    "'spend <= 100,000.00' required a READABLE spend"
+   ],
+   "refinedDescription": "reference/refA/REPORT.md additionally reported sanctions CLEAR, financial evidence present, prior != yes, critical != yes for the 72-cell class",
+   "retiredBecause": "round-1 finding R1-2. The inexpressibility claim behind X1 was tested rather than argued: the arm-A reference was repaired (reference/refA/PACK-CHANGE-001.md) and now answers the prose-correct `review` on all 72 cells, changing nothing else in the registered space. With zero divergences there is nothing for an exclusion class to name.",
+   "retiredOn": "2026-08-18",
+   "retiredText": "{new vendor yes; risk in [40,70); LOW country with spend unreadable, or country unreadable with spend <= 100,000.00}",
+   "source": "PREREGISTRATION.md \u00a74 (pre-repair)"
+  }
+ },
+ "simulatorArtefactsRetracted": [],
+ "space": {
+  "axes": [
+   {
+    "axis": "sanctions",
+    "omittedMember": false,
+    "values": [
+     "CLEAR",
+     "MATCH",
+     "UNKNOWN"
+    ],
+    "why": "3-valued enum; UNKNOWN is a VALUE (governed by D2), not an absence. U1's parenthetical excludes the screening result from the counterfactual. An absent sanctions member is outside the registered space (see limitations.sanctionsOmitted)."
+   },
+   {
+    "axis": "country",
+    "omittedMember": true,
+    "values": [
+     "LOW",
+     "MEDIUM",
+     "HIGH",
+     null
+    ],
+    "why": "readable domain is exactly {LOW,MEDIUM,HIGH}: enumerated exhaustively. omitted = unreadable (member absent from the input document)."
+   },
+   {
+    "axis": "risk",
+    "omittedMember": true,
+    "values": [
+     "0",
+     "39",
+     "40",
+     "69",
+     "70",
+     "89",
+     "90",
+     "100",
+     null
+    ],
+    "why": "readable domain 0..100 integers; every clause reads risk only through the thresholds 40, 70, 90, cutting [0,39][40,69][70,89][90,100]. Each block's BOTH endpoints are used, so a mis-stated inclusivity surfaces as a disagreement between an interval's endpoints. 39/40, 69/70, 89/90 are the band boundaries +-1; 0 and 100 are the outer blocks' representatives."
+   },
+   {
+    "axis": "spend",
+    "omittedMember": true,
+    "values": [
+     "0.00",
+     "100000.00",
+     "100000.01",
+     "500000.00",
+     "500000.01",
+     "2000000.00",
+     "2000000.01",
+     "10000000.00",
+     null
+    ],
+    "why": "readable domain 0.00..10,000,000.00 at cents (1,000,000,001 values); every clause reads spend only through the thresholds 100,000.00, 500,000.00, 2,000,000.00, cutting [0,100000.00](100000.00,500000.00](500000.00,2000000.00](2000000.00,10000000.00]. Both endpoints of each block; x.01 is the next representable cent at each open lower endpoint; the pair (2000000.00, 2000000.01) exercises D6b-inclusive and O3-exclusive."
+   },
+   {
+    "axis": "newVendor",
+    "omittedMember": true,
+    "values": [
+     "yes",
+     "no",
+     null
+    ],
+    "why": "declared domain {yes,no} enumerated exhaustively; omitted = unreported."
+   },
+   {
+    "axis": "critical",
+    "omittedMember": true,
+    "values": [
+     "yes",
+     "no",
+     null
+    ],
+    "why": "declared domain {yes,no} enumerated exhaustively; omitted = unreported."
+   },
+   {
+    "axis": "prior",
+    "omittedMember": true,
+    "values": [
+     "yes",
+     "no",
+     null
+    ],
+    "why": "declared domain {yes,no} enumerated exhaustively; omitted = unreported."
+   },
+   {
+    "axis": "finEvidence",
+    "omittedMember": true,
+    "values": [
+     "present",
+     "absent",
+     null
+    ],
+    "why": "evidence tri-state, exhaustive: available / unavailable / unreported."
+   },
+   {
+    "axis": "insurance",
+    "omittedMember": true,
+    "values": [
+     "present",
+     "absent",
+     null
+    ],
+    "why": "evidence tri-state, exhaustive: available / unavailable / unreported."
+   }
+  ],
+  "cellIdRule": "d + sha256(canonical-json of the 9 axis values)[:16], uniqueness asserted",
+  "digest": "5b289515206f07f9eb139ea40736c9d868a3b2616e59b0bd3be327a5950e2b3c",
+  "enumerationOrder": "itertools.product over the axes in declaration order; the index in that order is the registered cell index",
+  "name": "derived input space (arm-A builder precedent)",
+  "relationToDesignGrid": "the 2,540-cell design grid (reference/cells.json) and this space overlap but neither contains the other; the grid's agreement record is re-verified here as a control (validation record grid-regression) rather than inherited.",
+  "representativenessArgument": "risk and spend are the only axes whose readable domains are not enumerated. Both are covered by threshold-block representatives with both endpoints of every block, which is exact for any implementation whose spend/risk sensitivity is confined to the six declared thresholds. That premise is checked, not assumed: refB's crosscheck.py re-runs U1 over all 101 risk values and a 17-point dense spend sample, and the clean-room oracle quantifies U1 over the full 101-value risk domain. Neither reference's text carries a seventh threshold.",
+  "size": 236196
+ },
+ "status": "PASS",
+ "supplementaryStratum": {
+  "cells": 78732,
+  "censusRefA": {
+   "unresolved[missing-required-evidence]": 26244,
+   "unresolved[no-match]": 7290,
+   "unresolved[unknown]": 45198
+  },
+  "censusRefB": {
+   "unresolved[missing-required-evidence]": 26244,
+   "unresolved[no-match]": 26244,
+   "unresolved[unknown]": 26244
+  },
+  "divergenceCount": 18954,
+  "divergenceCountsByClass": {
+   "OTHER": 18954
+  },
+  "divergencePatterns": {
+   "refA=unresolved[unknown] | refB=unresolved[no-match] | oracle=approve | class=OTHER": 864,
+   "refA=unresolved[unknown] | refB=unresolved[no-match] | oracle=enhanced-review | class=OTHER": 72,
+   "refA=unresolved[unknown] | refB=unresolved[no-match] | oracle=reject | class=OTHER": 6318,
+   "refA=unresolved[unknown] | refB=unresolved[no-match] | oracle=review | class=OTHER": 7452,
+   "refA=unresolved[unknown] | refB=unresolved[no-match] | oracle=unresolved[unknown] | class=OTHER": 4248
+  },
+  "examples": [
+   {
+    "cell": {
+     "country": "LOW",
+     "critical": "yes",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "0",
+     "sanctions": null,
+     "spend": "0.00"
+    },
+    "cellId": "d0b673408508b3ff2",
+    "class": "OTHER",
+    "cleanroomOracle": "approve",
+    "index": 9,
+    "matchesRetiredX1Description": false,
+    "matchesRetiredX1RefinedDescription": false,
+    "oracleBacks": "neither",
+    "refA": "unresolved[unknown]",
+    "refASimulator": "unresolved[unknown]",
+    "refASimulatorConfirmedByEngine": true,
+    "refB": "unresolved[no-match]"
+   },
+   {
+    "cell": {
+     "country": "LOW",
+     "critical": "yes",
+     "finEvidence": "present",
+     "insurance": "absent",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "0",
+     "sanctions": null,
+     "spend": "0.00"
+    },
+    "cellId": "dee54b16ce97862b5",
+    "class": "OTHER",
+    "cleanroomOracle": "approve",
+    "index": 10,
+    "matchesRetiredX1Description": false,
+    "matchesRetiredX1RefinedDescription": false,
+    "oracleBacks": "neither",
+    "refA": "unresolved[unknown]",
+    "refASimulator": "unresolved[unknown]",
+    "refASimulatorConfirmedByEngine": true,
+    "refB": "unresolved[no-match]"
+   },
+   {
+    "cell": {
+     "country": "LOW",
+     "critical": "yes",
+     "finEvidence": "present",
+     "insurance": null,
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "0",
+     "sanctions": null,
+     "spend": "0.00"
+    },
+    "cellId": "d6359a597f09b9e74",
+    "class": "OTHER",
+    "cleanroomOracle": "approve",
+    "index": 11,
+    "matchesRetiredX1Description": false,
+    "matchesRetiredX1RefinedDescription": false,
+    "oracleBacks": "neither",
+    "refA": "unresolved[unknown]",
+    "refASimulator": "unresolved[unknown]",
+    "refASimulatorConfirmedByEngine": true,
+    "refB": "unresolved[no-match]"
+   },
+   {
+    "cell": {
+     "country": "LOW",
+     "critical": "yes",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": null,
+     "risk": "0",
+     "sanctions": null,
+     "spend": "0.00"
+    },
+    "cellId": "d804e7060de4e3283",
+    "class": "OTHER",
+    "cleanroomOracle": "approve",
+    "index": 18,
+    "matchesRetiredX1Description": false,
+    "matchesRetiredX1RefinedDescription": false,
+    "oracleBacks": "neither",
+    "refA": "unresolved[unknown]",
+    "refASimulator": "unresolved[unknown]",
+    "refASimulatorConfirmedByEngine": true,
+    "refB": "unresolved[no-match]"
+   },
+   {
+    "cell": {
+     "country": "LOW",
+     "critical": "yes",
+     "finEvidence": "present",
+     "insurance": "absent",
+     "newVendor": "yes",
+     "prior": null,
+     "risk": "0",
+     "sanctions": null,
+     "spend": "0.00"
+    },
+    "cellId": "d1e34142b136549dc",
+    "class": "OTHER",
+    "cleanroomOracle": "approve",
+    "index": 19,
+    "matchesRetiredX1Description": false,
+    "matchesRetiredX1RefinedDescription": false,
+    "oracleBacks": "neither",
+    "refA": "unresolved[unknown]",
+    "refASimulator": "unresolved[unknown]",
+    "refASimulatorConfirmedByEngine": true,
+    "refB": "unresolved[no-match]"
+   },
+   {
+    "cell": {
+     "country": "LOW",
+     "critical": "yes",
+     "finEvidence": "present",
+     "insurance": null,
+     "newVendor": "yes",
+     "prior": null,
+     "risk": "0",
+     "sanctions": null,
+     "spend": "0.00"
+    },
+    "cellId": "d2dfba7c6c9139cb9",
+    "class": "OTHER",
+    "cleanroomOracle": "approve",
+    "index": 20,
+    "matchesRetiredX1Description": false,
+    "matchesRetiredX1RefinedDescription": false,
+    "oracleBacks": "neither",
+    "refA": "unresolved[unknown]",
+    "refASimulator": "unresolved[unknown]",
+    "refASimulatorConfirmedByEngine": true,
+    "refB": "unresolved[no-match]"
+   },
+   {
+    "cell": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "0",
+     "sanctions": null,
+     "spend": "0.00"
+    },
+    "cellId": "dcca0bc2895315f9e",
+    "class": "OTHER",
+    "cleanroomOracle": "approve",
+    "index": 36,
+    "matchesRetiredX1Description": false,
+    "matchesRetiredX1RefinedDescription": false,
+    "oracleBacks": "neither",
+    "refA": "unresolved[unknown]",
+    "refASimulator": "unresolved[unknown]",
+    "refASimulatorConfirmedByEngine": true,
+    "refB": "unresolved[no-match]"
+   },
+   {
+    "cell": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "absent",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "0",
+     "sanctions": null,
+     "spend": "0.00"
+    },
+    "cellId": "d837780955f4b2ee4",
+    "class": "OTHER",
+    "cleanroomOracle": "approve",
+    "index": 37,
+    "matchesRetiredX1Description": false,
+    "matchesRetiredX1RefinedDescription": false,
+    "oracleBacks": "neither",
+    "refA": "unresolved[unknown]",
+    "refASimulator": "unresolved[unknown]",
+    "refASimulatorConfirmedByEngine": true,
+    "refB": "unresolved[no-match]"
+   },
+   {
+    "cell": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": null,
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "0",
+     "sanctions": null,
+     "spend": "0.00"
+    },
+    "cellId": "d62a1dff0dd3e88fd",
+    "class": "OTHER",
+    "cleanroomOracle": "approve",
+    "index": 38,
+    "matchesRetiredX1Description": false,
+    "matchesRetiredX1RefinedDescription": false,
+    "oracleBacks": "neither",
+    "refA": "unresolved[unknown]",
+    "refASimulator": "unresolved[unknown]",
+    "refASimulatorConfirmedByEngine": true,
+    "refB": "unresolved[no-match]"
+   },
+   {
+    "cell": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": null,
+     "risk": "0",
+     "sanctions": null,
+     "spend": "0.00"
+    },
+    "cellId": "daacd3a034ebf7b31",
+    "class": "OTHER",
+    "cleanroomOracle": "approve",
+    "index": 45,
+    "matchesRetiredX1Description": false,
+    "matchesRetiredX1RefinedDescription": false,
+    "oracleBacks": "neither",
+    "refA": "unresolved[unknown]",
+    "refASimulator": "unresolved[unknown]",
+    "refASimulatorConfirmedByEngine": true,
+    "refB": "unresolved[no-match]"
+   },
+   {
+    "cell": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": "absent",
+     "newVendor": "yes",
+     "prior": null,
+     "risk": "0",
+     "sanctions": null,
+     "spend": "0.00"
+    },
+    "cellId": "dcfdf7255645f62e7",
+    "class": "OTHER",
+    "cleanroomOracle": "approve",
+    "index": 46,
+    "matchesRetiredX1Description": false,
+    "matchesRetiredX1RefinedDescription": false,
+    "oracleBacks": "neither",
+    "refA": "unresolved[unknown]",
+    "refASimulator": "unresolved[unknown]",
+    "refASimulatorConfirmedByEngine": true,
+    "refB": "unresolved[no-match]"
+   },
+   {
+    "cell": {
+     "country": "LOW",
+     "critical": "no",
+     "finEvidence": "present",
+     "insurance": null,
+     "newVendor": "yes",
+     "prior": null,
+     "risk": "0",
+     "sanctions": null,
+     "spend": "0.00"
+    },
+    "cellId": "ddb3353368d75b983",
+    "class": "OTHER",
+    "cleanroomOracle": "approve",
+    "index": 47,
+    "matchesRetiredX1Description": false,
+    "matchesRetiredX1RefinedDescription": false,
+    "oracleBacks": "neither",
+    "refA": "unresolved[unknown]",
+    "refASimulator": "unresolved[unknown]",
+    "refASimulatorConfirmedByEngine": true,
+    "refB": "unresolved[no-match]"
+   },
+   {
+    "cell": {
+     "country": "LOW",
+     "critical": null,
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "0",
+     "sanctions": null,
+     "spend": "0.00"
+    },
+    "cellId": "da6c907fb829c3fc4",
+    "class": "OTHER",
+    "cleanroomOracle": "approve",
+    "index": 63,
+    "matchesRetiredX1Description": false,
+    "matchesRetiredX1RefinedDescription": false,
+    "oracleBacks": "neither",
+    "refA": "unresolved[unknown]",
+    "refASimulator": "unresolved[unknown]",
+    "refASimulatorConfirmedByEngine": true,
+    "refB": "unresolved[no-match]"
+   },
+   {
+    "cell": {
+     "country": "LOW",
+     "critical": null,
+     "finEvidence": "present",
+     "insurance": "absent",
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "0",
+     "sanctions": null,
+     "spend": "0.00"
+    },
+    "cellId": "d9165b2d6c80f0070",
+    "class": "OTHER",
+    "cleanroomOracle": "approve",
+    "index": 64,
+    "matchesRetiredX1Description": false,
+    "matchesRetiredX1RefinedDescription": false,
+    "oracleBacks": "neither",
+    "refA": "unresolved[unknown]",
+    "refASimulator": "unresolved[unknown]",
+    "refASimulatorConfirmedByEngine": true,
+    "refB": "unresolved[no-match]"
+   },
+   {
+    "cell": {
+     "country": "LOW",
+     "critical": null,
+     "finEvidence": "present",
+     "insurance": null,
+     "newVendor": "yes",
+     "prior": "no",
+     "risk": "0",
+     "sanctions": null,
+     "spend": "0.00"
+    },
+    "cellId": "dbf17da477a1bda2f",
+    "class": "OTHER",
+    "cleanroomOracle": "approve",
+    "index": 65,
+    "matchesRetiredX1Description": false,
+    "matchesRetiredX1RefinedDescription": false,
+    "oracleBacks": "neither",
+    "refA": "unresolved[unknown]",
+    "refASimulator": "unresolved[unknown]",
+    "refASimulatorConfirmedByEngine": true,
+    "refB": "unresolved[no-match]"
+   },
+   {
+    "cell": {
+     "country": "LOW",
+     "critical": null,
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "yes",
+     "prior": null,
+     "risk": "0",
+     "sanctions": null,
+     "spend": "0.00"
+    },
+    "cellId": "d1f718637af5d5201",
+    "class": "OTHER",
+    "cleanroomOracle": "approve",
+    "index": 72,
+    "matchesRetiredX1Description": false,
+    "matchesRetiredX1RefinedDescription": false,
+    "oracleBacks": "neither",
+    "refA": "unresolved[unknown]",
+    "refASimulator": "unresolved[unknown]",
+    "refASimulatorConfirmedByEngine": true,
+    "refB": "unresolved[no-match]"
+   },
+   {
+    "cell": {
+     "country": "LOW",
+     "critical": null,
+     "finEvidence": "present",
+     "insurance": "absent",
+     "newVendor": "yes",
+     "prior": null,
+     "risk": "0",
+     "sanctions": null,
+     "spend": "0.00"
+    },
+    "cellId": "db0623421c9dfb513",
+    "class": "OTHER",
+    "cleanroomOracle": "approve",
+    "index": 73,
+    "matchesRetiredX1Description": false,
+    "matchesRetiredX1RefinedDescription": false,
+    "oracleBacks": "neither",
+    "refA": "unresolved[unknown]",
+    "refASimulator": "unresolved[unknown]",
+    "refASimulatorConfirmedByEngine": true,
+    "refB": "unresolved[no-match]"
+   },
+   {
+    "cell": {
+     "country": "LOW",
+     "critical": null,
+     "finEvidence": "present",
+     "insurance": null,
+     "newVendor": "yes",
+     "prior": null,
+     "risk": "0",
+     "sanctions": null,
+     "spend": "0.00"
+    },
+    "cellId": "d4f2f19ad89802b1e",
+    "class": "OTHER",
+    "cleanroomOracle": "approve",
+    "index": 74,
+    "matchesRetiredX1Description": false,
+    "matchesRetiredX1RefinedDescription": false,
+    "oracleBacks": "neither",
+    "refA": "unresolved[unknown]",
+    "refASimulator": "unresolved[unknown]",
+    "refASimulatorConfirmedByEngine": true,
+    "refB": "unresolved[no-match]"
+   },
+   {
+    "cell": {
+     "country": "LOW",
+     "critical": "yes",
+     "finEvidence": "present",
+     "insurance": "present",
+     "newVendor": "no",
+     "prior": "no",
+     "risk": "0",
+     "sanctions": null,
+     "spend": "0.00"
+    },
+    "cellId": "d084037a1bc6958fa",
+    "class": "OTHER",
+    "cleanroomOracle": "approve",
+    "index": 90,
+    "matchesRetiredX1Description": false,
+    "matchesRetiredX1RefinedDescription": false,
+    "oracleBacks": "neither",
+    "refA": "unresolved[unknown]",
+    "refASimulator": "unresolved[unknown]",
+    "refASimulatorConfirmedByEngine": true,
+    "refB": "unresolved[no-match]"
+   },
+   {
+    "cell": {
+     "country": "LOW",
+     "critical": "yes",
+     "finEvidence": "present",
+     "insurance": "absent",
+     "newVendor": "no",
+     "prior": "no",
+     "risk": "0",
+     "sanctions": null,
+     "spend": "0.00"
+    },
+    "cellId": "da7951fb43675eddb",
+    "class": "OTHER",
+    "cleanroomOracle": "approve",
+    "index": 91,
+    "matchesRetiredX1Description": false,
+    "matchesRetiredX1RefinedDescription": false,
+    "oracleBacks": "neither",
+    "refA": "unresolved[unknown]",
+    "refASimulator": "unresolved[unknown]",
+    "refASimulatorConfirmedByEngine": true,
+    "refB": "unresolved[no-match]"
+   }
+  ],
+  "fullListOmitted": "18,954 rows; the pattern census above is exhaustive over them and the list is regenerable with --with-sanctions-omitted",
+  "gates": "nothing \u2014 reported because \u00a7SPACE note 1 declares the gap, and a declared gap a reviewer cannot size is worth less than a measured one",
+  "name": "sanctions member physically absent",
+  "reading": "an absent sanctions member is an input the prose does not define, and all three implementations answer it differently \u2014 refA unresolved[unknown] (no rule condition can be satisfied), refB unresolved[no-match] (the total-function backstop), and the clean-room oracle a spread of ordinary determinations (it does not gate D3-D8 on CLEAR). This is undefined behaviour being reported as undefined behaviour, not a reference defect; it is what keeps the axis out of the registered space. It matters for the E4 identity control, which evaluates AUTHOR-written inputs that can omit any member: see OFFGOLD-CERT.md 'What this certificate hands the freeze PR'.",
+  "registered": false,
+  "simulatorArtefactsRetracted": 0
+ },
+ "timing": {
+  "divergenceEngineConfirmationSeconds": 0.0,
+  "refASimulatorSeconds": 13.6,
+  "refBOpaExecSeconds": 38.2
+ },
+ "toolchain": {
+  "cells.json": {
+   "expected": "da4ee85c9d8b9f37ef523058144c163e80da50e485e2a148ea7d655253114618",
+   "match": true,
+   "sha256": "da4ee85c9d8b9f37ef523058144c163e80da50e485e2a148ea7d655253114618"
+  },
+  "cleanroom/oracle.py": {
+   "expected": null,
+   "match": null,
+   "sha256": "9f352e234045e73bdea6bc0435d1aeec67057be08c1ff89ec58cf573797b16c5"
+  },
+  "jpack": {
+   "expected": "42f35f7900bea6dfce215631b50729ab22dd347289e1bde3412604fb043a22e9",
+   "match": true,
+   "sha256": "42f35f7900bea6dfce215631b50729ab22dd347289e1bde3412604fb043a22e9"
+  },
+  "opa": {
+   "expected": "1dd5c5591ff856f5e20a1d66bafae9511ddf3c5552ed3b5070c70b2b6580ee3f",
+   "match": true,
+   "sha256": "1dd5c5591ff856f5e20a1d66bafae9511ddf3c5552ed3b5070c70b2b6580ee3f"
+  },
+  "refA/jps_sim.py": {
+   "expected": null,
+   "match": null,
+   "sha256": "d6327d59aad73e8f847dc206e317a325591973c9c76d0b5dcf9df7fda917d2a7"
+  },
+  "refA/pack.json": {
+   "expected": "db9776070fbf5e193443ffb1f371b2524b4662f0877868306323b5c9e3701853",
+   "match": true,
+   "sha256": "db9776070fbf5e193443ffb1f371b2524b4662f0877868306323b5c9e3701853"
+  },
+  "refA/results.jsonl": {
+   "expected": "d2cbfed239f4151a767d22f09a01f1a1bd161e54ebbc99c546ebc33b9aee03e3",
+   "match": true,
+   "sha256": "d2cbfed239f4151a767d22f09a01f1a1bd161e54ebbc99c546ebc33b9aee03e3"
+  },
+  "refB/policy.rego": {
+   "expected": "1f2e1ad1d423240dd262852f19057a8e906387d5a1b71db8b8a15bc010fc12e2",
+   "match": true,
+   "sha256": "1f2e1ad1d423240dd262852f19057a8e906387d5a1b71db8b8a15bc010fc12e2"
+  },
+  "refB/results.jsonl": {
+   "expected": "d2cbfed239f4151a767d22f09a01f1a1bd161e54ebbc99c546ebc33b9aee03e3",
+   "match": true,
+   "sha256": "d2cbfed239f4151a767d22f09a01f1a1bd161e54ebbc99c546ebc33b9aee03e3"
+  }
+ },
+ "validationRecords": [
+  {
+   "cells": 2000,
+   "disagreements": 0,
+   "examples": [],
+   "instrument": "reference/refA/jps_sim.py vs pinned jpack 0.17.0",
+   "measuredSeconds": 8.4,
+   "pass": true,
+   "population": "2,000-cell deterministic stratified systematic subsample of the 236,196-cell derived space (48 strata: sanctions x country x riskReadable x spendReadable; proportional largest-remainder allocation; systematic selection within stratum; no RNG)",
+   "record": "simulator-revalidation",
+   "strata": [
+    {
+     "allocated": 2,
+     "size": 243,
+     "stratum": [
+      "CLEAR",
+      "HIGH",
+      false,
+      false
+     ]
+    },
+    {
+     "allocated": 17,
+     "size": 1944,
+     "stratum": [
+      "CLEAR",
+      "HIGH",
+      false,
+      true
+     ]
+    },
+    {
+     "allocated": 17,
+     "size": 1944,
+     "stratum": [
+      "CLEAR",
+      "HIGH",
+      true,
+      false
+     ]
+    },
+    {
+     "allocated": 132,
+     "size": 15552,
+     "stratum": [
+      "CLEAR",
+      "HIGH",
+      true,
+      true
+     ]
+    },
+    {
+     "allocated": 2,
+     "size": 243,
+     "stratum": [
+      "CLEAR",
+      "LOW",
+      false,
+      false
+     ]
+    },
+    {
+     "allocated": 17,
+     "size": 1944,
+     "stratum": [
+      "CLEAR",
+      "LOW",
+      false,
+      true
+     ]
+    },
+    {
+     "allocated": 17,
+     "size": 1944,
+     "stratum": [
+      "CLEAR",
+      "LOW",
+      true,
+      false
+     ]
+    },
+    {
+     "allocated": 132,
+     "size": 15552,
+     "stratum": [
+      "CLEAR",
+      "LOW",
+      true,
+      true
+     ]
+    },
+    {
+     "allocated": 2,
+     "size": 243,
+     "stratum": [
+      "CLEAR",
+      "MEDIUM",
+      false,
+      false
+     ]
+    },
+    {
+     "allocated": 17,
+     "size": 1944,
+     "stratum": [
+      "CLEAR",
+      "MEDIUM",
+      false,
+      true
+     ]
+    },
+    {
+     "allocated": 17,
+     "size": 1944,
+     "stratum": [
+      "CLEAR",
+      "MEDIUM",
+      true,
+      false
+     ]
+    },
+    {
+     "allocated": 132,
+     "size": 15552,
+     "stratum": [
+      "CLEAR",
+      "MEDIUM",
+      true,
+      true
+     ]
+    },
+    {
+     "allocated": 2,
+     "size": 243,
+     "stratum": [
+      "CLEAR",
+      "OMITTED",
+      false,
+      false
+     ]
+    },
+    {
+     "allocated": 17,
+     "size": 1944,
+     "stratum": [
+      "CLEAR",
+      "OMITTED",
+      false,
+      true
+     ]
+    },
+    {
+     "allocated": 17,
+     "size": 1944,
+     "stratum": [
+      "CLEAR",
+      "OMITTED",
+      true,
+      false
+     ]
+    },
+    {
+     "allocated": 132,
+     "size": 15552,
+     "stratum": [
+      "CLEAR",
+      "OMITTED",
+      true,
+      true
+     ]
+    },
+    {
+     "allocated": 2,
+     "size": 243,
+     "stratum": [
+      "MATCH",
+      "HIGH",
+      false,
+      false
+     ]
+    },
+    {
+     "allocated": 16,
+     "size": 1944,
+     "stratum": [
+      "MATCH",
+      "HIGH",
+      false,
+      true
+     ]
+    },
+    {
+     "allocated": 16,
+     "size": 1944,
+     "stratum": [
+      "MATCH",
+      "HIGH",
+      true,
+      false
+     ]
+    },
+    {
+     "allocated": 132,
+     "size": 15552,
+     "stratum": [
+      "MATCH",
+      "HIGH",
+      true,
+      true
+     ]
+    },
+    {
+     "allocated": 2,
+     "size": 243,
+     "stratum": [
+      "MATCH",
+      "LOW",
+      false,
+      false
+     ]
+    },
+    {
+     "allocated": 16,
+     "size": 1944,
+     "stratum": [
+      "MATCH",
+      "LOW",
+      false,
+      true
+     ]
+    },
+    {
+     "allocated": 16,
+     "size": 1944,
+     "stratum": [
+      "MATCH",
+      "LOW",
+      true,
+      false
+     ]
+    },
+    {
+     "allocated": 132,
+     "size": 15552,
+     "stratum": [
+      "MATCH",
+      "LOW",
+      true,
+      true
+     ]
+    },
+    {
+     "allocated": 2,
+     "size": 243,
+     "stratum": [
+      "MATCH",
+      "MEDIUM",
+      false,
+      false
+     ]
+    },
+    {
+     "allocated": 16,
+     "size": 1944,
+     "stratum": [
+      "MATCH",
+      "MEDIUM",
+      false,
+      true
+     ]
+    },
+    {
+     "allocated": 16,
+     "size": 1944,
+     "stratum": [
+      "MATCH",
+      "MEDIUM",
+      true,
+      false
+     ]
+    },
+    {
+     "allocated": 132,
+     "size": 15552,
+     "stratum": [
+      "MATCH",
+      "MEDIUM",
+      true,
+      true
+     ]
+    },
+    {
+     "allocated": 2,
+     "size": 243,
+     "stratum": [
+      "MATCH",
+      "OMITTED",
+      false,
+      false
+     ]
+    },
+    {
+     "allocated": 16,
+     "size": 1944,
+     "stratum": [
+      "MATCH",
+      "OMITTED",
+      false,
+      true
+     ]
+    },
+    {
+     "allocated": 16,
+     "size": 1944,
+     "stratum": [
+      "MATCH",
+      "OMITTED",
+      true,
+      false
+     ]
+    },
+    {
+     "allocated": 132,
+     "size": 15552,
+     "stratum": [
+      "MATCH",
+      "OMITTED",
+      true,
+      true
+     ]
+    },
+    {
+     "allocated": 2,
+     "size": 243,
+     "stratum": [
+      "UNKNOWN",
+      "HIGH",
+      false,
+      false
+     ]
+    },
+    {
+     "allocated": 16,
+     "size": 1944,
+     "stratum": [
+      "UNKNOWN",
+      "HIGH",
+      false,
+      true
+     ]
+    },
+    {
+     "allocated": 16,
+     "size": 1944,
+     "stratum": [
+      "UNKNOWN",
+      "HIGH",
+      true,
+      false
+     ]
+    },
+    {
+     "allocated": 132,
+     "size": 15552,
+     "stratum": [
+      "UNKNOWN",
+      "HIGH",
+      true,
+      true
+     ]
+    },
+    {
+     "allocated": 2,
+     "size": 243,
+     "stratum": [
+      "UNKNOWN",
+      "LOW",
+      false,
+      false
+     ]
+    },
+    {
+     "allocated": 16,
+     "size": 1944,
+     "stratum": [
+      "UNKNOWN",
+      "LOW",
+      false,
+      true
+     ]
+    },
+    {
+     "allocated": 16,
+     "size": 1944,
+     "stratum": [
+      "UNKNOWN",
+      "LOW",
+      true,
+      false
+     ]
+    },
+    {
+     "allocated": 132,
+     "size": 15552,
+     "stratum": [
+      "UNKNOWN",
+      "LOW",
+      true,
+      true
+     ]
+    },
+    {
+     "allocated": 2,
+     "size": 243,
+     "stratum": [
+      "UNKNOWN",
+      "MEDIUM",
+      false,
+      false
+     ]
+    },
+    {
+     "allocated": 16,
+     "size": 1944,
+     "stratum": [
+      "UNKNOWN",
+      "MEDIUM",
+      false,
+      true
+     ]
+    },
+    {
+     "allocated": 16,
+     "size": 1944,
+     "stratum": [
+      "UNKNOWN",
+      "MEDIUM",
+      true,
+      false
+     ]
+    },
+    {
+     "allocated": 132,
+     "size": 15552,
+     "stratum": [
+      "UNKNOWN",
+      "MEDIUM",
+      true,
+      true
+     ]
+    },
+    {
+     "allocated": 2,
+     "size": 243,
+     "stratum": [
+      "UNKNOWN",
+      "OMITTED",
+      false,
+      false
+     ]
+    },
+    {
+     "allocated": 16,
+     "size": 1944,
+     "stratum": [
+      "UNKNOWN",
+      "OMITTED",
+      false,
+      true
+     ]
+    },
+    {
+     "allocated": 16,
+     "size": 1944,
+     "stratum": [
+      "UNKNOWN",
+      "OMITTED",
+      true,
+      false
+     ]
+    },
+    {
+     "allocated": 132,
+     "size": 15552,
+     "stratum": [
+      "UNKNOWN",
+      "OMITTED",
+      true,
+      true
+     ]
+    }
+   ]
+  },
+  {
+   "cells": 2540,
+   "execVsCommittedRefB": {
+    "disagreements": 0,
+    "examples": []
+   },
+   "pass": true,
+   "record": "grid-regression",
+   "refAvsRefB": {
+    "divergences": 0,
+    "examples": []
+   },
+   "simVsCommittedRefA": {
+    "disagreements": 0,
+    "examples": []
+   },
+   "what": "the 2,540-cell design grid re-evaluated by this program's instruments and diffed against the digest-pinned committed results.jsonl of both references (AGREEMENT.md: 2,540/2,540)"
+  },
+  {
+   "cells": 748,
+   "classes": [
+    "approve",
+    "enhanced-review",
+    "reject",
+    "review",
+    "unresolved[exception-escalation]",
+    "unresolved[missing-required-evidence]",
+    "unresolved[no-match]",
+    "unresolved[unknown]"
+   ],
+   "disagreements": 0,
+   "examples": [],
+   "pass": true,
+   "record": "verdict-class-coverage",
+   "what": "up to 100 systematically-selected cells per distinct refA verdict class re-evaluated on the pinned engine"
+  },
+  {
+   "coarseRetiredPredicateCells": 1458,
+   "disagreementsInsideRetiredPredicate": 0,
+   "engineConfirmedReviewOnRefinedCells": 72,
+   "examples": [],
+   "pass": true,
+   "record": "retired-x1-regression",
+   "refinedRetiredPredicateCells": 72,
+   "what": "every cell the RETIRED X1 predicate named is re-checked for refA/refB agreement, and the 72 cells the retired class was registered on are re-evaluated ON THE PINNED ENGINE and required to answer the prose-correct `review` in both references"
+  }
+ ]
+}

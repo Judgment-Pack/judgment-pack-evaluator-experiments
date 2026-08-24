@@ -333,7 +333,12 @@ def fill_intervals(node, licensed: bool, reason: str = None) -> int:
 
 FM_ALPHA = Fraction(1, 20)       # two-sided; the 95% difference interval
 MESH_DEN = 1000                  # the registered nuisance mesh M = {k/1000}
-TAU = Fraction(19, 20)           # 0.95, the registered high-kill threshold
+# §7 delta 2: TAU IS REMOVED, not disabled. Study 019 registered
+# tau = 0.95 over the paired adequate subset and `tau_cut()` derived the
+# operative integer cut from it; §5.1 of Study 020 registers the primary
+# endpoint with "No cut, no tau, no dichotomy", so there is no threshold for
+# a decision path to read and no constant here for one to be reconstructed
+# from. `harness/tests/test_score_stats.py` asserts the absence by name.
 DELTA = Fraction(1, 5)           # 0.20, the minimum meaningful difference
 
 # The three answers `excludes_zero()` distinguishes, named so a caller cannot
@@ -890,27 +895,3 @@ def interval_endpoints(x: int, y: int, n_left: int, n_right: int = None,
                         "interval over the continuous parameter space — see "
                         "approximationDirection" % CONSTRUCTION_NAME,
     }
-
-
-def tau_cut(paired: int, tau: Fraction = None) -> int:
-    """The OPERATIVE INTEGER CUT at a paired-mutant count.
-
-    PREREGISTRATION.md section 5: "A run is high-kill iff its paired kill rate
-    >= tau = 0.95 ... the operative integer cut at the frozen paired-mutant
-    count is stated in the OC table." A rate threshold over a finite
-    denominator is an integer threshold, and it is the integer that decides
-    runs — so it is DERIVED here from the count the attempt actually has, and
-    the scorer prints it. Smallest k with k/paired >= tau, i.e.
-    ceil(tau.numerator * paired / tau.denominator), in exact integer
-    arithmetic.
-
-    `tau` defaults to `TAU` at CALL time rather than at definition time, so a
-    test that moves the registered threshold moves what this function computes —
-    a default bound at definition is a constant a test cannot reach."""
-    tau = TAU if tau is None else tau
-    if paired <= 0:
-        raise StatsError(
-            "TAU-NO-PAIRED-SUBSET the high-kill cut is over the paired adequate "
-            "mutant subset and that subset is empty; no run can be high-kill "
-            "and no rate is computed")
-    return -((-tau.numerator * paired) // tau.denominator)

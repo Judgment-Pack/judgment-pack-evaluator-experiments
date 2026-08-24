@@ -111,7 +111,18 @@ class TheRegisteredSet(unittest.TestCase):
         self.assertIn("stays open", text)
         self.assertIsNone(registry()["sweep"]["chosenSetting"])
         self.assertIsNone(registry()["codex"]["reasoningEffort"])
-        self.assertIsNone(registry()["batch"]["n"])
+        # `batch.n` USED to be the third witness of the same fact — null by
+        # construction until the sweep produced it. §7 delta 7 landed the
+        # derivation, and `batch.py` now reads the block at import, so a null
+        # there is a driver that cannot load rather than a registration that is
+        # honestly open. The registry carries Study 019's independently
+        # re-derived count instead, and says in its own note that it is a PORT
+        # CARRY and "NOT YET A STUDY 020 REGISTRATION"; that sentence is what
+        # this assertion reads, and `tests/test_schedule.py`'s
+        # `test_the_registry_says_its_round_count_is_not_yet_a_registration`
+        # drives the rest of it.
+        self.assertIn("NOT YET A STUDY 020 REGISTRATION",
+                      registry()["batch"]["note"])
 
     def test_the_registry_and_the_driver_carry_one_set(self):
         pins = registry()
@@ -431,13 +442,25 @@ class TheAbortRuleArithmetic(unittest.TestCase):
         self.assertAlmostEqual(verdict["projectedBatchHours"], 5.0, places=6)
 
     def test_the_budget_n_is_the_priced_branch_until_batch_n_is_filled(self):
+        """Both branches, driven over a registry that has each state. The
+        committed registry now carries §7 delta 7's port carry rather than a
+        null, so the PRICED branch is exercised over an explicitly emptied copy
+        — the rule is about what the driver does with a registry, and a rule
+        only ever tested against today's registry is a rule that stops being
+        tested the moment the registry moves."""
         pins = registry()
-        n, source = batch.sweep_budget_n(pins)
+        empty = copy.deepcopy(pins)
+        empty["batch"]["n"] = None
+        n, source = batch.sweep_budget_n(empty)
         self.assertEqual(n, batch.SWEEP_BUDGET_PROJECTION_N)
         self.assertIn("priced branch", source)
         filled = copy.deepcopy(pins)
         filled["batch"]["n"] = 42
         self.assertEqual(batch.sweep_budget_n(filled), (42, "batch.n"))
+        # …and the committed registry takes the second branch, because it has a
+        # count. The ledger records WHICH, which is the property that matters.
+        self.assertEqual(batch.sweep_budget_n(pins),
+                         (pins["batch"]["n"], "batch.n"))
 
 
 # --- the sweep root and the freeze gates ---------------------------------------

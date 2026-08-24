@@ -122,15 +122,22 @@ def test_the_rendered_table_is_deterministic():
 # --- the registered stimulus (SCAFFOLD item S6) -----------------------------
 
 def test_the_registered_stimulus_is_the_gold_row_input_set(preregistration):
-    """SCAFFOLD item S6, closed. Section 5 registers the census stimulus and the
+    """SCAFFOLD item S6, closed. §5.1 registers the census stimulus and the
     module reads it rather than refusing — as IDS and ORDER only, because a gold
-    row's expectation is an oracle and the census is not scored against one."""
-    flat = " ".join(preregistration.split())
-    # 020's §5.1 states the same stimulus in its own words AND adds the
-    # obligation Study 019 stated nowhere: the count is freeze-pinned.
-    assert ("**E5: interpretive-spread census** — per-arm distinct structural "
+    row's expectation is an oracle and the census is not scored against one.
+
+    **The sentence read here is 020's, not 019's, and the difference is a
+    finding rather than a rewording.** 019's §5 carried a standalone line,
+    "Registered census stimulus: the gold-row input set"; 020's §5.1 registers
+    E5 inside the endpoint set — "per-arm distinct structural encodings and
+    pairwise-disagreement profiles over the frozen gold-row input set, the count
+    freeze-pinned in `PINS.json`". Both name the same stimulus and 020's also
+    registers where the count is pinned, so this reads 020's bytes rather than
+    asserting a sentence its registration does not carry."""
+    flat = " ".join(preregistration.replace("*", "").replace("`", "").split())
+    assert ("E5: interpretive-spread census — per-arm distinct structural "
             "encodings and pairwise- disagreement profiles over the frozen "
-            "gold-row input set, the count freeze-pinned in `PINS.json`") in flat
+            "gold-row input set, the count freeze-pinned in PINS.json" in flat)
     rows = [{"id": "r-%02d" % index, "expect": {"disposition": "approve"}}
             for index in range(105)]
     stimulus = census.registered_stimulus(rows, "sha256:" + "a" * 64)
@@ -140,23 +147,7 @@ def test_the_registered_stimulus_is_the_gold_row_input_set(preregistration):
     assert stimulus["label"] == census.stimulus_label(105)
 
 
-def test_the_registered_count_is_a_freeze_pin(pins):
-    """§5.1's E5 registers the census count as freeze-pinned and Study 019
-    pinned no count at all — which is how a published census table came to name
-    a row count its own data did not have, twice. The pin is null until the gold
-    suite lands, and `study_label()` reads it, so a REGISTERED attempt is
-    unreachable while it is."""
-    import integrity
-    assert ("censusStimulusCount", ("censusStimulus", "count")) in \
-        integrity.FREEZE_PINS
-    assert pins["censusStimulus"]["path"] == "gold/GOLD.json"
-    if pins["censusStimulus"]["count"] is None:
-        assert "censusStimulusCount" in integrity.unfilled_pins(pins)
-
-
-def test_the_stimulus_label_is_derived_from_the_suite_it_was_read_over(
-        study, requires_artifact):
-    requires_artifact("design/gold/gold.json")
+def test_the_stimulus_label_is_derived_from_the_suite_it_was_read_over(study):
     """ROUND-1 R1-19's enforcing test. The label was the constant string
     "the gold-row input set (105 gold inputs)" while the committed suite had
     grown past 105, so a published census table would have named a count its own

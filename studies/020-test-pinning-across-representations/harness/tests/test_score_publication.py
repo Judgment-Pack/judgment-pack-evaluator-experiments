@@ -1,20 +1,25 @@
-"""What the scorer computes, and what it is allowed to print — round-1 R1-14.
+"""What the scorer computes, and what it is allowed to print — 019's R1-14 and
+R2-12, carried onto 020's family row.
 
 The abstract decision table was already ordered and exhaustive, and `decide()`
 already selected the right row. The defect was in the PUBLISHER: an outcome with
-a failed control gate and a statistically rejecting A-C reached rows 2, 3 and 4,
-`decide()` correctly selected row 2 — and the scorer had already computed A-C and
-A-B, and `RESULTS.md` still printed "Decided **yes**" and a direction. §5 row 2
-says such an outcome adjudicates R1 "in NEITHER direction", and a direction a
-reader can see is a direction the study published whatever the verdict line says.
+a failed control gate and a statistically rejecting A−C reached the substantive
+row's arithmetic anyway, and `RESULTS.md` printed "Decided **yes**" and a
+direction. §5.9 row 3 says such an outcome adjudicates R1 "in NEITHER
+direction", and a direction a reader can see is a direction the study published
+whatever the verdict line says.
 
-The second scenario is the mirror image: an arm with zero admitted runs passes
-E1's floor by definition (`len(runs) == 0 or …`), the contrast became a named
-refusal, and the last row then reported a substantive `INDETERMINATE` — the
-statement that an interval straddles zero — with no interval in existence.
+R2-12 is the same prohibition one level down: a failed-gate probe still printed
+a marginal Clopper–Pearson interval, and §5.9's sentence is "No inferential
+quantity is computed, let alone published, at or above row 3" — not "no
+contrast".
 
-Both are asserted here at the level the defect lived on: the scorer's own
-publishing surface.
+REBUILT FOR §7 DELTAS 2 AND 5. The substantive row no longer reads a binomial
+contrast over a high-kill count (§5.1: "No cut, no τ, no dichotomy"); it reads
+the eighteen-member family's two unanimities, and the family scorer is a
+separate module (§7 delta 5). What is asserted here is therefore the
+PUBLISHER's behaviour around that module — including its absence, which §5.4
+makes a pipeline problem rather than a smaller family.
 """
 import pytest
 
@@ -30,167 +35,289 @@ def gates(**overrides):
     return state
 
 
-def arm(high_kill, denominator, name="A"):
+def arm(covered, denominator, name="A"):
+    """One arm's E4 block in 020's published shape.
+
+    No `highKill`, no `cut` and no `highKillRate`: §7 delta 2 removed the
+    threshold, and a fixture that still carried one would hide its return. What
+    the block does carry is the ITT denominator, the per-protocol denominator,
+    both identity relations and the per-run coverage counts — the inputs the
+    family scorer weights."""
     return {
         "arm": name,
         "language": "jps",
         "denominator": denominator,
-        "highKill": high_kill,
-        "referenceIdentityPass": denominator,
-        # No `x1ExcludedCases`: round-3 R3-9 retired it from the published
-        # shape, and a fixture that still carries it is a fixture that would
-        # hide its return.
+        "perProtocolDenominator": denominator,
+        "identityPass": denominator,
+        "ownPolicyIdentityPass": denominator,
+        "bothIdentitiesPass": denominator,
+        "coverageCounts": [covered] * denominator,
+        "sharedClassCount": 33,
         "outOfDomainCases": 0,
-        "cut": {"integerCut": 72, "language": "jps",
-                "statement": "a run is high-kill iff it kills at least 72 of "
-                             "the 75 paired adequate mutants (tau = 19/20)"},
-        "highKillRate": stats.rate_block(high_kill, denominator, "admitted runs"),
+        "pairedDenominator": {"language": "jps", "pairedAdequateMutants": 69,
+                              "lattice": 1 / 69.0, "statement": "…"},
+        "identityRate": stats.rate_block(denominator, denominator,
+                                         "admitted runs"),
+        "ownPolicyIdentityRate": stats.rate_block(denominator, denominator,
+                                                  "admitted runs"),
     }
 
 
-# --- scenario 1: a failed gate and a rejecting contrast ---------------------
+def family(claim=True, sign="+", arms=("A", "C")):
+    return {"contrast": "%s-%s" % arms, "arms": list(arms),
+            "members": [{"id": "M%d" % (index + 1), "level": "L1",
+                         "engine": "incl", "population": "ITT",
+                         "adjustment": None, "n": "38/37/39",
+                         "difference": 0.1 if sign == "+" else -0.1,
+                         "p": 0.001, "rejects": True}
+                        for index in range(decision.REGISTERED_FAMILY_SIZE)],
+            "signUnanimous": claim, "allReject": claim, "sign": sign,
+            "claim": claim}
 
-def test_a_failed_gate_stops_the_contrast_being_computed_at_all():
+
+def _runs():
+    """One admitted run per arm, in the shape `family.unit_from_kill_record()`
+    reads: a run id, an identity verdict, a `caseCount` and a `kill` block."""
+    return {name: [{"run": "run-001", "identityPass": True, "caseCount": 12,
+                    "kill": {"survivorsPaired": [], "killedPaired": 33}}]
+            for name in ("A", "B", "C")}
+
+
+def _context():
+    return {"pairing": [], "engineSupplied": {"jps": [], "rego": []}}
+
+
+def results_for(verdict, gated_by, family_verdicts, e4=None):
+    return {
+        "label": "PILOT",
+        "unfilledPins": ["studyManifest"],
+        "decision": verdict,
+        "pairedDenominators": {}, "sharedClasses": {"count": 33,
+                                                    "unequalCount": 20},
+        "e1": {}, "e2": {}, "e4": e4 or {}, "e5": None,
+        "family": family_verdicts,
+        "familyGatedBy": gated_by,
+        "refusals": {},
+    }
+
+
+# --- scenario 1: a failed gate and a claiming family ------------------------
+
+def test_a_failed_gate_stops_the_family_being_evaluated_at_all():
     """`decision.gate_causes()` is the one predicate the scorer asks, and it is
     derived from the table so a row added there cannot be a row this forgets."""
     outcome = {"pipelineProblems": [], "shortfallDeclared": [],
-               "controlGates": gates(c4_transfer_gate=False), "contrasts": {}}
+               "controlGates": gates(golden_context=False), "family": {}}
     assert decision.gate_causes(outcome)
     verdict = decision.decide(outcome)
     assert verdict["row"] == "control-gate-failed"
-    # …and with no contrast in the outcome there is no direction to lift out of
-    # it: the decided row is the only one that publishes one.
+    # …and with no family in the outcome there is no direction to lift out of
+    # it: the claiming row is the only one that publishes one.
     assert "primary" not in verdict and "secondary" not in verdict
 
 
-def test_the_report_prints_the_gate_causes_where_the_contrast_table_was():
-    """The reviewer's first scenario, rendered. A rejecting A-C exists in the
-    arithmetic (50 vs 0 out of 50 decides in any direction), and the published
-    report must contain no contrast row, no interval and no direction."""
-    results = {
-        "label": "PILOT",
-        "unfilledPins": ["studyManifest"],
-        "decision": decision.decide({"pipelineProblems": [],
-                                     "shortfallDeclared": [],
-                                     "controlGates": gates(c4_transfer_gate=False),
-                                     "contrasts": {}}),
-        "cuts": {},
-        "e1": {}, "e2": {}, "e4": {}, "e5": None,
-        "contrasts": {},
-        "contrastsGatedBy": ["control-gate-failed: c4-transfer-gate"],
-        "refusals": {},
-    }
+def test_the_publisher_refuses_to_evaluate_the_family_above_a_gating_row():
+    """`registered_family()` is the publisher's own entry point, and the
+    refusal is recorded rather than the evaluation being skipped silently."""
+    outcome = {"pipelineProblems": [], "shortfallDeclared": [],
+               "controlGates": gates(golden_context=False), "family": {}}
+    refusals = {}
+    causes = decision.gate_causes(outcome)
+    verdicts = score.registered_family({}, {}, {}, outcome, refusals, causes)
+    assert verdicts == {}
+    assert "not computed" in refusals["family"]
+    assert "neither direction" in refusals["family"]
+
+
+def test_the_report_prints_the_gate_causes_where_the_family_table_was():
+    """The reviewer's first scenario, rendered. The published report must
+    contain no member row, no p-value and no direction."""
+    results = results_for(
+        decision.decide({"pipelineProblems": [], "shortfallDeclared": [],
+                         "controlGates": gates(golden_context=False),
+                         "family": {}}),
+        ["control-gate-failed: golden-context"], {})
     body = score.results_markdown(results)
     assert "Not computed and not published" in body
-    assert "control-gate-failed: c4-transfer-gate" in body
-    assert "Decided" not in body
-    section = body.split("## The registered contrasts")[1].split("## E2")[0]
-    # No arm-vs-arm direction anywhere in the section the table used to fill.
+    assert "control-gate-failed: golden-context" in body
+    section = body.split("## The registered family")[1].split("## E2")[0]
+    # No arm-vs-arm direction, no verdict and no member row anywhere in the
+    # section the table used to fill. (The DECISION table above it prints every
+    # registered row's text with "matched: no" beside it, which is the rule
+    # being published rather than a result — so the assertion is scoped to the
+    # section that would carry the finding.)
     for direction in ("A above C", "C above A", "A above B", "B above A"):
         assert direction not in section
+    assert "CLAIM" not in section
+    assert "| M1 |" not in section
 
 
-def test_the_report_prints_the_contrast_table_when_no_gate_matched():
+def test_the_report_prints_the_family_table_when_no_gate_matched():
     """The other side of the same assertion: the gating is a gate, not a
-    deletion. With every gate held the table is printed in full."""
-    contrast = stats.excludes_zero(45, 5, 50, 50)
-    contrast["arms"] = ["A", "C"]
-    contrast["interval"] = {"lower": "3/10", "upper": "9/10"}
-    secondary = stats.excludes_zero(45, 40, 50, 50)
-    secondary["arms"] = ["A", "B"]
-    results = {
-        "label": "PILOT",
-        "unfilledPins": ["studyManifest"],
-        # Round-3 R3-8: a decided primary REACHES the secondary, so an outcome
-        # that carries neither a secondary nor a cause for its absence is one
-        # `decide()` now refuses. The fixture carries the secondary.
-        "decision": decision.decide({"pipelineProblems": [],
-                                     "shortfallDeclared": [],
-                                     "controlGates": gates(),
-                                     "contrasts": {"A-C": contrast,
-                                                   "A-B": secondary}}),
-        "cuts": {},
-        "e1": {}, "e2": {}, "e4": {}, "e5": None,
-        "contrasts": {"A-C": contrast},
-        "contrastsGatedBy": [],
-        "refusals": {},
-    }
+    deletion. With every gate held the eighteen members are printed in full —
+    §5.2: "Every member is published whatever the verdict."""
+    verdicts = {"A-C": family(), "A-B": family(arms=("A", "B"))}
+    results = results_for(
+        decision.decide({"pipelineProblems": [], "shortfallDeclared": [],
+                         "controlGates": gates(), "family": verdicts}),
+        [], verdicts)
     body = score.results_markdown(results)
     assert "Not computed and not published" not in body
     assert "A above C" in body
-    assert stats.CONSTRUCTION_NAME in body
+    assert body.count("| M18 |") == 2          # both contrasts' member tables
+    assert "intersection–union" in body
 
 
-# --- scenario 2: an arm with no admitted runs ------------------------------
+def test_the_report_publishes_every_member_even_when_the_family_disagrees():
+    """§5.2's append-only rule exists because dropping a member is the
+    anti-conservative direction, and §5.8 registers "the published quantity set
+    is identical in every branch". A disagreeing family still prints eighteen
+    rows."""
+    verdicts = {"A-C": family(claim=False)}
+    results = results_for(
+        decision.decide({"pipelineProblems": [], "shortfallDeclared": [],
+                         "controlGates": gates(), "family": verdicts}),
+        [], verdicts)
+    body = score.results_markdown(results)
+    assert "INDETERMINATE-BY-DISAGREEMENT" in body
+    assert body.count("| M18 |") == 1
 
-def test_an_empty_arm_is_a_pipeline_problem_and_not_an_indeterminate():
-    """The reviewer's second scenario. A contrast over an empty arm is not an
-    interval that straddles zero; it is no interval at all, and §5's last row
-    is a SUBSTANTIVE statement that must not stand in for one."""
-    e4_by_arm = {"A": arm(0, 0, "A"), "C": arm(5, 50, "C")}
-    with pytest.raises(stats.StatsError) as raised:
-        score.contrast("A", "C", e4_by_arm)
-    assert str(raised.value).startswith("FM-EMPTY-ARM")
-    assert "registered minimum" in str(raised.value)
+
+# --- §7 delta 5's absence is a pipeline problem, not a smaller family -------
+
+def test_an_absent_family_module_is_a_named_pipeline_problem():
+    """§5.4's intersection–union logic makes a SMALLER family the
+    anti-conservative direction, so the publisher does not proceed on the
+    members that happen to be importable — it files the absence on row 1."""
+    outcome = {"pipelineProblems": [], "shortfallDeclared": [],
+               "controlGates": gates(), "family": {}}
+    refusals = {}
+    saved = score.family_module
+    score.family_module = lambda: None
+    try:
+        verdicts = score.registered_family({}, _runs(), _context(), outcome,
+                                           refusals, [])
+    finally:
+        score.family_module = saved
+    assert verdicts == {}
+    assert "e4lib/family.py is absent" in refusals["family"]
+    assert outcome["pipelineProblems"]
+    assert "eighteen-member" in outcome["pipelineProblems"][0]
+    # …and the attempt lands on row 1 rather than on the substantive last row.
+    assert decision.decide(outcome)["row"] == "pipeline-invalid"
+
+
+def test_a_family_evaluation_that_raises_never_reaches_the_substantive_row():
+    """019's R1-14, second scenario, in 020's shape: §5.9's last row is the
+    statement that eighteen members disagreed, and a family that raised did not
+    disagree."""
+    class _Raising(object):
+        @staticmethod
+        def build_corpus(*_args, **_kwargs):
+            return object()
+
+        @staticmethod
+        def unit_from_kill_record(*_args, **_kwargs):
+            return object()
+
+        @staticmethod
+        def family_report(*_args, **_kwargs):
+            raise ValueError("the pooled coverage marginal is empty")
+
+    outcome = {"pipelineProblems": [], "shortfallDeclared": [],
+               "controlGates": gates(), "family": {}}
+    refusals = {}
+    saved = score.family_module
+    score.family_module = lambda: _Raising
+    try:
+        verdicts = score.registered_family({}, _runs(), _context(), outcome,
+                                           refusals, [])
+    finally:
+        score.family_module = saved
+    assert verdicts == {}
+    assert "ValueError" in refusals["family"]
+    assert decision.decide(outcome)["row"] == "pipeline-invalid"
+
+
+def test_a_secondary_that_raises_leaves_the_claiming_primary_standing():
+    """019's round-3 finding R3-8, carried onto the family row. The primary is a
+    real comparison over two full arms and it claims; the secondary cannot be
+    evaluated. Sharing one `except` made that delete the primary and land the
+    whole attempt on row 1 — an attempt that measured a difference publishing
+    `pipeline-invalid` instead of it."""
+    class _SecondaryRaises(object):
+        @staticmethod
+        def build_corpus(*_args, **_kwargs):
+            return object()
+
+        @staticmethod
+        def unit_from_kill_record(*_args, **_kwargs):
+            return object()
+
+        @staticmethod
+        def family_report(_units, _corpus, _left, right, *_a, **_k):
+            if right == "B":
+                raise ValueError("FM-EMPTY-ARM arm B has 0 admitted runs")
+            block = family()
+            return {"verdict": block, "members": block["members"]}
+
+    outcome = {"pipelineProblems": [], "shortfallDeclared": [],
+               "controlGates": gates(), "family": {}}
+    refusals = {}
+    saved = score.family_module
+    score.family_module = lambda: _SecondaryRaises
+    try:
+        verdicts = score.registered_family({}, _runs(), _context(), outcome,
+                                           refusals, [])
+    finally:
+        score.family_module = saved
+    outcome["family"] = verdicts
+    verdict = decision.decide(outcome)
+    assert verdict["row"] == "claim"
+    assert verdict["primary"] == {"A-C": "A above C"}
+    assert verdict["secondary"]["result"] is None
+    assert "FM-EMPTY-ARM" in verdict["secondary"]["refusal"]
+    assert "FM-EMPTY-ARM" in refusals["familySecondary"]
+    # …and the primary is not deleted along with it.
+    assert set(verdicts) == {"A-C"}
 
 
 def test_the_registered_minimum_denominator_is_positive():
     assert decision.REGISTERED_MINIMUM_DENOMINATOR >= 1
 
 
-def test_a_missing_primary_contrast_never_reaches_the_substantive_row():
+def test_a_missing_primary_family_never_reaches_the_substantive_row():
     with pytest.raises(decision.DecisionError):
         decision.decide({"pipelineProblems": [], "shortfallDeclared": [],
-                         "controlGates": gates(), "contrasts": {}})
+                         "controlGates": gates(), "family": {}})
 
 
-def test_two_admitted_runs_per_arm_are_enough_for_a_contrast_to_exist():
-    """The minimum is a floor on EXISTENCE, not a power claim: the contrast is
-    computed and is INDETERMINATE, which is a measured statement."""
-    e4_by_arm = {"A": arm(1, 1, "A"), "C": arm(0, 1, "C")}
-    result = score.contrast("A", "C", e4_by_arm, endpoints=False)
-    assert result["excludesZero"] is False
-    assert decision.direction(result) == "none - INDETERMINATE"
-
-
-# --- the reviewer set moves nothing (round-1 R1-10) ------------------------
+# --- the reviewer set moves nothing (019's R1-10) --------------------------
 
 def test_the_decision_reads_exactly_four_members_and_none_of_them_is_the_set():
     """§1a: the sealed reviewer set is "reported separately, moving nothing".
 
-    Asserted STRUCTURALLY rather than by inspection: every predicate in the
-    table is driven with an outcome that carries a reviewer block, and the
-    verdict is required to be identical to the verdict without it."""
+    Asserted STRUCTURALLY rather than by inspection: the table is driven with an
+    outcome that carries a reviewer block, and the verdict is required to be
+    identical to the verdict without it."""
     base = {"pipelineProblems": [], "shortfallDeclared": [],
-            "controlGates": gates(), "contrasts": {}}
-    contrast = stats.excludes_zero(45, 5, 50, 50)
-    contrast["arms"] = ["A", "C"]
-    secondary = stats.excludes_zero(45, 40, 50, 50)
-    secondary["arms"] = ["A", "B"]
-    base["contrasts"] = {"A-C": contrast, "A-B": secondary}
+            "controlGates": gates(),
+            "family": {"A-C": family(), "A-B": family(arms=("A", "B"))}}
     without = decision.decide(dict(base))
     with_set = decision.decide(dict(base, reviewerSet={"killed": ["r-001"]}))
     assert without == with_set
 
 
-# --- ROUND-2 R2-12: no marginal interval above row 4 either -----------------
+# --- R2-12: no marginal interval above row 3 either ------------------------
 
-def _published(gate_state, contrasts=None):
+def _published(gate_state, family_verdicts=None):
     """The publisher's own two steps, in the order `main()` runs them: the gate
     rows first, then the interval settlement, then the report."""
     outcome = {"pipelineProblems": [], "shortfallDeclared": [],
-               "controlGates": gate_state, "contrasts": contrasts or {}}
+               "controlGates": gate_state, "family": family_verdicts or {}}
     causes = decision.gate_causes(outcome)
-    results = {
-        "label": "PILOT",
-        "unfilledPins": ["studyManifest"],
-        "decision": decision.decide(outcome),
-        "cuts": {},
-        "e1": {}, "e2": {}, "e4": {"A": arm(1, 2)}, "e5": None,
-        "contrasts": outcome["contrasts"],
-        "contrastsGatedBy": causes,
-        "refusals": {},
-    }
+    results = results_for(decision.decide(outcome), causes,
+                          outcome["family"], e4={"A": arm(1, 2)})
     licensed = not causes
     reason = None if licensed else "; ".join(causes)
     settled = stats.fill_intervals(results, licensed, reason)
@@ -198,175 +325,49 @@ def _published(gate_state, contrasts=None):
 
 
 def test_a_failed_gate_publishes_no_marginal_interval():
-    """THE REVIEWER'S R2-12 PROBE. §5: "No inferential quantity is computed, let
-    alone published, at or above row 3." A failed-E1-gate probe with E4 1/2
-    returned `control-gate-failed` and still printed `[0.0126, 0.9874]`.
-    Contrast and direction suppression held, which is narrower than the
-    prohibition."""
-    results, settled, body = _published(gates(c4_transfer_gate=False))
+    """THE REVIEWER'S R2-12 PROBE, retargeted at a rate 020 still publishes.
+
+    §5.9: "No inferential quantity is computed, let alone published, at or above
+    row 3." The probe's original subject was E4's high-kill rate, which §7 delta
+    2 removed; the identity rate is a marginal Clopper–Pearson block on the same
+    publishing path and the prohibition is the same."""
+    results, settled, body = _published(gates(golden_context=False))
     assert results["decision"]["row"] == "control-gate-failed"
-    assert settled == 1
-    block = results["e4"]["A"]["highKillRate"]
+    assert settled == 2                      # identity and ownPolicyIdentity
+    block = results["e4"]["A"]["identityRate"]
     assert block["ci95"] is None
     assert block["ci95State"] == stats.CI_SUPPRESSED
-    assert "0.0126" not in body and "0.9874" not in body
+    assert "0.1581" not in body
     # The COUNTS are still published: a suppressed interval is not a withheld
-    # observation, and a reader can still see 1 of 2.
-    assert block["count"] == 1 and block["trials"] == 2
+    # observation, and a reader can still see 2 of 2.
+    assert block["count"] == 2 and block["trials"] == 2
 
 
 def test_an_outcome_that_reaches_the_substantive_rows_publishes_its_interval():
     """The other direction, so the suppression is a rule and not a removal."""
-    # The real shape, from the real construction, so the report renders it.
-    straddling = {decision.CONTRAST_PRIMARY: stats.excludes_zero(1, 1, 2, 2)}
-    straddling[decision.CONTRAST_PRIMARY]["arms"] = ["A", "C"]
-    results, settled, body = _published(gates(), straddling)
-    assert not results["contrastsGatedBy"]
-    assert settled == 1
-    block = results["e4"]["A"]["highKillRate"]
+    verdicts = {"A-C": family(claim=False)}
+    results, settled, _body = _published(gates(), verdicts)
+    assert not results["familyGatedBy"]
+    assert settled == 2
+    block = results["e4"]["A"]["identityRate"]
     assert block["ci95State"] == stats.CI_COMPUTED
-    assert block["ci95"][0] < block["rate"] < block["ci95"][1]
-    assert "0.0126" in body and "0.9874" in body
+    assert block["ci95"][0] <= block["rate"] <= block["ci95"][1]
 
 
-# --- ROUND-3 FINDING R3-8: the LATE secondary failure -----------------------
+# --- the interval settlement's own contract --------------------------------
 
-def _sequence(e4_by_arm, gate_state=None):
-    """`main()`'s own steps, in `main()`'s order and through `main()`'s own
-    function: gate rows, the registered contrast sequence, the decision, then
-    the interval settlement. Round-2's R2-12 helper above stops at the marginal
-    blocks; this one exists because R3-8 lives in the ORDER."""
-    outcome = {"pipelineProblems": [], "shortfallDeclared": [],
-               "controlGates": gate_state or gates(), "contrasts": {}}
-    refusals = {}
-    causes = decision.gate_causes(outcome)
-    contrasts = score.registered_contrasts(e4_by_arm, outcome, refusals, causes)
-    outcome["contrasts"] = contrasts
-    verdict = decision.decide(outcome)
-    licensed = not causes and not outcome["pipelineProblems"]
-    reason = None if licensed else "; ".join(causes + outcome["pipelineProblems"])
-    results = {
-        "label": "PILOT",
-        "unfilledPins": ["studyManifest"],
-        "decision": verdict,
-        "cuts": {}, "e1": {}, "e2": {}, "e4": e4_by_arm, "e5": None,
-        "contrasts": contrasts,
-        "contrastsGatedBy": causes,
-        "refusals": refusals,
-    }
-    settled = stats.fill_intervals(results, licensed, reason)
-    return results, refusals, settled
+def test_a_suppressed_pending_block_settles_as_suppressed_with_its_cause():
+    """A pending block reaching the settlement under a failed gate is
+    SUPPRESSED with its cause, never silently left null."""
+    block = stats.rate_block(3, 10, "admitted runs")
+    node = {"e4": {"A": {"identityRate": block}}}
+    assert stats.fill_intervals(node, False, "golden-context") == 1
+    assert block["ci95State"] == stats.CI_SUPPRESSED
+    assert block["ci95"] is None
 
 
-# The reviewer's R3-8 population, verbatim: "With gates initially clear,
-# A = 5/5, C = 0/5, and B = 0/0, A−C eagerly computes its interval endpoints;
-# then A−B raises `FM-EMPTY-ARM`, contrasts are cleared, and the final row is
-# pipeline-invalid."
-def _r3_8_arms():
-    return {"A": arm(5, 5, "A"), "B": arm(0, 0, "B"), "C": arm(0, 5, "C")}
-
-
-def test_a_late_secondary_failure_leaves_the_decided_primary_standing():
-    """THE REVIEWER'S R3-8 PROBE.
-
-    The primary A−C is a real comparison over two full arms and it decides. The
-    secondary A−B cannot exist, because B has no admitted run at all. Sharing
-    one `except` made that delete the primary, file itself under the primary's
-    name, and land the whole attempt on row 1 — so an attempt that measured a
-    difference published `pipeline-invalid` instead of it.
-
-    §5's decided row registers the sequence as conditional: "A−C interval
-    excludes zero -> R1 decided, direction as observed; then A−B likewise"."""
-    results, refusals, _settled = _sequence(_r3_8_arms())
-    assert results["decision"]["row"] == "decided"
-    assert results["decision"]["rowIndex"] == 4
-    assert results["decision"]["primary"] == {"A-C": "A above C"}
-    assert results["decision"]["secondary"]["result"] is None
-    assert "FM-EMPTY-ARM" in results["decision"]["secondary"]["refusal"]
-    assert "FM-EMPTY-ARM" in refusals["contrastSecondary"]
-    # …and the primary is not deleted along with it.
-    assert set(results["contrasts"]) == {"A-C"}
-
-
-def test_a_decided_primary_with_a_silently_absent_secondary_refuses():
-    """The safeguard the fix rests on. A bare `result: null` reads as "not
-    decided" and is indistinguishable from "never computed", so once the primary
-    has decided the secondary must carry either a result or a cause."""
-    primary = stats.excludes_zero(5, 0, 5, 5)
-    primary["arms"] = ["A", "C"]
-    with pytest.raises(decision.DecisionError) as raised:
-        decision.decide({"pipelineProblems": [], "shortfallDeclared": [],
-                         "controlGates": gates(),
-                         "contrasts": {"A-C": primary}})
-    assert str(raised.value).startswith("DECISION-SECONDARY-UNEXPLAINED")
-
-
-def test_no_contrast_endpoint_is_computed_before_the_row_is_known():
-    """R3-8's first half, at the level the prohibition is written on. §5: "No
-    inferential quantity is COMPUTED, let alone published, at or above row 3" —
-    and a Delta0 sweep that has run cannot be un-run by clearing the dict it
-    landed in. So the contrast leaves `contrast()` with its endpoints PENDING
-    and `stats.fill_intervals()` settles them after `decide()` has chosen the
-    row."""
-    e4_by_arm = {"A": arm(5, 5, "A"), "C": arm(0, 5, "C")}
-    built = score.contrast("A", "C", e4_by_arm)
-    assert built["interval"] is None
-    assert built["intervalState"] == stats.INTERVAL_PENDING
-    assert built["excludesZero"] is True, "the DECISION is fixed here, not later"
-
-
-def test_a_gate_that_fails_suppresses_the_contrast_endpoints_too():
-    """The settlement is licensed by the same predicate the marginal blocks
-    are. A failed gate means the contrast is never built at all; a PRIMARY that
-    refuses means the pending contrast never exists either — so the assertion
-    that bites is on a run where the row is known late: gates held, primary
-    decided, secondary refused, endpoints computed for the primary only."""
-    results, _refusals, settled = _sequence(_r3_8_arms())
-    primary = results["contrasts"]["A-C"]
-    assert primary["intervalState"] == stats.INTERVAL_COMPUTED
-    assert primary["interval"]["lower"] and primary["interval"]["upper"]
-    # One marginal block per arm with a POSITIVE denominator — A and C; B's is
-    # `undefined-over-an-empty-denominator` and was never pending — plus the one
-    # contrast that exists.
-    assert settled == 3
-    assert results["e4"]["B"]["highKillRate"]["ci95State"] == stats.CI_EMPTY
-    body = score.results_markdown(results)
-    assert "A above C" in body
-
-
-def test_a_suppressed_outcome_settles_its_pending_contrast_as_suppressed():
-    """The other direction: a pending contrast reaching the settlement under a
-    failed gate is SUPPRESSED with its cause, never silently left null."""
-    pending = stats.excludes_zero(5, 0, 5, 5)
-    pending["arms"] = ["A", "C"]
-    pending["interval"] = None
-    pending["intervalState"] = stats.INTERVAL_PENDING
-    node = {"contrasts": {"A-C": pending}}
-    assert stats.fill_intervals(node, False, "c4-transfer-gate") == 1
-    assert pending["intervalState"] == stats.INTERVAL_SUPPRESSED
-    assert pending["intervalSuppressed"] == "c4-transfer-gate"
-    assert pending["interval"] is None
-
-
-def test_an_endpoint_sweep_that_refuses_leaves_the_decision_intact():
-    """§5 reads `excludesZero` and nothing else, so a refused REPORT is not a
-    refused decision — asserted through the settlement path now that the sweep
-    runs there."""
-    pending = stats.excludes_zero(1, 0, 1, 1)
-    pending["arms"] = ["A", "C"]
-    pending["interval"] = None
-    pending["intervalState"] = stats.INTERVAL_PENDING
-    saved = stats.interval_endpoints
-
-    def refuse(*_args, **_kwargs):
-        raise stats.StatsError("FM-EMPTY-ACCEPTANCE nothing to sweep")
-
-    stats.interval_endpoints = refuse
-    try:
-        stats.fill_intervals({"contrasts": {"A-C": pending}}, True)
-    finally:
-        stats.interval_endpoints = saved
-    assert pending["intervalState"] == stats.INTERVAL_REFUSED
-    assert pending["intervalRefusal"].startswith("FM-EMPTY-ACCEPTANCE")
-    assert pending["excludesZero"] is False or pending["excludesZero"] is True
-    assert "decision" in pending
+def test_an_empty_denominator_settles_as_empty_rather_than_as_an_interval():
+    block = stats.rate_block(0, 0, "admitted runs")
+    node = {"e4": {"B": {"identityRate": block}}}
+    stats.fill_intervals(node, True)
+    assert block["ci95State"] == stats.CI_EMPTY

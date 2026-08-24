@@ -1,54 +1,68 @@
 #!/usr/bin/env python3
 """The port chain and the pin registry in code: verified before any call and
-any count — PARTIAL PORT.
+any count — WHOLE-HARNESS PORT.
 
 PORTED from Study 019's `harness/integrity.py`
 (sha256 `ba2175ad213abcd019e10dc7768aa16f5bcb7f52f77c5af1520c942fc81657e3`, the
-digest Study 019's own `harness/PORTS.md` records in its destination cell AND
-the digest Study 019's own `harness/STUDY-MANIFEST.sha256` records for it, at
-commit `e87e1311da11c28e929edf1e7e39f048e4ec0e6a`). What was taken, what
-changed and what was deliberately left behind is enumerated in this study's
+line Study 019's own frozen `harness/STUDY-MANIFEST.sha256` carries for it AND
+the digest Study 019's own `harness/PORTS.md` records in its destination cell,
+at commit `e87e1311da11c28e929edf1e7e39f048e4ec0e6a`). Study 019 inherited this
+file from Study 012 as a PARTIAL port of seven files; Study 020 inherits Study
+019's whole harness, so the shape of the check is the same and the SET it ranges
+over is the whole machinery `PREREGISTRATION.md` §7 enumerates. What was taken,
+what changed and what was deliberately left behind is in this study's
 `harness/PORTS.md`, whose table this module machine-reads.
 
-**The chain, one level and every link a pinned digest — and the source study
-publishes TWO authorities, not one.** Study 019 inherited from Study 012
-through a single level of PORTS.md destination cells, which left every file 019
-did NOT port — its scorer, its ten `e4lib` modules, its round-status renderer —
-with no committed per-file digest a successor could bind to. 019 closed that
-hole for its own successors with ADR 0004's exact-set manifest, and this study
-is the first to use it as a port authority:
+**The chain, one level and every link a pinned digest — and the source study's
+LOCK is the authority, not a hand-copied table.** Study 019 bound its seven rows
+to Study 012's `PORTS.md` DESTINATION cells, because those seven were all 012
+published a digest for. Study 019 is FROZEN and publishes a digest for every
+byte of its harness and every registered artifact, in one file, pinned by its
+own registry: `harness/STUDY-MANIFEST.sha256`. That file is this port's
+source-side authority, and it is verified FIRST:
 
 ```
-this file                                (pinned in harness/PINS.json at port time)
-    -> Study 019's harness/PINS.json          9ba6394d…  (pinned below, and in PINS.json)
-       Study 019's harness/PORTS.md           (pinned by 019's OWN registry, ownPorts)
-       Study 019's harness/STUDY-MANIFEST.sha256
-                                              (pinned by 019's OWN registry, studyManifest)
+this file                          (pinned in harness/PINS.json at port time)
+    -> Study 019's harness/PINS.json              9ba6394d…  (pinned below, and
+                                                              in PINS.json)
+       Study 019's harness/STUDY-MANIFEST.sha256  79076e31…  (the digest 019's
+                                                              OWN registry pins
+                                                              for it, read from
+                                                              it and not chosen
+                                                              here)
+       Study 019's harness/PORTS.md               (the digest 019's OWN registry
+                                                   pins for it under `ownPorts`
+                                                   — the SECOND authority the
+                                                   seven rows 019 itself ported
+                                                   answer to as well)
 ```
 
 `verify_chain()` therefore, in order: verifies Study 019's `harness/PINS.json`
-against the digest this file pins for it; verifies Study 019's `harness/PORTS.md`
-and `harness/STUDY-MANIFEST.sha256` against the digests **019's own registry**
-records for them under `ownPorts` and `studyManifest` (not digests this study
-chooses); verifies THIS study's `harness/PORTS.md` against the digest this
-study's `harness/PINS.json` records for it, so the file that says what each
-enumerated change *was* cannot be rewritten after the review; and then binds
-each row of the port table to the authority that row actually has.
+against the digest this file pins for it; verifies Study 019's LOCK against the
+digest **019's own registry** records for it under `studyManifest`, and 019's
+`harness/PORTS.md` against the digest 019's own registry records for it under
+`ownPorts` (not digests this study chooses); verifies THIS study's
+`harness/PORTS.md` against the digest this study's `harness/PINS.json` records
+for it, so the file that says what each enumerated change *was* cannot be
+rewritten after the review; and then binds every row of the port table to 019's
+lock line for that path.
 
-**Two source-side tiers, and the stronger one is named per row.**
-`TIER_PORTS_PATHS` names the destinations Study 019's own `PORTS.md` publishes
-a destination cell for. A row in that tier is bound TWICE on the source side —
-to 019's PORTS.md destination cell and to 019's manifest entry — and the two
-must agree, which is a stronger binding than either alone and is the reason the
-tier exists rather than being folded into the other. `TIER_MANIFEST_PATHS`
-names every other file taken from 019: 019 publishes no ports row for them, but
-its exact-set manifest publishes a per-file digest that 019's own registry
-pins, so the source cell answers to the SOURCE study exactly as a ports cell
-does. Nothing here is bound to a commit alone — Study 019's
-`make_manifest.py` row, the one row 019 itself could bind only to a commit
-because Study 014 pinned none of its harness sources, is bound here to 019's
-manifest like every other row, and the recorded commit is provenance rather
-than authority.
+**Every row answers to the lock, and seven answer to a second authority as
+well.** The lock covers every byte of 019's harness, so no row here is bound to
+a commit alone — Study 019's `make_manifest.py` row, the one row 019 itself
+could bind only to a commit because Study 014 pinned none of its harness
+sources, is bound here to 019's lock like every other row, and the recorded
+commit is provenance rather than authority. `TIER_PORTS_PATHS` names the seven
+destinations Study 019's own `PORTS.md` publishes a destination cell for; a row
+in that tier is bound TWICE on the source side and the two must AGREE, which is
+a stronger binding than either alone and is the reason the tier survives the
+move to the lock rather than being folded away.
+
+**The registered set is exhaustive in two halves.** `REQUIRED_PORTS` is every
+file 019 had; `NEW_IN_020` is every harness file that has no source-side row
+because there is no source-side file. The two are disjoint, their union is
+checked against the directory, and membership in the second is CHECKABLE rather
+than declared: 019's lock must not name the path.
 
 **The lineage before 019 is recorded as HISTORY, not re-verified.**
 `PINS.json`'s `pinnedFrom.history` carries Study 019's own `pinnedFrom` — the
@@ -58,14 +72,10 @@ history is the history 019's registry actually carries, and does NOT reach into
 Study 012: a two-level walk would make this study's freeze depend on a tree two
 studies away, and 019's own verification is what covers that level.
 
-**What is NOT carried, said plainly so §7 cannot claim it.** Study 019's design
-prototypes, its `arms/`, `results/` and `reviews/` trees, and its spent reviewer
-mutant set are all absent. The registered study artifacts of §4.1 — the gold
-suite, both mutant corpora and their manifests, both reference implementations,
-the off-gold certificate, the capabilities file and the witness tables — are
-`GATE(pre-freeze)` and are NOT in this tree yet; `harness/SCAFFOLD.md` item A1
-records that, and every harness test that reads one of them SKIPS by a named
-reason rather than passing vacuously.
+**What is NOT carried, said plainly so §7 cannot claim it.** Study 019's pilot
+driver (§7 delta 12), its `arms/`, `results/` and `reviews/` trees, its
+end-to-end smoke transcript and its spent reviewer mutant set are all absent.
+`harness/PORTS.md` carries the reason for each.
 
 **Stage-aware by design.** Every freeze pin in `harness/PINS.json` is null
 until the freeze, and `study_label()` — not a comment — is what makes that
@@ -99,24 +109,30 @@ sys.dont_write_bytecode = True
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 STUDY = os.path.dirname(HERE)
-# The one source study. Study 020 inherits from Study 019 and from nothing
-# else: the Study 012 and Study 014 levels behind it are recorded as HISTORY in
-# `PINS.json`'s `pinnedFrom.history` and are deliberately not walked (see the
-# module docstring).
+# The one source study. Study 020 takes its whole harness and its registered
+# artifacts from Study 019 and from nowhere else, so there is one sibling here
+# and not two: the Study 012 and Study 014 levels behind it are recorded as
+# HISTORY in `PINS.json`'s `pinnedFrom.history` and are deliberately not walked
+# (see the module docstring).
 NINETEEN = os.path.normpath(
     os.path.join(STUDY, "..", "019-authorship-across-representations"))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
-# The chain's one pinned end, in reviewed code. Study 019's registry digest is
-# this file's; the digests of 019's PORTS.md and of 019's STUDY-MANIFEST are
-# NOT here — they are read from 019's OWN registry, which is what "the digests
-# 019 pins for them, not ones this study chooses" means in code.
+# The chain's two ends, pinned here in reviewed code. Study 019's registry
+# digest is this file's; the digests of 019's LOCK and of 019's PORTS.md are NOT
+# here — they are read from 019's own registry, which is what "the digests 019
+# pins for them, not ones this study chooses" means in code.
 NINETEEN_PINS_SHA256 = \
     "9ba6394db66f0e3723359c17f68e4a612870a015f3f973e1efad10fd522a759c"
-# The commit the port was taken at. It is PROVENANCE and not an authority: every
-# row below is bound to a digest Study 019's own registry pins, so a row cannot
-# be satisfied by "whatever that commit happened to hold".
+# The source study's lock, by the member its registry records it under.
+NINETEEN_LOCK_PIN = "studyManifest"
+NINETEEN_LOCK_PATH = "harness/STUDY-MANIFEST.sha256"
+# The commit the port was taken at. Every harness row and every registered
+# artifact is bound to 019's own lock, which is stronger than a commit; the
+# `design/` working tree is bound to this commit and to nothing older, because
+# 019's manifest covers no path under `design/`. `harness/PORTS.md` records that
+# in its own authority column.
 PORT_COMMIT = "e87e1311da11c28e929edf1e7e39f048e4ec0e6a"
 # Study 019's own recorded lineage, restated here so `verify_chain()` can check
 # that `PINS.json`'s history members are the ones 019's registry actually
@@ -129,38 +145,58 @@ ARMS = ("A", "B", "C")
 
 # The port table's registered destination set. A row deleted from PORTS.md is a
 # check silently dropped, so the set must be exact — and a row ADDED must be as
-# loud. Study 019 registered SEVEN destinations because seven files were all it
-# ported; Study 020 ports 019's whole executable harness surface, so the set is
-# every module the scorer, the driver and the wrapper execute. `presence_idiom`
-# is deliberately ABSENT: it is new here (§3.2) and a two-sided row would claim
-# an inheritance that does not exist.
-REQUIRED_PORTS = frozenset((
-    "harness/authoring_call.sh",
-    "harness/batch.py",
-    "harness/grid_gate.py",
-    "harness/integrity.py",
-    "harness/leak_tokens.py",
-    "harness/make_manifest.py",
-    "harness/render_round_status.py",
-    "harness/score.py",
-    "harness/transcript_check.py",
-    "harness/e4lib/__init__.py",
-    "harness/e4lib/admit.py",
-    "harness/e4lib/capabilities.py",
-    "harness/e4lib/census.py",
-    "harness/e4lib/decision.py",
-    "harness/e4lib/domain.py",
-    "harness/e4lib/e4.py",
-    "harness/e4lib/engines.py",
-    "harness/e4lib/extract.py",
-    "harness/e4lib/reviewer.py",
-    "harness/e4lib/stats.py",
+# loud, which is why the set is registered here rather than discovered from the
+# table. This is §7's "ported with no design change" list at file granularity:
+# every byte of the harness that runs.
+REQUIRED_PORTS = frozenset(
+    ["harness/" + name for name in (
+        "authoring_call.sh", "batch.py", "grid_gate.py", "integrity.py",
+        "leak_tokens.py", "make_manifest.py", "render_round_status.py",
+        "score.py", "transcript_check.py")]
+    + ["harness/e4lib/" + name for name in (
+        "__init__.py", "admit.py", "capabilities.py", "census.py",
+        "decision.py", "domain.py", "e4.py", "engines.py", "extract.py",
+        "reviewer.py", "stats.py")]
+    + ["harness/tests/" + name for name in (
+        "conftest.py", "test_batch.py", "test_census_replication.py",
+        "test_design_regeneration.py", "test_grid_gate.py",
+        "test_leak_tokens.py", "test_manifest.py", "test_partition.py",
+        "test_pins.py", "test_ports_chain.py", "test_prereg_currency.py",
+        "test_schedule.py", "test_score_admit.py", "test_score_attempt.py",
+        "test_score_capabilities.py", "test_score_census.py",
+        "test_score_decision.py", "test_score_domain.py", "test_score_e4.py",
+        "test_score_engines.py", "test_score_extract.py",
+        "test_score_pipeline.py", "test_score_publication.py",
+        "test_score_reviewer.py", "test_score_stats.py",
+        "test_transcript_binding.py")])
+
+# NEW IN 020 — files with NO source-side row, because there is no source-side
+# file. §7's deltas 3, 5 and 6 register new machinery (`presence-idiom-unsound`,
+# the eighteen-member family scorer and the pre-pilot sweep's own surface), and
+# new machinery cannot be ported by digest from a study that never had it.
+#
+# This set is not a relaxation of the exact-set property, it is the second half
+# of it. `REQUIRED_PORTS` alone would have made "add a harness file and register
+# it nowhere" invisible the moment any file legitimately had no row; keeping the
+# two sets disjoint and checking the union against the directory keeps the
+# original failure — a harness file nobody registered — loud. `verify_chain()`
+# adds the property that makes membership here CHECKABLE rather than declared:
+# Study 019's lock must not name the path. A file 019 does have is a file this
+# study owes a row for, and calling it new does not make it new.
+NEW_IN_020 = frozenset((
+    "harness/e4lib/family.py",
+    "harness/e4lib/presence_idiom.py",
+    "harness/tests/test_family.py",
+    "harness/tests/test_score_presence_idiom.py",
+    "harness/tests/test_sweep.py",
 ))
 
-# TIER PORTS (the stronger tier): destination -> the path Study 019's own
-# `PORTS.md` records a DESTINATION cell for. A row here is bound twice on the
-# source side — to 019's ports cell and to 019's manifest entry — and the two
-# must agree.
+# TIER PORTS (the second source-side authority, for the seven rows that have
+# one): destination -> the path Study 019's own `PORTS.md` records a DESTINATION
+# cell for. A row here is bound twice on the source side — to 019's ports cell
+# and to 019's lock line — and the two must agree. Every other row is bound to
+# the lock alone, which is not a weaker binding: 019's own registry pins the
+# lock, so the digest comes from the source study either way.
 TIER_PORTS_PATHS = {
     "harness/authoring_call.sh": "harness/authoring_call.sh",
     "harness/batch.py": "harness/batch.py",
@@ -170,25 +206,41 @@ TIER_PORTS_PATHS = {
     "harness/e4lib/census.py": "harness/e4lib/census.py",
     "harness/e4lib/stats.py": "harness/e4lib/stats.py",
 }
-# TIER MANIFEST: destination -> the path Study 019's exact-set manifest records
-# a per-file digest for. 019 publishes no ports row for these — they were new
-# in 019, or assembled from its own design prototypes — but its manifest is
-# pinned by its own registry, so the source cell answers to the source study.
-TIER_MANIFEST_PATHS = {
-    "harness/grid_gate.py": "harness/grid_gate.py",
-    "harness/leak_tokens.py": "harness/leak_tokens.py",
-    "harness/render_round_status.py": "harness/render_round_status.py",
-    "harness/score.py": "harness/score.py",
-    "harness/e4lib/__init__.py": "harness/e4lib/__init__.py",
-    "harness/e4lib/admit.py": "harness/e4lib/admit.py",
-    "harness/e4lib/capabilities.py": "harness/e4lib/capabilities.py",
-    "harness/e4lib/decision.py": "harness/e4lib/decision.py",
-    "harness/e4lib/domain.py": "harness/e4lib/domain.py",
-    "harness/e4lib/e4.py": "harness/e4lib/e4.py",
-    "harness/e4lib/engines.py": "harness/e4lib/engines.py",
-    "harness/e4lib/extract.py": "harness/e4lib/extract.py",
-    "harness/e4lib/reviewer.py": "harness/e4lib/reviewer.py",
-}
+
+# Every harness file that runs, ported or new. `verify_chain()` checks THIS
+# against the directory, so the two sets are exhaustive together and the
+# original failure — a harness file registered nowhere — still refuses.
+REGISTERED_HARNESS_FILES = REQUIRED_PORTS | NEW_IN_020
+
+# The registered artifacts §4.1 ports BY DIGEST, bound to the same lock and
+# deliberately NOT transcribed into `PORTS.md`: 019's manifest already publishes
+# a digest for each of them under the same study-relative path, and a second
+# copy of those digests in a table here is a copy that can drift from the lock
+# it claims to quote. The mutant payloads are covered by the same rule through
+# `ARTIFACT_TREES` below, one file at a time.
+PORTED_ARTIFACTS = (
+    "policy/POLICY.md",
+    "gold/GOLD.json",
+    "mutants/MANIFEST-jps.json",
+    "mutants/MANIFEST-rego.json",
+    "reference/REFERENCE-A.md",
+    "reference/REFERENCE-B.md",
+    "reference/refA/pack.json",
+    "reference/refB/policy.rego",
+    "controls/off-gold-equivalence.json",
+    "verification/V7-COMPLETENESS.md",
+    "verification/V8-ASYMMETRY-LEDGER.md",
+)
+# The payload trees, exact one-level globs, checked file for file against the
+# lock in BOTH directions: a payload 019 covers and 020 does not have, and one
+# 020 has that 019's lock does not name, are the same defect.
+ARTIFACT_TREES = (("mutants/jps", ".json"), ("mutants/rego", ".rego"))
+
+# The three arm prompts are bound to 019's REGISTRY rather than to its manifest,
+# because 019's manifest does not cover `arms/` and its registry pins each
+# prompt's digest under `arms.<ARM>.promptSha256` — the same member the call
+# wrapper's own prompt-digest gate reads.
+PROMPT_PATHS = {arm: "arms/%s/PROMPT.txt" % arm for arm in ARMS}
 
 # The freeze pins §2 and §7 register, in the order PINS.json carries them. A
 # null anywhere here makes the run a PILOT (`study_label()`); REGISTERED
@@ -343,76 +395,101 @@ def parse_ports(ports_path: str) -> list:
     return rows
 
 
-def parse_manifest(manifest_path: str) -> dict:
-    """{path: sha256} from an ADR 0004 exact-set manifest.
+# --- the chain -------------------------------------------------------------
 
-    New in Study 020 and the whole of what lets a successor bind to files the
-    source study never put in a ports row. The format is `sha256sum`'s — two
-    spaces between the digest and the path — and a duplicate path is refused
-    rather than resolved, for the reason `_refuse_duplicate_keys()` exists."""
-    if not os.path.isfile(manifest_path):
-        raise IntegrityError("no exact-set manifest at %s" % manifest_path)
+
+def parse_lock(lock_path: str) -> dict:
+    """`{study-relative path: sha256}` from a `sha256  path` lock file.
+
+    The source study's lock is a `sha256sum`-format file, and this reads it as
+    exactly that: two spaces, digest first. A line that does not parse is an
+    error rather than a skip — a lock with an unreadable line is a lock that
+    covers less than it appears to."""
+    if not os.path.isfile(lock_path):
+        raise IntegrityError("no lock at %s" % lock_path)
     entries = {}
-    with open(manifest_path, "rb") as handle:
+    with open(lock_path, "rb") as handle:
         for number, line in enumerate(
-                handle.read().decode("utf-8").splitlines(), 1):
+                handle.read().decode("utf-8").splitlines(), start=1):
             if not line.strip():
                 continue
-            parts = line.split("  ", 1)
-            if len(parts) != 2 or len(parts[0]) != 64:
+            head, separator, relative = line.partition("  ")
+            if not separator or not re.match(r"^[0-9a-f]{64}$", head) \
+                    or not relative.strip():
                 raise IntegrityError(
-                    "%s line %d is not a `<sha256>  <path>` entry: %r"
-                    % (manifest_path, number, line))
-            if parts[1] in entries:
+                    "%s line %d is not a `sha256  path` entry: %r"
+                    % (lock_path, number, line))
+            if relative in entries:
                 raise IntegrityError(
-                    "%s names %s twice" % (manifest_path, parts[1]))
-            entries[parts[1]] = parts[0]
+                    "%s names %s twice; a lock readable two ways is not a lock"
+                    % (lock_path, relative))
+            entries[relative] = head
     if not entries:
-        raise IntegrityError("%s carries no entries" % manifest_path)
+        raise IntegrityError("%s carries no entries" % lock_path)
     return entries
 
 
-# --- the chain -------------------------------------------------------------
+def source_lock(nineteen: str = NINETEEN) -> dict:
+    """Study 019's lock, verified FIRST and at the digest 019's own registry
+    pins for it — §7's "integrity verifies the source study's lock first", as
+    the one function every source-side binding in this module goes through."""
+    pins_path = os.path.join(nineteen, "harness", "PINS.json")
+    if not os.path.isfile(pins_path):
+        raise IntegrityError("Study 019's harness/PINS.json is missing")
+    actual = digest(pins_path)
+    if actual != NINETEEN_PINS_SHA256:
+        raise IntegrityError(
+            "Study 019's harness/PINS.json is sha256:%s, not the pinned sha256:%s"
+            % (actual, NINETEEN_PINS_SHA256))
+    pins = load_json(pins_path)
+    recorded = pins.get(NINETEEN_LOCK_PIN) or {}
+    lock_pin = bare(recorded.get("sha256"))
+    if recorded.get("path") != NINETEEN_LOCK_PATH:
+        raise IntegrityError(
+            "Study 019's registry records its lock at %r, not %s"
+            % (recorded.get("path"), NINETEEN_LOCK_PATH))
+    lock_path = os.path.join(nineteen, NINETEEN_LOCK_PATH)
+    if not os.path.isfile(lock_path):
+        raise IntegrityError("Study 019's %s is missing" % NINETEEN_LOCK_PATH)
+    actual = digest(lock_path)
+    if actual != lock_pin:
+        raise IntegrityError(
+            "Study 019's %s is sha256:%s, not the sha256:%s its own registry "
+            "records for it" % (NINETEEN_LOCK_PATH, actual, lock_pin))
+    return {"pins": pins, "lockSha256": lock_pin,
+            "entries": parse_lock(lock_path)}
 
 
 def verify_chain(study: str = STUDY, nineteen: str = NINETEEN,
                  ports_path: str = None, pins_path: str = None) -> dict:
     """The one-level chain, then the rows, bound by the authority each row has.
 
-    Study 019's `verify_chain()` bound seven rows to one source-side authority
-    (012's ports cells) and one row to a commit. This is that function with a
-    SECOND source-side authority added — Study 019's own exact-set manifest,
-    pinned by 019's own registry — and with the commit-only tier removed,
-    because with the manifest in hand no row needs it. Everything the shape of
-    the check rests on is 012's through 019's: the placeholder scan, the
-    registry's own `pinnedFrom` members checked against the review-bound
-    constants above, the exact destination set, and per-row source and
-    destination digests."""
+    Study 019's `verify_chain()` did this over one level and two tiers against
+    Study 012's PORTS.md destination cells; this is that function with the
+    source-side authority moved to the thing Study 019 actually publishes — its
+    frozen lock — and 019's own ports cells kept as the SECOND authority for the
+    seven rows that have one. Everything the shape of the check rests on is
+    012's by way of 019's: the placeholder scan, the registry's own `pinnedFrom`
+    members checked against the review-bound constants above, the exact
+    destination set, and per-row source and destination digests."""
     ports_path = ports_path or os.path.join(study, "harness", "PORTS.md")
     pins_path = pins_path or os.path.join(study, "harness", "PINS.json")
 
-    source_pins_path = os.path.join(nineteen, "harness", "PINS.json")
-    source_ports_path = os.path.join(nineteen, "harness", "PORTS.md")
-    source_manifest_path = os.path.join(nineteen, "harness",
-                                        "STUDY-MANIFEST.sha256")
-    if not os.path.isfile(source_pins_path):
-        raise IntegrityError("Study 019's harness/PINS.json is missing")
-    actual = digest(source_pins_path)
-    if actual != NINETEEN_PINS_SHA256:
-        raise IntegrityError(
-            "Study 019's harness/PINS.json is sha256:%s, not the pinned sha256:%s"
-            % (actual, NINETEEN_PINS_SHA256))
-    source_pins = load_json(source_pins_path)
+    source = source_lock(nineteen)
+    lock_entries = source["entries"]
+    source_pins = source["pins"]
 
-    # 019's PORTS.md and 019's manifest at the digests 019's OWN registry pins
-    # for them — not ones this study chooses. This is the whole of what makes
-    # the source cells below an inheritance rather than a transcription.
+    # 019's PORTS.md at the digest 019's OWN registry pins for it under
+    # `ownPorts` — the second source-side authority, for the seven rows that
+    # have one. Read here rather than in the loop so a tampered source table
+    # refuses before any row is bound.
     own = source_pins.get("ownPorts") or {}
     source_ports_pin = bare(own.get("sha256"))
     if own.get("path") != "harness/PORTS.md":
         raise IntegrityError(
             "Study 019's registry records its ports file at %r, not "
             "harness/PORTS.md" % (own.get("path"),))
+    source_ports_path = os.path.join(nineteen, "harness", "PORTS.md")
     if not os.path.isfile(source_ports_path):
         raise IntegrityError("Study 019's harness/PORTS.md is missing")
     actual = digest(source_ports_path)
@@ -420,24 +497,6 @@ def verify_chain(study: str = STUDY, nineteen: str = NINETEEN,
         raise IntegrityError(
             "Study 019's harness/PORTS.md is sha256:%s, not the sha256:%s its "
             "own registry records for it" % (actual, source_ports_pin))
-
-    recorded_manifest = source_pins.get("studyManifest") or {}
-    source_manifest_pin = bare(recorded_manifest.get("sha256"))
-    if recorded_manifest.get("path") != "harness/STUDY-MANIFEST.sha256":
-        raise IntegrityError(
-            "Study 019's registry records its manifest at %r, not "
-            "harness/STUDY-MANIFEST.sha256"
-            % (recorded_manifest.get("path"),))
-    if not os.path.isfile(source_manifest_path):
-        raise IntegrityError(
-            "Study 019's harness/STUDY-MANIFEST.sha256 is missing")
-    actual = digest(source_manifest_path)
-    if actual != source_manifest_pin:
-        raise IntegrityError(
-            "Study 019's harness/STUDY-MANIFEST.sha256 is sha256:%s, not the "
-            "sha256:%s its own registry records for it"
-            % (actual, source_manifest_pin))
-    source_manifest = parse_manifest(source_manifest_path)
 
     if not os.path.isfile(pins_path):
         raise IntegrityError("no registry at %s" % pins_path)
@@ -500,6 +559,29 @@ def verify_chain(study: str = STUDY, nineteen: str = NINETEEN,
             "019's own registry carries (%r)"
             % (fourteen_recorded, fourteen_actual))
 
+    # No path is both ported by digest and new in 020. The two sets are the
+    # exact-set property in two halves, and a member of both would be a file
+    # governed by two rules with two consequences.
+    overlap = sorted(REQUIRED_PORTS & NEW_IN_020)
+    if overlap:
+        raise IntegrityError(
+            "%s is registered both as a port by digest and as new in 020, and "
+            "019's lock names it — a path the source study HAS cannot be new "
+            "here; a path is one or the other" % ", ".join(overlap))
+    # What makes NEW_IN_020 membership checkable rather than declared: 019's
+    # lock must not name the path. A file the source study HAS is a file this
+    # study owes a PORTS.md row for, and calling it new does not make it new.
+    for relative in sorted(NEW_IN_020):
+        here = os.path.join(study, relative)
+        if not os.path.isfile(here):
+            raise IntegrityError(
+                "%s is registered as new in 020 and is not on disk" % relative)
+        if relative in lock_entries:
+            raise IntegrityError(
+                "%s is registered as new in 020 and Study 019's lock names it; "
+                "a file the source study has is a file this port owes a "
+                "harness/PORTS.md row for" % relative)
+
     rows = parse_ports(ports_path)
     destinations = set(row[2] for row in rows)
     if destinations != set(REQUIRED_PORTS):
@@ -516,7 +598,7 @@ def verify_chain(study: str = STUDY, nineteen: str = NINETEEN,
 
     source_rows = {row[2]: row for row in parse_ports(source_ports_path)}
 
-    for source, source_sha, destination, destination_sha in rows:
+    for origin_path, source_sha, destination, destination_sha in rows:
         here = os.path.join(study, destination)
         if not os.path.isfile(here):
             raise IntegrityError("the ported file %s is missing" % destination)
@@ -526,51 +608,137 @@ def verify_chain(study: str = STUDY, nineteen: str = NINETEEN,
                 "%s is sha256:%s, not the sha256:%s harness/PORTS.md records"
                 % (destination, actual, destination_sha))
 
-        tier_ports = destination in TIER_PORTS_PATHS
-        relative = (TIER_PORTS_PATHS if tier_ports
-                    else TIER_MANIFEST_PATHS)[destination]
-        if source != relative:
+        # Every harness row is a WHOLE-FILE port, so the source path is the
+        # destination path: a row that renames a file is a row this study is not
+        # taking by digest, and it says so here rather than in prose.
+        if origin_path != destination:
             raise IntegrityError(
-                "harness/PORTS.md names %r as the source of %s; Study 019's "
-                "path is %r" % (source, destination, relative))
+                "harness/PORTS.md names %r as the source of %s; this port is "
+                "whole-file and by digest, so the two paths are the same path"
+                % (origin_path, destination))
 
-        # Authority 1, for every row: Study 019's exact-set manifest, pinned by
-        # 019's own registry.
-        manifest_sha = source_manifest.get(relative)
-        if manifest_sha is None:
+        # Authority 1, for every row: Study 019's frozen lock, pinned by 019's
+        # own registry.
+        pinned = lock_entries.get(origin_path)
+        if pinned is None:
             raise IntegrityError(
-                "Study 019's exact-set manifest carries no entry for %s"
-                % relative)
-        if source_sha != manifest_sha:
+                "Study 019's lock carries no entry for %s; a row whose source "
+                "the source study's lock does not cover is not a port by digest"
+                % origin_path)
+        if source_sha != pinned:
             raise IntegrityError(
                 "harness/PORTS.md records sha256:%s as the 019-side digest of "
-                "%s and 019's own manifest records sha256:%s"
-                % (source_sha, relative, manifest_sha))
+                "%s and 019's own lock records sha256:%s"
+                % (source_sha, origin_path, pinned))
 
         # Authority 2, for the stronger tier only: 019's own ports destination
         # cell. The two must AGREE; a row where they disagree is refused rather
         # than resolved in either direction.
-        if tier_ports:
-            row = source_rows.get(relative)
+        if destination in TIER_PORTS_PATHS:
+            path = TIER_PORTS_PATHS[destination]
+            if origin_path != path:
+                raise IntegrityError(
+                    "harness/PORTS.md names %r as the source of %s; Study 019's "
+                    "path is %r" % (origin_path, destination, path))
+            row = source_rows.get(path)
             if row is None:
                 raise IntegrityError(
                     "Study 019's PORTS.md carries no provenance row for %s"
-                    % relative)
+                    % path)
             if source_sha != row[3]:
                 raise IntegrityError(
                     "harness/PORTS.md records sha256:%s as the 019-side digest "
                     "of %s and 019's own PORTS.md destination cell records "
-                    "sha256:%s" % (source_sha, relative, row[3]))
+                    "sha256:%s" % (source_sha, path, row[3]))
 
-        origin = os.path.join(nineteen, relative)
-        if not os.path.isfile(origin) or digest(origin) != source_sha:
+        upstream = os.path.join(nineteen, origin_path)
+        if not os.path.isfile(upstream) or digest(upstream) != source_sha:
             raise IntegrityError(
                 "Study 019's %s does not hash to the recorded 019-side digest"
-                % relative)
+                % origin_path)
 
     return {"pins": pins, "rows": rows,
+            "study019LockSha256": source["lockSha256"],
             "study019PortsSha256": source_ports_pin,
-            "study019ManifestSha256": source_manifest_pin}
+            "study019Lock": lock_entries,
+            # Study 019's OWN registry, carried out so `verify()` binds the arm
+            # prompts to the source study's pins and not to this study's, whose
+            # prompt digests are freeze pins and are null until the freeze.
+            "study019Pins": source["pins"]}
+
+
+def verify_ported_artifacts(study: str = STUDY, nineteen: str = NINETEEN,
+                            lock: dict = None, source_pins: dict = None) -> dict:
+    """§4.1's registered artifacts, bound to the same lock, on both sides.
+
+    Not a `PORTS.md` table: 019's lock already publishes a digest for each of
+    these under the same study-relative path, so the binding is a comparison
+    against that lock rather than a transcription of it. Both directions are
+    checked over the payload trees — a mutant 019's lock names and this tree
+    does not carry, and one this tree carries that 019's lock does not name,
+    are the same defect.
+
+    The three arm prompts are bound to 019's REGISTRY instead, because 019's
+    manifest does not cover `arms/`."""
+    if lock is None or source_pins is None:
+        source = source_lock(nineteen)
+        lock = source["entries"]
+        source_pins = source["pins"]
+    checked = []
+    for relative in PORTED_ARTIFACTS:
+        pinned = lock.get(relative)
+        if pinned is None:
+            raise IntegrityError(
+                "Study 019's lock carries no entry for the ported artifact %s"
+                % relative)
+        here = os.path.join(study, relative)
+        if not os.path.isfile(here):
+            raise IntegrityError("the ported artifact %s is missing" % relative)
+        actual = digest(here)
+        if actual != pinned:
+            raise IntegrityError(
+                "%s is sha256:%s and Study 019's lock records sha256:%s"
+                % (relative, actual, pinned))
+        checked.append(relative)
+    for directory, suffix in ARTIFACT_TREES:
+        expected = sorted(name for name in lock
+                          if name.startswith(directory + "/")
+                          and name.endswith(suffix))
+        here = os.path.join(study, directory)
+        if not os.path.isdir(here):
+            raise IntegrityError("the ported payload tree %s is missing"
+                                 % directory)
+        present = sorted("%s/%s" % (directory, name)
+                         for name in os.listdir(here)
+                         if name.endswith(suffix))
+        if present != expected:
+            missing = sorted(set(expected) - set(present))
+            extra = sorted(set(present) - set(expected))
+            raise IntegrityError(
+                "%s does not carry exactly the payloads Study 019's lock names "
+                "(missing %s, unexpected %s)"
+                % (directory, missing[:3] or "none", extra[:3] or "none"))
+        for relative in expected:
+            actual = digest(os.path.join(study, relative))
+            if actual != lock[relative]:
+                raise IntegrityError(
+                    "%s is sha256:%s and Study 019's lock records sha256:%s"
+                    % (relative, actual, lock[relative]))
+            checked.append(relative)
+    registry_arms = source_pins.get("arms") or {}
+    for arm in ARMS:
+        relative = PROMPT_PATHS[arm]
+        pinned = bare(((registry_arms.get(arm) or {}).get("promptSha256")))
+        here = os.path.join(study, relative)
+        if not os.path.isfile(here):
+            raise IntegrityError("the ported arm prompt %s is missing" % relative)
+        actual = digest(here)
+        if actual != pinned:
+            raise IntegrityError(
+                "%s is sha256:%s and Study 019's registry pins sha256:%s for "
+                "arm %s" % (relative, actual, pinned, arm))
+        checked.append(relative)
+    return {"portedArtifacts": sorted(checked)}
 
 
 # --- the registered label rule ----------------------------------------------
@@ -962,11 +1130,10 @@ def verify_bytecode(study: str = STUDY) -> None:
 def verify_manifest(study: str = STUDY, pins: dict = None) -> str:
     """ADR 0004's exact-set manifest, and the pin over it.
 
-    Study 012's `[D-20]` whole-tree git manifest is deliberately not carried
-    (module docstring). This study's manifest covers what must not change, and
-    `harness/make_manifest.py` excludes `DEVIATIONS.md`, `README.md`,
-    `PREREG-REVIEW.md`, `CORRECTION-TARGETS.md` and `harness/ADVISORIES.md` by
-    named constant (ADR 0004, §4b). Two things are checked here: the committed manifest still equals
+    This study's manifest covers what must not change, and
+    `harness/make_manifest.py` excludes the five appendable documents §7 delta
+    11 names by named constant. Two things are checked here: the committed
+    manifest still equals
     the tree it covers, and — once the freeze has filled it — the registry's
     `studyManifest.sha256` is that file's digest.
 
@@ -995,23 +1162,25 @@ def verify_manifest(study: str = STUDY, pins: dict = None) -> str:
 
 def verify(study: str = STUDY, nineteen: str = NINETEEN,
            label_context: str = None) -> dict:
-    """Everything this partial port can establish, in the registered order: no
-    unreviewed bytecode or untracked source, the port chain, the interpreter,
-    the exact-set manifest, and the label the registry earns.
+    """Everything this port can establish, in the registered order: no
+    unreviewed bytecode or untracked source, the port chain, the registered
+    artifacts, the interpreter, the exact-set manifest, and the label the
+    registry earns.
 
     IntegrityError on the first refusal; a summary dict when every check passed.
-    What it deliberately does NOT establish is in the module docstring, and the
-    unported controls are in `harness/SCAFFOLD.md` — a green summary here is not
-    a statement that the study is ready to run."""
+    What it deliberately does NOT establish is in the module docstring — a green
+    summary here is not a statement that the study is ready to run."""
     verify_bytecode(study)
     chain = verify_chain(study, nineteen)
+    artifacts = verify_ported_artifacts(study, nineteen, chain["study019Lock"],
+                                        chain["study019Pins"])
     interpreter = verify_interpreter(chain["pins"])
     manifest = verify_manifest(study, chain["pins"])
     label = study_label(chain["pins"], label_context)
     return {"portedFiles": sorted(row[2] for row in chain["rows"]),
+            "portedArtifacts": artifacts["portedArtifacts"],
+            "study019LockSha256": "sha256:" + chain["study019LockSha256"],
             "study019PortsSha256": "sha256:" + chain["study019PortsSha256"],
-            "study019ManifestSha256":
-                "sha256:" + chain["study019ManifestSha256"],
             "studyManifest": manifest,
             "label": label,
             "labelContext": label_context,
@@ -1027,9 +1196,10 @@ def main(argv: list) -> int:
     except IntegrityError as error:
         print("refused: %s" % error)
         return 1
-    print("integrity verified: %d ported files; manifest %s; on %s"
-          % (len(summary["portedFiles"]), summary["studyManifest"],
-             summary["interpreter"]))
+    print("integrity verified: %d ported files, %d ported artifacts; manifest "
+          "%s; on %s"
+          % (len(summary["portedFiles"]), len(summary["portedArtifacts"]),
+             summary["studyManifest"], summary["interpreter"]))
     print("label: %s%s"
           % (summary["label"],
              "" if not summary["unfilledPins"]

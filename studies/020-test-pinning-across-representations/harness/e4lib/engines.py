@@ -280,8 +280,19 @@ def opa_check(tools: Toolchain, path: str, workdir: str,
     return code, codes or ["unparseable-check-output"]
 
 
-def opa_parse(tools: Toolchain, path: str, workdir: str) -> tuple:
+def opa_parse_tree(tools: Toolchain, path: str, workdir: str) -> tuple:
     """NEW IN 020. `opa parse --format json` on one file: `(exit, stdout, stderr)`.
+
+    NAMED APART FROM `opa_parse()` BELOW, and the name is the whole of the fix.
+    Study 019 already had an `opa_parse()` on this module returning `(exit,
+    stdout)` — `e4lib/domain.py` and `e4lib/e4.py` read it that way — so a
+    second definition under the same name did not add a function, it REPLACED
+    one at import: the later `def` won, `presence_idiom.parse_policy()` unpacked
+    two values into three, and §3.2's detector raised `ValueError` on its first
+    real call. Nothing caught it because every unit case monkeypatches
+    `opa_parse` with a three-tuple stub and the one case that uses the pinned
+    binary calls `subprocess.run` directly and then `memberships()`, so no test
+    on either line ever executed `parse_policy()`.
 
     The one read-only addition to the two-engine execution layer, and it is here
     rather than in `e4lib/presence_idiom.py` for the reason every other

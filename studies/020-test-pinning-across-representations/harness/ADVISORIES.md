@@ -32,7 +32,27 @@ line numbers, they are 019's and stay 019's.
 
 ---
 
-## Study 020's own rounds
+## Study 020's register opens EMPTY
+
+**No advisory is on this study's record.** The four entries below the line are **Study
+019's**, carried with the ported apparatus so a reviewer of 020 can see which known
+weaknesses the machinery they are reading already has a recorded finding for. They are
+recorded here as INHERITED CONTEXT and are not Study 020 dispositions: 020 has held no
+review round (`harness/render_round_status.py` renders `0 review rounds are on the
+record`), so it has returned no finding to record. A finding raised against Study 020's
+review-support apparatus is appended ABOVE this line, with its own round number and cite,
+and carries the reviewer's severity as returned.
+
+**Nothing inherited below is a claim that the weakness is closed here.** Where 019's entry
+names a mechanism this port changed — R9-6's status sentences, in particular, whose surface
+list narrows to two under §7 delta 10 — the entry's reasoning must be re-made against 020's
+bytes before it is relied on.
+
+---
+
+# Study 019's register, carried as inherited context
+
+## R9-3 — MAJOR — the round-state schema accepts mistyped scalars
 
 **None.** No review round has opened, so this study has recorded no advisory of its own.
 The first entry lands when a round returns a finding whose only reachable exploit requires

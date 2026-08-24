@@ -221,42 +221,39 @@ def test_sup_le_alpha_is_an_integer_comparison():
     assert ok is True and size == 0
 
 
-# --- the tau cut ------------------------------------------------------------
+# --- §7 delta 2: the threshold is REMOVED, not disabled ---------------------
 
-def test_the_tau_cut_is_the_smallest_integer_reaching_tau():
-    """Section 5's tau = 0.95 over a finite paired subset IS an integer
-    threshold, and the integer is what decides runs."""
-    for paired in range(1, 200):
-        cut = stats.tau_cut(paired)
-        assert Fraction(cut, paired) >= stats.TAU
-        assert cut == 0 or Fraction(cut - 1, paired) < stats.TAU
+def test_no_tau_and_no_tau_cut_survive_in_the_statistics_module():
+    """§7 delta 2, asserted by ABSENCE and by name.
 
-
-def test_the_tau_cut_at_the_design_time_paired_count():
-    """39 paired witness groups at the adequacy gate: 0.95 x 39 = 37.05, so the
-    cut is 38 and 37/39 = 0.9487 is NOT high-kill. The float comparison and the
-    integer cut agree here, which is the point of deriving the integer."""
-    assert stats.tau_cut(39) == 38
-    assert 37 / 39 < float(stats.TAU) <= 38 / 39
+    Study 019 registered tau = 0.95 over the paired adequate subset and derived
+    the operative integer cut from it; §5.1 of Study 020 registers the primary
+    endpoint with "**No cut, no τ, no dichotomy**". A threshold left in the
+    module as a constant nobody calls is a threshold a later edit can call, so
+    both the constant and the function are gone — and this test fails if either
+    comes back, which is the only way an absence is enforceable."""
+    assert not hasattr(stats, "TAU")
+    assert not hasattr(stats, "tau_cut")
+    source = open(stats.__file__, encoding="utf-8").read()
+    # The names may appear ONLY inside the comment recording the removal, so the
+    # comment lines are dropped before the source is searched: what the delta
+    # removes is CODE, and a note saying so is the opposite of a regression.
+    code = "\n".join(line for line in source.split("\n")
+                     if not line.lstrip().startswith("#"))
+    assert "TAU" not in code
+    assert "tau_cut" not in code
 
 
 def test_the_registered_constants_are_the_registered_values():
     """δ = 0.20 is carried and deliberately read by NOTHING: §5 registers it as
     "an interpretation and power quantity, not part of the decision rule", and a
     δ that leaked into `excludes_zero()` would be a second decision rule."""
-    assert stats.TAU == Fraction(19, 20)
     assert stats.DELTA == Fraction(1, 5)
     assert stats.FM_ALPHA == Fraction(1, 20)
     assert stats.ALPHA == Fraction(1, 40)      # one tail of the two-sided 95%
     assert stats.MESH_DEN == 1000
     import inspect
     assert "DELTA" not in inspect.getsource(stats.excludes_zero)
-
-
-def test_an_empty_paired_subset_refuses_rather_than_dividing_by_zero():
-    with pytest.raises(stats.StatsError) as raised:
-        stats.tau_cut(0)
-    assert str(raised.value).startswith("TAU-NO-PAIRED-SUBSET")
 
 
 # --- S8: the general unequal-N inversion ------------------------------------

@@ -1,0 +1,114 @@
+{
+ "boundaryEditsOnTheRuleKilled": [
+  "m-a-076"
+ ],
+ "class": "subsumed-region-lemma",
+ "derivation": "gross = members of the class in adequacy_search.py's DROPS; pre-existing = those whose edit (normalised) appears in ADEQUACY.md's committed 2026-08-15 arm-A table as **dropped**; marginal = gross - pre-existing. Matched by edit, never by id: ids do not carry across the arm-A reference repair.",
+ "editsOnTheRule": [
+  "m-a-016",
+  "m-a-017",
+  "m-a-018",
+  "m-a-075",
+  "m-a-076",
+  "m-a-077",
+  "m-a-078",
+  "m-a-079",
+  "m-a-080",
+  "m-a-142",
+  "m-a-169",
+  "m-a-183"
+ ],
+ "editsOnTheRuleKilled": [
+  "m-a-076",
+  "m-a-142",
+  "m-a-169"
+ ],
+ "finding": "round-4 R4-2 \u2014 gross class size is not the repair's marginal price",
+ "grossClassSize": 9,
+ "marginalToRepair": [
+  "m-a-016",
+  "m-a-018",
+  "m-a-075",
+  "m-a-078",
+  "m-a-080",
+  "m-a-183"
+ ],
+ "marginalToRepairCount": 6,
+ "marginalToRepairDetail": [
+  {
+   "current": "m-a-016",
+   "edit": "r-o1-review.cond[0][2].operator: greater-than-or-equal -> greater-than",
+   "preRepairDisposition": "killed",
+   "preRepairId": "m-a-016"
+  },
+  {
+   "current": "m-a-018",
+   "edit": "r-o1-review.cond[0][4].operator: less-than-or-equal -> less-than",
+   "preRepairDisposition": "killed",
+   "preRepairId": "m-a-018"
+  },
+  {
+   "current": "m-a-075",
+   "edit": "r-o1-review.cond[0][2].value: 40 -> 41 (+1)",
+   "preRepairDisposition": "killed",
+   "preRepairId": "m-a-065"
+  },
+  {
+   "current": "m-a-078",
+   "edit": "r-o1-review.cond[0][3].value: 70 -> 69 (-1)",
+   "preRepairDisposition": "killed",
+   "preRepairId": "m-a-068"
+  },
+  {
+   "current": "m-a-080",
+   "edit": "r-o1-review.cond[0][4].value: 100000.00 -> 99999.99 (-1)",
+   "preRepairDisposition": "killed",
+   "preRepairId": "m-a-070"
+  },
+  {
+   "current": "m-a-183",
+   "edit": "r-o1-review deleted (the O1 companion review rule; dangling targetRule references dropped with it: x-d5-suppress-o1-review)",
+   "preRepairDisposition": "not in the pre-repair corpus",
+   "preRepairId": null
+  }
+ ],
+ "members": [
+  "m-a-016",
+  "m-a-017",
+  "m-a-018",
+  "m-a-075",
+  "m-a-077",
+  "m-a-078",
+  "m-a-079",
+  "m-a-080",
+  "m-a-183"
+ ],
+ "preExistingDropCount": 3,
+ "preExistingDrops": [
+  {
+   "current": "m-a-017",
+   "edit": "r-o1-review.cond[0][3].operator: less-than -> less-than-or-equal",
+   "preRepairDisposition": "dropped",
+   "preRepairDropMechanism": "same-outcome-overlap",
+   "preRepairId": "m-a-017",
+   "preRepairMutationClass": "operator-flip"
+  },
+  {
+   "current": "m-a-077",
+   "edit": "r-o1-review.cond[0][3].value: 70 -> 71 (+1)",
+   "preRepairDisposition": "dropped",
+   "preRepairDropMechanism": "same-outcome-overlap",
+   "preRepairId": "m-a-067",
+   "preRepairMutationClass": "boundary-shift"
+  },
+  {
+   "current": "m-a-079",
+   "edit": "r-o1-review.cond[0][4].value: 100000.00 -> 100000.01 (+1)",
+   "preRepairDisposition": "dropped",
+   "preRepairDropMechanism": "same-outcome-overlap",
+   "preRepairId": "m-a-069",
+   "preRepairMutationClass": "boundary-shift"
+  }
+ ],
+ "ruleUnderSubsumption": "r-o1-review"
+}
