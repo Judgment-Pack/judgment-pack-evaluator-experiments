@@ -1,0 +1,1527 @@
+# Preregistration — Study 020: test pinning across representations
+
+**Status: DRAFT, first revision. Not frozen. Nothing citable has run, and no review round is
+on the record.** The cross-vendor review rounds will be recorded in
+[`PREREG-REVIEW.md`](PREREG-REVIEW.md), each verbatim under `reviews/`, and that record's
+round-state block is the single machine-readable source for round counts, verdicts and open
+state (ADR 0005). The rendered sentence below is this header's ONLY statement of them. Every
+execution before the freeze is a PILOT and supports no claim, and `integrity.study_label()`
+says so while any freeze pin is null. Items marked `GATE(pre-freeze)` are the freeze
+ceremony's enumerated work; items marked `TODO(prereg)` are values that cannot exist yet, each
+with the event that produces it named beside it. **This study is an instrument repair on
+Study 019 and inherits its machinery by port** (§7); where 020 departs from 019 the departure
+is registered here rather than discovered in review.
+
+<!-- round-status:begin -->
+ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 0 review rounds are on the record, 0 have returned a verdict — none has returned a verdict — and no round is open.
+<!-- round-status:end -->
+
+> **On the sentence above.** `harness/render_round_status.py` is 019 machinery and ports with
+> the rest of the harness (§7). Until that port lands, the sentence between the markers is
+> **hand-written to be byte-identical to what the block in `PREREG-REVIEW.md` renders**, and it
+> is marked here for **mechanical regeneration at harness-port time**: the first act of the
+> port is `render_round_status.py --write`, and the currency suite requires the rendered string
+> of both front doors verbatim thereafter. A hand-written status sentence is exactly the
+> failure mode ADR 0005 registers against; it is tolerated here only because the renderer does
+> not yet exist in this tree, and it is a `GATE(pre-freeze)` that it stops being hand-written.
+
+---
+
+## The footing, stated first
+
+On 2026-08-22 the maintainer ruled **M-1 = BOTH** (`design/RULINGS.md`). Study 020 registers on
+a **two-tier footing**, and every sentence in this document belongs to exactly one tier.
+
+**Tier C (confirmatory-by-robustness)** carries the study's one confirmatory sentence, R1
+(§1.3), and decides only where **every member of the pre-declared eighteen-member sensitivity
+family** (§5.2) agrees in the sign of the A−C difference *and* each member's own test excludes
+zero. The family spans exactly the analytic choices that were still open at the moment 019's
+arm-labelled quantities entered the design record — estimand level, engine-supplied-kill
+column, analysis population, and covariate adjustment — with **both poles of every axis
+retained**. Because the verdict requires unanimity across the whole family, no single choice
+made after the direction became known can manufacture it.
+
+**Tier D (direction-aware)** carries everything else: 019's known direction, stated openly with
+its provenance (§0.2), used for power planning, apparatus design and interpretation, and every
+descriptive quantity. **Every Tier D table carries the standing clause, carried verbatim from
+019 §5's R1-15 discipline: *descriptive; published as an interpretation quantity that no
+decision reads.***
+
+**Tier D MAY** (a) plan power — N, pilot N, effort pin — against magnitudes and dispersions
+honestly informed by 019; (b) interpret, after Tier C reports, saying per member whether 020's
+directions agree with 019's, with both sets of figures printed; (c) shape apparatus —
+analysis-set disposition, missing-data rule, the scorer's survivor-vector requirement, all
+functions of *how many runs score*, not of which arm wins; (d) name the risk — every place a
+design choice is known to move the contrast is disclosed with its magnitude (estimand level
+0.059 at identity-passing; adjustment 0.0247 at group level; population 0.098 at group level
+between identity-passing and the §1a denominator; engine column 0.0056 at group level,
+per-protocol).
+
+**Tier D MAY NOT** (a) write any confirmatory sentence — no Tier D quantity adjudicates R1 or
+enters the decision table, and an INDETERMINATE Tier C outcome licenses no negation; (b) select
+a Tier C family member — membership is fixed by §5.1's arm-blind admission test and is
+append-only; (c) fix a threshold, cut, floor or trim — any threshold in 020 is derived by a
+committed rule, never chosen against an arm-labelled rate; (d) be reported without its tier
+label.
+
+**Why the leak does not reach Tier C — the argument is structural, not epistemic.** Three
+properties carry it and all three are registered: (1) requiring every member to reject at
+α = 0.05 is an **intersection–union** test, whose size is **≤ α** over the union null with no
+multiplicity correction (§5.4) — adding members can only reduce size; (2) membership is derived
+arm-blind (§5.1) and is **append-only** after registration — a maintainer may **add** a member,
+which is monotone toward INDETERMINATE, never remove one, and an addition requires a
+`DEVIATIONS.md` entry with the pre-addition verdict published beside the post-addition one;
+(3) **every member is published whatever the verdict** — unanimity is not a filter over what
+gets reported. What the argument does *not* by itself neutralise is the choice **of** family,
+which is why §5.5's honesty tables are mandatory reprints rather than an appendix.
+
+---
+
+## 0. Design provenance (disclosed, because it shaped the registered claims)
+
+### 0.1 The design record, and the rulings this document implements
+
+This draft was preceded by a design phase whose artifacts live under `design/`:
+`design/BRIEF.md` v2 (every figure re-derived from 019's frozen artifacts, **no new model
+calls**), `design/PANEL-FINDINGS.md`, and `design/RULINGS.md` — the twelve maintainer rulings
+of 2026-08-23 and the M-14 forensic verdict appended to them. **Where this document and the
+brief disagree, the rulings govern; where the rulings are silent, the brief governs.**
+
+**M-15 is satisfied as a precondition, not promised.** The ruling was *publish first*: 019's R2
+amendment — the arm-labelled quantities, their provenance, and the standing no-decision-reads-
+them clause — lands on 019's record **before** this preregistration is drafted. It has landed:
+`studies/019-authorship-across-representations/ANALYSIS.md`, "R2 amendment (2026-08-23) — the
+arm-labelled descriptives, published because they are already on the record". *A direction
+computed and then withheld is a direction published*; the record was made honest before
+anything registered on top of it.
+
+### 0.2 The prior, stated once, in full — and it is not one direction
+
+From 019's registered batch, corrected scorer throughout (§5.2's empty-survivor rule):
+
+| cohort | level | A | B | C | A−C | A−B |
+|---|---|---|---|---|---|---|
+| artifact-bearing, all (36/30/30) | mutant | 0.60628 | 0.59032 | 0.61613 | **−0.00985** | +0.01596 |
+| identity-passing (34/26/28) | mutant | 0.64194 | 0.68114 | 0.66014 | −0.01819 | −0.03920 |
+| identity-passing (34/26/28) | group, 33 shared | 0.61765 | 0.59907 | 0.57684 | **+0.04081** | +0.01858 |
+| identity-passing (34/26/28) | symmetrised mutant | 0.67333 | 0.66148 | 0.63877 | +0.03456 | +0.01185 |
+| §1a admitted, ITT-114 (38/37/39) | group, 33 shared | 0.55263 | 0.42097 | 0.41414 | **+0.13849** | +0.13167 |
+
+*Descriptive; published as an interpretation quantity that no decision reads.* At the mutant
+level — the level 019 registered and scored — **A is below C**. At the group level — the level
+020's family centres on — **A is above C**, and on the identity-passing cohort that difference
+clears α = 0.05 (exact two-sided label permutation, 20,000 draws, seed 11: p = 0.0213) while
+the mutant-level one does not (p = 0.4578). **Provenance: the design phase, not the study.**
+None of it was produced by 019's registered decision procedure, which stopped at decision row 3
+with `control-gate-failed: e1-floor` and computed no contrast.
+
+**020 registers no expected direction, anywhere.** §1.3's R1 is a two-sided unanimity rule whose
+claimed direction, if any, is the family's common sign as observed. No section of this document
+states a hypothesis about which arm is higher.
+
+### 0.3 The honesty test this footing has to pass
+
+019's own batch **could not have passed Tier C**. On the eighteen registered members the A−C
+contrast splits **16 positive / 2 negative** and only **10 of 18 reject** at α = 0.05. That
+verdict is robust to dropping any single pole of any axis — with **one exception**, printed
+here and reprinted in full in §5.5: dropping the per-protocol pole, leaving an ITT-only family,
+would have produced a **CLAIM** on 019, and §5.6 shows that an ITT-only family rejects
+**66–68 % of the time under a null in which coverage is identical and only authoring validity
+differs**. The per-protocol pole is what stops Tier C from calling an OPA-toolchain failure rate
+a representation effect. That is the single most load-bearing fact behind this registration, and
+it is why family membership is registered before the batch and is append-only afterwards.
+
+### 0.4 The five 019 instrument defects 020 exists to repair
+
+019 froze at `51cae02`, ran 150 registered slots, and stopped at decision row 3. On the record:
+an unattainable primary cut (E4 τ = 19/20, `highKillRate.count` = 0 in all three arms); a
+control floor calibrated on a population the registered condition never reproduced (E1); a
+pilot that measured a different compute condition (§2a.1); an author-side gate whose power was
+never computed (§5.7); and a scorer schema that encodes "nothing evaluated" and "everything
+killed" with the same token (§5.2, §7). Each has a registered repair below, and each repair is
+named where it is argued rather than asserted in a list.
+
+## The freeze and the primary attempt
+
+The freeze commit is the squash-merge commit of the freeze PR on `main` — named by reference
+because a squash hash cannot exist before the merge. At the freeze, every pin in
+`harness/PINS.json` is filled; `results/primary-attempt-001` must not exist, and the scorer
+refuses if it does. The governing invocation, run once from the freeze commit under the pinned
+interpreter, is:
+
+    <the CPython PINS.json pins> harness/score.py --attempt-root results/primary-attempt-001 --include-reviewer-set
+
+The first invocation of that command is the primary attempt, crash and all. The scorer is the
+only publisher; its outputs embed no timestamp and no absolute path. `--include-reviewer-set` is
+part of the governing invocation and is mandatory for a REGISTERED attempt: a REGISTERED label
+without the flag refuses, and the flag while any freeze pin is null also refuses,
+`reviewerMutantSet.sha256` being one of those pins. There is exactly one primary attempt, so
+there is exactly one execution of the set (§4).
+
+**The freeze gates permit and require a `calibration/` subtree.** 019's `DEVIATIONS.md` D-2
+records that `manifest_problems()` refused any tree containing prior authoring, which would make
+020's registered pilot un-runnable at freeze time. 020's gate **permits and requires**
+`calibration/` at freeze while still refusing any `results/primary-attempt-*` — written into the
+gate *and its test* before the first pilot call. `GATE(pre-freeze)`.
+
+## 1. Question, and what the endpoint measures
+
+### 1.1 The question, carried verbatim from Study 019 §1
+
+> Within the registered JPS-expressible policy fragment, under single-shot authorship, does the
+> representation a model authors in change **what its accompanying test suite pins down** —
+> compared across a Judgment Pack (arm A), raw Rego (arm B), and Rego under a prescribed
+> judgment convention (arm C)?
+
+**What A−C is a contrast between (the registered estimand, carried from 019 §1).** Arm C is not
+arm B plus formality. Arm B receives a **result-shape-only floor contract**: a prose inventory
+of the result fields and their permitted values, mechanically de-formalized from C's schema, and
+nothing else. Arm C receives **the full prescribed judgment convention**: that same result shape
+as a JSON Schema, plus five substantive conventions — a registered default decision, totality,
+explicit precedence, unresolved handling, and grounds behaviour (§3). **A−C therefore compares
+the pack format against Rego-plus-the-full-convention, as bundles.** The registered treatment is
+the bundle, the estimand is the bundle's effect, and **no attribution of any part of an A−C
+result to any component of the bundle — representation, result schema, or any individual
+convention — is licensed** by this design (§9). A−B is the same comparison against the floor
+contract, and B−C is not a registered contrast at all. **Why A−C is first:** C is the live
+alternative architecture; A−C is the comparison the program would act on. B is the floor.
+
+### 1.2 The measured construct: witness-input coverage against the shared reference
+
+**M-18 / M-26, ruled 2026-08-23: rename.** R1's sentence names the measured construct, and it is
+this:
+
+> **The registered construct is *witness-input coverage against the shared reference*: the
+> fraction of the shared witness classes a run's authored suite reaches, where a run covers
+> class *g* iff its suite kills all of *g*'s members in the run's own language.**
+
+*"Test-pinning power" survives in this document only as motivation prose — the phrase names why
+the program cares, never what is measured. No headline, no decision sentence and no published
+quantity uses the old name.*
+
+**Fact 1 — kill reduces to witness-class coverage, and the reduction has a condition.** Derived
+from 019's frozen manifests, not asserted: for every one of the **88** runs that carry a
+non-degenerate survivor vector, `killedPaired` equals **exactly** the summed member count of the
+witness classes the run covers — **88 of 88, zero mismatches** — and `gall == gany` in **88 of
+88**. A run is therefore fully described, language-neutrally, by the subset S of the 33 shared
+classes its suite reaches; every candidate endpoint in §5.2's family is a weighted count over S
+and the members differ only in weights. **Assertions never enter.** Greedy hitting-set over the
+51 distinct witness inputs behind the 33 shared classes reaches 33/33 with **21** gold inputs,
+against authored suites of 16–25 cases.
+
+> **The condition is registered with the fact.** Fact 1 holds **conditional on the identity
+> control passing** — specifically on `referenceIdentity` (§1.2's next paragraph and §4). It is
+> not claimed of identity-failing runs, and the two degenerate empty-survivor runs of §5.2 are
+> exactly where a naive reading of the same schema produces a perfect score from nothing
+> evaluated. **The checkable denominator is 88, not the 114 the design panel and both v2 drafts
+> asserted**: only 90 of 019's runs carry a survivor vector at all, and two of those are
+> degenerate.
+
+**M-13, ruled 2026-08-23 as recommended: the suite-against-own-policy score, and the registered
+change to what "identity" means.** 019 had one identity relation. **020 registers two, named
+separately, and says which one gates:**
+
+- **`referenceIdentity`** — the 019 control, unchanged: every case whose inputs are in the
+  registered domain agrees with the arm's **unmutated reference** on the scored surface. This is
+  the relation that defines the per-protocol population pole (§5.2) and the condition of Fact 1.
+- **`ownPolicyIdentity`** — new, and the substance of M-13: the same suite evaluated against the
+  run's **own authored policy**, one extra engine invocation per run. Its per-run score is a
+  **reported quantity** (E6, §5.1) that **gates nothing**.
+
+**R1's construct statement is conditioned on it.** The endpoint measures pinning **against the
+shared reference**, not against the policy each suite accompanies; `ownPolicyIdentity` is what
+makes that severance visible instead of merely disclosed, and R1's claim sentence (§1.3) carries
+the qualifier **and** the reported score. **This is a registered change to what "identity" means
+in this program and is named as such.** The registered decision on which relation gates is
+argued rather than defaulted: `referenceIdentity` keeps the gate because moving the gate to the
+conjunction would move every per-protocol member's population and would make §5.6's dispersion
+figures inapplicable at registration time; the conjunction's composition is published as a Tier D
+population disposition so a reader can see exactly what the alternative would have done. The
+residual is a registered ceiling (§11.10).
+
+**Effective support, stated wherever the estimand is defined.** Five of the 33 shared classes —
+`d8-2m01-low`, `d8-2m01-low-absent`, `d8-70-low`, `d8-low-40-500k01-ins-absent`, `d8-low-89`,
+each a single-witness `d8` boundary input — were covered by **no run in either language** across
+all 88 identity-passing 019 runs. Both arms' floors are displaced downward by a fixed
+5/33 = 0.1515 and no member can exceed **28/33**.
+
+### 1.3 R1 — the decision sentence
+
+> **R1 (primary, retractable; confirmatory-by-robustness).**
+>
+> *Within the registered JPS-expressible policy fragment, under single-shot authorship, arm A's
+> mean **witness-input coverage against the shared reference** differs from arm C's — **claimed
+> if and only if all eighteen registered family members (§5.2) agree in the sign of the A−C
+> difference and each member's own two-sided permutation test rejects H₀ at α = 0.05.** The
+> claimed direction is that common sign. The endpoint is coverage against the shared reference,
+> not against the policy each suite accompanies, and the per-run `ownPolicyIdentity` score (§1.2,
+> E6) is published beside every figure this sentence reads.*
+>
+> *If the members do not agree in sign, or if any member's test fails to reject, R1 returns
+> **INDETERMINATE-BY-DISAGREEMENT** and the study makes no confirmatory statement about A vs C.
+> **An INDETERMINATE outcome licenses no negation** (019 §5, verbatim) — not equivalence, not
+> either direction's negation, and it triggers nothing. All eighteen point estimates, all
+> eighteen p-values, all eighteen per-arm n and the full agreement table are published in every
+> outcome.*
+>
+> *Fixed sequence: **A−C, then A−B**. The A−B step is evaluated under the identical eighteen-member
+> unanimity rule and is reached only if the A−C step returns a claim.*
+
+**There is exactly one verdict vocabulary: CLAIM or INDETERMINATE-BY-DISAGREEMENT.** The word
+**UNSUPPORTED is not used anywhere in 020** for this rule; it reads as evidence of no effect,
+which INDETERMINATE explicitly is not.
+
+**No δ, no τ, no cut, no dichotomy, and no registered direction.** Tier C registers no threshold
+of any kind, so it has no attainability problem — there is no τ that can be unattainable, which
+is the property that killed 019's E4. **No replacement attainability machinery is registered** —
+no probe, no refusal branch, no τ anywhere, including in Tier D, where the full coverage
+distribution is published instead of any dichotomy. The argument for a continuous endpoint is
+that it has no cut to place, discards no information, and cannot produce 019's `0 / 0 / 0`; **no
+cross-scale comparison is made anywhere in this document**.
+
+### 1.4 R2 (secondary, descriptive)
+
+The failure map and the whole Tier D battery (§5.8): per-class coverage profiles, engine-supplied
+vs assertion kills, the E1 report and its two strata, `caseCount` as a construct quantity, the
+corpus-structure publications, authoring latency and validity profiles, and the interpretive-
+spread census. **R2 is never adjudicated and never falsifies**, and every table in it carries the
+Tier D standing clause.
+
+## 1a. Population and prospective content
+
+No locked-replication stratum and no reviewer-holdout stratum: this is an authorship-rate study
+in the 011/012/019 line, and its prospective content is the post-freeze registered batch — no
+authoring run exists at freeze time. Reviewer-authored prospective content lives in the **fresh
+sealed reviewer mutant set** (§4). The calibration pilot, the pre-pilot effort sweep and the
+smoke are non-citable and outside every population.
+
+**Population rule, enforced in code (the Study 001/011 lesson).** The denominator of every
+per-arm rate is attempted runs whose **apparatus** succeeded. Apparatus failures — slot shape,
+call nonzero-exit, call timeout at the registered ceiling, pre-call refusal, post-call wrapper
+failure, golden-context mismatch, binary digest mismatch, registry mismatch, transcript refusal —
+are pipeline-invalid, excluded, and reported with their own rate and interval. Every failure
+attributable to what the author emitted is an **authoring outcome**: valid, counted, and scoring
+zero on every endpoint it reaches. The registered authoring-outcome codes are:
+
+| code | arms it can reach | meaning |
+|---|---|---|
+| `no-marker-block` | A, B, C | no extractable marker block |
+| `unparseable-artifact` | A, B, C | artifact present, case structure not enumerable |
+| `schema-invalid-pack` | A | pack fails the pinned schema |
+| `opa-check-failed` | B, C | `opa check` refuses the authored policy |
+| `v0-syntax` | B, C | Rego v0 syntax under a v1-pinned invocation |
+| `unreadable-output-shape` | A, B, C | result shape outside the registered surface |
+| `author-protocol-violation` | A, B, C | transcript shows a tool use or a turn after the registered prompt |
+| **`presence-idiom-unsound`** | **B, C** | **new in 020 — §3.2's registered presence-idiom guard fires** |
+
+The E4 population adds one further registered step: the identity control (`referenceIdentity`,
+§4), whose exclusions are reported, not silent. A harness test diffs this prose partition table
+against the scorer's code partition and against every code `admit()` can return.
+
+**The partition is closed over what the harness can emit, and closed fail-shut.** Every wrapper
+exit status maps to a complete slot or to one apparatus code above; every refusal of the
+transcript binding maps to one code above, by cause; and a code the partition does not name — or
+an exit status the wrapper does not register — **refuses the whole attempt as pipeline-invalid**
+rather than being materialized, sealed, ledgered and then silently counted. Exhaustiveness is
+checked at import and enforced at every write.
+
+**Every scored slot was made under the registry this attempt reads.** The wrapper stamps the pin
+registry each call ran under into that call's retained `CALL.json`; the scorer hashes the
+registry it is itself about to trust, records that digest in `ATTEMPT.json`, and requires every
+admitted slot's stamp to equal it. A slot whose stamp differs, or carries no stamp at all, is
+`registry-mismatch` — apparatus, excluded, reported. **Registered as a day-one consequence
+(019 D-1/D-3, panel #22):** any post-freeze registry re-pin invalidates every slot recorded
+before it, so either the scorer's registry check reads a semantic subset rather than the raw file
+digest, **or** a repair halts and restarts rather than resumes. 020 registers the second: a
+registry re-pin **halts and restarts the batch**, and the abandoned slots are published with their
+codes.
+
+**Terminality, and what a declared shortfall costs.** The registered batch is the registered slot
+count and the registered population is that batch. A batch that does not complete may be
+**declared short**, and the declaration is a schema carrying evidence rather than a note: the
+registered prefix it stopped at, the ledger's own digest and chain head, and one row per slot with
+its place in the registered call order, its seal digest, its wrapper exit and its §1a code. The
+scorer **re-validates that declaration against the batch on disk** and refuses a declaration that
+does not describe this batch. A validated declaration is **terminal and not scored**: every level
+verdict is `UNRESOLVED-BY-DESIGN`, no endpoint, no rate and no contrast is computed, and §5.9's
+ordered rule reaches that row above every substantive one.
+
+## 2. Apparatus and pins
+
+All pins null until the freeze; the scorer labels any run PILOT while any pin is null. Ported
+pins carry 019's resolved values and are re-verified fail-closed at run time.
+
+- **jpack** v0.17.0: archive sha256 `4046a101…` verified against the release `checksums.txt`;
+  binary sha256 `42f35f79…`; reproducible-build attestation at freeze. Verdicts and error classes
+  read from the JSON payload only. The operator PATH binary must never be invoked.
+- **OPA** v1.19.0: asset `opa_linux_amd64_static` sha256 `1dd5c559…` verified against the
+  published per-asset checksum; **no reproducible-build claim exists** — the pin is against the
+  published artifact, stated here. Rego v1 pinned in prompt and invocation. Capabilities file
+  generated from the pinned binary with the registered denylist; the `time.now_ns` canary must be
+  refused. The `opa test` exit taxonomy is carried verbatim from 019 in all three branches (exit 0
+  every test passed; exit 2 at least one test FAILED; exit 1 the invocation never got as far as
+  running tests). **No verdict and no kill is read from an exit code.**
+- **Authoring stack**: codex-cli, binary sha256 pinned; model named by explicit flag at batch
+  time. Full 011/012/019 isolation discipline: fresh HOME/CODEX_HOME, `env -i`, golden
+  pre-prompt-context capture from two agreeing probes, isolation negative control under recorded
+  operator assent, credential copy deleted on seal and traps.
+- **Interpreter**: CPython, implementation and series pinned, exact version recorded; runbooks
+  name it by absolute path.
+- **Prompts**: assembled deterministically from the frozen policy prose, the naming appendix and
+  the arm materials; each arm's assembled prompt pinned by sha256 at freeze. The call wrapper
+  refuses on prompt digest mismatch. Byte sizes published. The B→C delta is prompt material, not
+  formatting: it is part of the registered bundle (§1.1, §3) and is published beside every result.
+- **Batch shape**: sequential, never parallel; arm-interleaved first-order carryover-balanced
+  schedule for three arms, **re-derived at 020's registered round count and asserted by a harness
+  test**. 019's `batch.py` hard-codes `SEQUENCES = 6`, `ROUNDS = 50`, `RUNS_PER_ARM = 50`,
+  `REGISTERED_SLOTS = 150` and a two-element `TAIL`, and `derive_order()`'s docstring records the
+  registered floor (1, 1) as the cached answer to a search **at 50 rounds**; at any other round
+  count that assertion is wrong by construction. **TODO(prereg): the re-derived call order, the
+  attained position spread, and the re-pinned `batch.order` / `batch.n` / `batch.slots`** — they
+  are functions of N, which §2.1 registers as an output of the pre-pilot sweep.
+- **Registered batch window**: stated **once**, here, as three consecutive UTC calendar days, with
+  a test that no other document in this tree states a different one (019's D-4 filed a deviation
+  against a rule 019 did have; the defect was duplicated constants, not the rule).
+- **Per-call timeout ceiling: 2700 s**, an apparatus bound; timeouts are pipeline-invalid, and a
+  per-arm timeout rate above the registered cap (10 % of slots) is a control-gate failure
+  adjudicating R1 in neither direction.
+- **Disk and retention, registered**: a free-space precondition checked at driver start **and
+  before each slot**; a retention rule for the scratch parent (the wrapper makes two directories
+  per slot); and a total budget — 019's 149 retained slots occupy 86 MB in-tree (arm-A slots
+  ~660 KB, arm-B/C ~20 KB), so ~249 slots project to roughly 140–160 MB plus scratch.
+
+### 2.1 The compute condition is NOT committed, and the sweep is the registered decider
+
+**M-8 / M-20, ruled 2026-08-23: the sweep decides, and the two are decided together.** The
+compute condition is the one thing 019's retained evidence cannot decide, and **no condition is
+committed by this document**. What is registered is the procedure that chooses it and the price
+of every branch.
+
+**The pre-pilot effort sweep, registered.** `n = 3/arm across three settings — 27 calls`, run
+through the registered apparatus (`harness/authoring_call.sh` + `harness/batch.py` under
+`--sweep`, never outside the harness), published in full, `citable: false`, outside every
+population. The registered compute condition — **the `codex.reasoningEffort` value and N
+together** — is chosen from the sweep's result and priced at the sweep's own observed durations.
+
+**Dual pricing, printed rather than caveated.** On one admission cohort throughout, 019's
+registered executed-call slot-triple is **199 / 75 / 75 s = 349 s = 5.82 min**; the pilot-like
+triple, on the completed cohort, is **1660.184 + 803.042 + 624.114 s = 3087.34 s = 51.46 min**,
+i.e. **8.85×**. A swept setting at pilot-like durations therefore costs 8.85× its registered line:
+
+| line | calls | wall clock, registered condition | wall clock, pilot-like durations |
+|---|---|---|---|
+| pre-pilot effort sweep, 3 settings × 3/arm | 27 | 0.29 h | 2.57 h |
+| pilot, 12/arm (C1–C5) | 36 | 1.16 h | 10.29 h |
+| D-1/D-2 smoke (real exec, stand-in binary permitted) | ~6 | ~0.06 h | ~0.51 h |
+| primary batch, N = 60/arm | 180 | 5.82 h | 51.46 h (2.14 d) |
+| **total at N = 60, no author-side gate (M-23 = a)** | **~249** | **~7.3 h** | **~64.8 h** |
+
+The N = 60 rows are **priced illustrations of one branch, not a registered N.** M-13's
+`ownPolicyIdentity` invocation adds one **engine** call per run — no authoring call, no line in
+this table, and its cost is bounded by the pinned engine's per-invocation ceiling.
+
+> **TODO(prereg) — the registered compute condition: the `codex.reasoningEffort` value and the
+> per-arm N.** Both are outputs of the sweep and cannot exist before it runs. The registered
+> obligation: the sweep's full per-setting table (per-arm durations, completion bytes,
+> `reasoning_output_tokens`, per-arm perfect and identity rates) is published, the chosen setting
+> is named with the rule that chose it, and this section is filled and re-priced at that setting's
+> own observed durations before the pilot runs.
+
+**Per-setting abort rule, registered before the sweep.** A setting whose **first** arm-A call
+exceeds **2700 s** (the registered per-call ceiling) is aborted after that call; a setting whose
+per-arm mean duration projects a primary batch beyond **72 h** at the registered N branch is
+recorded as **out of budget** and is not swept further. Aborted settings are published with the
+call that aborted them. The sweep's total is capped at **27 calls**; the cap is not raised by a
+deviation without a `DEVIATIONS.md` entry naming the reason and republishing the price.
+
+**M-25, ruled as drafted: the sweep's pin state.** `authoring_call.sh:203` refuses while
+`codex.model` is null, and `registeredLabelRule` names design-time-resolved pins as checked
+*whether or not the freeze has happened* — so a sweep that must run **before** the effort value
+exists is either refused or unenforced. Registered: **a distinct `--sweep` label that exempts
+`codex.reasoningEffort` alone from the null check**, with each sweep call's setting stamped into
+its `CALL.json`, the sweep's outputs `citable: false`, and the exemption **written into the gate
+and its test before the first sweep call**. Running the sweep outside the harness is rejected on
+sight: that is the 019 failure exactly. `codex.model` and `codex.reasoningEffort` are registered
+as **design-time-resolved pins, not freeze pins**; `registeredLabelRule` is restated with the new
+member and its null-⇒-PILOT test, moved out of §7's ported-unchanged list, and driven in
+`harness/tests/test_pins.py` pin by pin.
+
+**M-24, ruled as drafted: the witness-resolution step, and what the pin can and cannot prove.**
+`PINS.json` gains `codex.reasoningEffort` beside `model` / `version` / `binarySha256`; the wrapper
+passes it explicitly and `CALL.json` stamps it. **There is no transcript witness to bind it to
+today**: 019's `session.jsonl` carries exactly one `turn_context` record whose payload names
+`model` and no effort member, and the only occurrence of `reasoning_effort` anywhere is an
+override slot holding `null` — against which `transcript_check.py:603-608` would refuse every
+call. Registered instead: **a witness-resolution step at pin time, run before the sweep**, which
+sets the flag and inspects the resulting `session.jsonl` for a non-null member naming the effort.
+
+- **If one exists**, transcript gate 5 is extended to it with the same `turn-context-mismatch`
+  reason tag and the same **apparatus-side** classification.
+- **If none exists**, the effort pin **is registered as a `CALL.json` self-report where no
+  transcript witness exists, with `reasoning_output_tokens` entering C4 as a band. A pin nobody
+  can check is a recorded intention, and this preregistration says so.** The condition is
+  *asserted by the wrapper and not independently witnessed*, and that sentence travels with every
+  published record of the condition. 019's medians, for the band's calibration: **A 2067.5** over
+  48 runs, **B 502.5** over 38, **C 696** over 39.
+
+> **TODO(prereg) — the effort flag's exact spelling and the witness-resolution outcome.** Both are
+> resolved empirically at pin time, before the sweep; the branch taken is recorded here and the
+> corresponding gate-5 change (or its registered absence) lands with it.
+
+## 2a. Calibration under registered conditions — C1 to C5
+
+### 2a.1 Why 019's pilot cannot be reused: the differences are five, not three
+
+019's `design/pilot/pilot_run.py` called codex with **no `env=`**, no `-m`, no
+`--ignore-user-config` — inheriting the operator's `$HOME`, `~/.codex/config.toml` and
+`$HOME/.agents` skills, none of which are recorded — while passing `env=clean_env(workdir)` to
+*every* engine call: **the engines were isolated; the model call was not.** Five recorded
+differences: `--ignore-user-config` (absent → present); `-m <model>` (absent → pinned); sandbox
+(**read-only → workspace-write**); `--skip-git-repo-check`/`--color never` (present → absent);
+environment isolation (none → fresh `$HOME`, `env -i`, isolated `CODEX_HOME`, recorded
+`isolatedHomeInventory`). The sandbox difference is the one most directly tied to the test-row
+gap — a read-only sandbox cannot write or execute the suite it is drafting.
+
+Three eliminations, each re-derived: **prompt bytes are not the cause** (three matched
+`sha256sum` pairs); **N is not the cause** (P(pilot 5/5) is 4.72 × 10⁻⁴ for B and 5.96 × 10⁻³ for
+C; for arm A the registered rate is 0/38, and the rule-of-three 95 % upper bound 3/38 is a bound,
+not a p-value); **gold growth is not the cause** (the pilot's 76 ids are a strict subset of the
+117 with no shared row's expectation changed, and restricting every registered run to those 76
+rows gives perfect counts A 0/36, B 8/30, C 14/30 — identical in every arm). The mechanism is a
+tight inference from converging observables, **not a measurement**: the pilot's `CALL.json`
+carries no `model`, no `binarySha256`, no `cli`, and no `session.jsonl` exists pilot-side at all.
+**019's pilot compute condition is unrecoverable**, and service-side drift over 2026-08-15 →
+2026-08-21 cannot be excluded for the same reason. *"Recover pilot-like behaviour" is withdrawn
+as an objective* — the pilot's defining property was that isolation was absent, and targeting a
+condition characterised by missing isolation is not a coherent goal.
+
+**An independent second defect: 5/5 never licensed 0.60.** 019 §5 justified its E1 floor with
+"pilot 15/15", which is the **pooled** figure; the floor was applied **per arm**, where the
+evidence was 5/5, whose exact one-sided 95 % Clopper–Pearson lower bound is **0.549 — below the
+0.60 it was cited to support**. Two independent calibration errors, either sufficient alone to
+produce a `control-gate-failed` attempt.
+
+| n | clean sweep | one miss | two misses |
+|---|---|---|---|
+| 5 | **0.549** | 0.343 | 0.189 |
+| 8 | 0.688 | 0.529 | 0.400 |
+| 10 | 0.741 | 0.606 | 0.493 |
+| **12** | **0.779** | **0.661** | 0.562 |
+| 15 | 0.819 | 0.721 | 0.637 |
+
+### 2a.2 C1 — one driver, and the pilot's pin state registered as a difference
+
+`design/pilot/pilot_run.py` is **deleted, not ported**. The pre-freeze pilot runs through
+`harness/authoring_call.sh` and `harness/batch.py` under a `--calibration` mode. **The registered
+differences between the pilot and the primary batch are exactly four**, and they are enumerated
+here so a fifth cannot be discovered later: output under `calibration/<label>/`; the pilot slot
+count; `citable: false`; and the pin state (§2.1's design-time-resolved rule). Pilot N: **12/arm**
+(CP lower bound 0.779 on a clean sweep, from the table above).
+
+### 2a.3 C2 — pin the compute condition, bind it, register what the binding proves
+
+Registered in §2.1: the pin, the wrapper flag, the `CALL.json` stamp, the witness-resolution step,
+and M-24's self-report branch with its band.
+
+### 2a.4 C3 — derive the go/no-go, do not choose it
+
+House precedent is SCAFFOLD item G3: `leak_tokens.py` derives its screen mechanically and then
+proves the derived list has power. Applied here:
+
+1. **A committed `calibration/derive_floor.py`, sealed before the pilot runs**, emitting any
+   threshold from the pilot's own per-arm counts by an exact Clopper–Pearson rule, with **no human
+   number entering**.
+2. **A minimum viable value declared in advance**, below which the study does not freeze. Under
+   M-9's ruling the below-minimum branch **aborts** rather than descopes.
+   > **TODO(prereg) — the minimum viable derived value.** It is declared **before the pilot runs**
+   > and **after** the sweep fixes the compute condition, because the attainable per-arm perfect
+   > rate is condition-dependent and 019's own figure was calibrated on a population its
+   > registered condition never reproduced (§2a.1). The obligation is registered here; the number
+   > is not yet a number, and inventing one now would repeat 019's defect.
+3. **The threshold's seat is a pre-freeze go/no-go, and only that.** Under M-23 (§5.7) there is no
+   author-side control gate on the batch, so no post-batch row reads this value.
+
+**C3(iii)'s degradation control is not registered as a batch control.** 019's proposed
+reference-side degradation **provably cannot fail the gate it certifies** (re-derived:
+`retired_x1` selects exactly 5 of 117 rows; under repair-removed gold the per-arm best runs score
+2 / 5 / 5 = 0.9829 / 0.9573 / 0.9573 and the existence gate **holds in all three arms**, with arm
+A *unchanged* because the degradation makes arm A's dominant failure mode correct). The retarget
+to a stimulus-side degradation (shared prose header, prompt assembly, naming appendix) is
+registered **conditionally**: it exists only in a branch where an author-side gate is
+reinstated — which M-23 = (a) forecloses, and which the brief's own cost table prices at +180
+authoring calls. Reinstatement requires a `DEVIATIONS.md` entry, publication of the computed
+per-arm miss-count shift **before** the pilot runs, budgeting as authoring calls, and either
+running at the batch's realised n or stating the arithmetic gap per §5.7.
+
+### 2a.5 C4 — the transfer gate, at decision row 1, two-sided, with derived bands
+
+A condition mismatch is an apparatus fact, not evidence about the arms, and 019's
+`control-gate-failed: e1-floor` verdict actively misleads on this — it reads as *the arms are bad
+at the task*. Bands are derived from **within-condition** dispersion (bootstrapping medians-of-12
+from 019's registered batch, 4,000 resamples, seed 3, executed calls only), never chosen:
+duration spans [0.930, 1.083] / [0.960, 1.080] / [0.920, 1.067]; completion bytes
+[0.926, 1.106] / [0.917, 1.059] / [0.941, 1.043]; `reasoning_output_tokens`
+[0.857, 1.169] / [0.846, 1.193] / [0.727, 1.177]. Registered bands are ~2.5× the measured span
+for the two rows with demonstrated power and ~2.7× for the reasoning-token row, set **before** the
+pilot from this dispersion.
+
+| Observable | Source | Band | Power against the 019 mismatch |
+|---|---|---|---|
+| model, CLI version, binary sha256, reasoning effort | `CALL.json`; `session.jsonl` `turn_context` where a witness exists (§2.1) | exact equality | **none** — the 019 pilot `CALL.json` records none of them |
+| sandbox policy, `codexHomeIsolated`, `environmentScrubbed`, isolation inventory | `CALL.json` | exact equality | **none** pilot-side in 019; **descriptive** for any 019 comparison, **gating** for 020's own pilot |
+| per-arm median call duration | `CALL.json` `startedAt`/`endedAt`, executed calls only | [0.80×, 1.25×] | **fires**: 8.3–10.7× |
+| per-arm median completion bytes | `completion.txt`, same cohort | [0.80×, 1.25×] | **fires**: 0.53–0.67× |
+| per-arm median `reasoning_output_tokens` | `session.jsonl` | [0.65×, 1.55×] | cannot be evaluated against 019 (no pilot `session.jsonl`); registered for 020 |
+
+**C4 is two-sided.** *If every exact-equality row holds and only band rows differ, the pilot is
+suspect and the outcome is `calibration-invalid`, requiring a re-pilot under C5; if any
+exact-equality row differs, the batch is suspect and the outcome is `pipeline-invalid`.* Both
+outcomes are recorded with the rows that produced them.
+
+### 2a.6 C5 — one pilot, sealed, append-only re-pilot rule
+
+The pilot runs once; label, N and output digest go into `PINS.json` before the primary attempt. A
+second pilot requires a `DEVIATIONS.md` entry naming the reason, and then **the derived threshold
+is the maximum over all pilots** and **the transfer bands are the tightest over all pilots**, with
+every pilot's rates published side by side. Re-piloting is monotone in strictness.
+
+**Pinning effort undermines the dispersion calibration, and the adjudication is registered.** If
+020 pins a higher reasoning effort, 019's batch is no longer condition-matched and §5.6's
+dispersion figures become a **prior, not a calibration**. Registered: pin the effort explicitly,
+and **re-derive the dispersion from the pilot at the pinned effort**; 019's SDs are a fallback
+prior and are labelled as one wherever they appear.
+
+> **TODO(prereg) — the dispersion re-derived from the pilot at the pinned effort.** §5.6's σ table
+> stands as a labelled fallback prior until the pilot at the registered condition reports; the
+> per-member MDE table is then recomputed at the registered N and republished before the freeze.
+
+## 3. Arms and prompt materials
+
+### 3.1 Ported unchanged from Study 019
+
+| Arm | Artifact pair | Suffix materials |
+|-----|---------------|------------------|
+| A | Judgment Pack (specVersion 0.2.0-draft) + matrixVersion-2 test matrix | full spec + schema verbatim; task instructions |
+| B | Rego v1 policy + opa test file | full OPA doc pages verbatim; **result-shape-only floor contract**; task instructions |
+| C | Rego v1 policy + opa test file | same doc pages; **the full prescribed judgment convention** (the same result shape as a JSON Schema, PLUS five substantive conventions: a registered default decision, totality, explicit precedence, unresolved handling, grounds behaviour); task instructions |
+
+Shared header, byte-identical: the policy prose and the naming appendix. Excerpt parity is
+full-verbatim, not curated. `deformalize.py` generates B's contract from C's schema and
+byte-equality with the generator's output is a freeze test. **No formality-only claim about the
+B/C difference appears anywhere in this registration.** Authoring is **single-shot, no tools, no
+repair**; artifact extraction is the registered marker rule. System boundary: in-system = what
+the pinned binary does at evaluation time; out-of-system = anything requiring an authoring loop.
+
+**M-4, adopted: 020 does not repair the stimulus.** The seven construct rows' lemma cost is the
+finding (§4.2); repairing it silently changes the estimand, and stating the region lemma in the
+prose would edit the byte-identical shared header and therefore the treatment in all three arms.
+If the maintainer wants it, it is a separate registered study with its own pilot.
+
+### 3.2 The presence-idiom guard (M-14), and why it is not prose
+
+**The M-14 forensic verdict, 2026-08-23, is the reason this section exists.** A focused read of
+019's `arms/B/authoring/run-011/` against a perfect arm-B run found neither candidate mechanism
+but a third, proven both ways: **one Rego language-semantics error — `"key" in object` tests
+values, not keys — is the arm-B/C E1 collapse.** The presence test gating U1
+(`"riskScore" in input.vendor`) is false even when the member is present, so every input is judged
+unreadable, the candidate sweep fires on every row, and the grid almost never collapses to a
+singleton → `unresolved:[unknown]`. Evidence, bidirectional: run-011 reproduces `RESULTS.json`
+exactly (31/86/0); repairing only that operator takes it to 117/117 and, across all 40 affected
+runs, makes 26 perfect and improves 32; mutating the correct idiom out of 8 perfect runs collapses
+**8/8** to the exact observed signature including the `eval_conflict_error` pattern.
+Discriminator: **40 of 76 B+C policies use bare-object `in` → zero perfect; all 22 perfect runs
+avoid it.** The ROW-ERRORs are the same bug's conflict face (B 94 %, C 100 % — and C's 89 are a
+single run), not a second mechanism. Counterfactual E1 under this one repair: **B 0.267 → 0.800,
+C 0.467 → 0.767 — both hold the 0.6 floor.**
+
+**More prose is demonstrated ineffective, and that is measured, not argued.** Neither of 020's
+planned repairs touches this: the wire-form contract was already stated and followed, **and the
+prompt's bundled Rego reference already flags the exact trap (`"foo" in {"foo": 1} # false`) yet
+it fired in 40 of 76 runs.** A guard that consists of more words in the prompt is therefore
+registered *out*: the empirical rate of the bundled warning is 40/76 ≈ 0.53 failures despite the
+warning, and 020 will not register a control whose only demonstrated operating point is that one.
+
+**Registered decision: the guard is at ADMISSION level, in the scorer, and it is a detector — not
+a repair, not an exclusion, and not a prompt edit.**
+
+- **What it does.** `harness/e4lib/presence_idiom.py` (new; §7) parses each admitted arm-B/arm-C
+  policy under `opa parse --format json` and flags any `in` term whose right operand is, on the
+  syntax tree, an **object** (or a reference resolving to an object member of `input`) rather than
+  a set or array. A run the detector flags receives the registered authoring-outcome code
+  **`presence-idiom-unsound`** (§1a's table, E2's ordered table): **valid, counted, and scoring
+  zero on every endpoint it reaches, exactly as the other authoring codes do.**
+- **What it does not do.** It does not rewrite the operator (that would change the authored
+  artifact, i.e. the treatment); it does not exclude the run (that would delete an authoring
+  outcome); it does not gate the batch; and it emits no prompt-side text. Single-shot authorship
+  admits no repair loop, so an "author-checklist" variant of this guard is a prose variant and is
+  rejected on the measured ground above.
+- **Why admission and not engine level.** An engine-level guard would have to change what the
+  pinned OPA binary does, which is out of the registered system boundary (§3.1) and would break the
+  binary digest pin. The admission layer is where 020 already classifies what the author emitted.
+- **The registered arm asymmetry, and its ceiling.** The code is structurally unreachable in arm A:
+  arm A's format has no analogous single-operator trap on this surface. **This is registered as a
+  ceiling (§11.11), not repaired.** Arm A's own near-miss profile in 019 (92 % row accuracy, zero
+  faults) stands **unexplained** by this mechanism and is published as Tier D material —
+  descriptive, direction-free, and no decision reads it.
+
+**The obligation, and it is a freeze gate.** `GATE(pre-freeze)`: **the guard is registered with
+its own power analysis, computed and published before the freeze.** The analysis is mechanical and
+its inputs already exist in 019's frozen tree, so it is an obligation with a deadline rather than
+a hope. It must report, at minimum: (i) **sensitivity** — the detector run over 019's 76 retained
+B+C policies must fire on the 40 that use bare-object `in`; (ii) **specificity** — it must fire on
+**none** of the 22 perfect runs; (iii) the **false-positive rate on lawful `in` uses** (over sets
+and arrays) across the same 76 policies and across both reference implementations; (iv) the
+**counterfactual per-member shift** on 019's batch — every one of §5.2's eighteen members
+recomputed with the flagged runs coded `presence-idiom-unsound`, published beside the unflagged
+figures, so the code's effect on the family is a measured quantity rather than an assumption; and
+(v) a **mutation check** in the program's standing discipline: break the detector, confirm the
+test that certifies it fails, and label any assertion that cannot discriminate.
+
+> **TODO(prereg) — the presence-idiom guard's power-analysis numbers (i)–(v).** They require
+> executing the new detector over 019's retained artifacts, which the detector does not yet exist
+> to do. Registered as a `GATE(pre-freeze)`: if the detector cannot meet (i) and (ii) exactly —
+> 40/40 and 0/22 — **the guard is not registered at all** and the mechanism is carried as a Tier D
+> descriptive finding only.
+
+## 4. Oracle, references, mutants, and the input domain
+
+### 4.1 Ported by digest, no design change
+
+Gold bytes and `check_gold.py`'s census (**117 rows**, sha256 `1ca1e5dd…`, both engines reproduce
+every row, clean-room oracle 117/117 and 2,540/2,540); both reference packs and
+`references-reproduce-gold` (117/117); the mutant corpora and `ADEQUACY.md`; the witness tables
+and the pairing rule; the registered input domain with its symmetric per-arm case enumeration;
+`leak_tokens.py`; the transcript gates other than gate 5; the identity control's
+`referenceIdentity` relation; the off-gold equivalence certificate (**exactly 0 divergences over
+236,196 cells**); X1's retirement and its permanent `retired-x1-regression` validation record; and
+the `DEVIATIONS.md` machinery. **Pairing, re-derived from the two manifests by identical sorted
+witness set and reproducing `RESULTS.json.pairing` exactly: 33 shared non-degenerate witness
+classes, 69 paired adequate JPS, 62 paired adequate Rego.** The registered exclusion registry is
+**empty**, and an unclassified divergence blocks the freeze rather than being filtered.
+
+`GATE(pre-freeze)`: the registered clean-room build re-runs against the frozen prose; divergences
+get written dispositions; unsettleable rows route to the ambiguity stratum mechanically.
+
+### 4.2 The seven construct rows — kept in gold, split into two strata, outside every gate
+
+**M-3 (revised), adopted.** The seven rows are two mechanically distinguishable classes, verified
+against source:
+
+- **S1 — five rows, derived-encoding cost.** `design/gold/check_gold.py::retired_x1` selects
+  exactly `x1r-low-spend-unreadable-40`, `x1r-low-spend-unreadable-69`,
+  `x1r-country-unreadable-100k`, `x1r-country-unreadable-40`, `x1r-country-unreadable-69` —
+  committed, V7-certified, matching `verification/V7-COMPLETENESS.md` §3.4 assertion A6.
+  Mechanism V8-09: expressing it costs a derived region lemma the prose never states; arms B/C
+  need no such lemma. Signed `B/C-favorable`. **A cost row, not a fragment boundary.**
+- **S2 — two rows, reason accumulation.** `p1-absent-escalation-region` and
+  `p1-unreported-escalation-region` both return false under `retired_x1`, so they are outside S1's
+  region and cannot require the region lemma. Their arm-A signature is exact and unanimous over
+  019's 36 artifact-bearing runs: expected `unresolved:[missing-required-evidence]`, got
+  `unresolved:[exception-escalation,missing-required-evidence]` on **35/35** failing runs; expected
+  `unresolved:[unknown]`, got `unresolved:[exception-escalation,unknown]` on **35/35**. That is
+  V8-10's inert O3 conjunct, whose guarding conjunct **is** stated in the prose.
+
+Both strata are **scored and published per arm, outside every gate**. Nothing in the frozen
+artifact chain moves. What narrows is the E1 *descriptive* support, to 110 rows, on grounds known
+in advance to favour one arm's profile — so **both strata rates are published per arm with E1's
+prominence**, and §11.7 says plainly that the support was chosen on a known arm asymmetry. It is
+necessary, not sufficient: perfect-on-110 is **A 3/36, B 8/30, C 14/30**.
+
+> **TODO(prereg) — S2's mechanical membership predicate.** S1's is committed and certified today.
+> S2's is *the arm-A reference's answer depends on an exception conjunct entailed by another
+> clause's guard*, which `design/mutants/ADEQUACY.md` already mechanizes on the **Rego** side as
+> `entailed-guard`; the predicate must be **lifted to the JPS side and its extension published
+> before the freeze**. **Registered sub-decision: if it cannot be lifted before the freeze, S2 is
+> dropped and the two `p1-*` rows stay in the undifferentiated support.** A declared stratum must
+> not be registered as a mechanical one.
+
+### 4.3 What does not carry: the reviewer mutant set
+
+019's reviewer mutant set is **spent** — `PINS.json`'s `reviewerMutantSet.note` records "first
+executed at the primary attempt" and `RESULTS.json.reviewerSet.perArm` publishes the outcome per
+run. **020 registers a fresh sealed reviewer set**: authored during review rounds, committed
+verbatim, freeze-pinned by digest, validated without execution before the attempt, first executed
+at the primary attempt under the mandatory `--include-reviewer-set`, executed exactly once, scored
+"as authored", published in its own section, and reaching no member the decision reads. No
+reviewer mutant is paired, enters a witness group, or moves any registered quantity. 019's set is
+kept only as a published comparison.
+
+## 4b. Threat model — which surface is gated, and which is recorded
+
+**Registered here because 019's twelve review rounds proved it has to be** (ADR 0005, decision 3).
+
+**(a) The REGISTERED surface — reviewed adversarially, freeze-gated.** This preregistration; the
+frozen policy prose; the gold suite; both mutant corpora and their manifests; both reference
+implementations; the off-gold equivalence certificate; the three arm prompts; the fresh sealed
+reviewer mutant set; and the harness's scoring, driver, integrity, pins and manifest chain —
+`harness/score.py` and `harness/e4lib/` (including the new `presence_idiom.py` and the family
+scorer), `harness/batch.py`, `harness/transcript_check.py`, `harness/integrity.py`,
+`harness/grid_gate.py`, `harness/PINS.json` and `harness/make_manifest.py`. A finding against any
+of them is answered — with a mechanism and a test that fails when the mechanism is removed — or
+the freeze does not happen. **No finding against this surface may be filed as an advisory.**
+
+**(b) The REVIEW-SUPPORT APPARATUS — registered purpose: drift detection under an honest
+operator.** The currency suite, `harness/render_round_status.py`, and the ceremony's procedural
+documents exist to catch a document that has fallen out of step with the tree. That is a real and
+repeatedly useful property. What it is **not**, and cannot be made into by hardening, is a root of
+trust against a maintainer attacking their own record: integrity is **"a gate against drift, not a
+root of trust"**, and every check in the review-support layer is weaker than that one — code the
+maintainer runs, over documents the maintainer writes, checking properties the maintainer
+registered, in a repository the maintainer controls.
+
+**Consequence, registered.** A finding whose only reachable exploit requires the maintainer to edit
+the record they are attesting is RECORDED as an open advisory in `harness/ADVISORIES.md` — with
+its severity as the reviewer returned it, its file cites, and the reviewer's proposed fix,
+unadopted and named as such — and is **not** a freeze gate. Recording is not dismissal: the
+register is appendable, excluded from the exact-set manifest by named constant with an asserting
+test (ADR 0004), and published with the study. No file that is covered leaves the covered set for
+this: coverage answers "may these bytes move after the freeze" while this section answers "what
+must a finding against them do".
+
+## 5. Endpoints, the family, and the decision rule
+
+### 5.1 The endpoint set
+
+Scored surface: **kind + outcomeId + reasons (as sorted sets)** under the registered alignment map
+(two axes: run-level admission; row-level
+APPROVE/REVIEW/ENHANCED-REVIEW/REJECT/UNRESOLVED(reason-set)/ROW-ERROR(class)). `handoff` and
+`trace[]` are outside every endpoint; `applicability` is forbidden by the appendix and asserted at
+admission.
+
+- **E4 (primary): witness-input coverage against the shared reference.** Per admitted run: the
+  suite passes `referenceIdentity`; then the run's coverage set S over the 33 shared classes is
+  computed, and each of §5.2's eighteen members is a weighted count over S. **No cut, no τ, no
+  dichotomy.** **The scorer emits an explicit per-mutant survivor vector for every admitted run and
+  must never encode "nothing evaluated" and "everything killed" with the same token** (§5.2's
+  empty-survivor rule; registered as a day-one requirement, §7). Runs carrying authoring-outcome
+  codes remain in the ITT members' denominators scoring 0; only apparatus codes leave. **Each
+  member's per-arm denominator must be positive**; a contrast over an empty arm is not
+  INDETERMINATE, it is not computed at all, and the outcome falls to the rows above.
+- **E1 (reported, fully descriptive): per-run perfect gold agreement** on the policy artifact, ITT
+  denominator, published on the 117-row support and on the 110-row support with S1 and S2 named
+  (§4.2). **There is no E1 floor and no author-side control gate** (§5.7). 019's finding — *arm A
+  never achieves perfect gold agreement, and the mechanism is a derived lemma the prose never
+  states* — is a reported result here, not a study-killer. The exclusive disposition table 020
+  reports per arm is 019's, re-derived and mutually exclusive:
+
+  | Arm | ITT | no scorable artifact | collapsed ≥ 50 misses | intermediate 1–49 | perfect |
+  |---|---|---|---|---|---|
+  | A | 38 | 2 (`no-marker-block` 2) | 0 | 36 (2–15) | 0 |
+  | B | 37 | 7 (`opa-check-failed` 4 + `unparseable-artifact` 3) | 20 (86–104) | 2 (2–13) | 8 |
+  | C | 39 | 9 (`opa-check-failed` 9) | 13 (86–104) | 3 (2–13) | 14 |
+
+  *Descriptive; published as an interpretation quantity that no decision reads.* "Collapsed" is a
+  cohort label, not a registered category; arms B and C are **strongly bimodal, with 2 and 3
+  intermediate runs** — not "perfect or 86–104".
+- **E2: authoring-validity profile** — §1a's ordered code table with apparatus codes separated,
+  same denominator, headline not footnote. **The table carries `presence-idiom-unsound` (§3.2)**,
+  with its per-arm count published whether or not it ever fires.
+- **E3: row-level failure taxonomy** on E1 failures and identity failures, with `u1-*` and the two
+  `p1-*` region rows as named categories; arm-structural categories within-arm-only, enforced in
+  the scorer.
+- **E5: interpretive-spread census** — per-arm distinct structural encodings and pairwise-
+  disagreement profiles over the frozen gold-row input set, the count freeze-pinned in `PINS.json`.
+- **E6 (new, reported): `ownPolicyIdentity`** — the per-run score of the authored suite against the
+  run's own authored policy (§1.2, M-13). One extra engine invocation per run. **Published per run
+  and per arm; gates nothing; conditions R1's construct statement.** The conjunction
+  `referenceIdentity ∧ ownPolicyIdentity` is published as a Tier D population disposition, so the
+  population 020 did **not** register is visible beside the one it did.
+- Latency and artifact-size distributions per arm: descriptive, published.
+
+### 5.2 The registered sensitivity family — eighteen members
+
+#### The admission test (arm-blind by construction)
+
+An analytic choice is a **family axis** iff:
+
+| | Criterion |
+|---|---|
+| **(i)** | **Openness.** The choice was still open at the moment 019's arm-labelled quantities entered the design record. |
+| **(ii)** | **Both poles defensible.** Each pole is a defensible answer to §1.1's question. An axis with one indefensible pole is a correctness question, not a robustness question. |
+| **(iii)** | **No known structural bias.** Neither pole is provably biased under a true null by a quantity computable from the frozen corpus alone. Where one is, it enters **in its de-biased form**, and the raw form is published in Tier D. |
+
+All three read the design record's chronology, §1.1's wording, and the frozen manifests. **None
+reads an arm-labelled outcome.** A fourth criterion the design drafts carried — *"the axis is
+outcome-determinative on 019's batch"* — is **withdrawn and is not registered**: it selected
+membership from the leaked direction, and under the intersection–union logic of §5.4 *removing*
+members is the anti-conservative direction.
+
+#### Two structural facts, both derived from the manifests
+
+**Fact 1** is stated with the construct in §1.2, with its identity-pass condition and its 88-run
+denominator.
+
+> **The empty-survivor trap, registered as a day-one scorer requirement.** Two arm-A runs of 019
+> (`run-025`, `run-046`, both identity-failing) carry `survivorsPaired: []` **with
+> `killedPaired: 0`**. Read naively — "no survivors ⇒ everything killed" — they score a perfect
+> 33/33 when they killed nothing. On 019 this single schema trap moves the group-level ITT A−C
+> contrast from **+0.19112 (naive) to +0.13849 (corrected)** — magnitude **0.0526**, a 38 % shift,
+> and note the direction: correcting the trap **lowers** A−C. **020's scorer emits an explicit
+> per-mutant survivor vector for every admitted run and never encodes "nothing evaluated" and
+> "everything killed" with the same token.** Every figure in this document uses the corrected
+> reading.
+
+**Fact 2 — the native mutant-level estimand is structurally biased between languages.** Of the 33
+shared classes, **20 have unequal member counts across languages** (13 JPS-heavier, 7 Rego-heavier;
+extremes `d7-39-100k` 6 JPS vs 3 Rego, and the four-input `d1-match|…` class 1 JPS vs 4 Rego).
+Under a true null — both arms drawing coverage sets from the same distribution — the expected A−C
+contrast of a level with weights w^A, w^C is `offset = Σ_g π_g · (w^A_g − w^C_g)`, π_g the pooled
+coverage marginal of class g:
+
+| level | weights w^A_g / w^C_g | offset at 019's pooled coverage profile | worst case |
+|---|---|---|---|
+| **L2 — native mutant** (019's registered quantity) | \|J_g\|/69 vs \|R_g\|/62 | **−0.0496** (per-protocol) / −0.0485 (ITT) | 0.5400 |
+| **L2, engine-excluded** | \|J^ex_g\|/57 vs \|R_g\|/55 | −0.0492 / −0.0481 | 0.5046 |
+| **L1 — group**, weight 1/33 each | 1/33 vs 1/33 | **0 by construction** | 0 |
+| **L3 — symmetrised mutant**, w_g = (\|J_g\|+\|R_g\|)/131 | identical in both arms | **0 by construction** | 0 |
+
+−0.0496 is larger than any representation effect this study plausibly seeks, so L2 fails criterion
+(iii) in its raw form — and by criterion (iii) it enters **de-biased, not removed**:
+
+> **L2c, registered definition.** Per-run outcome = the native-denominator paired kill fraction;
+> then **off̂ is subtracted from every *scoreable* arm-A run's outcome**, where
+> off̂ = Σ_g π̂_g(w^A_g − w^C_g) and π̂ is the pooled, **arm-label-free** coverage marginal over the
+> scoreable runs of that member's own analysis population. Unscoreable runs score 0 in both arms
+> and take no offset. On 019: off̂ = −0.04956 (per-protocol, engine-included), −0.04846 (ITT),
+> −0.04922 / −0.04813 excluded-column.
+
+**M-16(d), ruled: the three L2c ceilings are accepted as registered ceilings, in the brief's own
+words** — π̂ on the per-protocol population is estimated on a post-treatment-selected cohort
+(arm-label-free, but not treatment-free); off̂'s estimation variance is not propagated into the
+member's test; and for the adjusted members the offset is subtracted from unit outcomes *before*
+the ANCOVA, so the adjusted contrast inherits it linearly. **L3's presence beside L2c is the
+mitigation**: L3 needs no estimated offset and is unbiased for *any* π (§11.9).
+
+#### The eighteen members
+
+The family is the crossing **{L1, L3, L2c} × {engine-included, engine-excluded} ×
+{ITT-unadjusted, PP-unadjusted, PP-adjusted}**, with **both poles of every axis retained**.
+
+- **Level axis, three poles.** L1 group (a class is one unit); L3 symmetrised mutant; L2c de-biased
+  native mutant (019's registered quantity, made unbiased). All three are defensible answers to
+  §1.1 and they are genuinely different estimands.
+- **Engine-supplied-kill axis, two poles.** Excluding engine-supplied kills drops **12 of 69 paired
+  JPS mutants and 0 of 62 paired Rego**, taking the shared class set from **33 to 29** and the
+  JPS/Rego paired totals to 57/55. The exclusion is entirely one-sided, which is an **arm-blind**
+  reason it could matter. Both columns are members.
+- **Population × adjustment, three cells.** ITT = every §1a admitted run, a run with no scorable
+  suite scoring 0. Per-protocol = `referenceIdentity`-passing runs. Adjustment = ANCOVA on
+  `caseCount`, pinned below.
+
+**The two cells registered *out* of the family, argued rather than dropped.**
+
+1. **ITT × ANCOVA.** `caseCount` is undefined for a run with no parseable suite. Imputing 0 makes
+   the covariate a near-deterministic function of the ITT-vs-per-protocol distinction itself, so
+   adjusting for it partially undoes the very zero-filling the ITT pole exists to impose — a covert
+   change of population, not an adjustment. On 019, with `caseCount = 0` imputed, the ITT
+   group-level A−C moves from **+0.1385 to −0.0201** and pooled within-arm SD collapses from
+   **0.25427 to 0.09652**. The six quantities are published in Tier D with this sentence attached.
+   *A naive implementation instead silently drops the covariate-less runs and reproduces the
+   artifact-bearing complete-case cell exactly — a hidden collapse of the family. **The scorer must
+   refuse rather than fall back**, and a harness test drives that refusal.*
+2. **Artifact-bearing complete-case as a third population pole.** A population defined by "carries
+   a survivor vector" admits runs that *failed* the identity control — which the per-protocol pole
+   exists to exclude and the ITT pole includes wholesale. It is neither, and it is registered out on
+   criterion (ii). Its composition on 019 is disclosed in Tier D: the per-protocol set plus exactly
+   the two empty-survivor runs.
+
+#### Definitions pinned before the freeze
+
+1. **Coverage rule.** A run covers class g iff its suite kills **all** of g's members in the run's
+   own language. The any/all question is **not a live choice**: `gall == gany` in **88 of 88**
+   checkable runs, and Fact 1 shows this is structural for `referenceIdentity`-passing runs. The
+   equivalence **and its condition** are registered as a stated fact, not as a sub-decision.
+2. **ANCOVA pinned to the byte.** Pooled *within-arm* slope estimated over **all three arms**
+   jointly; adjusted difference evaluated at the grand covariate mean. On 019 at L1/per-protocol:
+   slope **b = +0.02332**, arm covariate means A 20.882 / B 21.000 / C 19.821, adjusted means
+   A 0.6106 / B 0.5893 / C 0.5945. The two-arm-only slope variant gives A−C = +0.0185 against the
+   three-arm +0.0161 — immaterial there, decisive as a registration matter. **Pin the three-arm
+   form; publish the pairwise variant in Tier D.**
+3. **Balance registered on means with a test**, with a stated threshold and a registered non-claim
+   if it fails. A median-based balance claim is **not** registered.
+4. **`caseCount` = 0** for a suite that parses to no cases, with the per-arm count of such runs
+   published before the freeze and the complete-case variant published beside it. 020's scorer
+   emits `caseCount` for every admitted run with a suite; 019's six runs that carried a `kill` block
+   with neither `survivorsPaired` nor `caseCount` (B `run-026/027/032/036`, C `run-035/050`; arm A
+   zero — **exactly the same six runs under both defects**) cannot recur.
+5. **Analysis-set arithmetic registered per member** before the freeze; each member's per-arm n is
+   published whether or not R1 fires.
+
+   > **TODO(prereg) — each member's registered per-arm n.** A function of N (§2.1) and of the
+   > realised-n arithmetic below; both are filled with the compute condition, before the freeze.
+
+**Realised-n arithmetic, shown rather than asserted, at the illustrative N = 60 branch.** Derived
+from 019's `population.*.apparatusCodes` (A: `registry-mismatch` 9, `slot-shape` 2,
+`transcript-refused` 1; B: `slot-shape` 11, `post-call-failure` 1, `transcript-refused` 1; C:
+`slot-shape` 11) and the conditional artifact-plus-identity rates A 34/38 = 0.895, B 26/37 = 0.703,
+C 28/39 = 0.718: with `slot-shape` pre-paid, arm A is 1 − 10/50 = 0.80 → 48 admitted → ≈ **43**
+scoreable; arm B 0.96 → 57.6 → ≈ **40**; arm C 1.00 → 60 → ≈ **43**. With `registry-mismatch` also
+repaired, arm A is 0.98 → 58.8 → ≈ **53**. **Without that repair arm A projects to ~43, not 50.**
+
+#### Membership is append-only after registration
+
+After the freeze a maintainer may **add** a member — monotone toward INDETERMINATE under §5.4's
+intersection–union logic — and may **never remove one**. An addition requires a `DEVIATIONS.md`
+entry and the **pre-addition verdict is published beside the post-addition one**. Every member is
+published whatever the verdict.
+
+### 5.3 The per-member test — one scheme, stated precisely
+
+- **Unadjusted members.** Exact two-sided permutation test on the difference in means, permuting
+  arm labels within the two-arm subset. Exact under the sharp null of no unit-level effect.
+  **20,000 permutations**, seed pinned in `PINS.json`, Monte-Carlo p in the (count+1)/(B+1) form.
+- **Adjusted members.** The unit's **whole record** (outcome and `caseCount`) travels with the
+  permuted label; **4,000 permutations**, same seed rule. This is exact under the **strong** sharp
+  null — the arm changes neither the suite's coverage nor its size — and it is *not* an exact test
+  of "no effect on Y given `caseCount`". **Freedman–Lane residual permutation is not registered and
+  is not a cure**: no covariate-adjusted permutation scheme achieves exactness for that null with a
+  treatment-affected covariate, and registering two schemes in one document was itself a defect. The
+  family contains the unadjusted members precisely so that the weaker guarantee is never
+  load-bearing alone.
+- **Every table names its method and its B.** Where a normal-theory surrogate is used (only in
+  §5.6's simulation) it is labelled as such.
+- **The word "exact" is used only of a permutation null distribution, never of an interval.**
+  Inverting to an interval needs a location-shift model, and the outcome is bounded, lattice-valued
+  (1/33 = 0.0303), with per-arm SDs differing by 24 % on 019. **Intervals are Tier D**: BCa
+  bootstrap, per member, coverage stated as approximate, **no decision reads them**.
+
+### 5.4 α handling — intersection–union
+
+1. **No multiplicity correction is applied, and none is needed.** The claim's alternative is
+   H₁⁺ = {every member's difference > 0} (symmetrically H₁⁻); its null is a **union**. An IU test
+   requiring every member to reject at level α has size **≤ α**, attained only in the
+   least-favourable configuration where one member sits exactly at zero. For a *directional* claim,
+   two-sided p < 0.05 plus a sign is a one-sided level-0.025 test, so the family-wise type-I rate
+   for a signed R1 is **≤ 0.025**. Bonferroni would be not merely unnecessary but wrong.
+2. **Realised size is far below the bound** — §5.6 puts it at **0.002** at N = 60/arm under a global
+   null.
+3. **The price is paid entirely in power**: power ≤ min over members.
+4. **α = 0.05 per member, two-sided, no correction** (M-19). Lowering α costs power multiplicatively
+   across eighteen members and buys nothing the IU bound does not already give.
+5. **The fixed sequence A−C → A−B spends no α.**
+
+### 5.5 The mandatory reprints (M-21)
+
+**Ruled 2026-08-23: the honesty table is a mandatory reprint in the preregistration.** It is
+reprinted here in full, in the body and not an appendix, together with the two tables that make it
+readable. All three are **arm-labelled by design, under Tier D** — *descriptive; published as an
+interpretation quantity that no decision reads.* Unadjusted members: label permutation, B = 20,000,
+seed 11. Adjusted members: whole-record permutation, B = 4,000, seed 11. Corrected scorer
+throughout.
+
+**Reprint 1 — the eighteen members on 019's batch.**
+
+| id | level | engine | population | adj | n (A/B/C) | **A−C** | p | **A−B** | p |
+|---|---|---|---|---|---|---|---|---|---|
+| M1 | L1 | incl | ITT | — | 38/37/39 | **+0.1385** | **0.0137** | +0.1317 | **0.0229** |
+| M2 | L1 | incl | PP | — | 34/26/28 | **+0.0408** | **0.0213** | +0.0186 | 0.2957 |
+| M3 | L1 | incl | PP | ANCOVA | 34/26/28 | +0.0161 | 0.2309 | +0.0213 | 0.1110 |
+| M4 | L1 | excl | ITT | — | 38/37/39 | **+0.1576** | **0.0137** | +0.1498 | **0.0229** |
+| M5 | L1 | excl | PP | — | 34/26/28 | **+0.0464** | **0.0213** | +0.0211 | 0.2957 |
+| M6 | L1 | excl | PP | ANCOVA | 34/26/28 | +0.0183 | 0.2309 | +0.0243 | 0.1110 |
+| M7 | L3 | incl | ITT | — | 38/37/39 | **+0.1438** | **0.0210** | +0.1376 | **0.0319** |
+| M8 | L3 | incl | PP | — | 34/26/28 | +0.0346 | 0.1569 | +0.0118 | 0.6133 |
+| M9 | L3 | incl | PP | ANCOVA | 34/26/28 | **−0.0026** | 0.8823 | +0.0160 | 0.3077 |
+| M10 | L3 | excl | ITT | — | 38/37/39 | **+0.1694** | **0.0165** | +0.1615 | **0.0259** |
+| M11 | L3 | excl | PP | — | 34/26/28 | +0.0469 | 0.0871 | +0.0199 | 0.4434 |
+| M12 | L3 | excl | PP | ANCOVA | 34/26/28 | +0.0053 | 0.7881 | +0.0245 | 0.1577 |
+| M13 | L2c | incl | ITT | — | 38/37/39 | **+0.1463** | **0.0210** | +0.1416 | **0.0296** |
+| M14 | L2c | incl | PP | — | 34/26/28 | +0.0314 | 0.1991 | +0.0104 | 0.6570 |
+| M15 | L2c | incl | PP | ANCOVA | 34/26/28 | **−0.0036** | 0.8263 | +0.0142 | 0.3779 |
+| M16 | L2c | excl | ITT | — | 38/37/39 | **+0.2323** | **0.0008** | +0.2276 | **0.0014** |
+| M17 | L2c | excl | PP | — | 34/26/28 | **+0.1275** | **< 0.0001** | +0.1065 | **< 0.0001** |
+| M18 | L2c | excl | PP | ANCOVA | 34/26/28 | **+0.0911** | **0.0002** | +0.1105 | **0.0002** |
+
+> **A−C: direction unanimity FAILS (16 positive, 2 negative). Test unanimity FAILS (10 of 18
+> reject).**
+> **Tier C's verdict on 019's batch: INDETERMINATE-BY-DISAGREEMENT.**
+> A−B is unanimous in direction (18 positive) but only 8 of 18 reject — and it is unreachable
+> anyway, gated behind A−C.
+
+**Reprint 2 — the drop-a-pole table, and the one exception.** Dropping every member carrying a
+given pole and re-evaluating:
+
+| pole dropped | members left | positive | reject | verdict |
+|---|---|---|---|---|
+| L1 | 12 | 10 | 6 | INDETERMINATE |
+| L3 | 12 | 11 | 8 | INDETERMINATE |
+| L2c | 12 | 11 | 6 | INDETERMINATE |
+| engine-included | 9 | 9 | 6 | INDETERMINATE |
+| engine-excluded | 9 | 7 | 4 | INDETERMINATE |
+| ITT | 12 | 10 | 4 | INDETERMINATE |
+| **per-protocol** | **6** | **6** | **6** | **CLAIM** |
+| adjusted | 12 | 12 | 9 | INDETERMINATE |
+| unadjusted | 6 | 4 | 1 | INDETERMINATE |
+
+**Read the one exception.** An ITT-only family would have claimed on 019 — and §5.6 shows that ITT
+members reject **66–68 % of the time under a null in which coverage is identical and only authoring
+validity differs**. The per-protocol pole is not decoration; it is the guard that keeps an
+OPA-toolchain failure rate from being reported as a representation effect. **This is why the family
+is registered before the batch and is append-only afterwards.**
+
+**Reprint 3 — the single-choice ledger: what a one-member registration could have licensed.** Tier D
+continuity rows on 019's *own registered* quantity (raw L2, no offset correction), same methods:
+
+| population | engine | adjustment | A−C | p |
+|---|---|---|---|---|
+| ITT §1a | incl | — | +0.1004 | 0.1068 |
+| ITT §1a (`caseCount` = 0 imputed) | incl | ANCOVA | **−0.0805** | **0.0007** |
+| ITT §1a | excl | — | **+0.1867** | **0.0050** |
+| ITT §1a (`caseCount` = 0 imputed) | excl | ANCOVA | +0.0030 | 0.9205 |
+| per-protocol | incl | — | −0.0182 | 0.4578 |
+| per-protocol | incl | ANCOVA | **−0.0532** | **0.0012** |
+| per-protocol | excl | — | **+0.0783** | **0.0031** |
+| per-protocol | excl | ANCOVA | **+0.0419** | **0.0227** |
+
+**Two of these reject at α = 0.05 in opposite directions, one at p = 0.0007.** Any single-member
+registration drawn from this set is a coin whose face the design phase had already seen. **019's
+registered quantity is published here with its structural offset (−0.0496) attached, never
+without it.**
+
+### 5.6 Operating characteristics — size and power, supplied rather than asserted
+
+Script `oc18.py`, seed **20200822**, registered specification: pool = the 88 identity-passing 019
+runs with arm labels destroyed, each contributing (coverage set over the 33 shared classes,
+`caseCount`); a replicate draws N runs iid with replacement per arm; each drawn run is scoreable
+with probability p_arm, otherwise it scores 0 on the ITT members and is dropped from the
+per-protocol members; an effect is imposed as **θ additional covered classes** for arm A's
+scoreable runs, drawn without replacement from that run's uncovered classes with probability
+proportional to the pooled coverage marginal π, so the five never-covered classes are unreachable
+and the attainable ceiling stays 28/33; the suite-size-only alternative instead tilts arm A's draws
+toward larger `caseCount` (weights ∝ exp(0.8·(c − c̄))) with θ = 0; tests are normal-theory
+surrogates for the registered permutation tests; L2c's offset is recomputed from each replicate's
+own pooled marginal. Tier C fires iff all eighteen agree in sign and all eighteen have p < 0.05.
+
+**Size, N = 60/arm, 2,000 replicates:**
+
+| scenario | per-member rejection | **Tier C** |
+|---|---|---|
+| **Global null** — equal validity 0.80, θ = 0 | all eighteen 0.036–0.052 | **0.002** |
+| **Authoring-validity-only null** — A 0.895 vs C 0.718, coverage identical, θ = 0 | **ITT members 0.660–0.678**; per-protocol 0.036–0.051 | **0.001** |
+| **Suite-size-only alternative** — equal validity, size tilt, θ = 0 | **PP-unadjusted 0.986–0.998**; PP-adjusted 0.019–0.067; ITT 0.138–0.165 | **0.000** |
+| **True coverage effect** θ = 3, equal validity | PP members 0.999–1.000; ITT 0.251–0.351 | 0.248 |
+
+The authoring-validity channel alone **cannot** produce a Tier C claim (0.001), and neither can the
+suite-size channel (0.000) — and each of those channels alone *would* have produced a claim under a
+one-member registration drawn from the ledger above.
+
+**Power, 1,000 replicates per cell, IU rejection rate.** Under equal authoring validity (0.80 both
+arms): θ = 2 → 0.129 (N=60) / 0.236 (120) / 0.315 (200); θ = 4 → 0.368 / 0.610 / 0.836; θ = 6 →
+0.578 / 0.860 / 0.976; θ = 8 → 0.720 / 0.956 / 0.996. Under 019's observed validity gap (A 0.895 /
+C 0.718): θ = 1 → 0.127 (N=40) / 0.246 (60) / 0.356 (80); θ = 2 → 0.581 / **0.797** / 0.918; θ = 3 →
+0.821 / **0.955** / 0.985; θ = 4 → 0.908 / 0.987 / 1.000.
+
+**Four consequences, stated here rather than discovered:**
+
+1. **Which member binds depends on the regime.** Under equal validity the ITT members bind; under
+   019's gap the ITT members become the *easiest* — they reject two-thirds of the time under a null
+   — and the per-protocol members bind.
+2. **Power under the gap is partly spurious and is labelled so.** Tier C's 0.797 at θ = 2, N = 60 is
+   a conjunction in which six of eighteen members are near-automatically satisfied by a channel that
+   is **not** the construct; the honest reading is that in that regime Tier C is effectively a
+   twelve-member test on the per-protocol members — and size under the same gap is still 0.001,
+   because those twelve hold it.
+3. **The honest headline for N.** At N = 60/arm with all apparatus repairs, Tier C is 80 %-powered
+   against a coverage effect of roughly **2 classes if 019's validity gap persists** and roughly
+   **9 classes (θ ≈ 0.27 in group-fraction units) if it does not. 020 cannot know in advance which
+   regime it is in.**
+4. **Against 019's own observed configuration, Tier C is unpowered at every N.** M9 and M15 are
+   negative point estimates with the family's other sixteen positive; if that configuration is the
+   truth, P(all eighteen agree in sign) → 0 as N grows. **The registered planning statement is: *if
+   the truth resembles 019, Tier C returns INDETERMINATE with probability → 1*, and 020 commits to
+   publishing exactly that.**
+
+**Dispersion and minimum detectable effect, per member** — pooled within-arm SD, unbiased (N − k;
+residual N − 4 for the adjusted members), all arm-blind; MDE = 2.8016 · σ · √(1/n_A + 1/n_C) at
+two-sided α = 0.05, 80 % power. **These are 019 figures and are a labelled fallback prior until the
+pilot re-derives them at the pinned effort (§2a.6).**
+
+| id | σ | MDE @ 019 n | MDE @ N=60, slot-shape cured | MDE @ N=60, + registry cure | MDE @ N=100 |
+|---|---|---|---|---|---|
+| M1 L1/incl/ITT | 0.25427 | 0.1624 | 0.1379 | 0.1306 | 0.1013 |
+| M4 L1/excl/ITT | 0.28934 | 0.1848 | 0.1570 | 0.1486 | 0.1152 |
+| M7 L3/incl/ITT | 0.28439 | 0.1816 | 0.1543 | 0.1461 | 0.1133 |
+| M10 L3/excl/ITT | **0.32159** | **0.2054** | **0.1745** | **0.1652** | **0.1281** |
+| M13 L2c/incl/ITT | 0.28966 | 0.1850 | 0.1571 | 0.1488 | 0.1153 |
+| M16 L2c/excl/ITT | 0.29826 | 0.1905 | 0.1618 | 0.1532 | 0.1188 |
+| M2 L1/incl/PP | 0.06938 | 0.0496 | 0.0419 | 0.0399 | 0.0309 |
+| M5 L1/excl/PP | 0.07895 | 0.0564 | 0.0477 | 0.0454 | 0.0352 |
+| M8 L3/incl/PP | 0.09397 | 0.0672 | 0.0568 | 0.0540 | 0.0418 |
+| M11 L3/excl/PP | 0.10516 | 0.0752 | 0.0635 | 0.0605 | 0.0468 |
+| M14 L2c/incl/PP | 0.09040 | 0.0646 | 0.0546 | 0.0520 | 0.0402 |
+| M17 L2c/excl/PP | 0.09479 | 0.0678 | 0.0573 | 0.0545 | 0.0422 |
+| M3 L1/incl/PP/anc | **0.05068** | 0.0362 | 0.0306 | 0.0291 | 0.0226 |
+| M6 L1/excl/PP/anc | 0.05767 | 0.0412 | 0.0348 | 0.0332 | 0.0257 |
+| M9 L3/incl/PP/anc | 0.06114 | 0.0437 | 0.0369 | 0.0352 | 0.0272 |
+| M12 L3/excl/PP/anc | 0.06849 | 0.0490 | 0.0414 | 0.0394 | 0.0305 |
+| M15 L2c/incl/PP/anc | 0.06049 | 0.0432 | 0.0365 | 0.0348 | 0.0269 |
+| M18 L2c/excl/PP/anc | 0.06420 | 0.0459 | 0.0388 | 0.0369 | 0.0286 |
+
+σ across the family spans **0.0507 to 0.3216 — a factor of 6.3**. **Tier C's precision is the ITT
+members' precision**: at N = 60/arm with every apparatus repair the binding MDE is **≈ 0.165** — for
+M4 that is ≈ 4.9 of 33 witness classes; for M10 the units are mutant-multiplicity weights and
+**must not be multiplied by 33** to yield a class count. The ITT members' variance is dominated by a
+point mass of exact zeros — a real property of the treatment that no apparatus repair removes.
+
+### 5.7 No author-side control gate (M-23, option (a))
+
+**Ruled 2026-08-23: option (a) — no author-side gate.** 019's E1 existence gate ("at least one
+admitted run reaches agreement ≥ x") is a **max statistic**: it fires iff *no* admitted run clears,
+so P(fire) = (1 − p)ⁿ and its stringency runs the **wrong way** in n, which differs by arm.
+
+| per-run clear rate | n=12 | n=34 | n=43 | n=50 | n=60 |
+|---|---|---|---|---|---|
+| 0.0833 (019 arm A, **undegraded**) | 0.352 | **0.052** | **0.024** | **0.013** | **0.005** |
+| 0.040 (2× degradation) | 0.613 | 0.250 | 0.173 | 0.130 | 0.086 |
+| 0.020 (4×) | 0.785 | 0.503 | 0.419 | 0.364 | 0.298 |
+| 0.010 (8×) | 0.886 | 0.711 | 0.649 | 0.605 | 0.547 |
+
+Two facts decide it. **(a)** The gate spuriously refuses arm A with probability **1.3–6.1 %** at
+019-scale N *even with a perfect stimulus*. **(b)** To certify **P(fire) ≥ 0.95** at N = 50 the
+degraded per-run clear rate must be ≤ **0.001025**, and bounding a rate that low by observation
+needs, by rule of three, **~2,926 degraded runs** (~162 h at 199 s/call); at N = 60, ~3,511.
+**The existence gate cannot be empirically certified at any affordable n** — that is a property of a
+max statistic over a stochastic authoring process, not a criticism of the control.
+
+**The registered reason for (a), stated in full.** The program's standing *mutation-check every
+safeguard test* lesson says a safeguard that cannot be shown to fail must be labelled as one. **The
+common-mode threat the existence gate names is a byte threat, and byte threats are caught
+deterministically**: 020 pins `arms.<arm>.promptSha256`, the policy prose, the golden context and
+both reference digests, and `references-reproduce-gold` holds 117/117 on both references. Those
+gates fire with **probability 1** against corrupted prose, broken prompt assembly and a wrong naming
+appendix. The existence gate would add a 1.3–6.1 % spurious-refusal risk and **no certified
+detection power** on top of them. **An uncertified gate is not registered as if certified.**
+Consequently E1 is fully descriptive (§5.1), the `e1-floor` row leaves the decision table (§5.9),
+and the derived threshold survives only as C3's pre-freeze go/no-go (§2a.4).
+
+### 5.8 Tier D — the registered descriptive battery
+
+Published in full **whatever Tier C returns**, every table carrying *descriptive; published as an
+interpretation quantity that no decision reads*:
+
+- **The full estimand grid** — per-arm means at every analysis set × level × adjustment cell,
+  corrected scorer, both slope-pooling conventions.
+- **The single-choice ledger and the ITT × ANCOVA cells**, with the covert-population sentence
+  attached (§5.2).
+- **The eighteen point estimates, eighteen p-values, eighteen per-arm n, eighteen BCa intervals and
+  the drop-a-pole table** — the published quantity set is **identical in every branch**, registered
+  so the outcome cannot change what is reported.
+- **Corpus structure:** pairing (33 / 69 / 62); single-witness fractions of the paired subset (28 of
+  69 JPS, 20 of 62 Rego); union ceilings (exactly **8 paired mutants per language survive every
+  identity-passing run**, so union kill is 61/69 and 54/62 and the union **class** ceiling is
+  **28/33 in both languages**); the **five never-covered classes by name** with their sixteen
+  mutants; the coverage distribution (identity-passing, 88 runs:
+  `{12:1, 13:2, 15:1, 16:3, 17:6, 18:8, 19:12, 20:17, 21:21, 22:9, 23:7, 25:1}`, range 12–25,
+  exactly one run reaching 25); the **per-class member-count imbalance table in full** (20 of 33
+  unequal), which is a **mandatory** publication; the engine-supplied-kill column both ways; and the
+  hitting-set result (21 of 51 distinct inputs reach 33/33).
+- **`caseCount` as a construct quantity, not adjusted away:** it is measured on the authored artifact
+  and is therefore **post-treatment**, and how many cases a representation leads an author to write
+  is part of the construct. Published: the mediation decomposition (total effect, the `caseCount`
+  path, the residual direct effect), the per-arm distribution, the within-arm slope at all three
+  estimand levels, the balance test on means, and the missing-data disposition.
+- **E1's descriptive battery:** the exclusive table of §5.1, per-run perfect agreement rate, the full
+  row-agreement distribution, the same two on the 110-row support with S1 and S2 named, the E3
+  taxonomy with `u1-*` and the two `p1-*` rows as named categories, and the Lee-style trimming bounds
+  (trim fraction 19.8 %, k = 7 of 34 arm-A runs; A−C bounds **[+0.0236, +0.0629]** at L1 and
+  **[+0.0166, +0.0672]** at L3) — published as diagnosis, **never as a Tier C member**, because the
+  trim fraction is read off arm-labelled validity rates.
+- **The M-14 mechanism battery:** the presence-idiom detector's per-arm counts, the arm-A/arm-B
+  asymmetry note, and arm A's unexplained near-miss profile (92 % row accuracy, zero faults) — all
+  direction-free, and **no decision reads any of it**.
+- **`ownPolicyIdentity` (E6)** per run and per arm, and the composition of the conjunction population
+  020 did not register.
+
+### 5.9 Ordered, exhaustive decision rule (first matching row; last row always matches)
+
+1. Any pin/schema/manifest failure, or apparatus failure making the batch non-terminal, **or C4's
+   `pipeline-invalid` outcome (§2a.5)** → R1 inconclusive — pipeline-invalid.
+2. A validated shortfall declaration (§1a) → UNRESOLVED-BY-DESIGN — no endpoint, no rate and no
+   contrast is computed.
+3. Any control-gate failure — both references reproduce gold imperfectly at attempt time; the
+   capabilities canary passes; golden-context gate; `engine-execution-clean`; per-arm timeout rate
+   above cap; **C4's `calibration-invalid` outcome** → R1 inconclusive — control gate failed.
+   **There is no `e1-floor` row** (§5.7).
+4. **All eighteen family members agree in the sign of the A−C difference and all eighteen reject at
+   two-sided α = 0.05** → R1 = **CLAIM**, direction the common sign; then A−B under the identical
+   rule.
+5. Otherwise → **INDETERMINATE-BY-DISAGREEMENT**. **No claim in any direction is licensed, and this
+   row triggers nothing.**
+
+**No inferential quantity is computed, let alone published, at or above row 3.** A control-gate
+failure adjudicates R1 in neither direction, and computing a contrast and then discarding it is not
+that rule: the gate rows are evaluated first, the family is evaluated only for an outcome that would
+reach row 4, and no direction and no A−B result is exposed otherwise. An **absent** primary contrast
+is not a disagreeing one and never reaches row 5.
+
+## 6. Validity channel (separate from detection)
+
+Control gates, above every substantive row: both references reproduce gold 100 % at attempt time;
+the off-gold equivalence certificate is current at the freeze commit; the OPA capabilities canary is
+refused; the golden-context gate holds with the isolation negative control on record; **every scored
+engine invocation of the attempt returned an answer** (`engine-execution-clean` — a pinned engine
+that timed out, failed to compile or refused on a *frozen* study artifact is an apparatus failure,
+and it is neither a kill nor an identity failure, and this now covers E6's extra invocation too);
+every binary digest matches its pin; the schedule matches the registered plan; **the C4 transfer gate
+holds two-sided** (§2a.5). **A gate the scorer did not evaluate fails**: an absent gate is not a gate
+that held. Manifest failures, unregistered absences, and enforcement failures are NOT-ADJUDICATED —
+never detections.
+
+## 7. Harness — 019's machinery inherited by port, and the deltas the rulings force
+
+**The port is by digest under the `PORTS.md` discipline** (two-sided table; `integrity.py` verifies
+the source study's lock first). Ported with no design change: the call wrapper, the three-arm batch
+driver, the golden-context capture, the isolation negative control, the transcript binding and its
+gates other than gate 5, the integrity chain, the single-publisher scorer's admit/ordered-codes/
+terminality machinery, the exact rational Clopper–Pearson with its registered test vectors, the
+per-language admission layer, the two-engine execution layer, the alignment map, the registered
+input domain with its symmetric per-arm case enumeration, the mutant/kill machinery with
+`referenceIdentity`, `leak_tokens.py`, and the `DEVIATIONS.md` machinery.
+
+**Integrity is a gate against drift, not a root of trust, and the bootstrap is stated rather than
+glossed.** `integrity` is the only study-local module the scorer imports at module scope, it imports
+no study-local module itself, and `integrity.verify()` is the first study-local call the scorer
+makes. What that cannot be is a proof that the checker is the checker the manifest describes. The
+exact-set manifest covers every byte the scorer executes and every payload it reads; the manifest is
+scoped per ADR 0004, with `DEVIATIONS.md`, `README.md`, `PREREG-REVIEW.md`, `CORRECTION-TARGETS.md`
+(named while absent, refusing `--freeze` on it) and `harness/ADVISORIES.md` excluded by named
+constant, each with an asserting test. **Anchor order is linear and one-directional (ADR 0005):
+covered files → manifest → the registry pins the manifest → the commit anchors the registry.** The
+manifest is regenerated **last** in every reconciliation. **Suite-of-record claims are
+archive-verified (ADR 0005, decision 1):** a "N passed" claim is made only of a commit, after
+`git archive <commit> | tar -x` into a fresh directory, `git init && git add -A` inside it, then the
+full suite under the registered interpreter — **before push, ceremony and prompt-only commits
+included.**
+
+**The registered deltas, each with its day-one work item.**
+
+1. **The scorer's survivor-vector schema — the token collision is fixed.** The scorer **emits an
+   explicit per-mutant survivor vector for every admitted run** and **never encodes "nothing
+   evaluated" and "everything killed" with the same token**; `survivorsPaired: []` with
+   `killedPaired: 0` is refused at write time rather than read as 33/33 (§5.2). It also emits
+   `caseCount` for every admitted run with a suite. A harness test drives both refusals, and the
+   mutation check is required: break the refusal, confirm the test fails.
+2. **Per-language cuts machinery: retained, with no threshold on top of it.** The machinery that
+   keeps each language's paired-adequate denominator and lattice separate is **kept** — it computes
+   and publishes both denominators (69 JPS / 62 Rego included, 57 / 55 excluded), both lattices and
+   the shared-class count (33 included, 29 excluded), and 019's R1-1 lesson (one cut derived from
+   the JPS count and applied to every arm) must remain structurally impossible. What is **removed**
+   is the threshold arm: no τ, no integer cut, no `highKill` member, no reachability assertion,
+   because there is no cut to assert. A harness test asserts **no registered decision path reads a
+   cut**.
+3. **The new admission code.** `harness/e4lib/presence_idiom.py` and the `presence-idiom-unsound`
+   code, wired into `admit()`, §1a's partition table, E2's ordered table and the partition-diff test
+   (§3.2). Gated on §3.2's pre-freeze power analysis.
+4. **The `ownPolicyIdentity` invocation.** One extra engine invocation per admitted run, routed
+   through the same `engine-execution-clean` control (§6), emitting E6. `referenceIdentity` and
+   `ownPolicyIdentity` are two named relations in the scorer, never one field with two meanings.
+5. **The family scorer.** New: the eighteen members, L2c's offset estimator, the two permutation
+   schemes with their pinned B and seed, the IU verdict, the drop-a-pole table, the BCa intervals,
+   and the **refusal** rather than fallback on the ITT × ANCOVA cell (§5.2).
+6. **`registeredLabelRule`** — restated with `codex.reasoningEffort`, the null-⇒-PILOT test and the
+   `--sweep` exemption (§2.1); **moved out of the ported-unchanged list** and driven in
+   `harness/tests/test_pins.py` pin by pin.
+7. **The batch schedule** — re-derived at the registered round count with the new attained position
+   spread published and `batch.order` / `batch.n` / `batch.slots` re-pinned (§2). `test_schedule.py`'s
+   50-round assertion is wrong by construction at any other N and is rebuilt, not patched.
+8. **The freeze gate's `calibration/` rule** — permit and require the subtree, still refuse any
+   `results/primary-attempt-*`; written into the gate and its test before the first pilot call.
+9. **A fresh sealed reviewer mutant set** (§4.3).
+10. **`render_round_status.py` ports with the harness, with one registered change.** 019's
+    `parse_block()` refuses a block registering **zero** rounds, because 019 first wrote the block
+    after round 1 existed. **020 opens its review record before any round runs**, so the port
+    **permits the empty-of-rounds block** and renders it (`0 review rounds are on the record …`);
+    every other refusal — duplicate members at every depth, closed object shapes, the closed verdict
+    vocabulary bound to the review prompt's output line, the single-open-round rule, contiguity, and
+    the marker-span reading — is ported unchanged. `SURFACES` narrows to **two** front doors,
+    `README.md` and `PREREGISTRATION.md`; 019's third (`design/POLICY-DRAFT.md`) is not a 020 front
+    door because 020's policy prose is ported frozen rather than drafted here. The first act of the
+    port is `--write`, which replaces this document's hand-written sentence with a rendered one.
+11. **`DEVIATIONS.md` is outside the freeze set** — carried from Study 018's lesson and from ADR
+    0004's rule, with an asserting test.
+12. **`design/pilot/pilot_run.py` is deleted, not ported** (§2a.2).
+13. **D-1's smoke is restated** as *"a real exec at the registered prompt bytes, stand-in binary
+    permitted"* — D-1's failure was `/usr/bin/env: Argument list too long` at `exec`, which a
+    stand-in binary reproduces exactly — with D-2's stand-in-**study** smoke preserved and its real
+    calls in §2.1's budget.
+
+**Deterministic regeneration of the mutant corpora** is claimed by
+`design/mutants/regenerate.py --arm both --check`, ported with its three registered properties: the
+committed record covers **both** arms, the fail-closed adequacy census is evaluated **under the
+regenerated tree**, and the adequacy stamp is **inside** the regeneration chain. CI runs the
+deterministic controls only; the batch never runs in CI.
+
+## 8. What is enforced, what is recorded, what is not prevented
+
+**Enforced:** pins, digests, population membership, the registered input-domain check on every arm's
+enumerated cases, `referenceIdentity`, the extraction rule, the schedule, the transcript binding on
+every completed slot, the C4 transfer gate, the survivor-vector schema, and the presence-idiom
+detector if §3.2's power analysis certifies it.
+
+**Recorded:** durations, token counts including `reasoning_output_tokens`, per-case diagnostics,
+every completion verbatim, the sweep's full per-setting table, the pilot's rates, and `E6`.
+
+**Not prevented, stated plainly:** provider-side cross-session state (the independence premise behind
+every interval is unclosable from retained bytes); an operator running and discarding an unrecorded
+batch; the model having seen public Rego corpora at pretraining (§9); **and the reasoning-effort
+condition itself if the witness-resolution step finds no transcript member — in that branch the pin
+is a recorded intention, asserted by the wrapper and not independently witnessed (§2.1, §11.5).**
+Nothing in the retained artifacts proves the published slots are all the invocations that occurred;
+integrity rests on ledger discipline and re-runnability.
+
+## 9. What this study cannot show
+
+**A−C is a bundled treatment and nothing inside the bundle is separable** (§1.1, §3). Arm C differs
+from arm B in representation-adjacent *formality* **and** in substantive *content*, and the arms'
+prompt exposures differ in bytes as well. **No A−C or A−B result licenses any statement about which
+component of the bundle produced it** — not "the pack format wins", not "the schema is what
+matters", not "the convention is doing the work". The registered claim is about the bundles as
+authored, and a component-attribution study is a different design. This non-claim is carried
+verbatim in force from 019 and is not weakened by the change of endpoint.
+
+**No Tier D quantity decides anything.** Every descriptive quantity in this study — 019's known
+direction, the eighteen-member reprints, the single-choice ledger, the estimand grid, the corpus
+structure, `caseCount`'s mediation decomposition, the Lee bounds, E1, E2, E3, E5, E6, the presence-
+idiom counts and arm A's unexplained near-miss profile — is published under the standing clause
+*descriptive; published as an interpretation quantity that no decision reads*, and **an
+INDETERMINATE Tier C outcome licenses no negation.** A split family is not evidence of no effect,
+**no member is promoted after the fact** — there is no primary specification, there is a family, and
+the study may not report "on the primary specification the effect was significant" — and the split's
+arm-blind diagnosis (which axis carries it) is a Tier D finding, not R1.
+
+**What a Tier C claim would and would not assert.** When the family is unanimous, R1 asserts: *within
+the registered fragment, under single-shot authorship, arm A's suites cover a different fraction of
+the shared witness classes than arm C's — and the difference is present whether or not authoring
+failures are counted, whether or not suite size is held fixed, whether classes are weighted equally,
+by mutant multiplicity, or by de-biased native denominators, and whether or not engine-supplied kills
+are excluded.* That conjunction **is** the claim; it is the only thing the tier licenses. Tier C
+cannot rescue a design whose members answer materially different questions — criterion (ii) is the
+only guard, and it is a judgement, not an arithmetic.
+
+Everything is measured **within the JPS-expressible fragment, selected by arm A's expressive envelope
+and no other criterion** (Study 003: 12/12 real decisions escape the pack); nothing generalizes to
+business judgments at large. Single-shot authorship only; no outcome speaks to tooled authoring
+workflows, nor to the deferred fourth-arm prevalence control. One model, one prompt per arm, one
+policy family, one batch window. **No direction of any result separates representation quality from
+training familiarity**: the public Rego corpus is vast, the JPS corpus is this program, and both
+directions are reported as confounded. Coverage measures agreement-anchored mutation detection over
+registered single-edit mutants — not test quality at large, not defect rates in production, and (for
+the engine-supplied column) partly the engine's structural checks rather than authored assertions,
+reported both ways. **The mutant space inherits the arm-A reference's shape**: nine `r-o1-review`
+mutants change no cell's answer and no suite in any arm can detect them. A coverage rate is bounded
+by what the reference makes observable. The gold suite is two authors deep plus a clean-room check
+that shares the gold author's model lineage. The census's expressiveness rows and these rates live on
+different stimuli: **no tradeoff statement combining them is licensed** (a `CORRECTION-TARGETS.md`
+target).
+
+**The standing program ceiling, restated because it binds this study too.** This program measures
+**binding, lineage and expressiveness — never truth.** Nothing here measures whether any policy or
+any fact is true, nothing here is evidence that a decision was correct, and **nothing in this study
+claims JPS conformance.**
+
+## 10. Publication commitment
+
+All eighteen point estimates, all eighteen p-values, all eighteen per-arm n, all eighteen BCa
+intervals, the agreement table, the drop-a-pole table, the single-choice ledger with its structural
+offset attached, the full estimand grid, every identity-failure and out-of-domain-case count, every
+authoring code including `presence-idiom-unsound`, both group counts, both denominators and both
+lattices, E1's two strata, E6, the sweep's full per-setting table, the pilot's rates and the transfer
+gate's rows are **published whichever way they land, with a pass's prominence**, and **the published
+quantity set is identical in every branch of §5.9** — registered so that the outcome cannot change
+what is reported.
+
+**What "all quantities" means, and the one thing this commitment does not promise.** Every quantity
+that EXISTS is published whichever way it lands, and nothing is withheld for being unflattering. It
+is **not** a promise that a family evaluation exists in every outcome, because §5.9 forbids computing
+one above row 3: an outcome that reaches a gate row has **no** A−C or A−B evaluation to publish, and
+the record says so by naming the row and the cause rather than by printing an endpoint. A blocked
+evaluation is published as blocked, with its cause, in the same record and with the same prominence.
+The rule is ordered rather than conditional, so it holds for a gate failure discovered LATE as well
+as early. **Publishing a number the registered rule says must not be computed is not a stronger
+publication commitment; it is a violation of §5.9 wearing one.** An INDETERMINATE-BY-DISAGREEMENT R1
+is reported with the same prominence as a CLAIM — and §5.6(4) commits the study to publishing "if the
+truth resembles 019, Tier C returns INDETERMINATE" as a *planned*, not a disappointing, outcome.
+
+**Correction targets are a registered document, pinned before the freeze.** `CORRECTION.md` targets —
+**verbatim wording, venue, URL, retrieval date** — are pinned before the freeze in the registered
+document **`CORRECTION-TARGETS.md`**, in Study 019's pattern (019 round-7 finding R7-9: the obligation
+was once declared in a publication section and enforced nowhere, so the ceremony could complete
+without it). It is named in `harness/make_manifest.py`, **which names it while it is absent and
+refuses `--freeze` on it**, and the freeze runbook carries the step that lands it. `GATE(pre-freeze)`.
+020's targets must include, at minimum: the R1 verdict sentence `ANALYSIS.md` will publish (quoted
+verbatim from the scorer's published `verdict` member, whose vocabulary is the closed
+CLAIM / INDETERMINATE-BY-DISAGREEMENT pair plus §5.9's gate rows); the study-index and repo-root index
+rows; this study's README round-status sentence; **the presence-idiom guard's published power
+analysis (§3.2)**; **the pre-pilot sweep's published table and the compute condition chosen from it
+(§2.1)**; and the Tier D reprints of §5.5, which are quoted from a superseded study's batch and are
+correctable only by a `DEVIATIONS.md` entry once frozen. A correction lands in the SAME file at the
+SAME prominence, and for a corrected or retracted R1 additionally as a banner at the head of
+`ANALYSIS.md` and an entry in `DEVIATIONS.md`, which is freeze-excluded precisely so it can receive
+one. **A correction is written in every branch, including "no correction needed" being visibly
+audited.**
+
+## 11. Registered ceilings — what 020 will not be able to show
+
+Every §9 ceiling of Study 019 continues to bind verbatim. These bind further, and each is registered
+here rather than discovered in the results.
+
+1. **The endpoint is witness-input coverage against the shared reference** — not pinning power, and
+   not pinning against the policy each suite accompanies (Fact 1, §1.2). E6 reports the severance; it
+   does not repair it.
+2. **Effective support is 28 of 33 classes**, and both arms' floors are displaced downward by
+   5/33 = 0.1515. No member can exceed 28/33.
+3. **Tier C is conservative against a real total effect that runs through suite size (M-22, ruled
+   accepted and printed).** Requiring the adjusted member to agree means that **if the representation
+   effect operates *through* `caseCount` — which is part of the construct, since how many cases a
+   representation leads an author to write is itself an effect of the representation — Tier C returns
+   INDETERMINATE on a real total effect.** That is a **designed property, accepted in advance, and
+   printed here rather than discovered in results**; the alternative — dropping the adjusted members —
+   hands the verdict back to a single contaminated choice, and §5.6 shows a suite-size-only channel
+   rejecting 98.6–99.8 % of the unadjusted per-protocol members.
+4. **Tier C's power depends on a quantity 020 cannot know in advance** (the per-arm authoring-validity
+   rate), and in the regime where it looks powered, six of eighteen members are near-automatically
+   satisfied by a channel that is not the construct (§5.6).
+5. **The reasoning-effort pin may be a recorded intention, not a verified condition** (§2.1, M-24).
+6. **019's pilot compute condition is unrecoverable**, so no transfer gate can be evaluated against it
+   on the model, isolation or reasoning-token rows; service-side drift over 2026-08-15 → 2026-08-21
+   cannot be excluded (§2a.1).
+7. **The E1 descriptive support was narrowed to 110 rows on grounds known in advance to favour one
+   arm's profile.** Both strata rates are published per arm with E1's prominence (§4.2).
+8. **The all-rule attainability asymmetry is not repaired** — only the weighting asymmetry is. Under
+   the all-members rule an arm-A suite must kill six mutants to score the `d7-39-100k` unit where an
+   arm-C suite kills three, and the offset formula assumes π_g is common to both arms, which unequal
+   member counts and unequal per-class difficulty deny. **V8-22 stays live in the asymmetry ledger,
+   and a new ledger row is registered for group-size imbalance.**
+9. **L2c's offset is estimated**, on a coverage marginal computed over a post-treatment-selected
+   cohort, with its estimation variance not propagated, and for the adjusted members it is subtracted
+   before the ANCOVA so the adjusted contrast inherits it linearly (M-16(d), §5.2).
+10. **`identityPass` has changed meaning, and the residual is named** (M-13, §1.2). 020 registers two
+    relations and gates on `referenceIdentity` alone, so the per-protocol populations and §5.6's
+    dispersion figures remain applicable. **Had the gate moved to the conjunction, every per-protocol
+    member's population would have moved with it** and §5.6 would have to be re-derived; a later
+    deviation that moves the gate carries exactly that obligation.
+11. **The presence-idiom guard is arm-asymmetric by construction** (§3.2). `presence-idiom-unsound` is
+    structurally unreachable in arm A, because arm A's format has no analogous single-operator trap on
+    this surface; arm A's own near-miss profile in 019 (92 % row accuracy, zero faults) stands
+    **unexplained** by any mechanism 020 registers. The guard is a detector over one language's known
+    trap, not a symmetric control.
+12. **No author-side control gate exists** (M-23, §5.7), so 020 has **no** certified detection power
+    against an author-side stimulus regression beyond the deterministic digest pins. That is a
+    deliberate trade — an uncertifiable gate with a 1.3–6.1 % spurious-refusal rate is worse than
+    none — and it is a ceiling, not a strength.
+13. **`caseCount` is post-treatment and is not adjusted away.** The adjusted members estimate a
+    controlled direct effect, not the total effect §1.1 asks about; both poles are required to agree,
+    which is ceiling 3 read from the other side.
+
+## 12. What we would do with each outcome (NOT a registered commitment)
+
+Discussion only; no observed result obligates any of it. **If Tier C returns a CLAIM**, the direction
+is the family's common sign and the claim is the conjunction of §9's sentence — the program then has
+a robustness-anchored reading of the pack format's testing story, still bundled, still inside the
+fragment. **If Tier C returns INDETERMINATE-BY-DISAGREEMENT** — the outcome §5.6(4) says is likely if
+the truth resembles 019 — the result is *not* a null: it is a measured disagreement, published with
+the axis that carries it, and the study's yield is Tier D's descriptive battery plus a repaired
+instrument. Whether that yield is worth the spend is a programme judgement that belongs to the
+maintainer and is deliberately not decided in this document. **In every branch**, the bundled estimand
+(§1.1, §9) means the next artifact cannot start from a component attribution this study did not make,
+and the standing ceiling means it cannot start from a claim about truth.
