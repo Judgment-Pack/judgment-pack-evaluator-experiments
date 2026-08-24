@@ -83,3 +83,27 @@ merit for business judgments in general; that any policy or fact is true. Nothin
 this repository claims any JPS conformance. `CORRECTION-TARGETS.md`'s targets were
 audited against this publication: none required correction, and `CORRECTION.md` records
 that outcome affirmatively.
+
+## R2 amendment (2026-08-23) — the arm-labelled descriptives, published because they are already on the record
+
+Study 020's design brief v1 (`studies/020-test-pinning-across-representations/design/BRIEF.md`,
+merged 2026-08-21) characterised certain arm-labelled E4 quantities from this attempt as
+non-reproducing; its design panel recomputed them and they re-derive exactly — the brief
+had compared cohorts. By this study's own R2 text, *"a direction computed and then
+withheld is a direction published"*: the quantities entered the successor's design record,
+so this amendment publishes them here, on the study they belong to, with their provenance
+and their standing license stated together.
+
+Over the artifact-bearing cohort (every run carrying a kill block; n = 36 / 30 / 30), the
+paired kill-fraction means are **A 0.60627, B 0.59032, C 0.61613**; over the
+identity-passing cohort (34 / 26 / 28), **A 0.6419, B 0.6811, C 0.6601**. The two
+cohorts order the arms differently, which is itself the point.
+
+**The license is unchanged by publication.** These are descriptive quantities of an
+attempt whose registered decision procedure stopped at row 3 (`control-gate-failed:
+e1-floor`) and computed no contrast. Under §5 no decision reads them; under §9 they
+attribute nothing within the bundled estimand; they carry no interval because the
+registered rule forbids computing one; and they license no direction — not A-below-C,
+not C-below-A, nothing. They are published so that the record is honest about what its
+successors have seen, and Study 020's two-tier footing (its Tier D charter) is the
+registered mechanism by which they may inform design without deciding anything.
