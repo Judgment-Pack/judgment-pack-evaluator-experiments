@@ -1,4 +1,4 @@
-"""§1a's population rule, diffed against the code partition.
+"""§1a's population rule, diffed against the code partition — SKELETON.
 
 §1a registers two lists and one consequence: apparatus failures are
 pipeline-invalid and leave the denominator, authoring outcomes are valid,
@@ -7,31 +7,88 @@ those lists moves between denominators, which is why the registration says a
 harness test diffs the prose partition against the scorer's code partition and
 against every code `admit()` can return.
 
-**REBUILT FOR 020, and the rebuild is what §7's delta 3 asks for.** Study 019's
-§1a stated the authoring outcomes as a comma-separated SENTENCE and this module
-parsed that sentence. 020 states them as a TABLE with a third column — *arms it
-can reach* — because 020 adds a code that is B/C-only (`presence-idiom-unsound`,
-§3.2), and a two-column partition cannot be diffed against a three-column
-registration. The table is therefore parsed as a table, and the third column is
-diffed against `batch.AUTHORING_CODE_ARMS` and, through it, against
-`e4lib/admit.py`'s enforcing `ARM_REACHABLE_CODES`, so an arm-structural leak
-has three places that disagree rather than one that quietly widens.
+Two of those three diffs are live here. The third — every code `admit()` can
+return — cannot be: `harness/score.py` does not exist yet
+(`harness/SCAFFOLD.md`, item S1), and a test that pretended to check it would be
+the exact failure §1a exists to prevent. It is written below as a skeleton that
+SKIPS with a named reason while the scorer is absent and becomes a real
+assertion the moment it lands, rather than as a comment someone must remember.
 
 The prose side is parsed out of the registration's own bytes by anchors unique
 in the file, each parser asserting that uniqueness — Study 012's round-12
 lesson, where a test module was a copy checking a copy and a registration-only
 edit stayed green.
+
+STUDY 020, §7 DELTA 3 — THE AUTHORING SIDE IS A TABLE NOW
+---------------------------------------------------------
+019's §1a registered its authoring outcomes as a comma list inside one
+sentence, and this module diffed that sentence against `batch.AUTHORING_CODES`'
+phrases. 020's §1a registers them as a TABLE with three columns — the code, the
+arms it can reach, and a meaning — because `presence-idiom-unsound` (§3.2) is
+arm-asymmetric and a comma list has nowhere to say so.
+
+The diff moved with it, and it got stronger rather than weaker: the CODE column
+is diffed against the code partition, and the ARMS column is diffed against
+`e4lib/admit.py`'s `ARM_REACHABLE_CODES` — which is the fact §5's
+"arm-structural categories within-arm-only" turns on, and which 019 could only
+assert in code against itself. The old sentence's PHRASES are no longer the
+diffed thing on the authoring side: the table's meaning column is prose written
+for a reader ("new in 020 — §3.2's registered presence-idiom guard fires"), not
+a label, and pretending it is one would be a diff that agrees by copying.
+
+R1-5's `author-protocol-violation` is a row of that table too, and 020 has no
+separate sentence for it. What made it special is unchanged and is asserted
+directly instead: it is an AUTHORING outcome that `admit()` can never return,
+because it is read off the retained transcript rather than off the artifact.
 """
 import re
 
 import pytest
 
 import batch
+from e4lib import admit as admit_lib
 
 SECTION = re.compile(r"\n## 1a\. (.*?)(?=\n## )", re.DOTALL)
 APPARATUS = re.compile(r"Apparatus failures — (.+?) — are pipeline-invalid")
-# The §1a table's rows: | `code` | arms | meaning |
-ROW = re.compile(r"^\|\s*\**`([a-z0-9-]+)`\**\s*\|\s*(.+?)\s*\|\s*(.+?)\s*\|$")
+# §1a's authoring-outcome table, identified by its header row.
+TABLE_HEADER = "| code | arms it can reach | meaning |"
+# The one authoring outcome the admission layer cannot produce.
+PROTOCOL_CODE = "author-protocol-violation"
+
+
+def authoring_table(preregistration):
+    """`[(code, (arms…), meaning), …]` from §1a's registered table.
+
+    The header row must be unique IN THE WHOLE FILE, not merely in §1a: a second
+    table with the same columns elsewhere would make "the authoring outcomes"
+    ambiguous, and this module would then be reading whichever one it found
+    first."""
+    assert preregistration.count(TABLE_HEADER) == 1, (
+        "PREREGISTRATION.md holds %d tables headed %r; §1a's authoring-outcome "
+        "table is identified by that row"
+        % (preregistration.count(TABLE_HEADER), TABLE_HEADER))
+    body = section(preregistration, flattened=False)
+    assert TABLE_HEADER in body, \
+        "§1a does not carry the authoring-outcome table this module diffs"
+    rows = []
+    started = False
+    for line in body.splitlines():
+        line = line.strip()
+        if line == TABLE_HEADER:
+            started = True
+            continue
+        if not started:
+            continue
+        if not line.startswith("|"):
+            break
+        cells = [cell.strip().replace("*", "").replace("`", "")
+                 for cell in line.strip("|").split("|")]
+        if len(cells) != 3 or set(cells[0]) <= set("-: "):
+            continue
+        rows.append((cells[0], tuple(arm.strip() for arm in cells[1].split(",")),
+                     cells[2]))
+    assert rows, "§1a's authoring-outcome table has no rows"
+    return rows
 
 
 def flatten(text):
@@ -40,145 +97,116 @@ def flatten(text):
     return " ".join(text.replace("*", "").replace("`", "").split())
 
 
-def section_text(preregistration):
+def section(preregistration, flattened=True):
     found = SECTION.findall("\n" + preregistration)
     assert len(found) == 1, (
         "PREREGISTRATION.md holds %d sections numbered 1a; the population rule "
         "is identified by that heading" % len(found))
-    return found[0]
+    return flatten(found[0]) if flattened else found[0]
 
 
-def section(preregistration):
-    return flatten(section_text(preregistration))
-
-
-def registered_apparatus(preregistration):
-    matches = APPARATUS.findall(section(preregistration))
+def apparatus_list(preregistration):
+    body = section(preregistration)
+    matches = APPARATUS.findall(body)
     assert len(matches) == 1, (
-        "§1a holds %d apparatus lists; the partition is identified by that "
-        "sentence" % len(matches))
+        "§1a holds %d apparatus lists; the pipeline-invalid side is identified "
+        "by that sentence" % len(matches))
     return [item.strip() for item in matches[0].split(",")]
 
 
-def registered_authoring(preregistration):
-    """{code: (arms tuple, meaning)} from §1a's own table.
-
-    The table is the registration; a row this parser cannot read is a row the
-    diff would silently drop, so the row count is asserted against the number of
-    table lines rather than against a number written here."""
-    lines = [line.strip() for line in section_text(preregistration).splitlines()
-             if line.strip().startswith("|")]
-    body = [line for line in lines
-            if not set(line) <= set("|- ") and "arms it can reach" not in line]
-    table = {}
-    for line in body:
-        match = ROW.match(line)
-        assert match, "§1a's authoring table has an unreadable row: %r" % line
-        code, arms, meaning = match.groups()
-        assert code not in table, code
-        table[code] = (tuple(part.strip().strip("*")
-                             for part in arms.replace("`", "").split(",")),
-                       flatten(meaning))
-    assert len(table) == len(body), "a row was lost between parse and diff"
-    return table
+def registered_authoring_codes(preregistration):
+    return [code for code, _arms, _meaning
+            in authoring_table(preregistration)]
 
 
 def test_the_apparatus_list_is_the_codes(preregistration):
-    registered = registered_apparatus(preregistration)
-    assert registered == [phrase for _code, phrase in batch.APPARATUS_CODES]
+    assert apparatus_list(preregistration) == \
+        [phrase for _code, phrase in batch.APPARATUS_CODES]
 
 
 def test_the_authoring_table_is_the_codes(preregistration):
-    """CODE by code, in the registration's own order — including the one 020
-    adds. The MEANING column is prose the registration owns and the code column
-    is the contract, so the diff is over codes and over the arms column."""
-    registered = registered_authoring(preregistration)
-    coded = [code for code, _phrase
-             in batch.AUTHORING_CODES + batch.AUTHORING_PROTOCOL_CODES]
-    assert sorted(registered) == sorted(coded)
-    assert "presence-idiom-unsound" in registered, (
-        "§3.2's guard emits a registered authoring code and §1a's table must "
-        "carry it whether or not it ever fires")
+    """§1a's table, code column, against the code partition's authoring side —
+    both admission codes and the transcript binding's one. §7 delta 3's
+    `presence-idiom-unsound` is a row here whether or not §3.2's gate ever
+    opens, so the code cannot be added to the harness without the registration
+    naming it, or named without the harness carrying it.
+
+    AS A SET, deliberately. §1a's sentence is "the registered authoring-outcome
+    codes are", and its table groups the transcript binding's code beside the
+    admission codes while the harness keeps them in two tuples for the reason
+    the test below asserts. The PUBLICATION order is `DROP_ORDER`'s and is
+    pinned where E2's table is built, not here."""
+    assert sorted(registered_authoring_codes(preregistration)) == \
+        sorted([code for code, _phrase in batch.AUTHORING_CODES]
+               + [code for code, _phrase in batch.AUTHORING_PROTOCOL_CODES])
 
 
-def test_the_arms_column_is_the_reachability_map(preregistration):
-    """The third column, and the reason 020 has one. `presence-idiom-unsound`
-    is structurally unreachable in arm A (§11.11), `schema-invalid-pack` in
-    arms B/C, and `opa-check-failed`/`v0-syntax` in arm A. Three copies of that
-    fact exist — the registration's table, `batch.AUTHORING_CODE_ARMS` and
-    `e4lib/admit.py`'s enforcing `ARM_REACHABLE_CODES` — and all three are
-    diffed here, so no one of them can widen alone."""
-    from e4lib import admit as admit_lib
-    registered = registered_authoring(preregistration)
-    for code, (arms, _meaning) in sorted(registered.items()):
-        assert tuple(arms) == batch.AUTHORING_CODE_ARMS[code], code
-    for code, arms in sorted(batch.AUTHORING_CODE_ARMS.items()):
-        if code in [name for name, _ in batch.AUTHORING_PROTOCOL_CODES]:
-            # Not an admission code: `admit()` can never return it, so it is
-            # deliberately absent from the enforcing map.
-            for arm, reachable in admit_lib.ARM_REACHABLE_CODES.items():
-                assert code not in reachable, (code, arm)
+def test_the_tables_arms_column_is_the_arm_structural_rule(preregistration):
+    """§5's "arm-structural categories within-arm-only, enforced in the scorer",
+    diffed against the registration instead of against another copy of itself.
+    `presence-idiom-unsound` is B and C (§3.2, §11.11); `schema-invalid-pack` is
+    A; `opa-check-failed` and `v0-syntax` are B and C. 019 could assert those
+    only in code."""
+    for code, arms, _meaning in authoring_table(preregistration):
+        if code == PROTOCOL_CODE:
             continue
-        for arm, reachable in sorted(admit_lib.ARM_REACHABLE_CODES.items()):
-            assert (code in reachable) == (arm in arms), (code, arm)
+        reached = tuple(arm for arm in batch.ARMS
+                        if code in admit_lib.ARM_REACHABLE_CODES[arm])
+        assert arms == reached, code
 
 
-def test_the_presence_idiom_code_is_b_and_c_only(preregistration):
-    """§11.11, as a test rather than a ceiling nobody checks. An arm-A run that
-    somehow produced this code would make the two E2 tables compare different
-    partitions, so `admit()` refuses it."""
-    from e4lib import admit as admit_lib
-    registered = registered_authoring(preregistration)
-    assert registered["presence-idiom-unsound"][0] == ("B", "C")
-    assert batch.AUTHORING_CODE_ARMS["presence-idiom-unsound"] == ("B", "C")
-    assert "presence-idiom-unsound" not in admit_lib.ARM_REACHABLE_CODES["A"]
-    for arm in ("B", "C"):
-        assert "presence-idiom-unsound" in admit_lib.ARM_REACHABLE_CODES[arm]
+def test_the_protocol_outcome_is_an_authoring_code_admit_cannot_return(
+        preregistration):
+    """R1-5. The transcript binding's author-side verdict is an AUTHORING
+    outcome — retained, counted, scoring zero — and `admit()` can never return
+    it: it is read off the retained transcript, not off the artifact. 020 gives
+    it a table row rather than a sentence, and its "arms it can reach" cell is
+    all three, which is exactly why it cannot be diffed against
+    `ARM_REACHABLE_CODES` above."""
+    rows = {code: arms for code, arms, _meaning
+            in authoring_table(preregistration)}
+    assert rows[PROTOCOL_CODE] == tuple(batch.ARMS)
+    for code, _phrase in batch.AUTHORING_PROTOCOL_CODES:
+        assert batch.CODE_PARTITION[code][0] == "authoring"
+        assert code not in [name for name, _ in batch.AUTHORING_CODES]
+        assert code not in admit_lib.DROP_ORDER
 
 
 def test_the_e2_table_carries_the_new_code(preregistration):
     """§5.1's E2 row: "The table carries `presence-idiom-unsound` (§3.2), with
     its per-arm count published whether or not it ever fires." A code that is
     registered in §1a and absent from the published table is a code no reader
-    of the results can see."""
+    of the results can see — and the sentence is what makes the row's presence
+    independent of whether §3.2's guard was ever activated."""
     body = flatten(preregistration)
     assert "E2: authoring-validity profile" in body
     assert ("The table carries presence-idiom-unsound (§3.2), with its per-arm "
             "count published whether or not it ever fires") in body
 
 
-def test_the_protocol_outcome_is_registered_and_is_not_an_admission_code(
-        preregistration):
-    """R1-5. The transcript binding's author-side verdict is an AUTHORING
-    outcome — retained, counted, scoring zero — and it is NOT an admission code:
-    it is read off the retained transcript, not off the artifact, so `admit()`
-    can never return it."""
-    registered = registered_authoring(preregistration)
-    for code, _phrase in batch.AUTHORING_PROTOCOL_CODES:
-        assert code in registered
-        assert batch.CODE_PARTITION[code][0] == "authoring"
-        assert code not in [name for name, _ in batch.AUTHORING_CODES]
-
-
 def test_the_timeout_is_on_the_apparatus_side(preregistration):
     """The design-phase lesson, asserted rather than remembered: the pilot
     driver mis-filed timeouts as an authoring code, which silently moves a run
     out of the excluded set and into every rate's denominator."""
-    registered = registered_apparatus(preregistration)
-    assert "call timeout at the registered ceiling" in registered
-    assert "call-timeout" not in registered_authoring(preregistration)
+    assert "call timeout at the registered ceiling" in \
+        apparatus_list(preregistration)
+    assert "call-timeout" not in registered_authoring_codes(preregistration)
     assert batch.CODE_PARTITION["call-timeout"][0] == "apparatus"
     assert batch.WRAPPER_EXIT_MEANINGS[12][0] == "call-timeout"
 
 
 def test_the_partition_is_exhaustive_and_disjoint(preregistration):
-    apparatus = registered_apparatus(preregistration)
-    authoring = registered_authoring(preregistration)
+    """Both registered sides against the whole partition. The apparatus side is
+    matched by PHRASE, which is how §1a spells it; the authoring side by CODE,
+    which is how §1a's table spells it."""
+    apparatus = apparatus_list(preregistration)
+    authoring = registered_authoring_codes(preregistration)
     assert sorted(phrase for side, phrase in batch.CODE_PARTITION.values()
                   if side == "apparatus") == sorted(apparatus)
-    assert sorted(code for code, (side, _p) in batch.CODE_PARTITION.items()
+    assert sorted(code for code, (side, _phrase) in batch.CODE_PARTITION.items()
                   if side == "authoring") == sorted(authoring)
     assert len(set(apparatus)) == len(apparatus)
+    assert len(set(authoring)) == len(authoring)
     assert set(code for code, _ in batch.APPARATUS_CODES) & \
         set(code for code, _ in batch.AUTHORING_CODES) == set()
 
@@ -227,9 +255,12 @@ def test_the_two_wrapper_failure_phases_are_two_codes():
 
 
 def test_the_scorers_codes_are_the_partition():
-    """The third diff §1a registers: every code `admit()` can return is a key of
-    CODE_PARTITION, and every key is reachable."""
-    score = pytest.importorskip("score")
+    """SKELETON (SCAFFOLD item S1). Becomes a real assertion when
+    `harness/score.py` lands: every code `admit()` can return must be a key of
+    CODE_PARTITION, and every key must be reachable."""
+    score = pytest.importorskip(
+        "score", reason="harness/score.py is not assembled yet (SCAFFOLD S1); "
+                        "the third diff §1a registers cannot run until it is")
     # The scorer's partition-derived constants are bound lazily, after its
     # integrity gate, so a reader binds them the way `main()` does rather than
     # reading the pre-binding placeholders.
@@ -243,9 +274,3 @@ def test_the_scorers_codes_are_the_partition():
     for code in ("preflight-refused", "post-call-failure"):
         assert code in score.APPARATUS_SIDE, code
     assert "author-protocol-violation" in score.AUTHORING_SIDE
-    # 020's addition reaches the same side, which is what keeps a flagged run in
-    # every ITT denominator scoring zero rather than leaving the population.
-    assert "presence-idiom-unsound" in score.AUTHORING_SIDE
-    from e4lib import admit as admit_lib
-    assert set(admit_lib.DROP_ORDER) <= set(batch.CODE_PARTITION)
-    assert admit_lib.DROP_ORDER[-1] == "presence-idiom-unsound"

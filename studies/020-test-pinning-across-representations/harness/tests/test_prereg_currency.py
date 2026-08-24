@@ -174,7 +174,14 @@ def test_the_pairing_counts_are_recomputed_from_the_manifests(artifacts, flat):
     re-derivation."""
     assert ("33 shared non-degenerate witness classes, 69 paired adequate JPS, "
             "62 paired adequate Rego" in flat)
-    assert artifacts["pairing"]["sharedGroups"] == 33
+    # `build_pairing()` returns the GROUP LIST, and the shared count is derived
+    # from it exactly as `harness/score.py` derives the `sharedGroups` member it
+    # publishes — `countedInPairedSubset`, the flag the paired subset is defined
+    # by. This test asserted a member the fixture never had; it could not have
+    # failed before the corpora landed, because the fixture SKIPPED.
+    shared = sum(1 for group in artifacts["pairing"]
+                 if group["countedInPairedSubset"])
+    assert shared == 33
     assert len(artifacts["pairedIds"]["jps"]) == 69
     assert len(artifacts["pairedIds"]["rego"]) == 62
 
@@ -869,6 +876,53 @@ def test_the_blocks_own_refusals_bite():
     assert render_round_status.parse_block(_record_with(rounds))
 
 
+def test_the_empty_of_rounds_block_parses_and_renders():
+    """§7 DELTA 10 — the ONE registered change to `render_round_status.py`.
+
+    Study 019 refused a block registering zero rounds, because 019 first wrote
+    its block after round 1 existed. Study 020 opens its review record BEFORE any
+    round runs, so the empty block is this study's opening state and the port
+    permits it. The registered rendering is the sentence §7 quotes.
+
+    THE MUTATION CHECK, run: restore 019's
+
+        if not numbers:
+            raise BlockError("the block registers no rounds")
+
+    after the contiguity rule in `parse_block()` and this case fails with that
+    exact message, while every other case in this section still passes — so the
+    assertion discriminates the delta and nothing else. Restored, the file's
+    sha256 is unchanged.
+
+    The refusals the port KEEPS are asserted above and are not weakened by this:
+    a block with rounds still has to be contiguous from 1, may carry at most one
+    open round, and that round must be the highest."""
+    text = _review_record()
+    head, _, rest = text.partition(render_round_status.BLOCK_OPEN)
+    _, _, tail = rest.partition(render_round_status.BLOCK_CLOSE)
+    body = json.dumps({"blockVersion": 1, "rounds": []}, indent=2)
+    empty = "%s%s\n%s\n%s%s" % (head, render_round_status.BLOCK_OPEN, body,
+                                render_round_status.BLOCK_CLOSE, tail)
+    block = render_round_status.parse_block(empty)
+    assert block["rounds"] == []
+    rendered = render_round_status.render(block)
+    assert "0 review rounds are on the record" in rendered
+    assert "none has returned a verdict" in rendered
+    assert "no round is open" in rendered
+
+
+def test_the_two_front_doors_are_the_registered_surfaces(study):
+    """§7 DELTA 10's other half: `SURFACES` narrows to two. 019's third,
+    `design/POLICY-DRAFT.md`, is not a 020 front door — this study's policy prose
+    is ported frozen rather than drafted here, so that document attests nothing
+    about 020 and regenerating a status sentence into it would be a third,
+    unread attestation."""
+    assert render_round_status.SURFACES == ("README.md", "PREREGISTRATION.md")
+    for relative in render_round_status.SURFACES:
+        assert os.path.isfile(os.path.join(study, relative)), relative
+    assert "design/POLICY-DRAFT.md" not in render_round_status.SURFACES
+
+
 def test_the_block_and_the_reviews_directory_carry_the_same_rounds():
     """The round set derived from the TREE rather than from a sentence, with
     ROUND-7 FINDING R7-4's duplicate-identity refusal asserted in both
@@ -1401,10 +1455,22 @@ def test_the_two_front_doors_carry_the_rendered_sentence_verbatim():
         "the renderer's own --check disagrees with this test")
     assert render_round_status.SURFACES == ("README.md", "PREREGISTRATION.md")
     assert "design/POLICY-DRAFT.md" not in render_round_status.SURFACES
-    assert not os.path.exists(os.path.join(_study(), "design",
-                                           "POLICY-DRAFT.md")), (
-        "020 drafts no policy prose; a POLICY-DRAFT.md in this tree would be a "
-        "third front door the renderer does not know about")
+    # 019's `design/POLICY-DRAFT.md` IS in this tree — the whole `design/` tree
+    # is carried, unpinned, and `harness/PORTS.md` says so under "Carried
+    # UNPINNED". What §7 delta 10 registers is that it is not a SURFACE: 020
+    # drafts no policy prose of its own, so the draft attests nothing about this
+    # study and the renderer must not write a status sentence into it. That is
+    # the property asserted, and it is stronger than the file's absence was —
+    # an absent file cannot carry a stale sentence, and this one is checked for
+    # one.
+    draft = os.path.join(_study(), "design", "POLICY-DRAFT.md")
+    if os.path.exists(draft):
+        with open(draft, "rb") as handle:
+            carried = render_round_status.flat(handle.read().decode("utf-8"))
+        assert wanted not in carried, (
+            "019's carried policy draft must not carry 020's rendered "
+            "round-status sentence: it is not one of this study's front doors")
+        assert "review round" not in carried.lower().split("019")[0][:400]
 
 
 def test_the_rendered_sentence_moves_when_the_block_moves():
@@ -1621,7 +1687,8 @@ def test_the_ports_sentence_counts_what_the_code_registers():
     R1-20 was this exact sentence, stale at "five" while the constant held
     seven, so the count is READ OUT OF THE CONSTANT here and the document must
     spell the same number."""
-    words = {5: "five", 6: "six", 7: "seven", 13: "thirteen", 20: "twenty"}
+    words = {5: "five", 6: "six", 7: "seven", 13: "thirteen", 20: "twenty",
+             46: "forty-six"}
     ports = flatten(_read("harness/PORTS.md"))
     size = len(integrity.REQUIRED_PORTS)
     assert "the destination set at exactly the %s files this table names" \
@@ -1630,9 +1697,15 @@ def test_the_ports_sentence_counts_what_the_code_registers():
         % words[size] in ports
     assert "The seven files 019 itself ported answer to BOTH" in ports
     assert len(integrity.TIER_PORTS_PATHS) == 7
-    assert "the thirteen 019 never put in a ports row" in \
-        flatten(_read("harness/PINS.json"))
-    assert len(integrity.TIER_MANIFEST_PATHS) == 13
+    # The set's SECOND half, which is the other way a row can be missing and
+    # nobody notice: a harness file with no source-side row because 019 had no
+    # such file. `verify_chain()` checks the union against the directory, so the
+    # two halves are exhaustive together.
+    assert integrity.REGISTERED_HARNESS_FILES == \
+        integrity.REQUIRED_PORTS | integrity.NEW_IN_020
+    assert not (integrity.REQUIRED_PORTS & integrity.NEW_IN_020)
+    for name in integrity.NEW_IN_020:
+        assert os.path.isfile(os.path.join(_study(), name)), name
 
 
 def test_the_wrapper_rows_difference_count_is_the_number_it_enumerates():
@@ -1688,6 +1761,7 @@ def test_the_harness_is_described_as_existing_and_as_partial():
     for name in sorted(integrity.REQUIRED_PORTS):
         assert os.path.isfile(os.path.join(_study(), name)), name
     assert "COMPLETE port of 019's executable harness surface" in ports
+    assert "AND of its registered artifacts" in ports
     assert "PARTIAL port of the study" in ports
     for item in ("A1", "S1", "S3", "S4", "S5", "S6", "S8", "R1"):
         assert "| %s |" % item in scaffold, item
@@ -1702,15 +1776,28 @@ def test_no_lifecycle_note_still_calls_a_landed_item_outstanding():
     ports = flatten(_read("harness/PORTS.md"))
     for landed in ("the scorer's survivor-vector schema; the token collision is "
                    "fixed",
+                   "no threshold",
                    "the new admission code",
                    "the ownPolicyIdentity invocation",
-                   "registeredLabelRule restated"):
+                   "the eighteen-member family scorer",
+                   "registeredLabelRule restated",
+                   "the schedule re-derived at the registered round count",
+                   "the freeze gate's calibration/ rule",
+                   "the fresh sealed reviewer set",
+                   "the empty-of-rounds review record",
+                   "CORRECTION-TARGETS.md leaves the covered set",
+                   "design/pilot/pilot_run.py deleted, not ported",
+                   "the D-1 smoke restatement"):
         assert landed in ports, landed
     assert "presence_idiom.py" in ports
-    # …and the four are absent from the OWED register's S table.
+    assert "All THIRTEEN of §7's deltas have landed" in scaffold
+    # …and no landed delta is still described as OWED in the S table. What the
+    # S rows may still owe is a VALUE the delta produces or a document it waits
+    # on — never the delta itself, so the mechanism names are absent here.
     owed = scaffold.split("## S — the registered deltas")[1].split("## R —")[0]
     assert "survivor-vector schema" not in owed
     assert "ownPolicyIdentity invocation" not in owed
+    assert "eighteen-member family scorer." not in owed
 
 
 def test_the_registration_states_the_integrity_bootstrap_and_not_the_stronger_claim():
@@ -1792,7 +1879,12 @@ def test_the_family_size_is_one_number_everywhere_it_is_stated():
     flat_text = flatten(text)
     rows = re.findall(r"^\| M(\d+) \| L", text, re.MULTILINE)
     assert [int(number) for number in rows] == list(range(1, 19)), rows
-    assert decision.FAMILY_MEMBERS_REGISTERED == len(rows)
+    from e4lib import family
+    assert decision.REGISTERED_FAMILY_SIZE == len(rows)
+    # …and the members EXIST, which is the half that could not be
+    # asserted while §7 delta 5 was open: the prose, the decision
+    # rule's constant and the scorer's own table are one number.
+    assert len(family.MEMBERS) == len(rows)
     for phrase in ("all eighteen registered family members (§5.2) agree",
                    "The registered sensitivity family — eighteen members",
                    "an intersection–union test",

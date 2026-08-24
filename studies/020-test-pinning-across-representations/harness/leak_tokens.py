@@ -395,8 +395,14 @@ LEAK_TOKENS = derived()["tokens"]
 INSTRUMENT_TOKENS = (
     # The study and its instruments
     "judgment-pack", "jpack", "pack.json", "judgment pack", "matrixversion",
-    "specversion", "preregistration", "study-019", "study 019",
-    "authorship across representations",
+    "specversion", "preregistration",
+    # BOTH study names. 020's own is obvious; 019's is here because 020's
+    # stimulus, gold suite, mutant corpora and references ARE 019's bytes,
+    # ported by digest (§4.1). A prior turn that had seen Study 019 has seen
+    # this study's materials, so its name is a contamination signal for this
+    # study exactly as this study's own name is.
+    "study-020", "study 020", "test pinning across representations",
+    "study-019", "study 019", "authorship across representations",
     # The scored surface's registered member names (the naming appendix's
     # spellings, which are identifiers rather than policy prose)
     "outcomeid", "onunknown", "applicability", "evidencerequirements",

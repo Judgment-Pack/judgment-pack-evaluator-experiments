@@ -1,4 +1,27 @@
-"""E4 — pairing, the X1 filter, the identity control, kill, and the tau cut.
+"""E4 — pairing, the identity control, kill, the survivor vector, and coverage.
+
+WHAT THIS FILE DOES
+-------------------
+Builds §4's witness-set pairing, validates an authored suite's cases against the
+registered input domain, runs §5's two named identity relations
+(`referenceIdentity` and, new in 020, `ownPolicyIdentity`), executes the frozen
+mutant corpus against the suite, and emits — per admitted run — an EXPLICIT
+per-mutant survivor vector, the per-language paired-adequate denominators, and
+the run's coverage set over the shared witness classes.
+
+DELIBERATELY DOES NOT DO
+------------------------
+* **No threshold.** There is no tau, no integer cut, no `highKill` predicate and
+  no reachability assertion (PREREGISTRATION.md §7 delta 2). §5.1 registers the
+  primary endpoint with "**No cut, no τ, no dichotomy**", so the machinery that
+  would derive one is not kept in a disabled state — it is gone, and
+  `harness/tests/test_score_e4.py` asserts that no name of it survives anywhere
+  a registered decision path can reach.
+* **No weighting and no contrast.** The eighteen family members of §5.2, L2c's
+  offset estimator, the permutation schemes and the IU verdict are
+  `e4lib/family.py`'s (§7 delta 5). This module hands that module the coverage
+  set and the two denominators and computes no member.
+* **No arm labels in any derived quantity.** Everything here is per run.
 
 ASSEMBLED FROM `design/mutants/e4_score.py`
 (sha256 `beb42b3903284dc2c33baff33000325814a1e53171d8268ca4d56820e4f995fb`):
@@ -26,15 +49,16 @@ WHAT THE PROTOTYPE DID NOT HAVE, and section 5 registers
    silently removes suites. The prototype reported identity failures per suite;
    section 5 reports the rate, and section 1a requires the exclusions to be
    "reported, never silently dropped".
-3. **The tau cut as an integer derived at run time, PER LANGUAGE.** Section 5
-   registers tau = 0.95 over the paired adequate subset and says the operative
-   integer cut at the frozen paired count is stated. `stats.tau_cut()` derives
-   it and the scorer prints it, so the number a run is judged against is in the
-   published record rather than in an analyst's head. `high_kill_cuts()` derives
-   ONE PER LANGUAGE from that language's own paired denominator (round-1 R1-1:
-   a single JPS-derived cut applied to every arm made the primary endpoint
-   unreachable for arms B and C), and `is_high_kill()` refuses a cut its run's
-   denominator cannot reach instead of quietly answering False.
+3. **The per-language denominators, WITHOUT a threshold on top of them**
+   (§7 delta 2). 019 derived an integer cut per language from tau = 0.95; the
+   machinery that keeps each language's paired-adequate denominator and lattice
+   SEPARATE is what 019's R1-1 was actually about, and it is kept —
+   `paired_denominators()` and `shared_classes()` publish both denominators,
+   both lattices and the shared-class count, so R1-1's defect (one cut derived
+   from the JPS count and applied to every arm) stays structurally impossible.
+   The THRESHOLD is removed: 020 registers no tau, no integer cut and no
+   `highKill` member, because §5.1 registers the endpoint as a weighted count
+   over a coverage set rather than as a dichotomy.
 4. **The engine-supplied-kill split** (SCAFFOLD item S9, closed). Section 4
    registers 35 (now 41) arm-A mutants "listed in the registries" whose kills
    are achievable only through the engine's structural conflict detection,
@@ -126,6 +150,17 @@ class ExecutionRefusal(E4Error):
     used to fail identity and score a correct suite zero. Neither is evidence
     about a suite, so neither is a rate; both raise here and reach the
     `engine-execution-clean` control gate."""
+
+
+class SurvivorSchemaError(E4Error):
+    """§7 delta 1's write-time refusal: a run record that would encode "nothing
+    evaluated" and "everything killed" with the same token, or that would be
+    written without the vector or without `caseCount`.
+
+    It is an APPARATUS refusal and not an authoring outcome: nothing the author
+    emitted can produce it. It means the scorer was about to write a record
+    whose schema cannot distinguish two states §5.2 registers as different, and
+    §5.9 row 1 is where that lands."""
 
 
 def _decimal(value):
@@ -556,23 +591,23 @@ def engine_supplied_ids(mutants: dict, language: str) -> list:
 KILLED = "killed"
 SURVIVED = "survived"
 REFUSED = "refused"
-# NEW IN 020, AND IT IS THE WHOLE OF §7's DELTA 1. Study 019 had three outcome
-# tokens and a fourth STATE it had no token for: a mutant that was never
-# evaluated at all, because the run failed the identity control before the kill
-# loop ran. `kill_rates({}, …)` then produced `killedPaired: 0` with
-# `survivorsPaired: []`, which is BYTE-IDENTICAL to the record of a suite that
-# killed every paired mutant — the empty survivor list encodes "nothing
-# evaluated" and "everything killed" with the same token.
-#
-# On 019's own batch that single collision moves the group-level ITT A−C
-# contrast from +0.19112 (naive) to +0.13849 (corrected): two arm-A runs
-# (`run-025`, `run-046`, both identity-failing) score a perfect 33/33 having
-# killed nothing. §5.2 registers the repair as a DAY-ONE requirement and this
-# constant is it — every paired-adequate mutant of every admitted run now
-# carries an explicit token, and `NOT_EVALUATED` is the one the collision
-# needed.
+# §7 delta 1. The fourth outcome, which 019's schema had no token for: the
+# mutant was never executed against this suite. `survivorsPaired` alone could
+# not say it — an unrun mutant is absent from the survivor list exactly as a
+# killed one is — and that is the collision the delta names.
 NOT_EVALUATED = "not-evaluated"
 MUTANT_OUTCOMES = (KILLED, SURVIVED, REFUSED, NOT_EVALUATED)
+
+# §5.1 and §1.2 (M-13): TWO NAMED RELATIONS, never one field with two meanings
+# (§7 delta 4). `referenceIdentity` is the suite against the arm's frozen
+# REFERENCE and is what the per-protocol population is defined by;
+# `ownPolicyIdentity` is the same suite against the run's OWN authored policy,
+# is new in 020, is published per run and per arm, and gates nothing. A single
+# `identityPass` field carrying whichever was last computed is the defect this
+# tuple exists to make impossible: the scorer writes both members or neither.
+REFERENCE_IDENTITY = "referenceIdentity"
+OWN_POLICY_IDENTITY = "ownPolicyIdentity"
+IDENTITY_RELATIONS = (REFERENCE_IDENTITY, OWN_POLICY_IDENTITY)
 
 # The identity-failure category §5's E3 taxonomy publishes for a case that left
 # the registered input domain. Named once so the scorer, the taxonomy and the
@@ -759,84 +794,67 @@ def identity_arm_rego(tools: engines.Toolchain, reference_policy: str,
     return record["status"] == engines.TEST_PASS, record
 
 
-# --- E6: `ownPolicyIdentity` (M-13, §1.2, §5.1) -----------------------------
-#
-# TWO RELATIONS, NAMED SEPARATELY, AND ONLY ONE GATES.
-#
-# `referenceIdentity` above is Study 019's control, unchanged. `ownPolicyIdentity`
-# is the SAME suite evaluated against the run's OWN authored policy — one extra
-# engine invocation per admitted run — and it is a REPORTED quantity that gates
-# nothing. R1's construct statement is conditioned on it: the endpoint measures
-# pinning against the SHARED REFERENCE, not against the policy each suite
-# accompanies, and this score is what makes that severance visible instead of
-# merely disclosed.
-#
-# **Why it cannot raise where `referenceIdentity` does.** The two relations
-# evaluate the same suite against two very different artifacts. The reference is
-# FROZEN and certified — the off-gold certificate establishes that it answers
-# every point of the registered domain — so a `ROW-ERROR` from it is the
-# apparatus and `identity_arm_a()` raises. The run's own policy is neither: a
-# `ROW-ERROR` from an authored artifact is an ANSWER about that artifact, and
-# raising on it would turn a reported quantity into a control-gate failure and
-# would let E6 do exactly the gating §1.2 says it must not do.
-#
-# What DOES stay apparatus is an invocation that never returned an answer at
-# all: §6's `engine-execution-clean` gate "now covers E6's extra invocation
-# too", so the record carries `evaluated: false` with the engine's own status
-# and the gate reads it.
-OWN_POLICY_RELATION = "ownPolicyIdentity"
-REFERENCE_RELATION = "referenceIdentity"
-IDENTITY_RELATIONS = (REFERENCE_RELATION, OWN_POLICY_RELATION)
-# The one that gates, named once, so "which relation is the gate" is a constant
-# a test can read rather than a sentence a reader has to trust (§1.2).
-GATING_IDENTITY_RELATION = REFERENCE_RELATION
+def own_policy_identity(tools: engines.Toolchain, arm: str, own_policy,
+                        cases, suite_path: str, workdir: str) -> dict:
+    """E6 (§5.1, §1.2's M-13, §7 delta 4): the run's authored SUITE against the
+    run's OWN authored POLICY — one extra engine invocation per admitted run.
 
+    THE SECOND NAMED RELATION, and it is named. `referenceIdentity` asks whether
+    the suite pins the frozen reference down; this asks whether the suite passes
+    against the artifact its own author wrote. They answer different questions
+    about different artifacts, and 019 had only the first — so the population
+    "runs whose suite is consistent with their own policy" was invisible. The
+    two are separate members of the run record, computed by separate functions,
+    and `IDENTITY_RELATIONS` names both so a reader of the record can never be
+    reading one under the other's name.
 
-def _own_policy_record(evaluated, passed, failures, note=None) -> dict:
-    return {"relation": OWN_POLICY_RELATION, "gates": False,
-            "evaluated": bool(evaluated),
-            "pass": None if not evaluated else bool(passed),
-            "failures": list(failures)[:20],
-            "failureCount": len(failures),
-            "note": note}
+    **It gates nothing** (§5.1: "Published per run and per arm; gates nothing;
+    conditions R1's construct statement"). What it DOES reach is §6's
+    `engine-execution-clean` control gate: this invocation is a scored engine
+    invocation of the attempt, so an engine that refused here is an apparatus
+    failure exactly as it is anywhere else, and `ExecutionRefusal` carries it to
+    the same gate rather than being swallowed into a `false`.
 
-
-def own_policy_identity_arm_a(tools: engines.Toolchain, pack_path,
-                              cases: list, workdir: str) -> dict:
-    """E6 for arm A: the authored suite against the run's OWN authored pack."""
-    if not pack_path:
-        return _own_policy_record(
-            False, None, [], "no admitted artifact: E6 has nothing to evaluate")
-    failures = []
-    for case_id, facts, evidence, expected, readable, _signature in cases:
-        if not readable:
-            failures.append({"case": case_id, "expected": "<unreadable>",
-                             "got": "<not-run>"})
-            continue
-        observed = engines.eval_pack(tools, pack_path, facts, evidence, workdir)
-        if observed != expected:
-            failures.append({"case": case_id,
-                             "expected": engines.scope_str(expected),
-                             "got": engines.scope_str(observed)})
-    return _own_policy_record(True, not failures, failures)
-
-
-def own_policy_identity_arm_rego(tools: engines.Toolchain, policy_path,
-                                 suite_path: str, workdir: str) -> dict:
-    """E6 for arms B/C: the authored suite against the run's OWN policy."""
-    if not policy_path:
-        return _own_policy_record(
-            False, None, [], "no admitted artifact: E6 has nothing to evaluate")
-    record = engines.opa_test(tools, policy_path, suite_path, workdir)
+    The returned block always carries `relation`, so a record written to disk
+    names which relation produced it."""
+    block = {"relation": OWN_POLICY_IDENTITY, "arm": arm,
+             "gates": "nothing (§5.1: published per run and per arm; "
+                      "conditions R1's construct statement)"}
+    if arm == "A":
+        failures = []
+        for case_id, facts, evidence, expected, readable, _sig in cases:
+            if not readable:
+                failures.append({"case": case_id, "expected": "<unreadable>",
+                                 "got": "<not-run>"})
+                continue
+            observed = engines.eval_pack(tools, own_policy, facts, evidence,
+                                         workdir)
+            if observed[0] == "ROW-ERROR":
+                raise ExecutionRefusal(
+                    "E6-OWN-POLICY-ENGINE-REFUSED the run's own authored pack "
+                    "refused on the in-domain case %s with %s: §6's "
+                    "engine-execution-clean gate covers E6's extra invocation "
+                    "too, and a refusal is neither a pass nor a failure"
+                    % (case_id, engines.scope_str(observed)))
+            if observed != expected:
+                failures.append({"case": case_id,
+                                 "expected": engines.scope_str(expected),
+                                 "got": engines.scope_str(observed)})
+        block["pass"] = not failures
+        block["failures"] = failures[:20]
+        block["failureCount"] = len(failures)
+        return block
+    record = engines.opa_test(tools, own_policy, suite_path, workdir)
     if record["status"] not in engines.TEST_SUITE_STATUSES:
-        return _own_policy_record(
-            False, None, [],
-            "`opa test` against the run's own policy returned %s (exit %s): the "
-            "invocation returned no answer, which §6's engine-execution-clean "
-            "gate reads and which E6 records rather than adjudicates"
+        raise ExecutionRefusal(
+            "E6-OWN-POLICY-ENGINE-REFUSED `opa test` against the run's own "
+            "authored policy returned %s (exit %s): §6's "
+            "engine-execution-clean gate covers E6's extra invocation too"
             % (record["status"], record["exitCode"]))
-    passed = record["status"] == engines.TEST_PASS
-    return _own_policy_record(True, passed, [] if passed else [record])
+    block["pass"] = record["status"] == engines.TEST_PASS
+    block["failures"] = [] if block["pass"] else [record]
+    block["failureCount"] = 0 if block["pass"] else 1
+    return block
 
 
 def kill_arm_rego(tools: engines.Toolchain, mutant_path: str, suite_path: str,
@@ -862,19 +880,33 @@ def kill_arm_rego(tools: engines.Toolchain, mutant_path: str, suite_path: str,
 
 
 def kill_rates(kill_of: dict, mutants: list, paired_ids: set,
-               engine_supplied=(), evaluated: bool = True) -> dict:
-    """The kill counts one suite produces, over named denominators.
+               engine_supplied=()) -> dict:
+    """The kill counts one suite produces, over named denominators, WITH the
+    explicit per-mutant survivor vector §5.1 registers as a day-one requirement.
 
-    `killedPaired`/`paired` is the ONLY pair the endpoint reads (section 5: "the
-    suite's paired-subset kill rate = killed / paired adequate mutants"); the
-    others are R2's failure map. Each carries its denominator's name, so no
-    reader can mistake the own-language rate for the cross-arm one.
+    `killedPaired`/`paired` is the pair the family scorer's native-denominator
+    level reads; the others are R2's failure map. Each carries its denominator's
+    name, so no reader can mistake the own-language rate for the cross-arm one.
 
     `engine_supplied` is section 4's registered list of mutants whose kills are
     achievable only through the engine's structural conflict detection. Section 4
     registers them "reported both included and excluded", so the paired subset is
     split here — once, at the only place that knows which mutant each kill came
-    from — rather than reconstructed later from an aggregate."""
+    from — rather than reconstructed later from an aggregate.
+
+    **THE SURVIVOR VECTOR (§5.1, §5.2 Fact 1, §7 delta 1).** `survivorVector` is
+    one entry per paired-adequate mutant, in manifest order, each carrying that
+    mutant's own outcome — `killed`, `survived`, `refused` or `not-evaluated`.
+    019 published `survivorsPaired` alone, which is the set of SURVIVORS and
+    therefore empty in two structurally different states: a suite that killed
+    everything, and a suite that was never run against anything. Two arm-A runs
+    of 019 (`run-025`, `run-046`) were in the second state and read as the first,
+    and correcting that single collision moved 019's group-level ITT A−C from
+    +0.19112 to +0.13849. The vector is total over the paired subset, so the two
+    states differ in the bytes and not in an inference from them, and
+    `evaluatedPaired` names how many mutants the suite was actually asked about.
+    `survivorsPaired` is retained beside it as a derived convenience and is
+    never the only record."""
     supplied = set(engine_supplied or ())
     adequate = [record for record in mutants if not record["notAdequate"]]
     not_adequate = [record for record in mutants if record["notAdequate"]]
@@ -889,6 +921,11 @@ def kill_rates(kill_of: dict, mutants: list, paired_ids: set,
     def refused(subset):
         return [record["id"] for record in subset
                 if kill_of.get(record["id"]) == REFUSED]
+    vector = [{"id": record["id"],
+               "outcome": kill_of.get(record["id"], NOT_EVALUATED),
+               "engineSupplied": record["id"] in supplied}
+              for record in paired_adequate]
+    evaluated = sum(1 for entry in vector if entry["outcome"] != NOT_EVALUATED)
     return {
         "killedAdequate": killed(adequate),
         "adequate": len(adequate),
@@ -903,30 +940,12 @@ def kill_rates(kill_of: dict, mutants: list, paired_ids: set,
         "engineSupplied": len(listed),
         "killedNotAdequate": killed(not_adequate),
         "notAdequate": len(not_adequate),
-        "survivorsPaired": [record["id"] for record in paired_adequate
-                            if kill_of.get(record["id"]) == SURVIVED],
-        # §7 delta 1, and it is the member the collision needed.
-        # `survivorVector` carries EVERY paired-adequate mutant with its own
-        # token, in the manifest's order, so "nothing evaluated" and "everything
-        # killed" are two different documents rather than two readings of one.
-        # It is emitted for every admitted run, whatever the run's identity
-        # outcome, and `validate_kill_block()` refuses the ambiguous shape at
-        # write time.
-        #
-        # A mutant missing from `kill_of` is `NOT_EVALUATED` and never
-        # `SURVIVED`: reading an absent answer as "the suite did not kill it" is
-        # the collision one level down, and it is exactly what
-        # `kill_rates({}, …)` did in 019.
-        "survivorVector": [[record["id"],
-                            kill_of.get(record["id"], NOT_EVALUATED)]
-                           for record in paired_adequate],
-        "notEvaluatedPaired": [record["id"] for record in paired_adequate
-                               if record["id"] not in kill_of],
-        "evaluatedPaired": sum(1 for record in paired_adequate
-                               if record["id"] in kill_of),
-        # The one member that says WHICH state an all-empty survivor list is in.
-        # `False` means the kill loop never ran for this run at all.
-        "killsEvaluated": bool(evaluated),
+        # §7 delta 1: the vector is the record; the survivor LIST is derived
+        # from it and published beside it, never instead of it.
+        "survivorVector": vector,
+        "evaluatedPaired": evaluated,
+        "survivorsPaired": [entry["id"] for entry in vector
+                            if entry["outcome"] == SURVIVED],
         # Round-1 R1-8: a mutant the engine refused on is scored NEITHER way.
         # It is not a kill (an apparatus failure is not a suite distinguishing a
         # mutant) and not a survivor (nothing was asked), it stays in the
@@ -937,174 +956,186 @@ def kill_rates(kill_of: dict, mutants: list, paired_ids: set,
     }
 
 
-# §7 delta 1's write-time gate. Every member a kill block must carry for the
-# collision to be unrepresentable, named once.
-KILL_BLOCK_REQUIRED = ("killedPaired", "paired", "survivorsPaired",
-                       "survivorVector", "notEvaluatedPaired",
-                       "evaluatedPaired", "killsEvaluated")
+def require_survivor_schema(run: dict) -> dict:
+    """§7 delta 1's WRITE-TIME refusal, and the only place a run record is
+    allowed to become bytes.
+
+    Three conditions, each of which 019's schema permitted:
+
+    1. **The token collision.** `survivorsPaired: []` with `killedPaired: 0`
+       over a non-empty paired denominator is refused. Read naively that record
+       says "no survivors, therefore everything was killed"; it is emitted by a
+       run that killed nothing because nothing was ever executed. It is refused
+       rather than repaired, because the two states are distinguishable only if
+       the writer had the vector — and if it had the vector it can write it.
+    2. **The vector is total.** A `kill` block whose `survivorVector` is absent,
+       or does not cover exactly the paired-adequate denominator, is refused:
+       the vector is the schema, not an annotation on it.
+    3. **`caseCount` for every admitted run with a suite** (§5.2's pinned
+       definition 4). 019 emitted six runs carrying a `kill` block with neither
+       `survivorsPaired` nor `caseCount` — B run-026/027/032/036, C run-035/050,
+       arm A zero, exactly the same six runs under both defects — and the ANCOVA
+       members are undefined for a unit with no covariate. A suite that parses
+       to no cases has `caseCount` 0, which is a number; an absent member is not.
+
+    Returns the run so a caller can write `require_survivor_schema(run)` at the
+    point of the write and have no unchecked path around it."""
+    kill = run.get("kill")
+    if kill is None:
+        return run
+    paired = kill.get("paired")
+    if not isinstance(paired, int):
+        raise SurvivorSchemaError(
+            "E4-SURVIVOR-SCHEMA run %s carries a kill block with no integer "
+            "paired denominator: the denominator names what the vector is over"
+            % run.get("run"))
+    vector = kill.get("survivorVector")
+    if not isinstance(vector, list) or len(vector) != paired:
+        raise SurvivorSchemaError(
+            "E4-SURVIVOR-SCHEMA run %s carries a kill block over %d paired "
+            "adequate mutants and a survivor vector of %s entries: §5.1 "
+            "registers an EXPLICIT per-mutant survivor vector for every "
+            "admitted run, so the vector is total over the denominator or the "
+            "record is not written"
+            % (run.get("run"), paired,
+               "no" if not isinstance(vector, list) else len(vector)))
+    outcomes = {entry.get("outcome") for entry in vector}
+    unregistered = sorted(outcome for outcome in outcomes
+                          if outcome not in MUTANT_OUTCOMES)
+    if unregistered:
+        raise SurvivorSchemaError(
+            "E4-SURVIVOR-SCHEMA run %s carries the mutant outcome(s) %s and the "
+            "registered vocabulary is %s"
+            % (run.get("run"), ", ".join(map(repr, unregistered)),
+               ", ".join(MUTANT_OUTCOMES)))
+    if paired and not kill.get("survivorsPaired") \
+            and not kill.get("killedPaired"):
+        evaluated = kill.get("evaluatedPaired")
+        raise SurvivorSchemaError(
+            "E4-SURVIVOR-EMPTY run %s would be written with survivorsPaired [] "
+            "and killedPaired 0 over %d paired adequate mutants (%s evaluated): "
+            "that record encodes \"nothing was evaluated\" and \"everything was "
+            "killed\" with the same token, which on Study 019 read two "
+            "identity-failing runs as a perfect %d/%d and moved the group-level "
+            "ITT A−C contrast by 0.0526. The scorer emits the vector instead "
+            "(§5.1, §5.2 Fact 1)"
+            % (run.get("run"), paired, evaluated, paired, paired))
+    if run.get("admitted") and run.get("suitePresent") \
+            and not isinstance(run.get("caseCount"), int):
+        raise SurvivorSchemaError(
+            "E4-CASECOUNT-ABSENT run %s is admitted and carries a suite, and "
+            "its caseCount is %r: §5.2 pins caseCount = 0 for a suite that "
+            "parses to no cases, so an admitted run with a suite always carries "
+            "the number and never an absence"
+            % (run.get("run"), run.get("caseCount")))
+    return run
 
 
-def unevaluated_kill_block(mutants: list, paired_ids: set,
-                           engine_supplied=(), reason: str = None) -> dict:
-    """The kill block of an admitted run whose kill loop NEVER RAN.
+# --- the per-language denominators and the shared-class lattice --------------
+# §7 delta 2: KEPT (each language's paired-adequate denominator and lattice stay
+# separate), with no threshold on top of them.
 
-    Study 019 wrote three different shapes for this state and all three were
-    ambiguous. Two of them were the literal dict `{"killedPaired": 0, "paired":
-    n}` — a block with no survivor member and no `caseCount` at all, which is
-    the defect §5.2's definition 4 names and which produced exactly six runs (B
-    `run-026/027/032/036`, C `run-035/050`; arm A zero) carrying a `kill` block
-    with neither. The third was `kill_rates({}, …)`, whose empty `survivorsPaired`
-    reads as a perfect score.
+def paired_denominators(paired_ids: dict) -> dict:
+    """Each language's paired-adequate denominator and lattice, side by side.
 
-    There is one shape now, it is the SAME shape a scored run gets, and every
-    paired-adequate mutant in it carries `NOT_EVALUATED`. `reason` travels with
-    it so a reader of one run's record can see WHY nothing was evaluated without
-    joining it to another member."""
-    block = kill_rates({}, mutants, paired_ids, engine_supplied,
-                       evaluated=False)
-    block["notEvaluatedReason"] = reason
+    ROUND-1 FINDING R1-1 of Study 019, and this is the half of the answer 020
+    keeps. The defect was not that a threshold existed; it was that ONE number
+    derived from the JPS subset was applied to a Rego run whose subset was
+    smaller. The denominators are per language here, they are never combined,
+    and there is no single number derived from either of them — so the shape of
+    R1-1 has nowhere to recur.
+
+    `lattice` is the spacing of the level's own value set at that denominator
+    (1/69 = 0.014493 for JPS at 019's corpus), which §5.3 needs in order to say
+    "the outcome is bounded and lattice-valued" as arithmetic rather than as an
+    adjective."""
+    block = {}
+    for language in sorted(paired_ids):
+        size = len(paired_ids[language])
+        block[language] = {
+            "language": language,
+            "pairedAdequateMutants": size,
+            "lattice": float(Fraction(1, size)) if size else None,
+            "statement": "arm language %s scores over its OWN %d paired "
+                         "adequate mutants; no quantity derived from another "
+                         "language's denominator is applied to it"
+                         % (language, size),
+        }
     return block
 
 
-def validate_kill_block(block: dict, where: str = "a kill block") -> dict:
-    """REFUSE the token collision at write time (§5.2, §7 delta 1).
+def shared_classes(pairing: list) -> dict:
+    """§5.1's shared witness classes — the units the coverage set is over.
 
-    Four refusals, and the second is the registered one:
-
-    1. a member of `KILL_BLOCK_REQUIRED` is absent — a partial block is what
-       019's six `caseCount`-less runs had, and a reader cannot tell a missing
-       member from a measured zero;
-    2. **`survivorsPaired == []` with `killedPaired == 0` over a non-empty
-       paired denominator and nothing recorded as not-evaluated** — the exact
-       shape §5.2 registers as refused rather than read as 33/33;
-    3. the per-mutant census does not add up to `paired` — a vector that has
-       lost a mutant is a coverage set computed over the wrong denominator;
-    4. `killsEvaluated` disagrees with the vector — a block claiming the loop
-       ran while carrying `NOT_EVALUATED` tokens, or claiming it did not while
-       carrying answers.
-
-    Returns the block, so a caller can write `run["kill"] =
-    validate_kill_block(...)` and cannot forget to check."""
-    missing = [name for name in KILL_BLOCK_REQUIRED if name not in block]
-    if missing:
-        raise E4Error(
-            "E4-KILL-BLOCK-INCOMPLETE %s is missing %s: §7's delta 1 requires "
-            "an explicit per-mutant survivor vector for EVERY admitted run, and "
-            "a block a reader has to interpret is the defect it repairs"
-            % (where, ", ".join(missing)))
-    paired = block["paired"]
-    vector = block["survivorVector"]
-    if len(vector) != paired:
-        raise E4Error(
-            "E4-KILL-VECTOR-SHORT %s carries %d per-mutant tokens over a paired "
-            "adequate denominator of %d: the vector IS the denominator"
-            % (where, len(vector), paired))
-    tokens = [token for _identifier, token in vector]
-    unknown = sorted(set(tokens) - set(MUTANT_OUTCOMES))
-    if unknown:
-        raise E4Error(
-            "E4-KILL-VECTOR-TOKEN %s carries the outcome token(s) %s, and the "
-            "registered set is %s" % (where, ", ".join(unknown),
-                                      ", ".join(MUTANT_OUTCOMES)))
-    not_evaluated = tokens.count(NOT_EVALUATED)
-    if tokens.count(KILLED) != block["killedPaired"]:
-        raise E4Error(
-            "E4-KILL-VECTOR-DISAGREES %s reports %d paired kills and its vector "
-            "carries %d: the count and the vector are one measurement"
-            % (where, block["killedPaired"], tokens.count(KILLED)))
-    if tokens.count(SURVIVED) != len(block["survivorsPaired"]):
-        raise E4Error(
-            "E4-KILL-VECTOR-DISAGREES %s lists %d survivors and its vector "
-            "carries %d" % (where, len(block["survivorsPaired"]),
-                            tokens.count(SURVIVED)))
-    if not_evaluated != len(block["notEvaluatedPaired"]):
-        raise E4Error(
-            "E4-KILL-VECTOR-DISAGREES %s lists %d not-evaluated mutants and its "
-            "vector carries %d" % (where, len(block["notEvaluatedPaired"]),
-                                   not_evaluated))
-    if block["evaluatedPaired"] + not_evaluated != paired:
-        raise E4Error(
-            "E4-KILL-CENSUS %s says %d of %d paired mutants were evaluated and "
-            "%d were not: the two must partition the denominator"
-            % (where, block["evaluatedPaired"], paired, not_evaluated))
-    if block["killsEvaluated"] and not_evaluated:
-        raise E4Error(
-            "E4-KILL-EVALUATED-CONTRADICTION %s claims the kill loop ran and "
-            "carries %d not-evaluated mutant(s)" % (where, not_evaluated))
-    if not block["killsEvaluated"] and block["evaluatedPaired"]:
-        raise E4Error(
-            "E4-KILL-EVALUATED-CONTRADICTION %s claims the kill loop did not "
-            "run and carries %d evaluated mutant(s)"
-            % (where, block["evaluatedPaired"]))
-    if (paired and not block["survivorsPaired"] and not block["killedPaired"]
-            and not block["notEvaluatedPaired"]):
-        raise E4Error(
-            "E4-KILL-VECTOR-AMBIGUOUS %s has no survivors, no kills and nothing "
-            "recorded as not-evaluated over %d paired adequate mutants: "
-            "\"nothing evaluated\" and \"everything killed\" would be the same "
-            "document, which §5.2 registers as refused at write time rather "
-            "than read as a perfect score" % (where, paired))
-    return block
+    A class is one witness-set group that is paired and non-degenerate; the
+    empty witness set never pairs (`build_pairing()`). The per-class member
+    counts are published PER LANGUAGE and unequal counts are counted, because
+    §5.2's Fact 2 makes that imbalance the reason the native-mutant level is
+    structurally biased between languages — 20 of 33 classes unequal on 019's
+    corpus — and the imbalance table is a mandatory publication (§5.8)."""
+    classes = []
+    for row in pairing:
+        if not row["countedInPairedSubset"]:
+            continue
+        classes.append({
+            "classId": "|".join(row["witnessSet"]) or "<empty>",
+            "witnessSet": list(row["witnessSet"]),
+            "jpsMutants": list(row["jpsMutants"]),
+            "regoMutants": list(row["regoMutants"]),
+            "jpsCount": row["jpsCount"],
+            "regoCount": row["regoCount"],
+            "equalMembership": row["jpsCount"] == row["regoCount"],
+        })
+    unequal = [entry["classId"] for entry in classes
+               if not entry["equalMembership"]]
+    return {
+        "classes": classes,
+        "count": len(classes),
+        "unequalMembership": unequal,
+        "unequalCount": len(unequal),
+        "note": "§5.1: the coverage set S is over these classes. §5.2 Fact 2: "
+                "unequal per-class member counts are what make the native "
+                "mutant level structurally biased between languages, so the "
+                "count is published whether or not any member reads it.",
+    }
 
 
-def is_high_kill(killed_paired: int, paired: int, cut: int) -> bool:
-    """Section 5's high-kill predicate, at the INTEGER cut.
+def coverage_classes(kill_of: dict, classes: list, language: str) -> dict:
+    """§5.2's pinned COVERAGE RULE: a run covers class g iff its suite kills
+    **all** of g's members in the run's own language.
 
-    Stated as an integer comparison and not as `rate >= 0.95`, because at
-    paired = 65 the rate 61/65 is 0.9384… and 62/65 is 0.9538… — the float
-    comparison and the integer cut agree there, and the point of deriving the
-    cut is that whether they agree is checkable rather than hoped for.
+    The any/all question is not a live choice and is not registered as one:
+    §5.2 records `gall == gany` in 88 of 88 checkable runs and states the
+    structural condition under which that holds. BOTH are computed here anyway
+    and the disagreement is published, because an equivalence registered as a
+    stated fact is a fact that has to stay checkable on 020's own batch.
 
-    `paired` IS READ (round-1 R1-1). It was an ignored argument, which is how one
-    cut derived from the JPS denominator came to be applied to a Rego run whose
-    denominator was smaller: a cut above the denominator makes the predicate
-    unsatisfiable, so a PERFECT suite would have been not-high-kill and the
-    primary endpoint would have been impossible for two of the three arms. A cut
-    that cannot be reached is refused here rather than silently returning
-    False."""
-    if cut > paired:
-        raise E4Error(
-            "E4-CUT-UNREACHABLE the high-kill cut is %d and this run's paired "
-            "adequate denominator is %d: no suite could ever be high-kill, so "
-            "the endpoint is not computed from a cut that does not belong to "
-            "this arm's language" % (cut, paired))
-    return killed_paired >= cut
-
-
-def high_kill_cut(paired: int) -> dict:
-    """The cut at ONE paired-mutant count, with the arithmetic that produced it.
-
-    Section 5 registers that "the operative integer cut at the frozen paired-
-    mutant count is stated"; the scorer prints this block per language."""
-    cut = stats.tau_cut(paired)
-    if cut > paired:
-        raise E4Error(
-            "E4-CUT-UNREACHABLE tau = %s over %d paired adequate mutants gives "
-            "the cut %d, which exceeds the denominator: no suite could ever be "
-            "high-kill" % (stats.TAU, paired, cut))
-    return {"tau": str(stats.TAU), "pairedAdequateMutants": paired,
-            "integerCut": cut,
-            "cutRate": float(Fraction(cut, paired)),
-            "cutReachable": cut <= paired,
-            "statement": "a run is high-kill iff it kills at least %d of the %d "
-                         "paired adequate mutants (tau = %s)"
-                         % (cut, paired, stats.TAU)}
-
-
-def high_kill_cuts(paired_ids: dict) -> dict:
-    """The cut PER LANGUAGE, each from its own paired-adequate denominator.
-
-    ROUND-1 FINDING R1-1, and it was a blocker for the reason the reviewer
-    states: the scorer derived ONE cut from the JPS count and passed it to every
-    arm while each arm's kill denominator stayed language-specific, so a perfect
-    Rego suite could not reach a cut computed over the (larger) JPS subset and
-    the primary endpoint was impossible for arms B and C. The cut belongs to a
-    LANGUAGE, and this returns one per language with the denominator it came
-    from beside it, each asserted reachable.
-
-    `harness/score.py` selects by `LANGUAGE_OF_ARM` and publishes both."""
-    cuts = {}
-    for language in ("jps", "rego"):
-        cuts[language] = high_kill_cut(len(paired_ids[language]))
-        cuts[language]["language"] = language
-    return cuts
+    A class none of whose members was evaluated is NOT covered and is reported
+    separately from a class that was evaluated and survived — the same
+    distinction `require_survivor_schema()` enforces one level down."""
+    key = "jpsMutants" if language == "jps" else "regoMutants"
+    covered_all, covered_any, unevaluated = [], [], []
+    for entry in classes:
+        members = entry[key]
+        if not members:
+            continue
+        outcomes = [kill_of.get(member, NOT_EVALUATED) for member in members]
+        if all(outcome == NOT_EVALUATED for outcome in outcomes):
+            unevaluated.append(entry["classId"])
+            continue
+        if all(outcome == KILLED for outcome in outcomes):
+            covered_all.append(entry["classId"])
+        if any(outcome == KILLED for outcome in outcomes):
+            covered_any.append(entry["classId"])
+    return {
+        "language": language,
+        "coverageRule": "a run covers class g iff its suite kills ALL of g's "
+                        "members in the run's own language (§5.2)",
+        "covered": sorted(covered_all),
+        "coveredCount": len(covered_all),
+        "coveredAny": sorted(covered_any),
+        "coveredAnyCount": len(covered_any),
+        "allEqualsAny": sorted(covered_all) == sorted(covered_any),
+        "unevaluatedClasses": sorted(unevaluated),
+        "classCount": len(classes),
+    }

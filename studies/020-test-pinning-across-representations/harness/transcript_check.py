@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
-"""The transcript binding, PORTED from Study 012's own adapted bytes
+"""The transcript binding.
+
+**STUDY 020 PORT NOTE.** These are Study 019's bytes, taken by digest under
+`harness/PORTS.md`'s two-sided table. The lineage sentence below is 019's own and is
+kept as history; the binding that RUNS is 020's — `harness/integrity.py` verifies
+Study 019's lock first (`harness/STUDY-MANIFEST.sha256`, at the digest 019's own
+registry pins for it) and binds this file's source cell to 019's line for it.
+`PREREGISTRATION.md` §7 lists this file under "ported with no design change".
+
+PORTED from Study 012's own adapted bytes
 (sha256 64542bc5d6d8f6682a29dee870aa07feb5757db3941c48af581a974c2423a5b2 — the
 destination digest Study 012's own harness/PORTS.md records for it; this study's
 harness/PORTS.md records the source digest and every change, and

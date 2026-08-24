@@ -1,10 +1,23 @@
 """Generate `harness/STUDY-MANIFEST.sha256` — the whole-study exact-set manifest.
 
-PORTED from Study 014's `harness/make_manifest.py`
-(sha256 `660a350ad8a647a2df9fea443af273c8c20480bd276c5a74336e345a86cadb81`, at
-commit `019c95be9e86c575878015954dfec17e4f84e683` — Study 014 pins none of its
-own harness sources, so that commit is the whole of this row's source-side
-binding; `harness/PORTS.md` records it and `harness/integrity.py` binds it).
+PORTED from Study 019's `harness/make_manifest.py`
+(sha256 `f30beaa3b186d29d7ddacb3e78d1ea3c30dcd6110fb9c8b193383811caeeb90d`, the
+line Study 019's own frozen lock carries for it; `harness/PORTS.md` records the
+row and `harness/integrity.py` binds it against that lock).
+
+**§7 DELTA 11 / ADR 0004 — the scope, restated for this study.** 019 excluded
+four appendable documents and the registry. 020 excludes **five** appendable
+documents and the registry: `CORRECTION-TARGETS.md` joins them. It is the same
+shape of file as the other four — it is written and rewritten while the review
+runs and it carries no claim a published number rests on — and 019 covered it
+only because round-7 R7-9 needed something that would make `--freeze` refuse
+while it was absent. Those two jobs are separated here: the exclusion is by
+named constant in `EXCLUDED_DOCUMENTS`, and the pre-freeze OBLIGATION lives in
+`UNCOVERED_PRE_FREEZE_DOCUMENTS`, which `pending_documents()` reports and
+`--freeze` refuses on. A file can therefore be required before the freeze
+without being anchored by it. `harness/tests/test_manifest.py` asserts the
+exclusion **while the file is absent**, which is the state 020 is in today, and
+asserts the obligation separately.
 
 One line per covered file, `sha256  <study-relative path>`, sorted by path. The
 covered set is exact and closed (`manifest_entries` below): the registered
@@ -184,7 +197,12 @@ REGISTERED_DOCUMENTS = (
     #                                    §11.8 keeps V8-22 live in it and
     #                                    registers a new row for group-size
     #                                    imbalance
-    "CORRECTION-TARGETS.md",
+    #
+    # §7 DELTA 11: `CORRECTION-TARGETS.md` is NOT in this tuple any more. It is
+    # an appendable document (ADR 0004) and is excluded from the covered set by
+    # named constant; its pre-freeze obligation moved to
+    # `UNCOVERED_PRE_FREEZE_DOCUMENTS` below, so `--freeze` still refuses while
+    # it is absent.
     "verification/V7-COMPLETENESS.md",
     "verification/V8-ASYMMETRY-LEDGER.md",
     # NEW IN 020, and both are `GATE(pre-freeze)` obligations this study's own
@@ -218,6 +236,24 @@ REGISTERED_DOCUMENTS = (
     "design/PANEL-FINDINGS.md",
 )
 
+# §7 DELTA 11. Documents that must EXIST before the freeze and must NOT be
+# covered by the manifest, because they are appendable by design.
+#
+# 019 had no such category and paid for it twice over: an appendable file was
+# either covered (and every append stale the anchor — `PREREG-REVIEW.md`, three
+# rounds running) or uncovered (and then nothing made the freeze wait for it).
+# `CORRECTION-TARGETS.md` is the file that is both — §10 requires it before the
+# freeze, and it is rewritten as targets are settled — so the two properties are
+# registered separately here. Each entry names the registration that owes it.
+UNCOVERED_PRE_FREEZE_DOCUMENTS = {
+    "CORRECTION-TARGETS.md":
+        "PREREGISTRATION.md §10 pins the CORRECTION.md targets — verbatim "
+        "wording, venue, URL and retrieval date — before the freeze. It is "
+        "appendable by design (ADR 0004) and therefore excluded from the "
+        "covered set; this is the half of R7-9's obligation that survives that "
+        "exclusion.",
+}
+
 # The registered payload SETS, each an exact one-level glob. Same finding: every
 # scorer input carries a per-file hash, so a single mutant payload edited after
 # the freeze fails the exact-set comparison rather than being covered only by a
@@ -238,9 +274,21 @@ REGISTERED_PAYLOAD_SETS = (
 
 # Excluded from the covered set by construction, not by omission — a MAPPING
 # rather than a bare tuple, because ADR 0004 asks for a named constant and a
-# name without its reason is the thing a later widening argues past. All four
-# are asserted by a harness test (`harness/tests/test_manifest.py`).
+# name without its reason is the thing a later widening argues past. All six
+# are asserted by a harness test (`harness/tests/test_manifest.py`), and the
+# assertion does NOT require the file to exist: `CORRECTION-TARGETS.md` is
+# absent in this tree today and its exclusion is registered anyway, because a
+# scope rule that only binds while the file is there is a scope rule the file's
+# arrival can walk past.
 EXCLUDED_DOCUMENTS = {
+    "CORRECTION-TARGETS.md":
+        "ADR 0004, §7 delta 11: appendable by design. The correction-target "
+        "register is written and rewritten as targets are settled, including "
+        "after the freeze if a venue moves, so covering it means the first "
+        "settled target breaks the anchor. It carries no claim a published "
+        "number rests on. Its pre-freeze obligation is registered separately "
+        "in UNCOVERED_PRE_FREEZE_DOCUMENTS, so it is still required before the "
+        "freeze — it is simply not anchored by it.",
     "DEVIATIONS.md":
         "ADR 0004: appendable by design. Post-freeze corrections go here, so "
         "covering it means the first genuine deviation breaks the anchor the "
@@ -947,6 +995,11 @@ def pending_documents(study=None):
     """
     root = Path(study) if study is not None else STUDY
     pending = [name for name in REGISTERED_DOCUMENTS if not (root / name).is_file()]
+    # §7 DELTA 11: required before the freeze, excluded from the covered set.
+    # The two properties are different and this is the one the freeze reads.
+    pending.extend("%s (uncovered by design, required before the freeze)" % name
+                   for name in sorted(UNCOVERED_PRE_FREEZE_DOCUMENTS)
+                   if not (root / name).is_file())
     pending.extend("%s (%s)" % (glob, why)
                    for glob, why in pending_payload_sets(study))
     pending.extend(pending_pins(study))

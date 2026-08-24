@@ -20,9 +20,27 @@ the tests read, and `harness/tests/test_prereg_currency.py` cross-checks the
 block STRUCTURALLY against `reviews/round-N/`, the verbatim reviews' finding
 ids, and the record's own disposition tables.
 
-Three surfaces carry the rendered sentence, each between the markers below:
+**PORTED from Study 019's `harness/render_round_status.py` with ONE registered
+change (`PREREGISTRATION.md` §7, delta 10), and a narrowed surface list.**
 
-    README.md, PREREGISTRATION.md, design/POLICY-DRAFT.md
+019's `parse_block()` refused a block registering ZERO rounds, because 019 first
+wrote its block after round 1 already existed. Study 020 opens its review record
+BEFORE any round runs, so the empty-of-rounds block is the state this study
+starts in and the port PERMITS it and renders it (`0 review rounds are on the
+record …`). Every other refusal is ported unchanged: duplicate members at every
+depth, closed object shapes, the closed verdict vocabulary bound to the review
+prompt's output line, the single-open-round rule, contiguity, and the
+marker-span reading. `harness/tests/test_prereg_currency.py` mutation-checks the
+change: restore the refusal and the test that certifies the empty block fails.
+
+Two surfaces carry the rendered sentence, each between the markers below:
+
+    README.md, PREREGISTRATION.md
+
+019's third front door was `design/POLICY-DRAFT.md`. It is NOT one here: 020's
+policy prose is ported frozen from 019 rather than drafted in this tree, so
+`design/POLICY-DRAFT.md` is a carried working document and not a front door
+this study attests through.
 
 Run at round-open and at round-close, so the ceremony commit is mechanical:
 

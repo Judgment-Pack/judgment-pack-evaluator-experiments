@@ -191,6 +191,13 @@ def test_the_ceremony_exemption_removes_those_two_and_nothing_else(pins):
 
 
 def test_the_registry_states_the_rule_the_code_implements(pins):
+    """§7 DELTA 6: `registeredLabelRule` is restated, and this is the assertion
+    that it says what the code does rather than what 019's code did.
+
+    Three things the delta adds to the sentence, each checked here:
+    `codex.reasoningEffort`; the null-⇒-PILOT rule stated for the freeze set;
+    and §2.1's `--sweep` exemption. The freeze-pin names are checked too, so a
+    pin added to `FREEZE_PINS` without a word in the registry fails here."""
     rule = pins["registeredLabelRule"]
     assert "REGISTERED only when EVERY pin the rule reads is filled" in rule
     assert "labels the run PILOT" in rule
@@ -200,6 +207,158 @@ def test_the_registry_states_the_rule_the_code_implements(pins):
     # reader who cannot see the exemption cannot audit it.
     assert "--sweep" in rule and "ALONE is exempt" in rule
     assert "codex.model is never exempt" in rule
+    # …and the design-time half, which the apparatus line implements in
+    # `batch.require_design_time_pins()`: a rule the registry states in one
+    # place and enforces in two must name both consequences.
+    assert "codex.reasoningEffort" in rule
+    assert "resolvedAtDesignTime" in rule
+    assert "WHETHER OR NOT THE FREEZE HAS HAPPENED" in rule
+    assert "codex.reasoningEffort ALONE" in rule
+# --- §7 delta 6, driven PIN BY PIN ------------------------------------------
+#
+# §2.1: "registeredLabelRule is restated with the new member and its
+# null-⇒-PILOT test, moved out of §7's ported-unchanged list, and driven in
+# harness/tests/test_pins.py PIN BY PIN." The freeze half is driven above
+# (`test_every_single_null_pin_is_enough_to_make_it_a_pilot`); this is the
+# design-time half, which is a different rule with a different consequence — a
+# null design-time pin does not change the LABEL, it refuses the CALL.
+
+def test_the_design_time_pins_are_exactly_the_registry_members_marked_so(pins):
+    """Every member `batch.DESIGN_TIME_PINS` names must live under a block the
+    registry marks `resolvedAtDesignTime`, and no design-time pin may also be a
+    freeze pin. §2.1 rules `codex.model` and `codex.reasoningEffort` "registered
+    as design-time-resolved pins, NOT freeze pins", and a member that is both
+    would be governed by two rules with two consequences."""
+    import batch
+    freeze_paths = {path for _name, path in integrity.FREEZE_PINS}
+    for path, why in batch.DESIGN_TIME_PINS:
+        assert pins[path[0]].get("resolvedAtDesignTime") is True, path
+        assert why, path
+    # Study 019 carried `codex.model` in the freeze set and §2.1 rules it a
+    # DESIGN-TIME-RESOLVED pin; ruling M-25 moved it, so the two tables no
+    # longer overlap at all. The assertion is kept as a DISJOINTNESS check
+    # rather than deleted: a member governed by two rules with two consequences
+    # is the defect, and re-adding one has to fail here.
+    overlap = sorted(".".join(path) for path, _why in batch.DESIGN_TIME_PINS
+                     if path in freeze_paths)
+    assert overlap == [], overlap
+
+
+def test_every_single_null_design_time_pin_refuses_the_call(pins):
+    """PIN BY PIN, on an otherwise-full registry: each design-time pin, nulled
+    alone, must refuse — and must refuse by NAME, so the operator is told which
+    value is missing rather than that something is."""
+    import batch
+    freeze_paths = {path for _name, path in integrity.FREEZE_PINS}
+    filled = copy.deepcopy(_fill(pins))
+    for path, _why in batch.DESIGN_TIME_PINS:
+        node = filled
+        for key in path[:-1]:
+            node = node.setdefault(key, {})
+        node[path[-1]] = "resolved"
+    batch.require_design_time_pins(filled)          # the full registry passes
+    for path, _why in batch.DESIGN_TIME_PINS:
+        one_null = copy.deepcopy(filled)
+        node = one_null
+        for key in path[:-1]:
+            node = node[key]
+        node[path[-1]] = None
+        with pytest.raises(batch.BatchError) as raised:
+            batch.require_design_time_pins(one_null)
+        assert ".".join(path) in str(raised.value), path
+        # …and WHAT ELSE it costs depends on which table the pin is in, which
+        # is the whole reason 020 has two. `batch.DESIGN_TIME_PINS` is the
+        # CALL-side list and is wider — it carries the three resolved toolchain
+        # digests as well — while `integrity.DESIGN_TIME_PINS` is the two M-25
+        # moved out of the freeze set, and `study_label()` reads THAT beside
+        # `FREEZE_PINS`. So nulling `codex.model` or `codex.reasoningEffort`
+        # refuses the call AND labels the run PILOT (the move out of the freeze
+        # set is a move of WHEN the value is filled, never a relaxation of what
+        # a null one costs), and nulling a toolchain digest refuses the call
+        # while leaving the label alone. Both halves are asserted, by table
+        # membership, so a pin moved between the tables fails here.
+        labelling = {tuple(where) for _name, where in integrity.DESIGN_TIME_PINS}
+        labelling |= {tuple(where) for _name, where in integrity.FREEZE_PINS}
+        expected = "PILOT" if tuple(path) in labelling else "REGISTERED"
+        assert integrity.study_label(one_null) == expected, path
+    # …and the two tables are not the same table: the call-side list is the
+    # wider one, and every member of the labelling pair is in it.
+    call_side = {tuple(path) for path, _why in batch.DESIGN_TIME_PINS}
+    assert {tuple(where) for _name, where in integrity.DESIGN_TIME_PINS} \
+        < call_side
+
+
+def test_a_stand_in_design_time_pin_is_not_a_resolution(pins):
+    """`integrity.pin_is_filled()` decides FILLED here too, so a registry
+    carrying `"TODO(prereg)"` for the effort value is refused exactly as a null
+    one is. The salvage audit's finding — eighteen freeze pins set to `""` read
+    as REGISTERED — has the same shape on this side of the rule."""
+    import batch
+    for stand_in in (None, "", "  ", "TODO(prereg)", "tbd", "n/a", 0, [], {}):
+        registry = {"codex": {"reasoningEffort": stand_in}}
+        assert "codex.reasoningEffort" in batch.design_time_unfilled(registry)
+
+
+def test_the_sweep_label_exempts_the_effort_pin_and_nothing_else(pins):
+    """§2.1, M-25, ruled as drafted: "a distinct `--sweep` label that exempts
+    `codex.reasoningEffort` ALONE from the null check".
+
+    The exemption is driven from both sides: the effort pin passes under
+    `--sweep` and is refused under every other label, and EVERY OTHER
+    design-time pin is refused under `--sweep` too — which is what makes it an
+    exemption of one member rather than of the gate."""
+    import batch
+    assert batch.SWEEP_EXEMPT_PINS == (("codex", "reasoningEffort"),)
+    filled = copy.deepcopy(_fill(pins))
+    for path, _why in batch.DESIGN_TIME_PINS:
+        node = filled
+        for key in path[:-1]:
+            node = node.setdefault(key, {})
+        node[path[-1]] = "resolved"
+    effort_null = copy.deepcopy(filled)
+    effort_null["codex"]["reasoningEffort"] = None
+    # Exempt under --sweep…
+    batch.require_design_time_pins(effort_null, "sweep")
+    # …and refused under the pilot label and under the primary batch's.
+    for mode in (None, "pilot"):
+        with pytest.raises(batch.BatchError) as raised:
+            batch.require_design_time_pins(effort_null, mode)
+        assert "codex.reasoningEffort" in str(raised.value)
+    # Every OTHER design-time pin is still refused under --sweep.
+    for path, _why in batch.DESIGN_TIME_PINS:
+        if path in batch.SWEEP_EXEMPT_PINS:
+            continue
+        one_null = copy.deepcopy(filled)
+        node = one_null
+        for key in path[:-1]:
+            node = node[key]
+        node[path[-1]] = None
+        with pytest.raises(batch.BatchError) as raised:
+            batch.require_design_time_pins(one_null, "sweep")
+        assert ".".join(path) in str(raised.value), path
+
+
+def test_an_unregistered_calibration_label_is_refused(pins):
+    """A mode is one of the two §2.1 and §2a.2 register. A third spelling would
+    be a third pin state nobody registered."""
+    import batch
+    assert batch.CALIBRATION_MODES == ("sweep", "pilot")
+    with pytest.raises(batch.BatchError):
+        batch.design_time_unfilled(pins, "smoke")
+
+
+def test_the_effort_pin_exists_and_carries_the_unwitnessed_sentence(pins):
+    """M-24, ruled as drafted. The pin exists beside `model` / `version` /
+    `binarySha256`, and the registry carries §2.1's own sentence about what it
+    can and cannot prove: "A pin nobody can check is a recorded intention, and
+    this preregistration says so." The sentence is a REGISTRY member because it
+    "travels with every published record of the condition", and a note kept
+    only in the preregistration does not travel."""
+    assert "reasoningEffort" in pins["codex"]
+    note = pins["codex"]["note"]
+    assert "SELF-REPORT" in note
+    assert "recorded intention" in note
+    assert "design-time-resolved pins, NOT freeze pins" in note
 
 
 def test_the_resolved_toolchain_blocks_are_marked_and_carry_digests(pins):

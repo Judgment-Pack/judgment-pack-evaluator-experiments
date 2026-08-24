@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
-# One authoring call, ported from Study 012's wrapper
-# (transcription/authoring_call.sh, sha256
-# d8877f3d78af54a7c43b8c53571b76ac4e0d540048f57ddcdaa7826f3c6b3fee — the
-# destination digest Study 012's own harness/PORTS.md records for it), itself a
-# port of Study 011's, itself a port of Study 010's registered wrapper. This
-# study's harness/PORTS.md records the source digest and every change; the
-# enumerated changes are:
+# One authoring call, ported from Study 019's wrapper
+# (harness/authoring_call.sh, sha256
+# 8b326083e805062fcd21f341d05fa20c97fc3629180a06134147c514fcfa08da — the line
+# Study 019's own frozen lock carries for it), itself a port of Study 012's,
+# itself a port of Study 011's, itself a port of Study 010's registered wrapper.
+# The bytes are 019's, with the study self-reference re-pointed: the
+# scratch/home/bin names are s020-… rather than s019-…, and
+# harness/leak_tokens.py's WRAPPER_NAME_TEMPLATES moved with them so the
+# negative corpus is still this wrapper's own output. This study's
+# harness/PORTS.md records the source digest and every change; the enumerated
+# changes, carried from 019 because 019's wrapper is what this one is, are:
 #
 #   1. THREE arms (A, B, C), not five, and the scratch/home/bin names are
 #      s020-… so two studies' same-numbered runs cannot collide under one

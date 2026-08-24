@@ -162,7 +162,7 @@ def _parses(document):
 
 def test_a_clean_rego_policy_is_admitted(tools, tmp_path, monkeypatch):
     monkeypatch.setattr(engines, "opa_check", lambda *a, **k: (0, []))
-    monkeypatch.setattr(engines, "opa_parse", _parses(LAWFUL_AST))
+    monkeypatch.setattr(engines, "opa_parse_tree", _parses(LAWFUL_AST))
     artifact, code, detail = admit_lib.admit(tools, "B", "package study\n",
                                              str(tmp_path))
     assert code is None and artifact.endswith("policy.rego")
@@ -183,7 +183,7 @@ def test_bare_object_membership_is_the_registered_authoring_code(
     is NOT excluded and the artifact is NOT rewritten — it is an authoring
     outcome, valid, counted, and scoring zero on every endpoint it reaches."""
     monkeypatch.setattr(engines, "opa_check", lambda *a, **k: (0, []))
-    monkeypatch.setattr(engines, "opa_parse", _parses(TRAP_AST))
+    monkeypatch.setattr(engines, "opa_parse_tree", _parses(TRAP_AST))
     artifact, code, detail = admit_lib.admit(tools, "B", "package study\n",
                                              str(tmp_path))
     assert code == "presence-idiom-unsound"
@@ -207,7 +207,7 @@ def test_the_detector_runs_after_opa_check_and_never_before_it(
 
     def refuse(*_a, **_k):
         raise AssertionError("the detector ran on a policy `opa check` refused")
-    monkeypatch.setattr(engines, "opa_parse", refuse)
+    monkeypatch.setattr(engines, "opa_parse_tree", refuse)
     _artifact, code, _detail = admit_lib.admit(tools, "C", "package study\n",
                                                str(tmp_path))
     assert code == "opa-check-failed"
@@ -223,7 +223,7 @@ def test_the_kill_switch_withholds_the_code_and_keeps_the_measurement(
     census — a study that stopped MEASURING would have nothing to publish as
     the Tier D finding the fallback promises."""
     monkeypatch.setattr(engines, "opa_check", lambda *a, **k: (0, []))
-    monkeypatch.setattr(engines, "opa_parse", _parses(TRAP_AST))
+    monkeypatch.setattr(engines, "opa_parse_tree", _parses(TRAP_AST))
     artifact, code, detail = admit_lib.admit(tools, "B", "package study\n",
                                              str(tmp_path), guard_registered=False)
     assert code is None and artifact.endswith("policy.rego")
@@ -257,7 +257,7 @@ def test_arm_a_cannot_reach_the_new_code(tools, tmp_path, monkeypatch):
     unreachable there. A leak would make the two E2 tables compare different
     partitions."""
     assert "presence-idiom-unsound" not in admit_lib.ARM_REACHABLE_CODES["A"]
-    monkeypatch.setattr(engines, "opa_parse", _parses(TRAP_AST))
+    monkeypatch.setattr(engines, "opa_parse_tree", _parses(TRAP_AST))
     monkeypatch.setattr(admit_lib, "admit_arm_a",
                         lambda *a, **k: (None, "presence-idiom-unsound", {}))
     with pytest.raises(admit_lib.AdmissionError) as caught:

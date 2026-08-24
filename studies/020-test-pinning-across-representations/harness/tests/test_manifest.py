@@ -26,6 +26,17 @@ records them grows by an entry per such finding for as long as that apparatus is
 maintained — after the freeze included. Covering it would make the first entry
 break the anchor, which is the failure the other three exist to prevent.
 
+`CORRECTION-TARGETS.md` is the FIFTH, and it is `PREREGISTRATION.md` §7's delta
+11 for this study. Study 019 covered it, because round-7 R7-9 needed something
+that made `--freeze` refuse while it was absent — and covering it is the wrong
+way to get that: the register is written and rewritten as targets settle, which
+is exactly the shape ADR 0004 excludes. The two properties are separated here.
+The exclusion is `EXCLUDED_DOCUMENTS`; the pre-freeze obligation is
+`UNCOVERED_PRE_FREEZE_DOCUMENTS`, which `pending_documents()` reports and
+`--freeze` refuses on. It is asserted **while the file is absent**, which is the
+state this tree is in today — a scope rule that only binds once the file arrives
+is a scope rule the file's arrival walks past.
+
 The last exclusion — `harness/PINS.json` — is Study 014's linear-anchor rule,
 and it is asserted with the same idiom: the manifest must not cover the registry
 that pins the manifest, or the anchor cannot be initialized without a SHA-256
@@ -43,11 +54,16 @@ import make_manifest
 APPENDABLE = ("DEVIATIONS.md", "README.md", "PREREG-REVIEW.md",
               "harness/ADVISORIES.md")
 
+# §7 DELTA 11. The same rule over a file that does NOT exist yet, which is why
+# it is a separate constant: `APPENDABLE`'s assertions require the file on disk
+# on purpose, and this one requires the exclusion to hold without it.
+APPENDABLE_WHILE_ABSENT = ("CORRECTION-TARGETS.md",)
+
 
 def test_the_adr_0004_exclusions_are_named_constants_carrying_their_reason():
     """A named constant is the decision's requirement; the REASON travelling
     with the name is what a later reader needs in order not to argue past it."""
-    for name in APPENDABLE:
+    for name in APPENDABLE + APPENDABLE_WHILE_ABSENT:
         assert name in make_manifest.EXCLUDED_DOCUMENTS, name
         reason = make_manifest.EXCLUDED_DOCUMENTS[name]
         assert isinstance(reason, str) and reason.strip(), name
@@ -62,6 +78,37 @@ def test_no_appendable_file_is_covered_and_all_of_them_exist(study):
     for name in APPENDABLE:
         assert os.path.isfile(os.path.join(study, name)), name
         assert name not in entries
+
+
+def test_the_correction_target_register_is_excluded_while_absent_and_required(study):
+    """§7 DELTA 11, both halves, and they are different halves.
+
+    EXCLUDED: it is not in the covered set and `_excluded()` says so, whether or
+    not the file exists — because the widening this guards against is somebody
+    adding it back to `REGISTERED_DOCUMENTS` on the day it is first written.
+
+    REQUIRED: `pending_documents()` names it while it is absent and `--freeze`
+    refuses on it, which is the whole of what covering it used to buy."""
+    for name in APPENDABLE_WHILE_ABSENT:
+        assert name not in make_manifest.REGISTERED_DOCUMENTS, name
+        assert name not in make_manifest.manifest_entries(), name
+        assert make_manifest._excluded(name), name
+        assert name in make_manifest.UNCOVERED_PRE_FREEZE_DOCUMENTS, name
+        reason = make_manifest.UNCOVERED_PRE_FREEZE_DOCUMENTS[name]
+        assert isinstance(reason, str) and "before the freeze" in reason, name
+        if not os.path.isfile(os.path.join(study, name)):
+            assert any(entry.startswith(name)
+                       for entry in make_manifest.pending_documents()), name
+
+
+def test_an_uncovered_pre_freeze_document_is_never_also_covered():
+    """The two constants may not both claim a path: a file that is required
+    before the freeze AND anchored by it is the state delta 11 exists to end."""
+    overlap = set(make_manifest.UNCOVERED_PRE_FREEZE_DOCUMENTS) & \
+        set(make_manifest.REGISTERED_DOCUMENTS)
+    assert overlap == set()
+    for name in make_manifest.UNCOVERED_PRE_FREEZE_DOCUMENTS:
+        assert name in make_manifest.EXCLUDED_DOCUMENTS, name
 
 
 def test_the_review_record_cannot_be_re_covered(study):
@@ -183,6 +230,11 @@ def test_pending_registered_documents_are_named_and_not_covered():
     for name in pending:
         if name in make_manifest.REGISTERED_DOCUMENTS:
             assert name not in entries
+            continue
+        # §7 DELTA 11: the uncovered-but-required class. It is named with its
+        # own reason and it is NOT in the covered set — that is the whole point.
+        if name.split(" (")[0] in make_manifest.UNCOVERED_PRE_FREEZE_DOCUMENTS:
+            assert name.split(" (")[0] not in entries, name
             continue
         if name.split(" (")[0].split(" records")[0] in pins:
             assert name in make_manifest.pending_pins(), name
@@ -317,6 +369,20 @@ def _scratch_study(root):
     the registered grid assertion over it."""
     import json
     for name in make_manifest.REGISTERED_DOCUMENTS:
+        path = root / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("scratch %s\n" % name, encoding="utf-8")
+    # §7 DELTA 11 SPLIT "REGISTERED" IN TWO, AND THIS FIXTURE FOLLOWED ONE HALF.
+    # `CORRECTION-TARGETS.md` left `REGISTERED_DOCUMENTS` for
+    # `UNCOVERED_PRE_FREEZE_DOCUMENTS` — excluded from the covered set, still
+    # REQUIRED before the freeze — and `pending_documents()` reads both. A
+    # fixture that writes only the covered half therefore builds a tree no
+    # `--freeze` can close, which turned every freeze-gate case below into a
+    # refusal on a pending document instead of the gate it is about. The
+    # requirement keeps its power: `test_the_correction_target_register_is_
+    # excluded_while_absent_and_required` drives the absent case directly
+    # against the REAL study, where the file genuinely is not written yet.
+    for name in make_manifest.UNCOVERED_PRE_FREEZE_DOCUMENTS:
         path = root / name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("scratch %s\n" % name, encoding="utf-8")

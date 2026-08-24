@@ -1,0 +1,122 @@
+{
+  "excerpts": [
+    {
+      "arm": "A",
+      "bytes": 66060,
+      "excerptSha256": "6b2b6c6713eefa5dbf89f535e5e3098c29454fc077c7c08cc8523dc22d424248",
+      "rule": "the JPS Core specification document and its normative JSON Schema, each verbatim and in full",
+      "sources": [
+        {
+          "bytes": 51391,
+          "commit": "c2faf4937037ae88b57fdb3e297f9aafefed3997",
+          "edits": "none",
+          "path": "spec/judgment-pack-core.md",
+          "repo": "judgment-pack-spec",
+          "sha256": "9d8cd004360ef5c66553ccab8dba464759a406ab9c0eb106e4f933691a6472cd"
+        },
+        {
+          "bytes": 14268,
+          "commit": "c2faf4937037ae88b57fdb3e297f9aafefed3997",
+          "edits": "none (wrapped in a fenced json block)",
+          "path": "schema/judgment-pack-core.schema.json",
+          "repo": "judgment-pack-spec",
+          "sha256": "847910902fa202d9fb3a97062071b532f11649031c9dad32490bf191dca5b3b5"
+        }
+      ]
+    },
+    {
+      "arm": "B/C",
+      "bytes": 191115,
+      "excerptSha256": "8a77ab7e5a3ee933bbc4a248916dedfa4d5c56344934e3a15fe3a6a637edae91",
+      "rule": "named OPA documentation pages, each in full, plus the pinned built-in list",
+      "sources": [
+        {
+          "bytes": 117709,
+          "commit": "16b5a013726fff3c2197f98ac4afcd6d2218588a",
+          "edits": "front matter, @site imports, MDX component tags",
+          "path": "docs/docs/policy-language.md",
+          "repo": "open-policy-agent/opa",
+          "sha256": "dd7b17a2df1e537975d8bddb5a40ee043bf7fbe97f41cbb9e7dd5bdcadcb2293"
+        },
+        {
+          "bytes": 10837,
+          "commit": "16b5a013726fff3c2197f98ac4afcd6d2218588a",
+          "edits": "front matter, @site imports, MDX component tags",
+          "path": "docs/docs/policy-reference/index.md",
+          "repo": "open-policy-agent/opa",
+          "sha256": "6812416361c42f77705c8a29d9bb0bed1a513d8c72a8b519f5723bdf6be9f3d5"
+        },
+        {
+          "bytes": 1210,
+          "commit": "16b5a013726fff3c2197f98ac4afcd6d2218588a",
+          "edits": "front matter, @site imports, MDX component tags",
+          "path": "docs/docs/policy-reference/keywords/if.md",
+          "repo": "open-policy-agent/opa",
+          "sha256": "efebe2b2a6dd153678774deeb3782a418701574109a72d15086acd47fec38a00"
+        },
+        {
+          "bytes": 1249,
+          "commit": "16b5a013726fff3c2197f98ac4afcd6d2218588a",
+          "edits": "front matter, @site imports, MDX component tags",
+          "path": "docs/docs/policy-reference/keywords/contains.md",
+          "repo": "open-policy-agent/opa",
+          "sha256": "49636a4e0f7a9c82b9ddaa3df0fb1fc5e5a4cf6d27a2dd3757db71439a7174c9"
+        },
+        {
+          "bytes": 547,
+          "commit": "16b5a013726fff3c2197f98ac4afcd6d2218588a",
+          "edits": "front matter, @site imports, MDX component tags",
+          "path": "docs/docs/policy-reference/keywords/default.md",
+          "repo": "open-policy-agent/opa",
+          "sha256": "2164e5dc11393f0b9452352e9b4880b8b310382e331c988552d0a145703e5034"
+        },
+        {
+          "bytes": 1118,
+          "commit": "16b5a013726fff3c2197f98ac4afcd6d2218588a",
+          "edits": "front matter, @site imports, MDX component tags",
+          "path": "docs/docs/policy-reference/keywords/every.md",
+          "repo": "open-policy-agent/opa",
+          "sha256": "da97ebfa1a97d154eec7eba4d99339b461ff4c9d8b0b841fe8d58f8322aae348"
+        },
+        {
+          "bytes": 528,
+          "commit": "16b5a013726fff3c2197f98ac4afcd6d2218588a",
+          "edits": "front matter, @site imports, MDX component tags",
+          "path": "docs/docs/policy-reference/keywords/some.md",
+          "repo": "open-policy-agent/opa",
+          "sha256": "7d45bcfdcebcda0301e2b83a9de6429fdb583c7ff1c2416763ae183aa6314808"
+        },
+        {
+          "bytes": 3649,
+          "commit": "16b5a013726fff3c2197f98ac4afcd6d2218588a",
+          "edits": "front matter, @site imports, MDX component tags",
+          "path": "docs/docs/policy-reference/keywords/not.md",
+          "repo": "open-policy-agent/opa",
+          "sha256": "496423176db03353770438184ee4d7c1ef06b1559117e7433c50a60090cbfdde"
+        },
+        {
+          "bytes": 3595,
+          "commit": "16b5a013726fff3c2197f98ac4afcd6d2218588a",
+          "edits": "front matter, @site imports, MDX component tags",
+          "path": "docs/docs/policy-reference/keywords/import.md",
+          "repo": "open-policy-agent/opa",
+          "sha256": "711654ee0bb4b7d8eec1ca9c31dfbcaee97ef49321d6ccbfd95e9f3a1d4c96dd"
+        },
+        {
+          "bytes": 17929,
+          "commit": "16b5a013726fff3c2197f98ac4afcd6d2218588a",
+          "edits": "front matter, @site imports, MDX component tags",
+          "path": "docs/docs/policy-testing.md",
+          "repo": "open-policy-agent/opa",
+          "sha256": "ad04f1452f86173a55cf797bbd6a6117ab0d58edf2bc898d9786f3693ede6412"
+        },
+        {
+          "edits": "generated table (built-in tables are not in the doc sources)",
+          "generatedFrom": "/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/e3978f36-2e67-46bb-868c-8df975356ef9/scratchpad/pins/opa/caps-filtered.json",
+          "sha256": "06202a2e599b4389cd3c23b8cc11d5d9384f46860e575e1beb5e8ce99622261a"
+        }
+      ]
+    }
+  ],
+  "note": "DESIGN DRAFT, NOT REGISTERED. Regenerate with derive_excerpts.py."
+}

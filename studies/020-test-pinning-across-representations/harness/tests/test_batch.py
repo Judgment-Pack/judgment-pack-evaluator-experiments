@@ -404,40 +404,11 @@ class StandInStudy(unittest.TestCase):
         function of how far the real ceremony has got."""
         with open(REGISTRY) as handle:
             pins = json.load(handle)
-        # 020: the label rule reads TWO tuples (M-25), so a fixture that fills
-        # only the freeze set builds a PILOT and every case here would refuse on
-        # the wrong ground. `codex.model` and `codex.reasoningEffort` are filled
-        # with plausible NAMES rather than digests, because that is what they
-        # are — a model id and an effort setting.
         for name, path in integrity.FREEZE_PINS:
             node = pins
             for key in path[:-1]:
                 node = node.setdefault(key, {})
             node[path[-1]] = "sha256:" + hashlib.sha256(name.encode()).hexdigest()
-        pins["codex"]["model"] = "gpt-5.6-sol"
-        pins["codex"]["reasoningEffort"] = "high"
-        # The flag's SPELLING is a registry member too (§2.1: resolved
-        # empirically at pin time, and the wrapper refuses to guess it). The
-        # fixture supplies a plausible one so the cases exercise the call rather
-        # than the refusal; `TheEffortFlagSeat` drives the refusal on its own.
-        pins["codex"]["reasoningEffortFlag"] = "-c"
-        # 020: `batch.n` / `batch.slots` / `batch.order` are TODO(prereg) in the
-        # committed registry, because §2.1 registers the per-arm N as an OUTPUT
-        # of the pre-pilot sweep and the call order is a function of the round
-        # count. `check_registry()` REFUSES that state, which is the registered
-        # behaviour and is asserted on its own in `tests/test_schedule.py`; this
-        # fixture supplies the shape so the cases below exercise the driver
-        # rather than re-assert one refusal fifty times. The values are the
-        # module's own provisional shape, so the fixture cannot disagree with
-        # the expansion the driver derives.
-        pins["batch"]["n"] = batch.RUNS_PER_ARM
-        pins["batch"]["slots"] = batch.REGISTERED_SLOTS
-        pins["batch"]["order"] = {
-            "blockOrder": list(batch.BLOCK_ORDER),
-            "blocks": batch.BLOCKS,
-            "firstRow": list(batch.WILLIAMS_FIRST_ROW),
-            "tail": list(batch.TAIL),
-        }
         pins["preregistration"]["sha256"] = _digest(
             os.path.join(self.study, "PREREGISTRATION.md"))
         for arm in batch.ARMS:
@@ -449,6 +420,16 @@ class StandInStudy(unittest.TestCase):
         pins["codex"]["binarySha256"] = _digest(self.cli)
         pins["codex"]["version"] = "codex-cli 0.145.0-fake"
         pins["codex"]["model"] = "s020-stand-in-model"
+        # §2.1 registers `codex.reasoningEffort` as a design-time-resolved pin
+        # (M-25), so `require_design_time_pins()` refuses under EVERY label while
+        # it is null. The committed registry carries it null because the sweep is
+        # what resolves it; a stand-in registry standing in for a registry the
+        # batch may run under carries it filled. Filling it here does not weaken
+        # the gate: the null case and the `--sweep` exemption are driven directly,
+        # against the COMMITTED registry, by test_pins.py's
+        # `test_every_single_null_design_time_pin_refuses_the_call` and
+        # `test_the_sweep_label_exempts_the_effort_pin_and_nothing_else`.
+        pins["codex"]["reasoningEffort"] = "s020-stand-in-effort"
         pins.update(edits)
         return pins
 
@@ -691,40 +672,17 @@ class CanonicalRegistry(unittest.TestCase):
         mapping — written somewhere else."""
         with open(REGISTRY) as handle:
             pins = json.load(handle)
-        # 020: the label rule reads TWO tuples (M-25), so a fixture that fills
-        # only the freeze set builds a PILOT and every case here would refuse on
-        # the wrong ground. `codex.model` and `codex.reasoningEffort` are filled
-        # with plausible NAMES rather than digests, because that is what they
-        # are — a model id and an effort setting.
-        for name, path in integrity.FREEZE_PINS:
+        # BOTH tuples the label rule reads. Under M-25 `study_label()` reads
+        # `DESIGN_TIME_PINS` beside `FREEZE_PINS`, so a construction that filled
+        # only the freeze half comes back PILOT — and this case would then be
+        # testing the label rule instead of the seam it is about. R10-1's point
+        # is that the label rule ADMITS this mapping and something else has to
+        # refuse it, so the mapping has to be one the label rule can admit.
+        for name, path in integrity.FREEZE_PINS + integrity.DESIGN_TIME_PINS:
             node = pins
             for key in path[:-1]:
                 node = node.setdefault(key, {})
             node[path[-1]] = "sha256:" + hashlib.sha256(name.encode()).hexdigest()
-        pins["codex"]["model"] = "gpt-5.6-sol"
-        pins["codex"]["reasoningEffort"] = "high"
-        # The flag's SPELLING is a registry member too (§2.1: resolved
-        # empirically at pin time, and the wrapper refuses to guess it). The
-        # fixture supplies a plausible one so the cases exercise the call rather
-        # than the refusal; `TheEffortFlagSeat` drives the refusal on its own.
-        pins["codex"]["reasoningEffortFlag"] = "-c"
-        # 020: `batch.n` / `batch.slots` / `batch.order` are TODO(prereg) in the
-        # committed registry, because §2.1 registers the per-arm N as an OUTPUT
-        # of the pre-pilot sweep and the call order is a function of the round
-        # count. `check_registry()` REFUSES that state, which is the registered
-        # behaviour and is asserted on its own in `tests/test_schedule.py`; this
-        # fixture supplies the shape so the cases below exercise the driver
-        # rather than re-assert one refusal fifty times. The values are the
-        # module's own provisional shape, so the fixture cannot disagree with
-        # the expansion the driver derives.
-        pins["batch"]["n"] = batch.RUNS_PER_ARM
-        pins["batch"]["slots"] = batch.REGISTERED_SLOTS
-        pins["batch"]["order"] = {
-            "blockOrder": list(batch.BLOCK_ORDER),
-            "blocks": batch.BLOCKS,
-            "firstRow": list(batch.WILLIAMS_FIRST_ROW),
-            "tail": list(batch.TAIL),
-        }
         pins["preregistration"]["sha256"] = _digest(
             os.path.join(STUDY, "PREREGISTRATION.md"))
         root = throwaway_root()
@@ -900,7 +858,7 @@ class PreflightGates(StandInStudy):
         pin. Study 014's round 3 found a registered run reachable with only the
         preregistration digest filled."""
         self.ready()
-        for name, path in integrity.FREEZE_PINS + integrity.DESIGN_TIME_PINS:
+        for name, path in integrity.FREEZE_PINS:
             if name in integrity.CEREMONY_LIFECYCLE_PINS:
                 # `golden.sha256` and `isolationNegative.assent` are freeze pins
                 # (round-1 R1-9) that the PRE-FREEZE ceremony writes, so this
@@ -1812,180 +1770,6 @@ class TimeoutCeiling(StandInStudy):
 @unittest.skipUnless(RUNNING_REGISTERED and HAVE_TOOLS,
                      "the wrapper refuses an interpreter harness/PINS.json does "
                      "not register, and needs bash, git and timeout(1)")
-class TheEffortFlagSeat(StandInStudy):
-    """§2.1's effort-flag seat, both registered branches, through the real bash.
-
-    M-24 puts the reasoning effort in `PINS.json` and has the wrapper pass it by
-    explicit flag and stamp it into `CALL.json`, because there may be NO
-    transcript witness for it — 019's `session.jsonl` carries one
-    `turn_context` record naming `model` and no effort member. M-25 then has to
-    solve the ordering problem that creates: the pre-pilot sweep is what
-    RESOLVES the value, so a wrapper that refuses a null effort refuses the
-    sweep's own input.
-
-    The registered answer is one exemption, one value and one label wide, and
-    every case below is about the width. A test that only showed the exemption
-    WORKING would pass just as well if the exemption covered everything."""
-
-    PLAN = [{"completion": "ready"}] * 6
-
-    def plan(self, *steps):
-        write_plan(self.cli_dir, list(steps))
-        counter = os.path.join(self.cli_dir, "counter")
-        if os.path.exists(counter):
-            os.unlink(counter)
-
-    def call(self, name, registry=None, pin_label="PRIMARY"):
-        slot = os.path.join(self.root, name, "capture-001")
-        return batch.invoke(slot, self.scratch, registry or self.pins_path,
-                            self.cli, "probe", batch.PROBE_ARM,
-                            self.probe_prompt, pin_label=pin_label), slot
-
-    def call_json(self, slot):
-        with open(os.path.join(slot, "CALL.json")) as handle:
-            return json.load(handle)
-
-    # -- the primary branch -------------------------------------------------
-
-    def test_the_effort_is_passed_by_flag_and_stamped_into_the_slot(self):
-        """The registered condition reaches the CLI as argv and reaches the
-        retained bytes as a stamp. Where no transcript witnesses it, this stamp
-        is the only record — which the slot says in its own bytes rather than
-        leaving a reader to infer it from an absence."""
-        self.plan({"completion": "an answer"})
-        (status, code, stderr), slot = self.call("effort")
-        self.assertEqual((status, code), (0, None), stderr)
-        record = self.call_json(slot)
-        self.assertEqual(record["reasoningEffort"], "high")
-        self.assertEqual(record["reasoningEffortFlag"], "-c")
-        self.assertEqual(record["reasoningEffortSource"], "registry")
-        self.assertIs(record["reasoningEffortWitnessed"], False)
-        self.assertEqual(record["pinLabel"], "PRIMARY")
-        self.assertIs(record["citable"], True)
-        # THE RESOLVED SPELLING (2026-08-24). `codex exec --help` at the pinned
-        # CLI names no reasoning-effort flag at all, so the effort travels as a
-        # CONFIG OVERRIDE — `-c model_reasoning_effort=<tier>` — and the slot
-        # records the two registry members it was composed from beside the tier
-        # and beside the exact argv token. `-c <tier>` would be a malformed
-        # override this build reads as a literal, which is precisely the guess
-        # §2.1 forbade the wrapper to make.
-        self.assertEqual(record["reasoningEffortConfigKey"],
-                         "model_reasoning_effort")
-        self.assertEqual(record["reasoningEffortArg"],
-                         "model_reasoning_effort=high")
-        # Positionally, because `-c` is also the flag that carries
-        # `mcp_servers={}`: the effort pair sits between `-m <model>` and
-        # `--sandbox`, and asserting membership would pass on the wrong one.
-        self.assertEqual(record["argv"][3:7],
-                         ["-m", "s020-stand-in-model", "-c",
-                          "model_reasoning_effort=high"])
-        self.assertEqual(record["argv"][7], "--sandbox")
-
-    def test_a_null_effort_refuses_a_primary_call(self):
-        """The pin is a design-time pin and a null one is a PILOT, so a call
-        made under it is a call under an unregistered compute condition."""
-        self.plan({"completion": "an answer"})
-        pins = json.loads(json.dumps(self.pins))
-        pins["codex"]["reasoningEffort"] = None
-        registry = self.alternate_registry("no-effort.json", **pins)
-        (status, code, stderr), _slot = self.call("null-effort", registry)
-        self.assertEqual((status, code), (1, "preflight-refused"))
-        self.assertIn("names no codex reasoning effort", stderr)
-        self.assertIn("PIN_LABEL=SWEEP", stderr)
-
-    def test_a_null_flag_spelling_refuses_rather_than_being_guessed(self):
-        """§2.1 registers the flag's exact spelling as resolved empirically at
-        pin time. A wrapper that guessed it would send a registered effort to
-        the CLI under a flag nobody verified, and the slot would record a
-        condition the call did not run under."""
-        self.plan({"completion": "an answer"})
-        pins = json.loads(json.dumps(self.pins))
-        pins["codex"]["reasoningEffortFlag"] = None
-        registry = self.alternate_registry("no-flag.json", **pins)
-        (status, code, stderr), _slot = self.call("null-flag", registry)
-        self.assertEqual((status, code), (1, "preflight-refused"))
-        self.assertIn("will not guess it", stderr)
-
-    # -- the sweep branch, and its width ------------------------------------
-
-    def test_the_sweep_label_exempts_the_effort_and_marks_the_slot(self):
-        """The exemption WORKS — and the slot it produces is not mistakable for
-        a registered one: no flag in argv, the source named `sweep-default`,
-        and `citable: false`."""
-        self.plan({"completion": "an answer"})
-        pins = json.loads(json.dumps(self.pins))
-        pins["codex"]["reasoningEffort"] = None
-        registry = self.alternate_registry("sweep.json", **pins)
-        (status, code, stderr), slot = self.call("sweep", registry,
-                                                 pin_label="SWEEP")
-        self.assertEqual((status, code), (0, None), stderr)
-        record = self.call_json(slot)
-        self.assertIsNone(record["reasoningEffort"])
-        self.assertIsNone(record["reasoningEffortFlag"])
-        self.assertEqual(record["reasoningEffortSource"], "sweep-default")
-        self.assertEqual(record["pinLabel"], "SWEEP")
-        self.assertIs(record["citable"], False)
-        self.assertEqual(record["argv"][3:6], ["-m", "s020-stand-in-model",
-                                               "--sandbox"])
-
-    def test_the_sweep_label_does_not_exempt_the_model(self):
-        """One value wide. `codex.model` is never exempt: a sweep is still a
-        call to a named model, and 019's pilot's defining defect was a call
-        whose model nothing recorded."""
-        self.plan({"completion": "an answer"})
-        pins = json.loads(json.dumps(self.pins))
-        pins["codex"]["model"] = None
-        registry = self.alternate_registry("sweep-no-model.json", **pins)
-        (status, code, stderr), _slot = self.call("sweep-model", registry,
-                                                  pin_label="SWEEP")
-        self.assertEqual((status, code), (1, "preflight-refused"))
-        self.assertIn("names no codex model", stderr)
-
-    def test_an_unregistered_label_refuses_at_the_driver_and_at_the_wrapper(self):
-        """Both ends, because either one alone is a hole. The driver refuses an
-        unregistered label before it spawns anything; the wrapper refuses one it
-        somehow received, rather than treating it as PRIMARY."""
-        with self.assertRaises(batch.BatchError) as caught:
-            batch.invoke(os.path.join(self.root, "x", "capture-001"),
-                         self.scratch, self.pins_path, self.cli, "probe",
-                         batch.PROBE_ARM, self.probe_prompt,
-                         pin_label="sweep")
-        self.assertIn("not a registered pin label", str(caught.exception))
-        self.plan({"completion": "an answer"})
-        slot = os.path.join(self.root, "bad-label", "capture-001")
-        environment = dict(os.environ)
-        environment.update({"PYTHON_BIN": sys.executable,
-                            "PROMPT_KIND": "probe", "ISOLATION": "isolated",
-                            "GOLDEN_SHA256": "", "PIN_LABEL": "Sweep",
-                            "PYTHONDONTWRITEBYTECODE": "1"})
-        finished = subprocess.run(
-            ["bash", batch.SCRIPT, self.scratch, slot, self.pins_path,
-             batch.PROBE_ARM, self.probe_prompt, self.cli],
-            env=environment, capture_output=True, text=True)
-        self.assertEqual(finished.returncode, 1)
-        self.assertIn("is not a registered label", finished.stderr)
-
-    def test_an_operator_environment_cannot_claim_the_exemption(self):
-        """`invoke()` sets `PIN_LABEL` UNCONDITIONALLY. A stray
-        `PIN_LABEL=SWEEP` in the operator's shell is the sweep-outside-the-
-        harness hole §2a.1 names, and it does not reach the wrapper."""
-        self.plan({"completion": "an answer"})
-        pins = json.loads(json.dumps(self.pins))
-        pins["codex"]["reasoningEffort"] = None
-        registry = self.alternate_registry("leaky.json", **pins)
-        previous = os.environ.get("PIN_LABEL")
-        os.environ["PIN_LABEL"] = "SWEEP"
-        try:
-            (status, code, stderr), _slot = self.call("leaky", registry)
-        finally:
-            if previous is None:
-                os.environ.pop("PIN_LABEL", None)
-            else:
-                os.environ["PIN_LABEL"] = previous
-        self.assertEqual((status, code), (1, "preflight-refused"))
-        self.assertIn("names no codex reasoning effort", stderr)
-
-
 class WrapperExitPaths(StandInStudy):
     """R1-4: EVERY exit path of the real wrapper, end to end through the real
     bash, and the code each one lands on.
@@ -2130,6 +1914,107 @@ class WrapperExitPaths(StandInStudy):
             json.dump({"code": "wrapper-error", "wrapperExit": 7}, handle)
         self.assertIn("unregistered status is not a refusal code",
                       self.refusal(batch.slot_outcome, slot))
+
+
+@unittest.skipUnless(RUNNING_REGISTERED and HAVE_TOOLS,
+                     "the wrapper refuses an interpreter harness/PINS.json does "
+                     "not register, and needs bash, git and timeout(1)")
+class RegisteredPromptBytesReachTheCall(StandInStudy):
+    """§7 DELTA 13 — D-1's smoke, restated as the thing that would have caught it.
+
+    STUDY 019 DEVIATION D-1: at slots 1–29 of the primary batch every arm-B and
+    arm-C call died before codex started with `/usr/bin/env: Argument list too
+    long`. The wrapper passed the whole prompt as ONE argv string and Linux caps
+    a single exec argument at 128 KiB (`MAX_ARG_STRLEN`); arm A's registered
+    prompt is 84,289 bytes and fits, arm B's (204,333) and arm C's (206,686)
+    cannot fit on any Linux under any setting. **The failure is structural, and
+    the pre-freeze end-to-end smoke could not reach it** — the smoke used a
+    stand-in study whose arm prompts were one-line stubs, so no exec ever carried
+    a registered prompt.
+
+    A stand-in BINARY does not hide this defect. A stand-in PROMPT does, and
+    that is the whole of what D-1 cost. The registered restatement is therefore
+    "a real exec at the registered prompt bytes, stand-in binary permitted": the
+    committed `harness/authoring_call.sh` runs under real bash, against the real
+    `arms/<ARM>/PROMPT.txt` of every arm, with the fake CLI answering — and the
+    call has to reach the CLI rather than dying at `exec`.
+
+    Every arm is driven, not only the two that overflowed, because the property
+    is "the wrapper carries a registered prompt of any registered size" and a
+    test that only drove B would pass on a wrapper that special-cased B.
+
+    THE MUTATION CHECK this file's discipline requires, RUN, with what it
+    actually returned: reverting the wrapper's `< "$PROMPT_FILE"` redirect to
+    D-1's `"$(cat "$PROMPT_FILE")"` argv interpolation makes
+    `test_every_registered_arm_prompt_survives_a_real_exec` fail on arms **B and
+    C** and still pass on arm **A** — the exact shape of the observed ledger, 9
+    arm-A calls clean and 10 B and 10 C refused. The failing subtests return
+    `(11, 'slot-shape')`, not the `Argument list too long` string: under the
+    interpolation the exec dies inside the call subshell, the CLI never starts,
+    and the wrapper's own new-session check is what refuses ("expected exactly
+    one new session for this call, found 0"). The assertion is therefore on the
+    STATUS and on the retained completion — the two facts a dead exec cannot
+    produce — and the stderr check is a second, weaker line rather than the
+    discriminating one."""
+
+    PLAN = [{"completion": "ready"}] * 6
+
+    #: the smallest prompt that cannot be an argv string, so the assertion below
+    #: is about a real kernel limit and not about a number this file chose.
+    MAX_ARG_STRLEN = 128 * 1024
+
+    def build_standin_study(self) -> str:
+        """The stand-in study with the REGISTERED prompt bytes in it.
+
+        Everything else is the inherited fixture. The one substitution is the
+        one D-1 proves matters: `arms/<ARM>/PROMPT.txt` is copied from this
+        study's committed prompt rather than written as a stub."""
+        study = super().build_standin_study()
+        for arm in batch.ARMS:
+            shutil.copyfile(os.path.join(STUDY, "arms", arm, "PROMPT.txt"),
+                            os.path.join(study, "arms", arm, "PROMPT.txt"))
+        return study
+
+    def test_the_registered_prompts_are_the_sizes_that_made_d1_structural(self):
+        """The premise, asserted rather than assumed: at least one registered
+        prompt is over the single-argument ceiling. If this ever stops being
+        true the case below still runs, but it stops being the D-1 case and this
+        line is what says so."""
+        sizes = {arm: os.path.getsize(os.path.join(self.study, "arms", arm,
+                                                   "PROMPT.txt"))
+                 for arm in batch.ARMS}
+        self.assertTrue(any(size > self.MAX_ARG_STRLEN
+                            for size in sizes.values()), sizes)
+
+    def test_every_registered_arm_prompt_survives_a_real_exec(self):
+        """The real wrapper, real bash, real `exec`, registered prompt bytes,
+        stand-in binary. Exit 0 on every arm, and the completion retained —
+        which is only reachable if the prompt got to the CLI at all."""
+        for arm in batch.ARMS:
+            with self.subTest(arm=arm):
+                self.plan_one()
+                slot = os.path.join(self.arms_root, arm, "authoring",
+                                    "run-001")
+                prompt = os.path.join(self.study, "arms", arm, "PROMPT.txt")
+                status, code, stderr = batch.invoke(
+                    slot, self.scratch, self.pins_path, self.cli, "registered", arm,
+                    prompt)
+                self.assertNotIn("Argument list too long", stderr)
+                self.assertEqual((status, code), (0, None), stderr)
+                self.assertTrue(os.path.isfile(
+                    os.path.join(slot, "completion.txt")), stderr)
+                call = json.load(open(os.path.join(slot, "CALL.json")))
+                # the prompt the call was made with is the registered one, by
+                # digest and not by size
+                self.assertEqual(call["armPromptSha256"], _digest(prompt))
+                # and it went in as BYTES on stdin, not as an argv element
+                self.assertNotIn(open(prompt).read(1024), " ".join(call["argv"]))
+
+    def plan_one(self):
+        write_plan(self.cli_dir, [{"completion": "an answer"}])
+        counter = os.path.join(self.cli_dir, "counter")
+        if os.path.exists(counter):
+            os.unlink(counter)
 
 
 @unittest.skipUnless(RUNNING_REGISTERED and HAVE_TOOLS,

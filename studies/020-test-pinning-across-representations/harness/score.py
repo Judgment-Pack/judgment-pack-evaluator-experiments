@@ -24,6 +24,28 @@ against the real engines, ported with a two-sided `harness/PORTS.md` row:
                        911eb25773923789e5ddeae20f0bfa68032f932ae9c62fd7e9a21ad8aa8b73ea
     e4lib/decision.py  the 015-018 program shape, generalised to a table
 
+WHAT THIS FILE DELIBERATELY DOES NOT DO (PREREGISTRATION.md §7's deltas)
+------------------------------------------------------------------------
+* **It computes no threshold and reads none** (§7 delta 2, §5.1's "No cut, no τ,
+  no dichotomy"). 019's E4 was a per-arm HIGH-KILL RUN RATE over an integer cut
+  derived from tau = 0.95; `e4_endpoint()` now publishes coverage sets and
+  per-language denominators and nothing a run is judged AGAINST.
+* **It weights nothing.** §5.2's eighteen members, L2c's offset estimator, the
+  two permutation schemes, the IU verdict, the drop-a-pole table and the BCa
+  intervals are `e4lib/family.py`'s (§7 delta 5). This file evaluates that
+  module behind `registered_family()` and REFUSES when it is absent, because
+  §5.4's intersection-union logic makes a smaller family the anti-conservative
+  direction — proceeding on the members that happen to import would make the
+  claim easier.
+* **It applies no author-side control gate** (§5.7, M-23 option (a)). There is
+  no `E1_FLOOR`, no `floorHeld` member and no `e1-floor` row: §5.7 derives both
+  the gate's 1.3–6.1 % spurious refusal of arm A at 019-scale N and the ~2,926
+  degraded runs its certification would need, and an uncertified gate is not
+  registered as if certified.
+* **It never writes a run record whose schema cannot tell "nothing evaluated"
+  from "everything killed"** (§7 delta 1). `e4lib.require_survivor_schema()`
+  guards every write of a `kill` block.
+
 THE REGIME (inherited from Studies 014-018, and each clause is enforced here)
 -----------------------------------------------------------------------------
 * `ATTEMPT.json` is written BEFORE `harness/PINS.json` is parsed, under every
@@ -117,7 +139,7 @@ import integrity      # noqa: E402
 
 PINS_PATH = os.path.join(HERE, "PINS.json")
 
-STUDY_NAME = "019-authorship-across-representations"
+STUDY_NAME = "020-test-pinning-across-representations"
 
 # Which mutant language each arm's suite is scored against (section 3's arm
 # table): arm A emits a pack and a matrix, arms B and C emit Rego and an
@@ -199,9 +221,19 @@ def __getattr__(name):
         return globals()[name]
     raise AttributeError("module %r has no attribute %r" % (__name__, name))
 
-# Section 5's registered E1 floor and section 2's registered timeout cap. Both
-# are control-gate rows: breaching either adjudicates R1 in NEITHER direction.
-E1_FLOOR = 0.60
+# §5.7, ruled 2026-08-23 (M-23, option (a)): THERE IS NO AUTHOR-SIDE CONTROL
+# GATE and no `E1_FLOOR` constant. 019's existence gate was a max statistic —
+# it fires iff NO admitted run clears, so P(fire) = (1 − p)ⁿ and its stringency
+# runs the wrong way in n, which differs by arm. It spuriously refused arm A
+# with probability 1.3–6.1 % at 019-scale N even with a perfect stimulus, and
+# certifying P(fire) ≥ 0.95 at N = 50 would need ~2,926 degraded runs (~162 h).
+# An uncertified gate is not registered as if certified, so E1 is fully
+# descriptive (§5.1), the `e1-floor` row leaves the decision table (§5.9), and
+# the derived threshold survives only as C3's PRE-FREEZE go/no-go (§2a.4),
+# which is `calibration/derive_floor.py`'s and is never read at attempt time.
+#
+# Section 2's registered timeout cap IS a control-gate row: breaching it
+# adjudicates R1 in neither direction.
 TIMEOUT_RATE_CAP_PIN = ("batch", "timeoutRateCap")
 
 # The frozen artifacts the scorer reads. Study-relative, never absolute: an
@@ -1093,17 +1125,27 @@ def e1_control(arm: str, runs: list) -> dict:
     """E1 — per-run perfect gold agreement on the policy artifact, ITT
     denominator.
 
-    Section 5 expects this at ceiling in every arm and registers the CEILING
-    ITSELF as a finding this study commits to publishing. A per-arm rate below
-    the registered floor is a control-gate row, not a detection: it would mean
-    the stimulus regressed, not that testing skill differs."""
+    **FULLY DESCRIPTIVE, WITH NO FLOOR** (§5.1, §5.7). 019 registered a floor
+    and adjudicated its attempt `control-gate-failed: e1-floor` on it; §5.7
+    rules that gate out, on two facts it derives rather than asserts — the gate
+    spuriously refuses arm A at 1.3–6.1 % even with a perfect stimulus, and it
+    cannot be empirically certified at any affordable n, because it is a max
+    statistic over a stochastic authoring process. So 019's finding — *arm A
+    never achieves perfect gold agreement* — is a REPORTED RESULT here rather
+    than a study-killer, and this block carries no `floor` and no `floorHeld`:
+    a reader cannot read a gate off a record that does not contain one.
+
+    §5.1 registers the ITT denominator and the 117-row support, with the 110-row
+    support published beside it; the common-mode threat the existence gate named
+    is a BYTE threat and is caught deterministically by the prompt, prose,
+    golden-context and reference digests, which fire with probability 1."""
     bind_study_modules()
     perfect = sum(1 for run in runs if run.get("goldPerfect"))
     block = stats.rate_block(perfect, len(runs), "admitted runs (ITT)")
     return {"arm": arm, "perfect": perfect, "runs": len(runs),
             "rate": block,
-            "floor": E1_FLOOR,
-            "floorHeld": len(runs) == 0 or (perfect / len(runs)) >= E1_FLOOR}
+            "gates": "nothing (§5.7, M-23 option (a): there is no author-side "
+                     "control gate and no e1-floor row in §5.9)"}
 
 
 def e3_taxonomy(runs: list) -> dict:
@@ -1118,11 +1160,11 @@ def e3_taxonomy(runs: list) -> dict:
         for failure in run.get("goldFailures") or []:
             key = failure.get("category", "uncategorised")
             gold_failures[key] = gold_failures.get(key, 0) + 1
-        for failure in run.get("referenceIdentityFailures") or []:
+        for failure in run.get("identityFailures") or []:
             key = failure.get("got", "uncategorised")
             identity_failures[key] = identity_failures.get(key, 0) + 1
     return {"goldFailureCategories": gold_failures,
-            "referenceIdentityFailureCategories": identity_failures}
+            "identityFailureCategories": identity_failures}
 
 
 def census_vectors(runs: list, stimulus: dict) -> dict:
@@ -1158,10 +1200,13 @@ def engine_supplied_block(arm: str, runs: list, listed,
 
     The kills achievable only through the engine's structural conflict detection
     are a registered manifest member (SCAFFOLD item S9). This publishes the
-    paired-subset kill totals BOTH ways and, descriptively, the high-kill count
-    under the reduced denominator with its own derived integer cut — the reduced
-    cut is R2's and the DECISION reads only the included one, because section 5
-    registers the endpoint over the paired adequate subset entire."""
+    paired-subset kill totals BOTH ways.
+
+    §5.2 promotes the split from a description to a FAMILY AXIS: the exclusion
+    drops 12 of 69 paired JPS mutants and 0 of 62 paired Rego, which is
+    entirely one-sided and is an arm-blind reason it could matter, so BOTH
+    columns are members and neither is "the" column. §7 delta 2 removes the
+    reduced integer cut that used to sit on top of the excluded column."""
     bind_study_modules()
     if listed is None:
         return {"arm": arm, "registered": False,
@@ -1176,117 +1221,107 @@ def engine_supplied_block(arm: str, runs: list, listed,
         run["kill"].get("killedPairedExcludingEngineSupplied", 0)
         for run in runs if run.get("kill"))
     # The reduced denominator is a property of the MUTANT SET, not of the runs:
-    # every run of an arm is scored against the same paired subset, so the
-    # reduced cut is derived once from that subset's size. (`max()` over the
-    # runs was the same number whenever any run existed and was undefined when
-    # none did, which is a second way to compute a constant.)
-    reduced_paired = reduced_paired_count
-    reduced_cut = None
-    if reduced_paired > 0:
-        try:
-            reduced_cut = stats.tau_cut(reduced_paired)
-        except stats.StatsError:
-            reduced_cut = None
-    high_reduced = 0
-    if reduced_cut is not None:
-        high_reduced = sum(
-            1 for run in runs
-            if run.get("referenceIdentityPass") and run.get("kill")
-            and e4lib.is_high_kill(
-                run["kill"].get("killedPairedExcludingEngineSupplied", 0),
-                run["kill"].get("pairedExcludingEngineSupplied", 0),
-                reduced_cut))
+    # every run of an arm is scored against the same paired subset, so it is
+    # passed in from the corpus rather than maximised over the runs (`max()`
+    # over the runs was the same number whenever any run existed and was
+    # undefined when none did, which is a second way to compute a constant).
     return {
         "arm": arm, "registered": True, "listedMutants": len(listed),
         "killsIncluded": {"killed": killed, "paired": paired},
         "killsExcluded": {"killed": killed_reduced, "paired": reduced},
-        "reducedIntegerCut": reduced_cut,
-        "highKillExcludingEngineSupplied": high_reduced,
-        "note": "section 4: kills achievable only through the engine's "
-                "structural conflict detection are reported both included and "
-                "excluded. The DECISION reads the included column; the excluded "
-                "column and its reduced cut are R2, descriptive.",
+        "reducedPairedDenominator": reduced_paired_count,
+        "note": "§5.2's engine-supplied-kill AXIS: both columns are family "
+                "members, so both are published and neither is the "
+                "descriptive one. §7 delta 2: there is no reduced cut and "
+                "no high-kill count under either column, because 020 registers "
+                "no threshold at all.",
     }
 
 
-def e4_endpoint(arm: str, runs: list, cut: dict, engine_supplied=None,
-                reduced_paired_count: int = 0) -> dict:
-    """E4 — the per-arm HIGH-KILL RUN RATE, the primary endpoint.
+def e4_endpoint(arm: str, runs: list, denominator: dict, engine_supplied=None,
+                reduced_paired_count: int = 0, classes: list = ()) -> dict:
+    """E4 (primary) — the per-arm record the eighteen-member family is computed
+    FROM. §7 delta 2: no cut, no threshold, no dichotomy.
+
+    §5.1 registers the primary endpoint as, per admitted run, "the run's
+    coverage set S over the 33 shared classes", with "each of §5.2's eighteen
+    members a weighted count over S". This function therefore publishes the
+    per-run coverage sets and the per-arm denominators and computes NO member:
+    the weighting, the offset, the permutation tests and the IU verdict are
+    `e4lib/family.py`'s (§7 delta 5). Two things are kept apart on purpose —
+    what was MEASURED (here) and how it is WEIGHTED (there) — because 019's
+    single registered quantity fused them and the design phase then had to
+    choose the weighting after seeing arm-labelled outcomes (§5.5's ledger).
 
     Section 5's denominator rule, in code and stated in the record: "Runs
-    carrying authoring-outcome codes remain in the E4 denominator as
-    not-high-kill (no-marker included); only apparatus codes leave it, and
-    identity-control exclusions are reported, never silently dropped."
+    carrying authoring-outcome codes remain in the ITT members' denominators
+    scoring 0; only apparatus codes leave." The identity control is a
+    first-class per-arm RATE and identity-excluded runs are reported, never
+    silently dropped: they define the per-protocol population and stay in the
+    ITT one.
 
-    The identity control is a first-class per-arm RATE, and identity-excluded
-    runs are reported. They leave the high-kill numerator by not being
-    high-kill, and they stay in the denominator: an identity-failing suite is a
-    suite that did not pin the reference down, which is an authoring outcome and
-    not an apparatus failure.
+    ROUND-2 FINDING R2-2 of Study 019, carried: the denominator here is
+    `len(runs)` — §1a's "attempted runs whose apparatus succeeded" — and not the
+    identity-passing subset. Both populations are §5.2 family poles now, so the
+    number that used to be one reading of one rule is two published members, and
+    `perProtocolDenominator` names the other one explicitly rather than leaving
+    a reader to subtract.
 
-    ROUND-2 FINDING R2-2, and it was a disagreement between two scorers about
-    one registered rule. §5 registers the denominator here — "identity-control
-    exclusions are reported, never silently dropped", over §1a's "attempted runs
-    whose apparatus succeeded" — and this is that rule: `len(runs)`. The pilot
-    scorer (`design/mutants/e4_score.py`) took the OTHER reading, dividing by the
-    identity-PASSING runs only, and the round-1 disposition wrote that reading
-    down; on a two-run arm with one identity-passing high-kill run the two rules
-    answer 1/2 and 1/1. The registered rule is this one, the pilot has been
-    changed to it, and the pilot's numbers moved (`design/mutants/E4-PILOT-v4.json`).
-
-    The per-run marker is published as well as the count: an identity-failing run
-    carries `highKill: null` — never `false` — because it was never asked, and it
-    is in the denominator all the same. `highKillRuns` names the numerator and
-    `identityFailedRuns` names the runs that are in the denominator without
-    having been asked, so the two published lists reconstruct the rate."""
+    `denominator` is this arm's LANGUAGE's entry from
+    `e4lib.paired_denominators()`. It carries a count and a lattice and no
+    threshold; `is_high_kill()` and its cut argument are gone, so there is no
+    per-language number a run is judged AGAINST — only the language's own
+    denominator the run is scored OVER (019's R1-1 defect, made structurally
+    impossible rather than repaired)."""
     bind_study_modules()
-    identity_pass = [run for run in runs if run.get("referenceIdentityPass")]
+    identity_pass = [run for run in runs if run.get("identityPass")]
     identity_fail = [run for run in runs if run.get("admitted")
-                     and not run.get("referenceIdentityPass")]
-    # ROUND-1 R1-1: `cut` is this arm's LANGUAGE's cut, and `is_high_kill()`
-    # refuses one the run's own denominator cannot reach.
-    high = [run for run in runs
-            if run.get("referenceIdentityPass")
-            and e4lib.is_high_kill(run["kill"]["killedPaired"],
-                                   run["kill"]["paired"], cut["integerCut"])]
-    high_names = {run["run"] for run in high}
+                     and not run.get("identityPass")]
+    own_policy_pass = [run for run in runs
+                       if (run.get("ownPolicyIdentity") or {}).get("pass")]
+    # §5.2's coverage rule, per run, over the SHARED classes. A run that was
+    # never executed has an empty coverage set and says so in
+    # `coverage.unevaluatedClasses`; that is the same distinction the survivor
+    # vector draws one level down, and it is drawn in both places because §5.2's
+    # Fact 1 is that collapsing it moved 019's headline contrast by 0.0526.
+    coverage_counts = []
     for run in runs:
-        run["highKill"] = (run["run"] in high_names
-                           if run.get("referenceIdentityPass") else None)
-    # ROUND-3 FINDING R3-9. The per-run excluded-case list and its per-arm sum
-    # are GONE, not zeroed. §4: "There is no exclusion class, no per-case X1
-    # filter and no per-run excluded-case count." The scorer published
-    # `x1Excluded` per run, `x1ExcludedCases` per arm and an excluded-case
-    # column while the registration said the count did not exist and the smoke
-    # record said the field did not exist — three surfaces, two of them false.
-    # One surface is adopted: the registration's. What remains is
-    # `outOfDomainCases`, which §4 does register, and `e4lib.in_x1()`, which is
-    # a measurement helper that gates nothing and is asserted to gate nothing.
+        block = run.get("coverage")
+        coverage_counts.append(0 if block is None else block["coveredCount"])
     out_of_domain = sum(len(run.get("outOfDomainCases") or []) for run in runs)
     return {
         "arm": arm,
-        "language": cut.get("language"),
+        "language": denominator.get("language"),
         "denominator": len(runs),
-        "denominatorRule": "§1a/§5: admitted runs (attempted runs whose "
-                           "apparatus succeeded). Authoring outcomes stay in as "
-                           "not-high-kill and identity-control exclusions stay "
-                           "in and are reported; only apparatus codes leave.",
-        "highKill": len(high),
-        "highKillRate": stats.rate_block(
-            len(high), len(runs),
-            "admitted runs (section 1a; authoring outcomes retained as "
-            "not-high-kill)"),
-        "referenceIdentityPass": len(identity_pass),
+        "denominatorRule": "§1a/§5.1: admitted runs (attempted runs whose "
+                           "apparatus succeeded). Authoring outcomes stay in "
+                           "the ITT members' denominators scoring 0 and "
+                           "identity-control exclusions stay in and are "
+                           "reported; only apparatus codes leave.",
+        "perProtocolDenominator": len(identity_pass),
+        "perProtocolRule": "§5.2: the per-protocol pole is the "
+                           "referenceIdentity-passing runs. It is a family "
+                           "member's population, not a filter applied before "
+                           "the endpoint.",
+        "identityPass": len(identity_pass),
         "identityFail": len(identity_fail),
-        # E6 (M-13, §5.1), REPORTED and gating nothing. Published per arm beside
-        # the relation that does gate, and the CONJUNCTION is published too —
-        # §1.2 registers the population 020 did NOT choose as a Tier D
-        # disposition, "so a reader can see exactly what the alternative would
-        # have done". Nothing in `decision.py` reads any of these three.
-        "ownPolicyIdentity": own_policy_identity_block(runs),
         "identityRate": stats.rate_block(len(identity_pass), len(runs),
                                          "admitted runs"),
         "identityFailedRuns": sorted(run["run"] for run in identity_fail),
+        # E6 (§5.1, §7 delta 4). The SECOND named relation, published per arm
+        # beside the first and gating nothing. The conjunction is §5.8's Tier D
+        # population disposition: the population 020 did NOT register, made
+        # visible beside the one it did.
+        "ownPolicyIdentityPass": len(own_policy_pass),
+        "ownPolicyIdentityRate": stats.rate_block(
+            len(own_policy_pass), len(runs), "admitted runs"),
+        "bothIdentitiesPass": len([run for run in runs
+                                   if run.get("identityPass")
+                                   and (run.get("ownPolicyIdentity")
+                                        or {}).get("pass")]),
+        "coverageCounts": coverage_counts,
+        "sharedClassCount": len(classes),
+        "pairedDenominator": denominator,
         "outOfDomainCases": out_of_domain,
         "outOfDomainRuns": sorted(run["run"] for run in runs
                                   if run.get("outOfDomainCases")),
@@ -1295,163 +1330,140 @@ def e4_endpoint(arm: str, runs: list, cut: dict, engine_supplied=None,
         "mutantRefusals": sorted({mutant for run in runs
                                   for mutant in (run.get("kill") or {})
                                   .get("refusedAll", ())}),
-        "cut": cut,
-        "highKillRuns": sorted(run["run"] for run in high),
         "engineSuppliedKill": engine_supplied_block(arm, runs, engine_supplied,
                                                     reduced_paired_count),
     }
 
 
-def own_policy_identity_block(runs: list) -> dict:
-    """E6's per-arm aggregate — a REPORTED quantity that gates nothing.
+def family_module():
+    """`e4lib.family`, or None — §7 delta 5's module, imported by name at the
+    one place the decision path needs it.
 
-    Three counts and one list, and the third count is the point: the
-    CONJUNCTION `referenceIdentity ∧ ownPolicyIdentity` is the per-protocol
-    population 020 deliberately did NOT register (§1.2, §11.10), and publishing
-    its composition beside the one it did register is what makes the choice
-    visible rather than merely disclosed.
-
-    **This function is read by the publisher and by nothing else.**
-    `harness/tests/test_score_e4.py` asserts that no member of the decision
-    table, no control gate and no contrast reads `ownPolicyIdentity`, which is
-    the registered non-gating property stated as a test rather than as a
-    sentence."""
-    scored = [run for run in runs if run.get("admitted")]
-    evaluated = [run for run in scored
-                 if (run.get("ownPolicyIdentity") or {}).get("evaluated")]
-    passing = [run for run in evaluated
-               if (run["ownPolicyIdentity"] or {}).get("pass")]
-    both = [run for run in passing if run.get("referenceIdentityPass")]
-    return {
-        "relation": e4lib.OWN_POLICY_RELATION,
-        "gates": False,
-        "note": "REPORTED, not gating (§1.2, M-13). R1's construct is coverage "
-                "against the SHARED REFERENCE, and this is the score of each "
-                "suite against the policy it accompanies; it conditions R1's "
-                "claim sentence and adjudicates nothing.",
-        "admitted": len(scored),
-        "evaluated": len(evaluated),
-        "notEvaluated": len(scored) - len(evaluated),
-        "pass": len(passing),
-        "passRuns": sorted(run["run"] for run in passing),
-        # The population 020 did not register, published so it can be read.
-        "conjunctionWithReferenceIdentity": len(both),
-        "conjunctionRuns": sorted(run["run"] for run in both),
-    }
-
-
-def contrast(left_arm: str, right_arm: str, e4_by_arm: dict,
-             endpoints: bool = True) -> dict:
-    """One registered contrast, on the general FM inversion.
-
-    UNEQUAL DENOMINATORS ARE THE REGISTERED CASE (SCAFFOLD item S8, closed).
-    Section 1a excludes apparatus failures from the denominator, so unequal
-    admitted counts are a real possibility, and section 5 registers "the general
-    unequal-N FM-score inversion (the OC table's equal-N closed form is its
-    N_A = N_C slice)". The scorer no longer refuses on it and no longer
-    approximates it: `stats.excludes_zero()` takes both arm sizes.
-
-    The reported ENDPOINTS come from `stats.interval_endpoints()` — "the
-    reported interval endpoints come from the full Delta0 sweep of the same
-    construction" (section 5) — and are a report, never the decision: an
-    endpoint that failed to compute leaves the zero-exclusion verdict intact and
-    publishes its own refusal, because section 5's rule reads `excludesZero` and
-    nothing else.
-
-    THEY ARE NOT COMPUTED HERE (round-3 finding R3-8). `endpoints=True` marks the
-    contrast's interval PENDING and `stats.fill_intervals()` settles it after
-    the decision, for the same reason `stats.rate_block()` stopped computing its
-    own Clopper-Pearson bounds in round 2: the sweep used to run the moment the
-    contrast was built, which is before the run's final row is known. The
-    reviewer's scenario is the proof — gates clear, A = 5/5, C = 0/5, B = 0/0,
-    so A−C swept its endpoints, A−B then raised `FM-EMPTY-ARM`, and the attempt
-    landed on row 1 with an inferential quantity already computed for it. §5
-    prohibits the computation, not merely the printing.
-
-    THE DENOMINATORS MUST BE POSITIVE (round-1 R1-14). An arm with zero admitted
-    runs passes E1's floor by definition — `perfect / 0` is not evaluated and the
-    gate reads `len(runs) == 0 or ...` — so the control rows let an empty arm
-    through, the contrast then became a refusal, and the last row published a
-    substantive `INDETERMINATE` over a comparison that could not be made. A
-    denominator below the registered minimum is a PIPELINE problem here, which is
-    row 1, which is above every substantive row."""
+    It is a SEPARATE delta and a separate module on purpose: §5.2's eighteen
+    members, L2c's offset estimator, the two permutation schemes and the IU
+    verdict are the analysis, and this file is the publisher. The import is
+    guarded rather than assumed so that the absence is a NAMED pipeline problem
+    on §5.9 row 1 — never an attempt that quietly reaches row 5 and publishes
+    INDETERMINATE-BY-DISAGREEMENT over a family that was never evaluated."""
     bind_study_modules()
-    left, right = e4_by_arm[left_arm], e4_by_arm[right_arm]
-    for arm, entry in ((left_arm, left), (right_arm, right)):
-        if entry["denominator"] < decision.REGISTERED_MINIMUM_DENOMINATOR:
-            raise stats.StatsError(
-                "FM-EMPTY-ARM arm %s has %d admitted runs and the registered "
-                "minimum is %d: a contrast over an empty arm is not an interval "
-                "that straddles zero, it is no interval at all"
-                % (arm, entry["denominator"],
-                   decision.REGISTERED_MINIMUM_DENOMINATOR))
-    result = stats.excludes_zero(left["highKill"], right["highKill"],
-                                 left["denominator"], right["denominator"])
-    result["arms"] = [left_arm, right_arm]
-    if endpoints:
-        result["interval"] = None
-        result["intervalState"] = stats.INTERVAL_PENDING
-    return result
+    try:
+        from e4lib import family as family_lib      # noqa: WPS433 (deferred)
+    except ImportError:
+        return None
+    return family_lib
 
 
-def registered_contrasts(e4_by_arm: dict, outcome: dict, refusals: dict,
-                         gate_causes: list) -> dict:
-    """§5's fixed sequence — A−C, then A−B only because A−C decided — with the
-    two failure modes kept apart.
+def registered_family(e4_by_arm: dict, per_arm_runs: dict, context: dict,
+                      outcome: dict, refusals: dict, gate_causes: list) -> dict:
+    """§5.9 row 4 and §5.4's intersection-union rule, in the registered fixed
+    sequence: A−C, then A−B only because A−C claimed.
 
-    EXTRACTED FROM `main()` FOR ROUND-3 FINDING R3-8, and the extraction is part
-    of the fix: the sequence lived inline in a 300-line function, which is why
-    the one thing it got wrong could only be found by running an attempt. It is
-    driven directly by `tests/test_score_publication.py` now.
+    THERE IS NO INTERVAL AND NO CUT HERE (§7 delta 2, §5.1 "No cut, no τ, no
+    dichotomy"). 019's row 3 read a single binomial contrast's zero-exclusion
+    over a high-kill run count; 020's row 4 reads eighteen members' signs and
+    p-values and fires only on unanimity in both. The IU logic makes that a
+    level-≤α test with no multiplicity correction (§5.4) and makes REMOVING a
+    member the anti-conservative direction — which is why membership is
+    append-only after registration and why an absent family scorer is a
+    pipeline problem rather than a smaller family.
 
-    Three outcomes, and the finding is the third:
+    Three outcomes, carried from 019's round-3 R3-8 because the failure mode is
+    identical under the new row:
 
-    * A gating row matched — nothing is computed at all, and the refusal says
-      so (round-1 R1-14).
-    * The PRIMARY could not be computed — a pipeline problem, because the last
-      row's INDETERMINATE is the statement that an interval straddles zero and
-      there is no interval (round-1 R1-14's second scenario).
-    * The SECONDARY could not be computed after the primary DECIDED — the
-      finding. Both contrasts shared one `except`, so `FM-EMPTY-ARM` on A−B
-      deleted a primary that had already decided, filed itself under the
-      primary's name and landed the attempt on row 1 — over an A−C comparison
-      that was made and is sound. §5's decided row registers "A−C interval
-      excludes zero -> R1 decided, direction as observed; THEN A−B likewise":
-      the sequence is conditional, so the decided row stands and the secondary
-      is published as the absent thing it is, WITH its cause.
-      `decision.decide()` refuses when that cause is missing, so silence is not
-      one of the answers available here."""
+    * A gating row matched — nothing inferential is computed at all (§5.9's "No
+      inferential quantity is computed, let alone published, at or above row
+      3"), and the refusal says so.
+    * The PRIMARY family could not be evaluated — a pipeline problem, because
+      §5.9's last row is INDETERMINATE-BY-**DISAGREEMENT** and eighteen members
+      that were never computed did not disagree. "An absent primary contrast is
+      not a disagreeing one and never reaches row 5."
+    * The SECONDARY could not be evaluated after the primary CLAIMED — published
+      as the absent thing it is, WITH its cause, because `decision.decide()`
+      refuses when that cause is missing."""
     bind_study_modules()
     if gate_causes:
-        refusals["contrast"] = (
+        refusals["family"] = (
             "not computed: %d gating row(s) matched above the substantive "
-            "rows (%s). §5's row 2 adjudicates R1 in neither direction, and "
+            "rows (%s). §5.9 row 3 adjudicates R1 in neither direction, and "
             "a direction computed and then withheld is a direction "
             "published" % (len(gate_causes), "; ".join(gate_causes)))
         return {}
-    try:
-        primary = contrast("A", "C", e4_by_arm)
-    except stats.StatsError as error:
-        refusals["contrast"] = str(error)
+    family_lib = family_module()
+    if family_lib is None:
+        refusals["family"] = (
+            "e4lib/family.py is absent: §5.2 registers eighteen members and "
+            "§5.4's intersection-union rule makes a SMALLER family the "
+            "anti-conservative direction, so an attempt does not proceed on "
+            "the members that happen to be importable")
         outcome["pipelineProblems"] = [
-            "the registered primary contrast could not be computed: %s" % error]
+            "the registered eighteen-member sensitivity family (§5.2, §7 delta "
+            "5) could not be evaluated: e4lib/family.py is absent"]
         return {}
-    contrasts = {decision.CONTRAST_PRIMARY: primary}
-    if primary["excludesZero"]:
+    verdicts, reports = {}, {}
+    try:
+        corpus = family_lib.build_corpus(context["pairing"],
+                                         context["engineSupplied"])
+        units = [family_lib.unit_from_kill_record(
+                     run["run"], arm, bool(run.get("identityPass")),
+                     run.get("caseCount"), run.get("kill"), corpus)
+                 for arm in batch.ARMS for run in per_arm_runs[arm]]
+    except Exception as error:                       # noqa: BLE001 (named below)
+        refusals["family"] = "%s: %s" % (type(error).__name__, error)
+        outcome["pipelineProblems"] = [
+            "the registered family's units could not be built from the scored "
+            "runs: %s" % error]
+        return {}
+    for left, right, key in (("A", "C", decision.CONTRAST_PRIMARY),
+                             ("A", "B", decision.CONTRAST_SECONDARY)):
+        if key == decision.CONTRAST_SECONDARY \
+                and not verdicts[decision.CONTRAST_PRIMARY].get("claim"):
+            break
         try:
-            contrasts[decision.CONTRAST_SECONDARY] = contrast("A", "B",
-                                                              e4_by_arm)
-        except stats.StatsError as error:
-            refusals["contrastSecondary"] = str(error)
+            report = family_lib.family_report(units, corpus, left, right)
+        except Exception as error:                   # noqa: BLE001 (named below)
+            where = ("family" if key == decision.CONTRAST_PRIMARY
+                     else "familySecondary")
+            refusals[where] = "%s: %s" % (type(error).__name__, error)
+            if key == decision.CONTRAST_PRIMARY:
+                outcome["pipelineProblems"] = [
+                    "the registered primary family %s could not be evaluated: "
+                    "%s" % (key, error)]
+                return {}
             outcome["secondaryRefusal"] = (
-                "the registered secondary contrast %s could not be computed: "
-                "%s" % (decision.CONTRAST_SECONDARY, error))
-    return contrasts
+                "the registered secondary family %s could not be evaluated: "
+                "%s" % (key, error))
+            break
+        reports[key] = report
+        # The DECISION reads the verdict block, whose shape `e4lib/decision.py`
+        # owns; the member rows travel beside it so `results_markdown()` can
+        # print §5.5's mandatory reprint. Both come from one call, so the table
+        # a reader sees and the verdict the rule read cannot be two evaluations.
+        verdict_block = dict(report["verdict"])
+        verdict_block["members"] = report["members"]
+        verdicts[key] = verdict_block
+    outcome["familyReports"] = reports
+    return verdicts
 
 
 # --------------------------------------------------------------------------
 # scoring one run
 # --------------------------------------------------------------------------
+
+def _empty_kill(context: dict, language: str) -> dict:
+    """The kill block of a run that executed NO mutant, written through the same
+    function every other run's block is written through.
+
+    §7 delta 1, and this is the half that is easy to miss: 019 wrote
+    `{"killedPaired": 0, "paired": N}` by hand on the no-suite and
+    unparseable-suite paths, so those records carried neither a survivor list
+    nor a vector — and a reader who assumed the survivor list was total read
+    them as perfect. Building the block from `kill_rates()` with an EMPTY kill
+    map makes every entry of the vector `not-evaluated`, which is exactly what
+    happened, said in the record."""
+    return e4lib.kill_rates({}, context["mutants"][language],
+                            context["pairedIds"][language],
+                            context["engineSupplied"][language])
+
 
 def score_run(tools, arm: str, slot: dict, context: dict, workdir: str) -> dict:
     """Extract, admit, evaluate — one slot, in the registered order.
@@ -1462,15 +1474,12 @@ def score_run(tools, arm: str, slot: dict, context: dict, workdir: str) -> dict:
     bind_study_modules()
     run = {"run": "run-%03d" % slot["slotIndex"], "arm": arm,
            "code": slot["code"], "admitted": False, "goldPerfect": False,
-           "referenceIdentityPass": False,
-           # E6's default is NOT-EVALUATED and never `false`: a run with no
-           # admitted artifact was never asked, and recording "did not pass"
-           # for a question nobody put is the same collision §7's delta 1
-           # repairs one member along.
-           "ownPolicyIdentity": {"relation": "ownPolicyIdentity", "gates": False,
-                                 "evaluated": False, "pass": None,
-                                 "failures": [], "failureCount": 0,
-                                 "note": "the run reached no admitted artifact"},
+           # §7 delta 4: TWO NAMED RELATIONS. `identityPass` is
+           # `referenceIdentity` and nothing else; E6's answer lives under its
+           # own name and is None until the extra invocation has been made, so
+           # "not asked" and "asked and failed" are different bytes.
+           "identityPass": False, "identityRelation": e4lib.REFERENCE_IDENTITY,
+           "ownPolicyIdentity": None,
            "durationSeconds": slot["durationSeconds"]}
     if slot["code"] is not None:
         return run
@@ -1478,17 +1487,21 @@ def score_run(tools, arm: str, slot: dict, context: dict, workdir: str) -> dict:
     run["policyBytes"] = pair["policyBytes"]
     run["suiteBytes"] = pair["suiteBytes"]
     run["suitePresent"] = pair["suite"] is not None
-    artifact, code, detail = admit_lib.admit(tools, arm, pair["policy"], workdir)
+    # §7 delta 3, and the scorer spells NO CODE: it reads §1a's partition from
+    # `batch.CODE_PARTITION` and hands admission the registered state of §3.2's
+    # kill switch. `presenceIdiomGuard` in the context OVERRIDES the registry
+    # (the harness tests drive both sides of the switch that way); absent, it is
+    # `None`, and `admit()` resolves the switch from `harness/PINS.json`'s
+    # `presenceIdiomGuard.registered` — fail-shut toward NOT registered, so a
+    # registry that never published the power analysis cannot emit the code.
+    artifact, code, detail = admit_lib.admit(
+        tools, arm, pair["policy"], workdir,
+        context.get("presenceIdiomGuard"))
     run["admissionDetail"] = detail
     if code is not None:
         run["code"] = code
         return run
     run["admitted"] = True
-    # E6 needs the run's OWN authored policy, which is the artifact the
-    # admission layer wrote and verified. It is carried on the record as a PATH
-    # inside the per-run workdir and never published: no output of this scorer
-    # embeds an absolute path (§"The freeze and the primary attempt").
-    run["artifactPath"] = artifact
 
     # E1: the policy artifact against every gold row — and, in the same pass,
     # the run's answer VECTOR over the registered E5 census stimulus, which
@@ -1522,23 +1535,16 @@ def score_run(tools, arm: str, slot: dict, context: dict, workdir: str) -> dict:
     # not-high-kill, which section 5 makes an authoring outcome rather than an
     # exclusion.
     language = LANGUAGE_OF_ARM[arm]
-    paired_count = len(context["pairedIds"][language])
     if pair["suite"] is None:
         run["code"] = "no-marker-block"
-        # §7 delta 1. Study 019 wrote the two-member dict `{"killedPaired": 0,
-        # "paired": n}` here — a kill block with no survivor member and no
-        # `caseCount`, which is exactly the pair of defects §5.2's definition 4
-        # names and which produced the same six runs under both. A run with no
-        # suite has `caseCount` 0 (definition 4: "`caseCount` = 0 for a suite
-        # that parses to no cases") and a full not-evaluated vector.
-        run["caseCount"] = 0
-        run["kill"] = e4lib.validate_kill_block(
-            e4lib.unevaluated_kill_block(
-                context["mutants"][language], context["pairedIds"][language],
-                context["engineSupplied"][language],
-                "the run emitted no suite: nothing was evaluated"),
-            "the kill block of a no-marker-block run")
-        return run
+        # §5.2's pinned definition 4 and §7 delta 1: `caseCount` is emitted for
+        # every admitted run WITH A SUITE. This run has none, so the member is
+        # deliberately absent rather than 0 — 0 is the registered value for a
+        # suite that parses to no cases, and a run with no suite at all is a
+        # different state. `require_survivor_schema()` reads `suitePresent`, so
+        # the two are told apart by the schema and not by a convention.
+        run["kill"] = _empty_kill(context, language)
+        return e4lib.require_survivor_schema(run)
     suite_path = os.path.join(workdir, "suite.%s" % pair["suiteLanguage"])
     with open(suite_path, "w", encoding="utf-8") as handle:
         handle.write(pair["suite"])
@@ -1553,9 +1559,14 @@ def score_run(tools, arm: str, slot: dict, context: dict, workdir: str) -> dict:
     try:
         if arm == "A":
             cases, note = e4lib.load_matrix(suite_path)
-            run.update(note)                 # carries `caseCount` (§5.2 (4))
+            run.update(note)
             named = [(case[0], e4lib.matrix_domain_signature(case[1], case[2]))
                      for case in cases]
+            # §5.2 definition 4: EVERY admitted run with a suite carries the
+            # number, arm A included. 019 emitted it for arms B and C only,
+            # which made the ANCOVA members undefined for exactly the arm whose
+            # covariate mean the adjustment is evaluated at.
+            run["caseCount"] = len(named)
             wire = "string"
         else:
             cases = None
@@ -1566,14 +1577,14 @@ def score_run(tools, arm: str, slot: dict, context: dict, workdir: str) -> dict:
     except e4lib.MatrixError as error:
         run["code"] = "unparseable-artifact"
         run["suiteRefusal"] = str(error)
+        # The suite is present and did not parse to cases: §5.2 pins
+        # `caseCount` = 0 for exactly that state, and 019's six runs that
+        # carried a kill block with neither a survivor list nor a caseCount
+        # (B run-026/027/032/036, C run-035/050) are the reason it is written
+        # here rather than inferred later from an absence.
         run["caseCount"] = 0
-        run["kill"] = e4lib.validate_kill_block(
-            e4lib.unevaluated_kill_block(
-                context["mutants"][language], context["pairedIds"][language],
-                context["engineSupplied"][language],
-                "the suite's cases are not enumerable: nothing was evaluated"),
-            "the kill block of an unparseable-artifact run")
-        return run
+        run["kill"] = _empty_kill(context, language)
+        return e4lib.require_survivor_schema(run)
 
     domain_failures = e4lib.domain_failures(named, wire)
     run["outOfDomainCases"] = [failure["case"] for failure in domain_failures]
@@ -1602,25 +1613,20 @@ def score_run(tools, arm: str, slot: dict, context: dict, workdir: str) -> dict:
         # denominator, the identity control records why, and nothing is
         # executed against a point on which the two references are not known to
         # agree.
-        run["referenceIdentityPass"] = False
-        run["referenceIdentityFailures"] = domain_failures[:20]
-        run["referenceIdentityFailureCount"] = len(domain_failures)
-        # §7 delta 1, and this is the site that produced 019's two 33/33 runs
-        # from nothing: `kill_rates({}, …)` returned `killedPaired: 0` with
-        # `survivorsPaired: []`, which a coverage reading takes for a suite that
-        # killed every paired mutant. The kill loop did not run, and the block
-        # now says so per mutant.
-        run["kill"] = e4lib.validate_kill_block(
-            e4lib.unevaluated_kill_block(
-                context["mutants"][language], context["pairedIds"][language],
-                context["engineSupplied"][language],
-                "the suite left the registered input domain: the identity "
-                "control was not decided and no mutant was evaluated"),
-            "the kill block of an out-of-domain run")
-        return run
+        run["identityPass"] = False
+        run["identityFailures"] = domain_failures[:20]
+        run["identityFailureCount"] = len(domain_failures)
+        run["kill"] = e4lib.kill_rates({}, context["mutants"][language],
+                                       context["pairedIds"][language],
+                                       context["engineSupplied"][language])
+        run["coverage"] = e4lib.coverage_classes({}, context["classes"],
+                                                 language)
+        return e4lib.require_survivor_schema(run)
 
     try:
-        return _identity_and_kill(tools, arm, run, suite_path, context, workdir)
+        return e4lib.require_survivor_schema(
+            _identity_and_kill(tools, arm, run, artifact, suite_path, context,
+                               workdir))
     except e4lib.ExecutionRefusal as error:
         # ROUND-1 R1-8. A pinned engine refused on a FROZEN artifact. That is
         # not a suite that failed to pin its reference down, so the run is not
@@ -1629,86 +1635,72 @@ def score_run(tools, arm: str, slot: dict, context: dict, workdir: str) -> dict:
         # control gate reads it, which adjudicates R1 in neither direction.
         run["engineRefused"] = True
         run["engineRefusal"] = str(error)
-        run["referenceIdentityPass"] = False
-        run["referenceIdentityFailures"] = [{"case": "<engine>",
+        run["identityPass"] = False
+        run["identityFailures"] = [{"case": "<engine>",
                                     "expected": "<an answer from the pinned "
                                                 "engine>",
                                     "got": "engine-refused"}]
-        run["referenceIdentityFailureCount"] = 1
-        run["kill"] = e4lib.validate_kill_block(
-            e4lib.unevaluated_kill_block(
-                context["mutants"][language], context["pairedIds"][language],
-                context["engineSupplied"][language],
-                "the pinned engine refused on a frozen study artifact: the "
-                "identity control was not decided and no mutant was evaluated"),
-            "the kill block of an engine-refused run")
-        return run
+        run["identityFailureCount"] = 1
+        run["kill"] = e4lib.kill_rates({}, context["mutants"][language],
+                                       context["pairedIds"][language],
+                                       context["engineSupplied"][language])
+        run["coverage"] = e4lib.coverage_classes({}, context["classes"],
+                                                 language)
+        return e4lib.require_survivor_schema(run)
 
 
-def _identity_and_kill(tools, arm: str, run: dict, suite_path: str,
-                       context: dict, workdir: str) -> dict:
-    """The identity control and the kill vector for one run whose cases are
-    enumerated, in-domain and filtered — plus E6.
+def _identity_and_kill(tools, arm: str, run: dict, artifact: str,
+                       suite_path: str, context: dict, workdir: str) -> dict:
+    """The TWO identity relations and the kill vector for one run whose cases
+    are enumerated, in-domain and filtered.
 
-    **TWO NAMED RELATIONS, AND ONLY ONE OF THEM GATES** (M-13, §1.2, §7 delta
-    4). Study 019 had one identity relation and one field, `identityPass`, and
-    §1.2 registers that 020 has two:
-
-    * `referenceIdentity` — 019's control, unchanged: every case whose inputs
-      are in the registered domain agrees with the arm's UNMUTATED reference on
-      the scored surface. It defines the per-protocol population pole (§5.2), it
-      is the condition of Fact 1, and it is the relation that GATES;
-    * `ownPolicyIdentity` — new: the same suite evaluated against the run's OWN
-      authored policy, one extra engine invocation. It is a REPORTED quantity
-      (E6, §5.1) and it **gates nothing**.
-
-    They are two members with two names and never one field with two meanings.
-    `run["referenceIdentityPass"]` is the gate; `run["ownPolicyIdentity"]` is
-    the report. The registered reason `referenceIdentity` keeps the gate is
-    argued in §1.2 rather than defaulted: moving the gate to the conjunction
-    would move every per-protocol member's population and make §5.6's dispersion
-    figures inapplicable at registration time. §11.10 registers the residual."""
+    §7 delta 4: `referenceIdentity` and `ownPolicyIdentity` are computed by two
+    named functions into two named members. The kill vector is executed only
+    when `referenceIdentity` holds — a suite that does not pin the frozen
+    reference down is not asked about mutants — and E6 is computed for every
+    admitted run regardless, because it gates nothing and its whole purpose is
+    to describe the population 020 did not register (§5.1, §5.8)."""
+    language = LANGUAGE_OF_ARM[arm]
+    cases = run.get("scoredCases")
     if arm == "A":
         ok, identity_failures = e4lib.identity_arm_a(
-            tools, context["referenceA"], run["scoredCases"], workdir)
-        run["referenceIdentityPass"] = ok
-        run["referenceIdentityFailures"] = identity_failures[:20]
-        run["referenceIdentityFailureCount"] = len(identity_failures)
-        run["ownPolicyIdentity"] = e4lib.own_policy_identity_arm_a(
-            tools, run.get("artifactPath"), run["scoredCases"], workdir)
+            tools, context["referenceA"], cases, workdir)
+        run["identityPass"] = ok
+        run["identityFailures"] = identity_failures[:20]
+        run["identityFailureCount"] = len(identity_failures)
         kill_of = {}
         if ok:
             for mutant in context["mutants"]["jps"]:
                 outcome, detail = e4lib.kill_arm_a(tools, mutant["path"],
-                                                   run["scoredCases"], workdir)
+                                                   cases, workdir)
                 kill_of[mutant["id"]] = outcome
                 if outcome == e4lib.KILLED:
                     run.setdefault("killingCase", {})[mutant["id"]] = \
                         detail.get("case")
-        run["kill"] = e4lib.validate_kill_block(
-            e4lib.kill_rates(kill_of, context["mutants"]["jps"],
-                             context["pairedIds"]["jps"],
-                             context["engineSupplied"]["jps"], evaluated=ok),
-            "the kill block of an arm-A run")
     else:
         ok, detail = e4lib.identity_arm_rego(tools, context["referenceB"],
                                              suite_path, workdir)
-        run["referenceIdentityPass"] = ok
-        run["referenceIdentityFailures"] = [] if ok else [detail]
-        run["referenceIdentityFailureCount"] = 0 if ok else 1
-        run["ownPolicyIdentity"] = e4lib.own_policy_identity_arm_rego(
-            tools, run.get("artifactPath"), suite_path, workdir)
+        run["identityPass"] = ok
+        run["identityFailures"] = [] if ok else [detail]
+        run["identityFailureCount"] = 0 if ok else 1
         kill_of = {}
         if ok:
             for mutant in context["mutants"]["rego"]:
                 outcome, _detail = e4lib.kill_arm_rego(tools, mutant["path"],
                                                        suite_path, workdir)
                 kill_of[mutant["id"]] = outcome
-        run["kill"] = e4lib.validate_kill_block(
-            e4lib.kill_rates(kill_of, context["mutants"]["rego"],
-                             context["pairedIds"]["rego"],
-                             context["engineSupplied"]["rego"], evaluated=ok),
-            "the kill block of an arm-B/C run")
+    run["kill"] = e4lib.kill_rates(kill_of, context["mutants"][language],
+                                   context["pairedIds"][language],
+                                   context["engineSupplied"][language])
+    run["coverage"] = e4lib.coverage_classes(kill_of, context["classes"],
+                                             language)
+    # E6, LAST and unconditional on the reference relation: one extra engine
+    # invocation per admitted run, through the same toolchain and therefore
+    # under the same `engine-execution-clean` gate (§6: "this now covers E6's
+    # extra invocation too"). It is written under its own name and never merged
+    # into `identityPass`.
+    run["ownPolicyIdentity"] = e4lib.own_policy_identity(
+        tools, arm, artifact, cases, suite_path, workdir)
     return run
 
 
@@ -1726,7 +1718,7 @@ def results_markdown(results: dict) -> str:
     gate causes in that section's place, because a direction a reader can see is
     a direction the study published whatever the verdict line says."""
     bind_study_modules()
-    lines = ["# Study 019 — %s" % results["label"], "",
+    lines = ["# Study 020 — %s" % results["label"], "",
              "R1: %s" % results["decision"]["verdict"], ""]
     if results["label"] == "PILOT":
         lines += ["**PILOT — every freeze pin below is null and this attempt "
@@ -1740,12 +1732,15 @@ def results_markdown(results: dict) -> str:
                      % (index, row.name, row.registered, matched))
     if results["decision"].get("causes"):
         lines += ["", "Causes: " + ", ".join(results["decision"]["causes"])]
-    lines += ["", "## E4 — high-kill run rate (primary)", "",
-              "The high-kill cut is PER LANGUAGE, each from its own paired "
-              "adequate denominator: " + "; ".join(
-                  "%s %s" % (language, block["statement"])
+    lines += ["", "## E4 — witness-input coverage against the shared reference "
+              "(primary)", "",
+              "**No cut, no τ, no dichotomy** (§5.1). Each language scores over "
+              "its OWN paired-adequate denominator: " + "; ".join(
+                  "%s %d mutants (lattice %s)"
+                  % (language, block["pairedAdequateMutants"],
+                     _fmt(block["lattice"]))
                   for language, block in sorted(
-                      (results.get("cuts") or {}).items())), "",
+                      (results.get("pairedDenominators") or {}).items())), "",
               # R1-19: both group counts, in one sentence, so neither can be
               # read as the other.
               "Pairing: %d witness groups in total, of which %d are shared and "
@@ -1757,62 +1752,94 @@ def results_markdown(results: dict) -> str:
                  (results.get("pairing") or {}).get("pairedAdequateJps", 0),
                  (results.get("pairing") or {}).get("pairedAdequateRego", 0)),
               "",
-              # ROUND-3 R3-9: the excluded-case column is gone. §4 registers
-              # no per-run excluded-case count, so a column of zeros for it
-              # taught every reader of RESULTS.md that a filter was applied.
-              "| Arm | Language | Cut | High-kill | Denominator | Rate | "
-              "95% CI | Identity pass | Out-of-domain cases |",
-              "|---|---|---|---|---|---|---|---|---|"]
+              # §5.8 makes the per-class imbalance a MANDATORY publication:
+              # §5.2's Fact 2 derives L2's structural between-language bias
+              # from it, so it is printed whatever the verdict.
+              "Shared classes: %d, of which %d carry unequal per-language "
+              "member counts (§5.2 Fact 2 — this imbalance is why the native "
+              "mutant level enters the family de-biased, as L2c)."
+              % ((results.get("sharedClasses") or {}).get("count", 0),
+                 (results.get("sharedClasses") or {}).get("unequalCount", 0)),
+              "",
+              "| Arm | Language | Admitted (ITT) | Per-protocol | "
+              "referenceIdentity | ownPolicyIdentity (E6) | Both | "
+              "Out-of-domain cases |",
+              "|---|---|---|---|---|---|---|---|"]
     for arm in batch.ARMS:
         entry = (results.get("e4") or {}).get(arm)
         if entry is None:
-            lines.append("| %s | — | — | — | — | — | — | — | — |" % arm)
+            lines.append("| %s | — | — | — | — | — | — | — |" % arm)
             continue
-        block = entry["highKillRate"]
-        lines.append("| %s | %s | %d | %d | %d | %s | %s | %d | %d |"
-                     % (arm, entry.get("language"), entry["cut"]["integerCut"],
-                        entry["highKill"], entry["denominator"],
-                        _fmt(block["rate"]), _fmt_ci(block["ci95"]),
-                        entry["referenceIdentityPass"],
+        lines.append("| %s | %s | %d | %d | %d | %d | %d | %d |"
+                     % (arm, entry.get("language"), entry["denominator"],
+                        entry["perProtocolDenominator"], entry["identityPass"],
+                        entry.get("ownPolicyIdentityPass", 0),
+                        entry.get("bothIdentitiesPass", 0),
                         entry.get("outOfDomainCases", 0)))
     lines += ["", "## E1 — gold agreement (control, expected at ceiling)", "",
-              "| Arm | Perfect | Runs | Rate | Floor held |", "|---|---|---|---|---|"]
+              "*Descriptive; published as an interpretation quantity that no "
+              "decision reads (§5.1, §5.7).*", "",
+              "| Arm | Perfect | Runs | Rate |", "|---|---|---|---|"]
     for arm in batch.ARMS:
         entry = (results.get("e1") or {}).get(arm)
         if entry is None:
-            lines.append("| %s | — | — | — | — |" % arm)
+            lines.append("| %s | — | — | — |" % arm)
             continue
-        lines.append("| %s | %d | %d | %s | %s |"
+        lines.append("| %s | %d | %d | %s |"
                      % (arm, entry["perfect"], entry["runs"],
-                        _fmt(entry["rate"]["rate"]),
-                        "yes" if entry["floorHeld"] else "**no**"))
-    lines += ["", "## The registered contrasts (fixed-sequence: A−C, then A−B)",
+                        _fmt(entry["rate"]["rate"])))
+    lines += ["", "## The registered family (fixed-sequence: A−C, then A−B)",
               ""]
-    gated_by = results.get("contrastsGatedBy") or []
+    gated_by = results.get("familyGatedBy") or []
     if gated_by:
         lines += ["**Not computed and not published.** %d gating row(s) matched "
-                  "above §5's substantive rows, and each adjudicates R1 in "
-                  "NEITHER direction — so no contrast, no interval and no "
+                  "above §5.9's substantive rows, and each adjudicates R1 in "
+                  "NEITHER direction — so no member, no p-value and no "
                   "direction exists for this attempt:" % len(gated_by), ""]
         lines += ["- %s" % cause for cause in gated_by]
     else:
-        lines += ["| Contrast | Counts | Denominators | Decided | Direction | "
-                  "Interval | Construction |", "|---|---|---|---|---|---|---|"]
+        lines += ["§5.4's intersection–union rule: R1 = CLAIM iff **all "
+                  "eighteen** members agree in the sign of the difference and "
+                  "**all eighteen** reject at two-sided α = 0.05. Removing a "
+                  "member is the anti-conservative direction, so every member "
+                  "is published whatever the verdict (§5.2).", "",
+                  "| Contrast | Members | Positive | Reject | Sign unanimous | "
+                  "All reject | Verdict |", "|---|---|---|---|---|---|---|"]
         for name in (decision.CONTRAST_PRIMARY, decision.CONTRAST_SECONDARY):
-            entry = (results.get("contrasts") or {}).get(name)
+            entry = (results.get("family") or {}).get(name)
             if entry is None:
                 lines.append("| %s | — | — | — | — | — | — |" % name)
                 continue
-            interval = entry.get("interval")
+            members = entry.get("members") or []
             lines.append(
-                "| %s | %d vs %d | %d, %d | %s | %s | %s | %s |"
-                % (name, entry["left"], entry["right"], entry["nLeft"],
-                   entry["nRight"],
-                   "**yes**" if entry["excludesZero"] else "no",
-                   decision.direction(entry),
-                   "—" if interval is None
-                   else "[%s, %s]" % (interval["lower"], interval["upper"]),
-                   entry.get("constructionName", "—")))
+                "| %s | %d | %d | %d | %s | %s | %s |"
+                % (name, len(members),
+                   sum(1 for member in members
+                       if (member.get("difference") or 0) > 0),
+                   sum(1 for member in members if member.get("rejects")),
+                   "**yes**" if entry.get("signUnanimous") else "no",
+                   "**yes**" if entry.get("allReject") else "no",
+                   "CLAIM" if entry.get("claim")
+                   else "INDETERMINATE-BY-DISAGREEMENT"))
+        for name in (decision.CONTRAST_PRIMARY, decision.CONTRAST_SECONDARY):
+            entry = (results.get("family") or {}).get(name)
+            if entry is None:
+                continue
+            lines += ["", "### %s — the eighteen members (§5.5's mandatory "
+                      "reprint)" % name, "",
+                      "| id | level | engine | population | adj | n (A/B/C) | "
+                      "difference | p | rejects |",
+                      "|---|---|---|---|---|---|---|---|---|"]
+            for member in entry.get("members") or []:
+                lines.append(
+                    "| %s | %s | %s | %s | %s | %s | %s | %s | %s |"
+                    % (member.get("id"), member.get("level"),
+                       member.get("engine"), member.get("population"),
+                       member.get("adjustment") or "—",
+                       member.get("n") or "—",
+                       _fmt(member.get("difference")),
+                       _fmt(member.get("p")),
+                       "yes" if member.get("rejects") else "no"))
     lines += ["", "## E2 — authoring-validity profile", "",
               "| Arm | Code | Side | Count |", "|---|---|---|---|"]
     for arm in batch.ARMS:
@@ -1913,7 +1940,7 @@ def _declare_unresolved(attempt_root: str, label: str, unfilled: list,
         "shortfallDeclared": ["%d of %d registered slots, declared: %s"
                               % (shape["present"], shape["registered"],
                                  declaration.get("reason"))],
-        "controlGates": {}, "contrasts": {}})
+        "controlGates": {}, "family": {}})
     results = {
         "study": STUDY_NAME,
         "attemptRoot": os.path.basename(os.path.normpath(attempt_root)),
@@ -1923,8 +1950,8 @@ def _declare_unresolved(attempt_root: str, label: str, unfilled: list,
         "pinsRawSha256": pins_raw_sha256,
         "batchShape": shape,
         "e1": None, "e2": None, "e3": None, "e4": None, "e5": None,
-        "contrasts": {},
-        "contrastsGatedBy": verdict["causes"],
+        "family": {},
+        "familyGatedBy": verdict["causes"],
         "controlGates": {},
         "refusals": {"scoring": "the batch was declared short and is DECLARED "
                                 "rather than scored; no endpoint, no rate and no "
@@ -2133,7 +2160,7 @@ def main(argv=None) -> int:
                                        pins_raw_sha256, shape)
 
         tools.require()
-        workspace = tempfile.mkdtemp(prefix="study019-attempt-")
+        workspace = tempfile.mkdtemp(prefix="study020-attempt-")
         canary = engines.capabilities_canary(tools, workspace)
         gold_path = os.path.join(STUDY, GOLD_RELATIVE)
         with open(gold_path, "rb") as handle:
@@ -2145,14 +2172,19 @@ def main(argv=None) -> int:
             os.path.join(STUDY, MUTANT_JPS_DIR),
             os.path.join(STUDY, MUTANT_REGO_DIR))
         pairing, paired_ids = e4lib.build_pairing(mutants)
-        # ROUND-1 R1-1: ONE CUT PER LANGUAGE, each from its own paired-adequate
-        # denominator, each asserted reachable. The single JPS-derived cut this
-        # replaces was handed to every arm while each arm's kill denominator
-        # stayed language-specific, so a PERFECT Rego suite could not reach it
-        # and the primary endpoint was impossible for arms B and C.
-        cuts = e4lib.high_kill_cuts(paired_ids)
+        # §7 delta 2. 019's round-1 R1-1 was ONE cut derived from the JPS
+        # denominator and applied to every arm; 020 keeps the half that matters
+        # — each language's denominator and lattice stay separate and are
+        # published — and removes the threshold that sat on top of them. There
+        # is no number here a run is judged AGAINST.
+        denominators = e4lib.paired_denominators(paired_ids)
         for language in ("jps", "rego"):
-            print("tau cut (%s): %s" % (language, cuts[language]["statement"]))
+            print("paired denominator (%s): %s"
+                  % (language, denominators[language]["statement"]))
+        # §5.1's units: the shared witness classes the coverage set is over.
+        shared = e4lib.shared_classes(pairing)
+        print("shared classes: %d (%d with unequal per-language membership)"
+              % (shared["count"], shared["unequalCount"]))
         # Section 4's engine-supplied-kill list, from the FROZEN manifests
         # (SCAFFOLD item S9). A language whose manifest carries no
         # `engineSuppliedKill` member refuses by name and its arm reports the
@@ -2179,6 +2211,10 @@ def main(argv=None) -> int:
                    "engineSupplied": {language: (ids or ())
                                       for language, ids
                                       in engine_supplied.items()},
+                   "classes": shared["classes"],
+                   "pairing": pairing,
+                   "sharedClasses": shared,
+                   "pairedDenominators": denominators,
                    "referenceA": os.path.join(STUDY, REFERENCE_A_RELATIVE),
                    "referenceB": os.path.join(STUDY, REFERENCE_B_RELATIVE)}
         floor_gate = references_reproduce_gold(
@@ -2196,8 +2232,8 @@ def main(argv=None) -> int:
             e3[arm] = e3_taxonomy(runs)
             language = LANGUAGE_OF_ARM[arm]
             e4_by_arm[arm] = e4_endpoint(
-                arm, runs, cuts[language], engine_supplied[language],
-                reduced_paired[language])
+                arm, runs, denominators[language], engine_supplied[language],
+                reduced_paired[language], shared["classes"])
 
         try:
             stimulus = census_lib.registered_stimulus(gold, gold_sha256)
@@ -2225,7 +2261,9 @@ def main(argv=None) -> int:
                             or counted[arm]["timeoutRate"]["rate"]
                             <= (pins.get("batch") or {}).get("timeoutRateCap", 0)
                             for arm in batch.ARMS)},
-            "e1-floor": {"held": all(e1[arm]["floorHeld"] for arm in batch.ARMS)},
+            # §5.7: NO `e1-floor` row. The gate is not registered, so it is
+            # not evaluated and not published — `decision.CONTROL_GATES` does
+            # not name it, and an unnamed gate cannot be silently satisfied.
             # ROUND-1 R1-8: every scored invocation of this attempt returned an
             # answer. A pinned engine refusing on a frozen reference or a frozen
             # mutant is an apparatus failure, and neither counting it as a kill
@@ -2243,11 +2281,11 @@ def main(argv=None) -> int:
         # (`decision.gate_causes()`), so a row added there cannot be a row this
         # forgets.
         outcome = {"pipelineProblems": [], "shortfallDeclared": [],
-                   "controlGates": gates, "contrasts": {}}
+                   "controlGates": gates, "family": {}}
         gate_causes = decision.gate_causes(outcome)
-        contrasts = registered_contrasts(e4_by_arm, outcome, refusals,
-                                         gate_causes)
-        outcome["contrasts"] = contrasts
+        family = registered_family(e4_by_arm, per_arm_runs, context, outcome,
+                                   refusals, gate_causes)
+        outcome["family"] = family
         verdict = decision.decide(outcome)
 
         # ROUND-2 R2-12, and this is the only place any interval is computed.
@@ -2310,20 +2348,19 @@ def main(argv=None) -> int:
                         "pairedAdequateJps": len(paired_ids["jps"]),
                         "pairedAdequateRego": len(paired_ids["rego"]),
                         "unpairable": e4lib.unpairable(mutants, paired_ids)},
-            "cuts": cuts,
+            "pairedDenominators": denominators,
+            "sharedClasses": shared,
             "e1": e1, "e2": e2, "e3": e3, "e4": e4_by_arm, "e5": e5,
-            "contrasts": contrasts,
-            "contrastsGatedBy": gate_causes,
+            "family": family,
+            "familyGatedBy": gate_causes,
             "controlGates": gates,
             "refusals": refusals,
             "perArmRuns": [
                 {key: value for key, value in run.items()
-                 # Three members are working state, not published bytes: two
-                 # workspace paths are absolute paths and a scored case list is
+                 # Two members are working state, not published bytes: a
+                 # workspace path is an absolute path and a scored case list is
                  # the author's own input document repeated per mutant.
-                 # `artifactPath` joined them in 020 with E6, which needs the
-                 # run's own policy on disk and must not publish where it sat.
-                 if key not in ("suitePath", "scoredCases", "artifactPath")}
+                 if key not in ("suitePath", "scoredCases")}
                 for arm in batch.ARMS for run in per_arm_runs[arm]],
             "reviewerSet": reviewer_set,
             "decision": verdict,

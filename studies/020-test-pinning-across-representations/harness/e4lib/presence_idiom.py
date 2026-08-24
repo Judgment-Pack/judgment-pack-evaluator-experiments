@@ -197,7 +197,7 @@ def parse_policy(tools: engines.Toolchain, policy_path: str,
     the reason §2 gives about reading verdicts from payloads rather than from
     exit codes, and for the stronger reason that a second grammar is a second
     thing that can disagree with the engine the study actually runs."""
-    code, out, err = engines.opa_parse(tools, policy_path, workdir)
+    code, out, err = engines.opa_parse_tree(tools, policy_path, workdir)
     if code != 0:
         raise PresenceIdiomError(
             "PRESENCE-IDIOM-PARSE-REFUSED `opa parse` exited %s on an ADMITTED "
