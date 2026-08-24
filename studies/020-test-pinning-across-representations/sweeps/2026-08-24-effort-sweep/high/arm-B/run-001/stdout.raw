@@ -1,0 +1,516 @@
+POLICY:
+```rego
+package study
+
+evidence_doc := object.get(input, "evidence", {})
+
+financial_state := object.get(evidence_doc, "financial-evidence", "unreported")
+
+insurance_state := object.get(evidence_doc, "insurance-certificate", "unreported")
+
+determination(disposition) := {
+	"disposition": disposition,
+	"reasons": [],
+}
+
+unresolved(reason) := {
+	"disposition": "unresolved",
+	"reasons": [reason],
+}
+
+risk_values(vendor) := {value} if {
+	value := object.get(vendor, "riskScore", "unreadable")
+	value != "unreadable"
+}
+
+risk_values(vendor) := {value | some value in numbers.range(0, 100)} if {
+	object.get(vendor, "riskScore", "unreadable") == "unreadable"
+}
+
+spend_values(vendor) := {value} if {
+	value := object.get(vendor, "requestedSpend", "unreadable")
+	value != "unreadable"
+}
+
+spend_values(vendor) := {
+	0,
+	100000.01,
+	500000.01,
+	2000000.01,
+} if {
+	object.get(vendor, "requestedSpend", "unreadable") == "unreadable"
+}
+
+country_values(vendor) := {value} if {
+	value := object.get(vendor, "countryRisk", "unreadable")
+	value != "unreadable"
+}
+
+country_values(vendor) := {"LOW", "MEDIUM", "HIGH"} if {
+	object.get(vendor, "countryRisk", "unreadable") == "unreadable"
+}
+
+readable_outcome(vendor) := determination("reject") if {
+	object.get(vendor, "sanctionsStatus", "UNKNOWN") == "MATCH"
+} else := unresolved("no-match") if {
+	object.get(vendor, "sanctionsStatus", "UNKNOWN") == "UNKNOWN"
+} else := unresolved("exception-escalation") if {
+	vendor.sanctionsStatus == "CLEAR"
+	vendor.countryRisk == "HIGH"
+	vendor.requestedSpend > 2000000
+} else := determination("review") if {
+	vendor.sanctionsStatus == "CLEAR"
+	object.get(vendor, "criticalSupplier", "no") == "yes"
+} else := determination("reject") if {
+	vendor.sanctionsStatus == "CLEAR"
+	vendor.riskScore >= 90
+} else := determination("reject") if {
+	vendor.sanctionsStatus == "CLEAR"
+	vendor.countryRisk == "HIGH"
+	vendor.riskScore >= 70
+} else := determination("reject") if {
+	vendor.sanctionsStatus == "CLEAR"
+	object.get(vendor, "priorEnforcement", "no") == "yes"
+} else := determination("approve") if {
+	vendor.sanctionsStatus == "CLEAR"
+	vendor.countryRisk == "LOW"
+	vendor.riskScore < 40
+	vendor.requestedSpend <= 500000
+} else := determination("approve") if {
+	vendor.sanctionsStatus == "CLEAR"
+	vendor.countryRisk == "LOW"
+	vendor.riskScore < 40
+	vendor.requestedSpend > 500000
+	vendor.requestedSpend <= 2000000
+	insurance_state == "present"
+} else := determination("enhanced-review") if {
+	vendor.sanctionsStatus == "CLEAR"
+	vendor.countryRisk == "LOW"
+	vendor.riskScore < 40
+	vendor.requestedSpend > 500000
+	vendor.requestedSpend <= 2000000
+	insurance_state == "absent"
+} else := unresolved("unknown") if {
+	vendor.sanctionsStatus == "CLEAR"
+	vendor.countryRisk == "LOW"
+	vendor.riskScore < 40
+	vendor.requestedSpend > 500000
+	vendor.requestedSpend <= 2000000
+	insurance_state == "unreported"
+} else := determination("approve") if {
+	vendor.sanctionsStatus == "CLEAR"
+	vendor.countryRisk == "LOW"
+	vendor.riskScore >= 40
+	vendor.riskScore < 70
+	vendor.requestedSpend <= 100000
+	object.get(vendor, "newVendor", "no") != "yes"
+} else := determination("approve") if {
+	vendor.sanctionsStatus == "CLEAR"
+	vendor.countryRisk == "MEDIUM"
+	vendor.riskScore < 40
+	vendor.requestedSpend <= 100000
+} else := determination("review") if {
+	vendor.sanctionsStatus == "CLEAR"
+}
+
+possible_outcomes contains outcome if {
+	some risk in risk_values(input.vendor)
+	some spend in spend_values(input.vendor)
+	some country in country_values(input.vendor)
+
+	readable_vendor := object.union(input.vendor, {
+		"riskScore": risk,
+		"requestedSpend": spend,
+		"countryRisk": country,
+	})
+
+	outcome := readable_outcome(readable_vendor)
+}
+
+decision := unresolved("missing-required-evidence") if {
+	financial_state == "absent"
+}
+
+decision := unresolved("unknown") if {
+	financial_state == "unreported"
+}
+
+decision := outcome if {
+	financial_state == "present"
+	count(possible_outcomes) == 1
+	some outcome in possible_outcomes
+}
+
+decision := unresolved("unknown") if {
+	financial_state == "present"
+	count(possible_outcomes) > 1
+}
+```
+
+TESTS:
+```rego
+package study_test
+
+import data.study
+
+base_vendor := {
+	"riskScore": 10,
+	"requestedSpend": 1000,
+	"sanctionsStatus": "CLEAR",
+	"countryRisk": "LOW",
+	"newVendor": "no",
+	"criticalSupplier": "no",
+	"priorEnforcement": "no",
+}
+
+full_evidence := {
+	"financial-evidence": "present",
+	"insurance-certificate": "present",
+}
+
+vendor(overrides) := object.union(base_vendor, overrides)
+
+vendor_without(keys, overrides) := object.union(
+	object.remove(base_vendor, keys),
+	overrides,
+)
+
+request(vendor_facts, evidence_facts) := {
+	"vendor": vendor_facts,
+	"evidence": evidence_facts,
+}
+
+determination(disposition) := {
+	"disposition": disposition,
+	"reasons": [],
+}
+
+unresolved(reason) := {
+	"disposition": "unresolved",
+	"reasons": [reason],
+}
+
+cases := {
+	"P1 absent evidence overrides rejection": {
+		"input": request(
+			vendor({"sanctionsStatus": "MATCH"}),
+			{"financial-evidence": "absent"},
+		),
+		"expected": unresolved("missing-required-evidence"),
+	},
+	"P1 unreported evidence is unknown": {
+		"input": request(
+			vendor({"sanctionsStatus": "MATCH"}),
+			{"insurance-certificate": "present"},
+		),
+		"expected": unresolved("unknown"),
+	},
+	"D1 sanctions match rejects despite critical status": {
+		"input": request(
+			vendor({
+				"sanctionsStatus": "MATCH",
+				"criticalSupplier": "yes",
+				"countryRisk": "HIGH",
+				"requestedSpend": 3000000,
+			}),
+			full_evidence,
+		),
+		"expected": determination("reject"),
+	},
+	"D2 unknown sanctions has no match": {
+		"input": request(
+			vendor({
+				"sanctionsStatus": "UNKNOWN",
+				"criticalSupplier": "yes",
+			}),
+			full_evidence,
+		),
+		"expected": unresolved("no-match"),
+	},
+	"D3 critical risk rejects": {
+		"input": request(
+			vendor({"riskScore": 90}),
+			full_evidence,
+		),
+		"expected": determination("reject"),
+	},
+	"D4 high country threshold rejects": {
+		"input": request(
+			vendor({
+				"riskScore": 70,
+				"countryRisk": "HIGH",
+				"requestedSpend": 2000000,
+			}),
+			full_evidence,
+		),
+		"expected": determination("reject"),
+	},
+	"D5 prior enforcement rejects": {
+		"input": request(
+			vendor({
+				"riskScore": 1,
+				"priorEnforcement": "yes",
+			}),
+			full_evidence,
+		),
+		"expected": determination("reject"),
+	},
+	"D6a includes five hundred thousand": {
+		"input": request(
+			vendor({
+				"riskScore": 39,
+				"requestedSpend": 500000,
+			}),
+			{"financial-evidence": "present"},
+		),
+		"expected": determination("approve"),
+	},
+	"D6a is not suspended for a new vendor": {
+		"input": request(
+			vendor({
+				"newVendor": "yes",
+				"riskScore": 39,
+				"requestedSpend": 500000,
+			}),
+			full_evidence,
+		),
+		"expected": determination("approve"),
+	},
+	"D6b present insurance approves": {
+		"input": request(
+			vendor({
+				"riskScore": 39,
+				"requestedSpend": 500000.01,
+			}),
+			full_evidence,
+		),
+		"expected": determination("approve"),
+	},
+	"D6b absent insurance enhances review": {
+		"input": request(
+			vendor({
+				"riskScore": 39,
+				"requestedSpend": 2000000,
+			}),
+			{
+				"financial-evidence": "present",
+				"insurance-certificate": "absent",
+			},
+		),
+		"expected": determination("enhanced-review"),
+	},
+	"D6b unreported insurance is unknown": {
+		"input": request(
+			vendor({
+				"riskScore": 39,
+				"requestedSpend": 1000000,
+			}),
+			{"financial-evidence": "present"},
+		),
+		"expected": unresolved("unknown"),
+	},
+	"D6c approves existing vendor at boundaries": {
+		"input": request(
+			vendor({
+				"riskScore": 40,
+				"requestedSpend": 100000,
+			}),
+			full_evidence,
+		),
+		"expected": determination("approve"),
+	},
+	"O1 suspends D6c for new vendor": {
+		"input": request(
+			vendor({
+				"riskScore": 40,
+				"requestedSpend": 100000,
+				"newVendor": "yes",
+			}),
+			full_evidence,
+		),
+		"expected": determination("review"),
+	},
+	"unreported statuses use their no defaults": {
+		"input": request(
+			vendor_without(
+				["newVendor", "criticalSupplier", "priorEnforcement"],
+				{
+					"riskScore": 40,
+					"requestedSpend": 100000,
+				},
+			),
+			full_evidence,
+		),
+		"expected": determination("approve"),
+	},
+	"D7 medium country approves at boundaries": {
+		"input": request(
+			vendor({
+				"countryRisk": "MEDIUM",
+				"riskScore": 39,
+				"requestedSpend": 100000,
+			}),
+			full_evidence,
+		),
+		"expected": determination("approve"),
+	},
+	"D8 reviews unmatched clear request": {
+		"input": request(
+			vendor({
+				"countryRisk": "MEDIUM",
+				"riskScore": 39,
+				"requestedSpend": 100000.01,
+			}),
+			full_evidence,
+		),
+		"expected": determination("review"),
+	},
+	"O2 overrides automatic rejection": {
+		"input": request(
+			vendor({
+				"criticalSupplier": "yes",
+				"riskScore": 95,
+			}),
+			full_evidence,
+		),
+		"expected": determination("review"),
+	},
+	"O2 overrides D6b unreported insurance": {
+		"input": request(
+			vendor({
+				"criticalSupplier": "yes",
+				"riskScore": 20,
+				"requestedSpend": 1000000,
+			}),
+			{"financial-evidence": "present"},
+		),
+		"expected": determination("review"),
+	},
+	"O3 overrides critical and rejection clauses": {
+		"input": request(
+			vendor({
+				"countryRisk": "HIGH",
+				"requestedSpend": 2000000.01,
+				"riskScore": 95,
+				"criticalSupplier": "yes",
+				"priorEnforcement": "yes",
+			}),
+			full_evidence,
+		),
+		"expected": unresolved("exception-escalation"),
+	},
+	"O3 does not apply at exactly two million": {
+		"input": request(
+			vendor({
+				"countryRisk": "HIGH",
+				"requestedSpend": 2000000,
+				"riskScore": 50,
+			}),
+			full_evidence,
+		),
+		"expected": determination("review"),
+	},
+	"U1 unreadable country still rejects at risk 95": {
+		"input": request(
+			vendor_without(
+				["countryRisk"],
+				{
+					"riskScore": 95,
+					"requestedSpend": 1000000,
+				},
+			),
+			full_evidence,
+		),
+		"expected": determination("reject"),
+	},
+	"U1 unreadable spend can vary between review and escalation": {
+		"input": request(
+			vendor_without(
+				["requestedSpend"],
+				{
+					"countryRisk": "HIGH",
+					"riskScore": 50,
+				},
+			),
+			full_evidence,
+		),
+		"expected": unresolved("unknown"),
+	},
+	"U1 critical supplier does not depend on unreadable risk": {
+		"input": request(
+			vendor_without(
+				["riskScore"],
+				{
+					"criticalSupplier": "yes",
+					"countryRisk": "LOW",
+					"requestedSpend": 100,
+				},
+			),
+			full_evidence,
+		),
+		"expected": determination("review"),
+	},
+	"U1 unreadable country and spend can reach O3": {
+		"input": request(
+			vendor_without(
+				["countryRisk", "requestedSpend"],
+				{"criticalSupplier": "yes"},
+			),
+			full_evidence,
+		),
+		"expected": unresolved("unknown"),
+	},
+	"U1 O3 does not depend on unreadable risk": {
+		"input": request(
+			vendor_without(
+				["riskScore"],
+				{
+					"countryRisk": "HIGH",
+					"requestedSpend": 3000000,
+				},
+			),
+			full_evidence,
+		),
+		"expected": unresolved("exception-escalation"),
+	},
+	"U1 unreadable risk has differing ordinary outcomes": {
+		"input": request(
+			vendor_without(
+				["riskScore"],
+				{
+					"countryRisk": "LOW",
+					"requestedSpend": 100,
+				},
+			),
+			full_evidence,
+		),
+		"expected": unresolved("unknown"),
+	},
+	"U1 sanctions match ignores all unreadable numeric inputs": {
+		"input": request(
+			vendor_without(
+				["riskScore", "requestedSpend", "countryRisk"],
+				{"sanctionsStatus": "MATCH"},
+			),
+			full_evidence,
+		),
+		"expected": determination("reject"),
+	},
+	"U1 unknown sanctions ignores all unreadable numeric inputs": {
+		"input": request(
+			vendor_without(
+				["riskScore", "requestedSpend", "countryRisk"],
+				{"sanctionsStatus": "UNKNOWN"},
+			),
+			full_evidence,
+		),
+		"expected": unresolved("no-match"),
+	},
+}
+
+test_vendor_approval_policy[name] if {
+	some name, test_case in cases
+	actual := study.decision with input as test_case.input
+	actual == test_case.expected
+}
+```

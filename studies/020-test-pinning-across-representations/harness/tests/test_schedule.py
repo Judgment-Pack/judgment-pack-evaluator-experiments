@@ -289,18 +289,14 @@ def test_the_registered_batch_shape_is_the_registrations(preregistration):
     """§2 "Batch shape" states the ceiling and the cap in prose; the driver
     derives them. A one-sided edit names its own drift site.
 
-    **THE ROUND COUNT IS DELIBERATELY NOT ASSERTED AGAINST PROSE HERE, AND THAT
-    IS A REGISTERED FINDING RATHER THAN A GAP.** 019's prose stated "N = 50
-    runs/arm, 150 slots" and this test read that sentence. 020's §2 states no N
-    at all: it carries "**TODO(prereg): the re-derived call order, the attained
-    position spread, and the re-pinned `batch.order` / `batch.n` /
-    `batch.slots`** — they are functions of N, which §2.1 registers as an output
-    of the pre-pilot sweep", and §2.1 carries the matching TODO for the compute
-    condition. So what is asserted is the state the registration is actually in:
-    the TODO is present, no round count is claimed as registered, and the
-    registry's own block says the same thing in its note. The day the sweep runs
-    and §2 is filled, THIS test is the one that must be tightened to read the
-    number — and it names that obligation rather than leaving it to a memory."""
+    **TIGHTENED 2026-08-24, exactly as its earlier form obliged.** Pre-sweep,
+    this test asserted the honestly-open state: §2's schedule TODO present, no
+    round count claimed, the registry's note saying PORT CARRY. The sweep ran,
+    §2 and §2.1 filled, and this is the tightening the old docstring named:
+    the FILLED marker is present with N = 60 and 180 slots read from the
+    prose, the compute-condition fill is present, and the registry's block is
+    asserted registered by `test_the_registry_says_its_round_count_is_
+    registered_at_sixty`."""
     # Emphasis, code marks and the blockquote markers are stripped before the
     # prose is read, the same treatment `tests/test_partition.py` gives §1a:
     # they are wrapping decisions and the registration is the sentence. The
@@ -313,26 +309,27 @@ def test_the_registered_batch_shape_is_the_registrations(preregistration):
     assert "Per-call timeout ceiling: 2700 s" in flat
     assert "timeout rate above the registered cap (10 % of slots)" in flat
     assert batch.CALL_TIMEOUT_SECONDS == 2700
-    # The registration's own statement that N is not yet registered.
-    assert ("TODO(prereg): the re-derived call order, the attained position "
-            "spread, and the re-pinned batch.order / batch.n / batch.slots"
+    # The registration's own statement of the registered N, post-fill.
+    assert ("FILLED, 2026-08-24 — the schedule at the registered N = 60/arm"
             in flat)
-    assert ("TODO(prereg) — the registered compute condition: the "
-            "codex.reasoningEffort value and the per-arm N" in flat)
+    assert "batch.order / batch.n = 60 / batch.slots = 180" in flat
+    assert ("FILLED, 2026-08-24 — the registered compute condition: "
+            "codex.reasoningEffort = low, per-arm N = 60" in flat)
     assert ("carryover-balanced schedule for three arms, re-derived at 020's "
             "registered round count and asserted by a harness test" in flat)
 
 
-def test_the_registry_says_its_round_count_is_not_yet_a_registration(pins):
-    """The registry's half of the same finding. §7 delta 7 requires
+def test_the_registry_says_its_round_count_is_registered_at_sixty(pins):
+    """The registry's half of the same finding, POST-FILL. §7 delta 7 required
     `batch.order` / `batch.n` / `batch.slots` to be RE-PINNED at the registered
-    round count; until §2.1's sweep has run there is no such count, so the block
-    carries 019's numbers and says so in its own note. A note that merely
-    described them as carried would let a reader take them for a registration —
-    this asserts the note names the delta and the TODO it waits on."""
+    round count; §2.1's sweep ran and its fill registered N = 60 — the branch
+    §5.6's Tier C size simulation and power ladder, the dual-pricing table and
+    §5.2's realised-n arithmetic all price — with the order re-derived at 60
+    rounds (ten whole blocks, no tail, spreads (0, 1)). The note records the
+    flip from the PORT CARRY sentence this test asserted before the fill."""
     note = pins["batch"]["note"]
-    assert "NOT YET A STUDY 020 REGISTRATION" in note
-    assert "§7 delta 7" in note
+    assert "REGISTERED AT N = 60/ARM" in note
+    assert "operable-condition-match" in note
     assert "pre-pilot effort sweep" in note
     assert "derive-schedule" in note
     # …and the derivation that will replace them is named as data, so the

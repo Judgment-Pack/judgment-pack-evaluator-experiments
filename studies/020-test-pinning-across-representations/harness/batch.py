@@ -416,9 +416,11 @@ SEQUENCES = 2 * POSITIONS  # six: the three cyclic rows and those three reversed
 # `REGISTERED_SLOTS = 150` and a two-element `TAIL`, and `derive_order()`'s
 # docstring recorded the registered floor (1, 1) as the cached answer to a
 # search AT 50 ROUNDS. §2 says it plainly: "at any other round count that
-# assertion is wrong by construction". 020's N is an OUTPUT of §2.1's pre-pilot
-# sweep and does not exist yet, so a literal here would be a number this file
-# invented — which is precisely the defect the delta names.
+# assertion is wrong by construction". 020's N was an OUTPUT of §2.1's pre-pilot
+# sweep — registered 2026-08-24 as N = 60 by the fill, with the order re-derived
+# at 60 rounds — so a literal here would still be a number this file invented,
+# which is precisely the defect the delta names: the registry carries the count,
+# this file carries the derivation.
 #
 # What is registered instead is the DERIVATION. The round count, the block
 # order, the tail and the attained spreads are read from `harness/PINS.json`'s
@@ -1995,7 +1997,11 @@ def transcript_verdict(slot: str, arm: str, pins: dict,
         os.path.join(slot, "CALL.json"),
         golden_path,
         model=(pins.get("codex") or {}).get("model"),
-        arm=arm)
+        arm=arm,
+        # The `gate-5-extension` seat (§2.1's M-24 branch): the PIN, never
+        # CALL.json's own stamp — comparing the transcript to the wrapper's
+        # stamp would re-implement the self-report branch M-24 did not take.
+        effort=(pins.get("codex") or {}).get("reasoningEffort"))
 
 
 def bind_transcript(slot: str, entry: dict, pins: dict,
@@ -2028,7 +2034,8 @@ def bind_transcript(slot: str, entry: dict, pins: dict,
         "armPromptSha256": arm_prompt(pins, entry["arm"])[1],
         "note": "The full transcript binding for this slot: the arm's prompt "
                 "bytes, the golden pre-prompt context, the retained completion, "
-                "the turn-context model and cwd, and the recorded exit status. "
+                "the turn-context model, cwd and pinned reasoning effort "
+                "(§2.1's gate-5 extension), and the recorded exit status. "
                 "Written by batch.py before the seal, so it is inside the "
                 "manifest and the ledger chain. Recorded by batch.py; "
                 "harness/score.py recomputes this verdict from the same retained "
@@ -3764,7 +3771,8 @@ def effort_witness(session_path: str) -> dict:
     carry exactly one, `collaboration_mode.settings.reasoning_effort: null`, and
     reporting "no occurrences" about a transcript that has one would make the
     next reader re-do this work to find out whether the member was absent or
-    present-and-empty. `transcript_check.py:603-608` would refuse every call
+    present-and-empty. A membership-idiom turn-context binding (gate 5's
+    model clause shape) would refuse every call
     against that null, which is the fact M-24 is a ruling about.
 
     THIS FUNCTION AMENDS NOTHING. It reports which branch fired; extending gate
@@ -3820,7 +3828,8 @@ def effort_witness(session_path: str) -> dict:
             "otherOccurrences and does not decide it. A null occurrence is "
             "reported under nullOccurrences and is NOT a witness: 019's "
             "transcripts carry exactly one such member and "
-            "transcript_check.py:603-608 would refuse every call against it."),
+            "a membership-idiom turn-context binding would refuse every call "
+            "against it, which is why the gate-5 extension binds by value."),
         "obligation": (
             "transcript gate 5 is EXTENDED to this member, with the same "
             "turn-context-mismatch reason tag and the same apparatus-side "
@@ -3886,12 +3895,14 @@ def _token_total(record):
 def sweep_budget_n(pins: dict) -> tuple:
     """`(N, which branch it came from)` for the abort rule's projection.
 
-    `batch.n` is NULL by construction until this sweep produces it, so the
-    projection is made at the ONE branch §2.1's dual-pricing table prices —
-    `N = 60/arm` — and the ledger records that it was the priced branch and not
-    a registered N. A registry that has since filled `batch.n` is projected at
-    THAT value, and the ledger records that instead. The driver never picks the
-    cheaper of the two."""
+    `batch.n` was NULL by construction until the sweep's outputs registered it
+    (the 2026-08-24 sweep projected at the then-carried port value, and §2.1's
+    fill then registered N = 60); over a registry with no count the projection
+    falls to the ONE branch §2.1's dual-pricing table prices — `N = 60/arm` —
+    and the ledger records that it was the priced branch and not a registered
+    N. A registry that carries `batch.n` is projected at THAT value, and the
+    ledger records that instead. The driver never picks the cheaper of the
+    two."""
     registered = (pins.get("batch") or {}).get("n")
     if isinstance(registered, int) and not isinstance(registered, bool) \
             and registered > 0:

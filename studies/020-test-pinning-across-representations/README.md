@@ -74,19 +74,30 @@ coverage is identical and only authoring validity differs**.
 - [`harness/`](harness) — Study 019's machinery, inherited by port (`PREREGISTRATION.md` §7).
   [`harness/PORTS.md`](harness/PORTS.md) is the two-sided digest table with an enumerated
   change list per row; [`harness/PINS.json`](harness/PINS.json) is the registry, with **every
-  freeze pin null**; [`harness/SCAFFOLD.md`](harness/SCAFFOLD.md) is the register of what the
+  freeze pin null** and both design-time pins resolved (`gpt-5.6-sol`, effort `low` — §2.1's
+  fill); [`harness/SCAFFOLD.md`](harness/SCAFFOLD.md) is the register of what the
   port leaves owed, item by item, with the freeze gated on each;
   [`harness/POWER-PRESENCE-IDIOM.md`](harness/POWER-PRESENCE-IDIOM.md) is §3.2's pre-freeze
-  power analysis for the presence-idiom guard.
+  power analysis for the presence-idiom guard, with the counterfactual per-member shift
+  computed by [`harness/counterfactual_shift.py`](harness/counterfactual_shift.py) and
+  published at `harness/COUNTERFACTUAL-SHIFT.json`.
+- [`sweeps/`](sweeps) — §2.1's pre-pilot effort sweep, run 2026-08-24 under the registered
+  label: 27/27 calls, the published table (`SWEEP.md`, with per-arm perfect and identity rates
+  scored by [`harness/sweep_rates.py`](harness/sweep_rates.py)), and the two earlier
+  invocations the wrapper preflight-refused in full, retained under `refused-attempt-*/`. The
+  registered compute condition chosen from it: **`low`, N = 60/arm** (§2.1's fill), with M-24's
+  witness resolution taken on branch `gate-5-extension`.
+- [`CORRECTION-TARGETS.md`](CORRECTION-TARGETS.md) — §10's register of where a correction must
+  land, T1–T7, uncovered by design.
 - [`policy/POLICY.md`](policy/POLICY.md) — the frozen policy prose, ported byte-for-byte from
   Study 019. This study drafts none of its own.
 
-**What the harness port did NOT bring.** The registered study artifacts of §4.1 — the gold
+**The §4.1 artifacts are IN THIS TREE** (`harness/SCAFFOLD.md` item A1, CLOSED): the gold
 suite, both mutant corpora, both reference implementations, the off-gold certificate and the
-verification documents — are ported by digest and are a `GATE(pre-freeze)`
-(`harness/SCAFFOLD.md` item A1). They are not in this tree yet, `harness/PINS.json` records each
-one's 019-side digest under a `…AtSource` member, and every harness test that reads one skips by
-a named reason rather than passing vacuously.
+verification documents, each bound file by file against Study 019's frozen lock by
+`integrity.verify_ported_artifacts()`. An earlier revision of this front door described them as
+absent with `…AtSource` expectation members; that was the pre-port state, and the members
+recording absences are gone with it.
 
 ## The ceiling, stated now
 

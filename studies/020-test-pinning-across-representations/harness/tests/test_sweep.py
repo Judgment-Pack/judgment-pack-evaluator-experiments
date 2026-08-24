@@ -102,26 +102,25 @@ class TheRegisteredSet(unittest.TestCase):
         self.assertIn("registered 2026-08-24, before the sweep", text)
         self.assertIn("Naming three tiers is not choosing one", text)
 
-    def test_the_chosen_condition_todo_is_still_open(self):
-        """The set is registered; the CHOICE is not. A registration that closed
-        both would have chosen the compute condition before the sweep that is
-        registered to produce it."""
+    def test_the_chosen_condition_todo_is_filled(self):
+        """The set was registered before the sweep; the CHOICE was made from
+        the sweep's published output by the named rule, and every carrier of
+        the condition agrees: the preregistration's fill, the sweep registry
+        block, and the effort pin."""
         text = prereg_text()
-        self.assertIn("TODO(prereg) — the registered compute condition", text)
-        self.assertIn("stays open", text)
-        self.assertIsNone(registry()["sweep"]["chosenSetting"])
-        self.assertIsNone(registry()["codex"]["reasoningEffort"])
-        # `batch.n` USED to be the third witness of the same fact — null by
-        # construction until the sweep produced it. §7 delta 7 landed the
-        # derivation, and `batch.py` now reads the block at import, so a null
-        # there is a driver that cannot load rather than a registration that is
-        # honestly open. The registry carries Study 019's independently
-        # re-derived count instead, and says in its own note that it is a PORT
-        # CARRY and "NOT YET A STUDY 020 REGISTRATION"; that sentence is what
-        # this assertion reads, and `tests/test_schedule.py`'s
-        # `test_the_registry_says_its_round_count_is_not_yet_a_registration`
+        self.assertIn("FILLED, 2026-08-24 — the registered compute condition",
+                      text)
+        self.assertIn("operable-condition-match", text)
+        self.assertEqual(registry()["sweep"]["chosenSetting"], "low")
+        self.assertEqual(registry()["codex"]["reasoningEffort"], "low")
+        # `batch.n` is the third carrier of the same fact. Pre-fill it held
+        # 019's count as a PORT CARRY and this assertion read that sentence;
+        # §2.1's fill registered N = 60 (the branch §5.6's simulations price)
+        # with the order re-derived at 60 rounds, and the note's flip sentence
+        # is what this assertion reads now. `tests/test_schedule.py`'s
+        # `test_the_registry_says_its_round_count_is_registered_at_sixty`
         # drives the rest of it.
-        self.assertIn("NOT YET A STUDY 020 REGISTRATION",
+        self.assertIn("REGISTERED AT N = 60/ARM",
                       registry()["batch"]["note"])
 
     def test_the_registry_and_the_driver_carry_one_set(self):
@@ -170,12 +169,16 @@ class TheRegisteredSet(unittest.TestCase):
         self.assertIn("`-c model_reasoning_effort=<tier>`", text)
         self.assertIn("**CLOSED, 2026-08-24**", text)
 
-    def test_the_witness_half_of_that_todo_is_still_open(self):
-        """A spelling is resolvable from `--help`; a witness needs a call. The
-        registration says which half closed and which did not."""
-        self.assertIn("TODO(prereg) — the witness-resolution outcome",
-                      prereg_text())
-        self.assertIsNone(registry()["codex"]["reasoningEffortWitness"])
+    def test_the_witness_half_of_that_todo_is_closed(self):
+        """A spelling was resolvable from `--help`; the witness needed a call,
+        and the sweep's step zero supplied it: branch `gate-5-extension`,
+        recorded in the pin and filled into the preregistration, with the
+        gate's extension landing in the same change set."""
+        text = prereg_text()
+        self.assertIn("The WITNESS half is **CLOSED, 2026-08-24", text)
+        self.assertIn("gate-5-extension", text)
+        self.assertEqual(registry()["codex"]["reasoningEffortWitness"],
+                         "gate-5-extension")
 
 
 # --- the schedule --------------------------------------------------------------
@@ -278,7 +281,7 @@ class TheWitnessResolution(unittest.TestCase):
 
     def test_a_null_member_is_not_a_witness_and_takes_the_self_report_branch(self):
         """Branch two, on 019's ACTUAL state: the member is present and holds
-        null, which `transcript_check.py:603-608` would refuse every call
+        null, which a membership-idiom turn-context binding would refuse every call
         against. Reporting "no occurrences" here would make the next reader
         re-do this work to learn whether it was absent or empty."""
         session = transcript(self.path("null.jsonl"), [

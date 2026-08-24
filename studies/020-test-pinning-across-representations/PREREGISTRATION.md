@@ -378,9 +378,15 @@ pins carry 019's resolved values and are re-verified fail-closed at run time.
   test**. 019's `batch.py` hard-codes `SEQUENCES = 6`, `ROUNDS = 50`, `RUNS_PER_ARM = 50`,
   `REGISTERED_SLOTS = 150` and a two-element `TAIL`, and `derive_order()`'s docstring records the
   registered floor (1, 1) as the cached answer to a search **at 50 rounds**; at any other round
-  count that assertion is wrong by construction. **TODO(prereg): the re-derived call order, the
-  attained position spread, and the re-pinned `batch.order` / `batch.n` / `batch.slots`** — they
-  are functions of N, which §2.1 registers as an output of the pre-pilot sweep.
+  count that assertion is wrong by construction. **FILLED, 2026-08-24 — the schedule at the
+  registered N = 60/arm** (§2.1's fill: the sweep supplied the operability evidence and the
+  prices, and the named rule chose the condition): `batch.order` / `batch.n` = 60 /
+  `batch.slots` = 180, re-derived at 60 rounds by `derive_order()`'s exhaustive search — ten
+  whole Williams blocks, NO tail (60 divides by 6), attained position spread 0 and
+  directed-transition spread 1, no self-successions — asserted by `harness/tests/
+  test_schedule.py` against the REGISTRY's published spreads. The 50-round port carry it
+  replaces (8 blocks + a two-sequence tail, spreads (1, 1)) is recorded in the registry's own
+  order note as history.
 - **Registered batch window**: stated **once**, here, as three consecutive UTC calendar days, with
   a test that no other document in this tree states a different one (019's D-4 filed a deviation
   against a rule 019 did have; the defect was duplicated constants, not the rule).
@@ -412,22 +418,125 @@ i.e. **8.85×**. A swept setting at pilot-like durations therefore costs 8.85× 
 
 | line | calls | wall clock, registered condition | wall clock, pilot-like durations |
 |---|---|---|---|
-| pre-pilot effort sweep, 3 settings × 3/arm | 27 | 0.29 h | 2.57 h |
+| pre-pilot effort sweep, 3 settings × 3/arm | 27 | 0.87 h | 7.72 h |
 | pilot, 12/arm (C1–C5) | 36 | 1.16 h | 10.29 h |
-| D-1/D-2 smoke (real exec, stand-in binary permitted) | ~6 | ~0.06 h | ~0.51 h |
+| D-1/D-2 smoke (real exec, stand-in binary permitted) | ~6 | ~0.19 h | ~1.72 h |
 | primary batch, N = 60/arm | 180 | 5.82 h | 51.46 h (2.14 d) |
-| **total at N = 60, no author-side gate (M-23 = a)** | **~249** | **~7.3 h** | **~64.8 h** |
+| **total at N = 60, no author-side gate (M-23 = a)** | **~249** | **~8.05 h** | **~71.2 h** |
+
+> **CORRECTION (pre-freeze, found by the fill's verification pass, 2026-08-24).** This table
+> first printed the sweep row as 0.29 h / 2.57 h and the smoke row as 0.06 h / 0.51 h — each a
+> threefold understatement: both rows divided calls by nine instead of by three (27 calls are
+> NINE round-triples, not three), while the pilot and batch rows used the correct basis. The
+> corrected totals are ~8.05 h and **~71.2 h** — the pilot-like branch leaves roughly 1 %
+> headroom against the 72 h budget, not the ~10 % the first printing implied. The observed
+> sweep corroborates the corrected basis: it cost 1.44 h, 1.65× the corrected registered-
+> condition row and 5× the erroneous one. The xhigh-exclusion paragraph below quoted the
+> erroneous 2.57 h and is corrected with the same note.
 
 The N = 60 rows are **priced illustrations of one branch, not a registered N.** M-13's
 `ownPolicyIdentity` invocation adds one **engine** call per run — no authoring call, no line in
 this table, and its cost is bounded by the pinned engine's per-invocation ceiling.
 
-> **TODO(prereg) — the registered compute condition: the `codex.reasoningEffort` value and the
-> per-arm N.** Both are outputs of the sweep and cannot exist before it runs. The registered
-> obligation: the sweep's full per-setting table (per-arm durations, completion bytes,
-> `reasoning_output_tokens`, per-arm perfect and identity rates) is published, the chosen setting
-> is named with the rule that chose it, and this section is filled and re-priced at that setting's
-> own observed durations before the pilot runs.
+> **FILLED, 2026-08-24 — the registered compute condition: `codex.reasoningEffort = low`,
+> per-arm N = 60.** The sweep ran 27/27 under the registered label with zero apparatus codes,
+> zero timeouts and no per-setting abort (two earlier invocations were preflight-refused in
+> full by the wrapper with zero spend, for operator error; `DEVIATIONS.md`'s operational record
+> and `sweeps/refused-attempt-0{1,2}-*/` carry them). The full per-setting table — per-arm
+> durations, completion bytes, `reasoning_output_tokens`, and the per-arm perfect and identity
+> rates — is published at `sweeps/2026-08-24-effort-sweep/SWEEP.md`. The rates are the one
+> quantity the driver's own registration forbids it computing; they were scored post-sweep by
+> `harness/sweep_rates.py` — a covered, tested publisher authored after the sweep to discharge
+> this fill's registered obligation, with per-slot detail in `SWEEP-RATES.json` and **no kill
+> quantity computed, by registered scope** (an endpoint-adjacent figure over n = 3 has no
+> registered use before the pilot). The per-arm means, reprinted (triples computed from the
+> ledger's unrounded means, then rounded once):
+>
+> | setting | A mean s | B mean s | C mean s | round triple s | batch at N = 60 | perfect (A/B/C) | identity (A/B/C) |
+> |---|---|---|---|---|---|---|---|
+> | low | 231.6 | 81.2 | 90.8 | 403.5 | 6.72 h | 0/3 · 2/3 · 0/3 | 3/3 · 2/3 · 1/3 |
+> | medium | 298.6 | 123.3 | 112.3 | 534.2 | 8.90 h | 1/3 · 2/3 · 2/3 | 3/3 · 1/3 · 2/3 |
+> | high | 433.6 | 181.2 | 174.0 | 788.7 | 13.15 h | 1/3 · 1/3 · 3/3 | 3/3 · 1/3 · 1/3 |
+>
+> **The rule that chose the setting, named: the operable-condition-match rule.** Choose the
+> pinned model's own catalog default tier — the only tier condition-matched to Study 019's
+> batch (§2a.6: pinning a HIGHER effort demotes §5.6's dispersion figures from calibration to
+> prior; the catalog records `low` as `gpt-5.6-sol`'s `default_reasoning_level`, the tier 019's
+> batch implicitly ran at — a catalog inference, not a witnessed fact of 019, exactly as
+> `codex.modelNote` records) — PROVIDED the sweep shows that tier operable: all nine of its
+> calls complete under the apparatus ceiling with no apparatus code, and the projected batch at
+> the registered N fits the 72 h budget. If the default tier fails operability, step upward to
+> the first tier that passes — N unchanged, the same budget check applied at each step — taking
+> §2a.6's dispersion demotion (and the loss of condition-match the demotion prices) as the
+> recorded cost; if NO swept tier passes, the sweep has chosen nothing, no pilot runs, and the
+> study halts pre-pilot with the sweep published as its record. `low` passed operability — 9/9
+> complete, max call 294.1 s against the 2700 s ceiling, 6.72 h projected at N = 60 — so the
+> rule chose **`low`** without reaching either fallback branch.
+>
+> **When the rule was named, stated plainly.** §2.1 registered pre-sweep that "the chosen
+> setting is named with the rule that chose it" — at fill time, not before the sweep. This rule
+> is therefore NAMED AFTER the durations and rates existed, and the fill does not pretend
+> otherwise. What bounds the operator's hand is not the rule's date but its inputs: a
+> registered fact that predates the sweep (§2a.6's condition-match adjudication), a measured
+> catalog fact that predates the sweep (the swept-set paragraphs above), and the sweep's
+> operability columns (codes, timeouts, durations). Its operability reading is STRICTER than
+> the registered abort rule (any apparatus code, not only a first-arm-A ceiling breach) and
+> binds nothing retroactively, because all 27 calls were clean under both readings.
+>
+> **What the rule deliberately does not read.** It does not read the published perfect or
+> identity rates: at n = 3/arm those rates cannot support a quality-ranked choice, and a tier
+> chosen because its three runs looked good would be the picked-not-swept condition this
+> section's swept-set paragraph exists to forbid. One registered decision DOES read rates at
+> the chosen condition with this sweep on the record, and it is named rather than denied:
+> §2a.4(2)'s minimum viable derived value is declared by the maintainer after the sweep and
+> before the pilot — its registered window — so its declarant has seen this table; the review
+> round audits the declared number against exactly that exposure. The rates otherwise stand as
+> **Tier D description, `citable: false`, outside every population, licensing no direction and
+> steering no later decision**: each setting authored at least one gold-perfect run in some
+> arm; §3.2's presence-idiom guard **fired in fresh authoring** (four B/C runs across `low` and
+> `high` carry `presence-idiom-unsound`, the code's first live firings outside 019's
+> retrospective); and at `low`, arm A's profile — 0/3 gold-perfect beside 3/3 identity — has
+> the same shape as its 019 near-miss anatomy (0/38 perfect at that batch's bar), an
+> observation about a 3-run cell, not a comparison of rates across unequal denominators. The
+> 12/arm calibration pilot at the chosen condition (§2a) is the registered instrument for
+> rate-based calibration.
+>
+> **N = 60, and why.** The branch the registration itself prices and certifies: §5.6's Tier C
+> size simulation (2,000 replicates; Tier C 0.002 / 0.001 / 0.000 under its three null
+> channels) is stated at **N = 60/arm**, as are its observed-validity-gap power ladder's
+> central column, §2.1's dual-pricing table and §5.2's realised-n arithmetic illustration — so
+> the registered batch runs at the N its own operating characteristics were demonstrated at,
+> rather than at a count no simulation in this document prices. (The first draft of this fill
+> registered N = 50, 019's round count, on the claim that §5.6's figures were computed there;
+> the pre-commit verification pass refuted that claim — §5.6 simulates at N = 60 — and this
+> fill was corrected before any registration carried the wrong count.) The sweep's role for N
+> is the budget check: at `low`'s observed round triple (403.5 s) the batch prices at
+> **6.72 h, 9.3 % of the 72 h budget**, inside the three-UTC-day window with an order of
+> magnitude to spare. `harness/PINS.json`'s `batch` block accordingly flips from PORT CARRY to
+> REGISTERED at n = 60 / slots = 180, with the order re-derived at 60 rounds by the registered
+> search — ten whole Williams blocks, no tail, attained spreads (0, 1), a strictly cleaner
+> balance than the 50-round carry it replaces — and `sweep.chosenSetting` carries the choice
+> as data. The ledger's own projection lines print the batch at the THEN-CARRIED `batch.n` =
+> 50 (5.60 h at `low`), exactly as `budgetProjectionNote` registers; the registered figure is
+> this fill's, at 60.
+>
+> **Re-priced at the chosen setting's own observed durations** (superseding the corrected
+> table above's 019-triple illustration):
+>
+> | line | calls | wall clock at `low`'s observed means |
+> |---|---|---|
+> | pre-pilot effort sweep (SPENT, all three settings, observed) | 27 | 1.44 h |
+> | pilot, 12/arm (C1–C5) | 36 | 1.34 h |
+> | D-1/D-2 smoke | ~6 | ~0.22 h |
+> | primary batch, N = 60/arm | 180 | 6.72 h |
+> | **total** | **~249** | **~9.7 h** |
+>
+> **The §2a.6 branch this choice takes:** `low` is not "a higher reasoning effort", so 019's
+> batch REMAINS condition-matched and §5.6's dispersion figures remain a calibration; the
+> pilot's own re-derivation (§2a.6's TODO) still runs and republishes the MDE table at the
+> registered N = 60 before the freeze. The condition 019 could not prove is now pinned AND
+> witnessed: every sweep call's `CALL.json` stamps the tier, and the witness resolution below
+> makes the stamp checkable at gate 5.
 
 **Per-setting abort rule, registered before the sweep.** A setting whose **first** arm-A call
 exceeds **2700 s** (the registered per-call ceiling) is aborted after that call; a setting whose
@@ -449,33 +558,45 @@ Measured against the pinned binary rather than asserted, on 2026-08-24, with no 
 - `codex exec --help` at `codex-cli 0.145.0`, digest `sha256:a2a05daf…` (`codex.binarySha256`),
   names **no reasoning-effort flag at all**. The only spelling the pinned CLI accepts is the
   config override **`-c model_reasoning_effort=<tier>`** — `-c` is the argv flag and
-  `model_reasoning_effort` is a `ConfigToml` field of this build. This resolves the *spelling*
-  half of the `TODO(prereg)` below; the *witness* half stays open, because it needs a call.
+  `model_reasoning_effort` is a `ConfigToml` field of this build. This resolved the *spelling*
+  half at registration time; the *witness* half needed a call, and the sweep's step zero
+  supplied it (the fill below).
 - `codex debug models` renders the build's own model catalog offline. Over its **eight** models the
   tier vocabulary is `low`, `medium`, `high`, `xhigh`, `max`, `ultra`; the four universally
   supported ones are **`low`, `medium`, `high`, `xhigh`** (8/8 each), while `max` is absent from
-  five models and `ultra` from six. The swept set is the **three lowest of that universally
+  four models and `ultra` from six. The swept set is the **three lowest of that universally
   supported four**, so it survives whichever model `codex.model` is eventually pinned to.
-- Every model's own `default_reasoning_level` lies **inside** that set — `low` for `gpt-5.6-sol`,
-  the model Study 019's batch ran, and `medium` for the other seven. The set therefore contains
-  the default 019's batch implicitly ran at, and extends from it monotonically upward in cost.
+- Every model's own `default_reasoning_level` lies **inside** the supported four — `low` for
+  `gpt-5.6-sol`, the model Study 019's batch ran, `medium` for six, and `high` for one
+  (`gpt-5.3-codex-spark`). The set therefore contains the default 019's batch implicitly ran at,
+  and extends from it monotonically upward in cost.
+
+> **CORRECTION (pre-freeze, found by the fill's verification pass, 2026-08-24).** This
+> paragraph — registered as "measured against the pinned binary rather than asserted" — first
+> printed `max` as absent from five models (it is absent from four: 4/8 support it) and the
+> defaults as "`medium` for the other seven" (they are `medium` for six and `high` for one).
+> Both were recounted against the same pinned binary with no model call. Neither error touches
+> the swept set or the rule's load-bearing input: the universal four and `gpt-5.6-sol`'s `low`
+> default are confirmed. `harness/PINS.json`'s `sweep.settingsProvenance` carries the same
+> correction.
 
 **Why the set stops below `xhigh`, stated rather than implied.** `xhigh` is as available as the
 three swept tiers, so its exclusion is a **budget** decision and not an availability one, and it
-is registered as such: the dual-pricing table above already puts a 27-call sweep at 2.57 h and an
-`N = 60` batch at 51.46 h *at pilot-like durations under the default effort*, and a fourth tier
+is registered as such: the dual-pricing table above (as corrected) already puts a 27-call sweep
+at 7.72 h and an `N = 60` batch at 51.46 h *at pilot-like durations under the default effort*, and a fourth tier
 above `high` adds nine more calls to a sweep whose own abort rule is written for the case where
 the tiers already registered run long. `xhigh`, `max` and `ultra` are therefore **not swept**, and
 are reachable only by a `DEVIATIONS.md` entry naming the reason and republishing the price, under
 the cap clause immediately above — the same clause that governs raising the 27-call cap, because
 reaching a costlier tier is the same act as buying more calls. `max` and `ultra` carry the further
-defect that they are absent from most of the catalog, so a sweep over them would not be a sweep
-the model pin is free to move within.
+defect of partial catalog support — `ultra` absent from most models, `max` from half — so a sweep
+over them would not be a sweep the model pin is free to move within.
 
-**What this registers, and what it does not.** It names the swept SET, which must exist before the
-sweep can run. It does **not** name the chosen condition: the `TODO(prereg)` above — the
-`codex.reasoningEffort` value and the per-arm N together — stays open, and both remain outputs of
-the sweep. Naming three tiers is not choosing one.
+**What this registered, and what it did not.** It named the swept SET, which had to exist before
+the sweep could run. It did **not** name the chosen condition: that stayed open — the
+`codex.reasoningEffort` value and the per-arm N together, both outputs of the sweep — until the
+sweep ran and the fill above closed it by the named rule.
+Naming three tiers is not choosing one, and the record keeps the two moments distinct.
 
 **Where the set is carried, and the mode's name.** The set is `harness/PINS.json`'s
 `sweep.settings` and `harness/batch.py`'s `SWEEP_SETTINGS`; `harness/tests/test_sweep.py` binds
@@ -504,7 +625,7 @@ member and its null-⇒-PILOT test, moved out of §7's ported-unchanged list, an
 passes it explicitly and `CALL.json` stamps it. **There is no transcript witness to bind it to
 today**: 019's `session.jsonl` carries exactly one `turn_context` record whose payload names
 `model` and no effort member, and the only occurrence of `reasoning_effort` anywhere is an
-override slot holding `null` — against which `transcript_check.py:603-608` would refuse every
+override slot holding `null` — against which gate 5's membership idiom (`transcript_check.py`'s `turn-context-mismatch` clauses; a line span cited here before the fill was stale for 020's copy) would refuse every
 call. Registered instead: **a witness-resolution step at pin time, run before the sweep**, which
 sets the flag and inspects the resulting `session.jsonl` for a non-null member naming the effort.
 
@@ -517,18 +638,35 @@ sets the flag and inspects the resulting `session.jsonl` for a non-null member n
   published record of the condition. 019's medians, for the band's calibration: **A 2067.5** over
   48 runs, **B 502.5** over 38, **C 696** over 39.
 
-> **TODO(prereg) — the witness-resolution outcome.** The FLAG'S SPELLING half of this TODO is
+> **The witness-resolution outcome — BOTH HALVES CLOSED.** The FLAG'S SPELLING half is
 > **CLOSED, 2026-08-24**: the pinned CLI exposes no reasoning-effort flag, and the registered
 > spelling is the config override `-c model_reasoning_effort=<tier>`, carried as
 > `codex.reasoningEffortFlag` (`-c`) and `codex.reasoningEffortConfigKey`
 > (`model_reasoning_effort`) so the wrapper still reads it from the registry and still refuses to
-> guess it. The WITNESS half stays open, because it needs a call: it is resolved as **step zero of
-> the sweep** — `harness/batch.py sweep` inspects the FIRST sweep call's own `session.jsonl` for a
-> non-null member naming the effort and records which M-24 branch fired into `SWEEP.json`, so the
-> resolution is made from a call the sweep was going to spend anyway rather than from an extra
-> probe. The branch taken is recorded here afterwards and the corresponding gate-5 change (or its
-> registered absence) lands with it; the sweep publishes the branch, it does not amend gate 5 on
-> its own authority.
+> guess it. The WITNESS half is **CLOSED, 2026-08-24 — branch `gate-5-extension`**, resolved as
+> registered: step zero of the sweep, over the FIRST sweep call's own retained transcript
+> (`sweeps/2026-08-24-effort-sweep/low/arm-A/run-001/session.jsonl`,
+> `sha256:78983d57099d078231622b24005ea28e7daeaee96c7c99c16ceeb53cc785cb01`). The
+> `turn_context` record carries TWO non-null members naming the effort —
+> `collaboration_mode.settings.reasoning_effort: "low"` and top-level `effort: "low"` — with
+> zero null occurrences and zero occurrences outside `turn_context`. The registered resolution
+> is run-001's, exactly as the step registers; the 26 sibling transcripts are retained beside
+> it, each carrying the same members with its own setting's tier, re-derivable by any reader
+> from the published slots (and re-derived exhaustively by this fill's verification pass —
+> a check on retained bytes, not a second resolution). The effort pin is therefore NOT a self-report, and the
+> corresponding gate-5 change lands with this fill, before the primary batch, exactly as
+> registered: `harness/transcript_check.py`'s gate 5 binds `codex.reasoningEffort` beside the
+> model and the cwd — by path, over both witnessed spellings, over EVERY `turn_context`, with
+> the same `turn-context-mismatch` reason tag and the same apparatus-side classification, and
+> with a member PRESENT-AND-NULL (019's actual shape) being neither a witness nor a mismatch,
+> mirroring the sweep step's own null-is-not-a-witness rule. The self-report band
+> (`reasoning_output_tokens` into C4) is NOT taken and stands as the registered
+> branch-not-taken. One citation correction travels with this fill: the pre-resolution text
+> above cited `transcript_check.py:603-608`, a line span true of 019's copy and stale in
+> 020's (the port note shifted the module by nine lines); the published `SWEEP.json` note
+> carries the same stale span as immutable published bytes, and `DEVIATIONS.md`'s operational
+> record notes it — the clause is the gate's `turn-context-mismatch` membership idiom,
+> wherever it sits.
 
 ## 2a. Calibration under registered conditions — C1 to C5
 
@@ -1034,7 +1172,10 @@ The family is the crossing **{L1, L3, L2c} × {engine-included, engine-excluded}
    published whether or not R1 fires.
 
    > **TODO(prereg) — each member's registered per-arm n.** A function of N (§2.1) and of the
-   > realised-n arithmetic below; both are filled with the compute condition, before the freeze.
+   > realised-n arithmetic below. **N resolved 2026-08-24 (§2.1's fill: 50/arm), so this TODO is
+   > UNBLOCKED**; the arithmetic is applied at N = 50 in the §5 analysis-set pass and this entry
+   > fills before the freeze — deliberately not in the same edit as the condition, so the §5
+   > numbers land in one reviewed pass rather than scattered.
 
 **Realised-n arithmetic, shown rather than asserted, at the illustrative N = 60 branch.** Derived
 from 019's `population.*.apparatusCodes` (A: `registry-mismatch` 9, `slot-shape` 2,
@@ -1569,7 +1710,14 @@ here rather than discovered in the results.
 4. **Tier C's power depends on a quantity 020 cannot know in advance** (the per-arm authoring-validity
    rate), and in the regime where it looks powered, six of eighteen members are near-automatically
    satisfied by a channel that is not the construct (§5.6).
-5. **The reasoning-effort pin may be a recorded intention, not a verified condition** (§2.1, M-24).
+5. ~~The reasoning-effort pin may be a recorded intention, not a verified condition~~ **RETIRED
+   BY MEASUREMENT, 2026-08-24** (§2.1, M-24): the sweep's witness-resolution step found the
+   effort named non-null in `turn_context` and gate 5 now binds the pin against the transcript,
+   so the ceiling's condition — no witness exists — measured false. It is struck rather than
+   deleted so the record shows a registered ceiling can retire only by the registered
+   resolution step, never by editing. What remains true and is NOT retired: the pin binds the
+   REQUESTED tier; no transcript member proves what the service did with it beyond the
+   reasoning-token counts it returned.
 6. **019's pilot compute condition is unrecoverable**, so no transfer gate can be evaluated against it
    on the model, isolation or reasoning-token rows; service-side drift over 2026-08-15 → 2026-08-21
    cannot be excluded (§2a.1).

@@ -237,10 +237,11 @@ fi
 #
 #   the PRIMARY state — codex.reasoningEffort is filled, the flag is passed
 #   explicitly, and CALL.json stamps the value, so every retained slot records
-#   the condition it ran under whether or not a transcript witnesses it (M-24:
-#   019's session.jsonl carries no effort member, so the stamp may be the ONLY
-#   record, and the preregistration says in terms that such a pin is a recorded
-#   intention);
+#   the condition it ran under. M-24's witness resolution (2026-08-24) took the
+#   gate-5-extension branch: the transcript's own turn_context names the
+#   effort, and transcript_check.py's gate 5 binds the pin against it, so the
+#   stamp is checkable rather than the only record (the self-report reading
+#   this comment once carried was the branch not taken);
 #
 #   the SWEEP state — the sweep is the procedure that RESOLVES the value, so a
 #   gate that refuses a null effort refuses the sweep's own input. M-25 registers
@@ -892,11 +893,14 @@ with open(out + "/CALL.json", "w") as handle:
         "credentialRemoved": credential_removed == "true",
         "ignoreUserConfig": True,
         "model": model,
-        # M-24: the effort condition, stamped by the WRAPPER. Where no
-        # transcript witness exists this stamp is the only record of it, which
-        # `reasoningEffortWitnessed: false` says in the slot's own bytes rather
-        # than leaving a reader to infer it from an absence. `pinLabel` and
-        # `citable` are what separate a sweep call from a registered one.
+        # M-24: the effort condition, stamped by the WRAPPER. The sweep's
+        # witness-resolution step (2026-08-24) took the `gate-5-extension`
+        # branch: the transcript's own turn_context names the effort, and
+        # transcript_check.py's gate 5 binds it against the PIN at scoring
+        # time. `reasoningEffortWitnessed: true` records that regime — the
+        # stamp is checkable against the transcript, not the only record of
+        # the condition. `pinLabel` and `citable` are what separate a sweep
+        # call from a registered one.
         #
         # FOUR members and not two, because the resolved spelling (2026-08-24)
         # is a config override and not a flag: `reasoningEffort` is the TIER
@@ -911,7 +915,7 @@ with open(out + "/CALL.json", "w") as handle:
         "reasoningEffortConfigKey": (effort_key or None) if effort_arg else None,
         "reasoningEffortArg": effort_arg or None,
         "reasoningEffortSource": effort_source,
-        "reasoningEffortWitnessed": False,
+        "reasoningEffortWitnessed": True,
         "pinLabel": pin_label,
         "citable": citable == "true",
         "cli": version,

@@ -34,9 +34,9 @@ publish, never an outcome.
 The verbatim wording of T1 cannot exist before the attempt; what is pinned is its closed
 vocabulary — the decision table's row strings as implemented by `harness/e4lib/decision.py`
 and published by `harness/score.py`, which are freeze-covered bytes — and the rule that
-`ANALYSIS.md` quotes the published string unedited. T6's wording likewise cannot exist
-before the sweep's table is published and §2.1's TODO is filled; the target binds the
-registered paths. For T2–T4 the current wording is whatever those files carry at the freeze
+`ANALYSIS.md` quotes the published string unedited. T6's wording exists as of 2026-08-24: the sweep's
+table is published and §2.1's fill names the condition (`low`, N = 60) with the rule that
+chose it; the target binds the registered paths and now their published content. For T2–T4 the current wording is whatever those files carry at the freeze
 commit; the correction obligation attaches to the row/sentence, not to a snapshot of it.
 
 ## Corrections already recorded against these targets (pre-freeze)
@@ -52,3 +52,11 @@ caught it is kept firing in CI
 Because this landed before the freeze, no `DEVIATIONS.md` entry attaches; it is recorded
 here so the audit trail shows the target's correction machinery working before it was
 needed in anger.
+
+**PREREGISTRATION.md §2.1, corrected 2026-08-24, pre-freeze (two registered-text errors,
+found by the fill's verification pass).** The dual-pricing table's sweep and smoke rows
+divided calls by nine instead of three (corrected totals ~8.05 h / ~71.2 h; the observed
+sweep corroborates the corrected basis), and the swept-set catalog paragraph miscounted
+`max`'s availability (4/8, not absent-from-five) and the default tiers (`medium` ×6 +
+`high` ×1). Both corrections stand in the document at the claims' own prominence with
+marked notes; neither touches the swept set or the rule's load-bearing input.

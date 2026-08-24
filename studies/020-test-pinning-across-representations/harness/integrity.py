@@ -84,11 +84,14 @@ whose every freeze pin is non-null labels it REGISTERED. The toolchain blocks
 (`jpack`, `opa`, `python`) are resolved at design time and carry Study 019's
 digests already; they are marked `resolvedAtDesignTime` and are enforced under
 both labels. `codex.model` and `codex.reasoningEffort` are the two DESIGN-TIME
-pins that are still unresolved (§2.1, M-24/M-25): they are not freeze pins,
-they are null, and a null in either one labels the run PILOT exactly as a null
-freeze pin does — with one registered exemption, the `--sweep` label, which
-exempts `codex.reasoningEffort` ALONE because the sweep is the procedure that
-resolves it.
+pins (§2.1, M-24/M-25), BOTH NOW RESOLVED — the model before the sweep, the
+effort by §2.1's fill from the sweep's output. They are not freeze pins, and
+the label rule they carried is unchanged: a null in either one labels the run
+PILOT exactly as a null freeze pin does, with one registered exemption, the
+`--sweep` label, which exempts `codex.reasoningEffort` ALONE because the sweep
+is the procedure that resolves it. The exemption is kept in the gate although
+its operative moment has passed: it is the registered record of how the sweep
+was able to run, and removing it would falsify the procedure's own history.
 """
 
 
@@ -187,10 +190,12 @@ NEW_IN_020 = frozenset((
     "harness/counterfactual_shift.py",
     "harness/e4lib/family.py",
     "harness/e4lib/presence_idiom.py",
+    "harness/sweep_rates.py",
     "harness/tests/test_counterfactual_shift.py",
     "harness/tests/test_family.py",
     "harness/tests/test_score_presence_idiom.py",
     "harness/tests/test_sweep.py",
+    "harness/tests/test_sweep_rates.py",
 ))
 
 # TIER PORTS (the second source-side authority, for the seven rows that have
@@ -282,8 +287,9 @@ FREEZE_PINS = (
     ("censusStimulusCount", ("censusStimulus", "count")),
 )
 
-# M-25, ruled 2026-08-23. The two DESIGN-TIME-RESOLVED pins that are not yet
-# resolved. `registeredLabelRule` names design-time-resolved pins as checked
+# M-25, ruled 2026-08-23. The two DESIGN-TIME-RESOLVED pins — both resolved as
+# of 2026-08-24 (the model before the sweep, the effort by §2.1's fill from the
+# sweep's output). `registeredLabelRule` names design-time-resolved pins as checked
 # "whether or not the freeze has happened", so a null in either one labels the
 # run PILOT exactly as a null freeze pin does — and `study_label()` reads BOTH
 # tuples, which is the whole of the restatement §7's delta 6 owes.

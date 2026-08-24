@@ -6,7 +6,13 @@
 kept as history; the binding that RUNS is 020's — `harness/integrity.py` verifies
 Study 019's lock first (`harness/STUDY-MANIFEST.sha256`, at the digest 019's own
 registry pins for it) and binds this file's source cell to 019's line for it.
-`PREREGISTRATION.md` §7 lists this file under "ported with no design change".
+This file carries ONE registered design change over 019's bytes — §2.1's
+`gate-5-extension` branch, taken 2026-08-24 by the sweep's witness-resolution
+step: gate 5 binds the pinned REASONING EFFORT beside the model and the cwd,
+by path, over both witnessed spellings, with null-and-absent both non-witnesses.
+`harness/PORTS.md`'s row for this file records the change, and §7's
+ported-unchanged sentence had already carved the seat out by name — "the
+transcript binding and its gates other than gate 5".
 
 PORTED from Study 012's own adapted bytes
 (sha256 64542bc5d6d8f6682a29dee870aa07feb5757db3941c48af581a974c2423a5b2 — the
@@ -16,11 +22,13 @@ harness/integrity.py binds this file to it): the retained codex session
 transcript is the authoring evidence, and the compiler's input must be exactly
 the completion that transcript records.
 
-**The check logic is not touched.** The `response_item` whitelist, the
-terminal-prompt rule, the leak denylist, the golden allowlist comparison, the
-completion byte binding, the `turn_context` model/cwd binding, the
-integer-exit-0 rule and duplicate-key rejection on every transcript line are
-Study 010's, through 011 and 012, unchanged. Two things change, and they are
+**The check logic carries one registered extension and is otherwise not
+touched.** The `response_item` whitelist, the terminal-prompt rule, the leak
+denylist, the golden allowlist comparison, the completion byte binding, the
+`turn_context` model/cwd binding, the integer-exit-0 rule and duplicate-key
+rejection on every transcript line are Study 010's, through 011 and 012,
+unchanged; the `turn_context` binding additionally names the pinned reasoning
+effort (the `gate-5-extension` above). Two further things change, and they are
 both SUBJECTS rather than rules:
 
 1. **`LEAK_TOKENS` is this study's vocabulary, not Study 012's, and it is
@@ -85,8 +93,11 @@ Admissibility:
    mechanical rather than asserted — a defect-informed prior turn refuses.
 4. At least one assistant message follows the prompt; the completion is
    the last of them, and completion.txt equals its UTF-8 bytes.
-5. `turn_context` (when the transcript carries it) names the locked model
-   and the call's own working directory.
+5. `turn_context` (when the transcript carries it) names the locked model,
+   the call's own working directory, and — when the effort pin is filled —
+   the pinned reasoning effort, in either of its two witnessed spellings
+   (`effort`, `collaboration_mode.settings.reasoning_effort`), a member
+   holding null being neither a witness nor a mismatch.
 6. `CALL.json` records integer exit status 0 (a JSON boolean is not an
    integer here).
 
@@ -233,7 +244,7 @@ class UnclassifiedRefusal(Exception):
 
 def classify(session_path: str, prompt_path: str, completion_path: str,
              call_path: str, golden_path: str, model: str = None,
-             arm: str = None) -> dict:
+             arm: str = None, effort: str = None) -> dict:
     """The full binding of `check()`, as a STRUCTURED verdict rather than as an
     exception — the entry point every scored slot goes through (R1-5).
 
@@ -249,7 +260,7 @@ def classify(session_path: str, prompt_path: str, completion_path: str,
     as an authoring outcome either."""
     try:
         check(session_path, prompt_path, completion_path, call_path,
-              golden_path, model=model, arm=arm)
+              golden_path, model=model, arm=arm, effort=effort)
     except (TranscriptError, CompletionUndecodable) as error:
         reason = getattr(error, "reason", None)
         if reason not in REASON_CAUSE:
@@ -548,7 +559,7 @@ def check_golden(session_path: str, call: dict, golden_path: str) -> None:
 
 def check(session_path: str, prompt_path: str, completion_path: str,
           call_path: str, golden_path: str, model: str | None = None,
-          arm: str | None = None) -> None:
+          arm: str | None = None, effort: str | None = None) -> None:
     """Admissible, or TranscriptError. `golden_path` is required (Study 010's
     optional default is gone): this study recaptures its own golden context,
     and an omitted allowlist would silently weaken every run's admission.
@@ -628,3 +639,49 @@ def check(session_path: str, prompt_path: str, completion_path: str,
                 "the call's own %r alone"
                 % (sorted(value for value in cwds if isinstance(value, str)),
                    call.get("cwd")), reason="turn-context-mismatch")
+    if effort is not None:
+        # §2.1's M-24 witness resolution took the `gate-5-extension` branch
+        # (sweeps/2026-08-24-effort-sweep, step zero): the pinned CLI's
+        # transcript names the reasoning effort in `turn_context`, in two
+        # spellings — the top-level `effort` member and the nested
+        # `collaboration_mode.settings.reasoning_effort` — so the effort pin is
+        # bound here exactly as the model is, same reason tag, same apparatus
+        # side. Three rules, each load-bearing:
+        #   - BY PATH, not by name scan: `effort` is a generic key that other
+        #     payload structures are free to carry for other quantities, and a
+        #     recursive name scan would read whatever a future transcript
+        #     format happens to call `effort` or `reasoning_effort` anywhere in
+        #     the payload; the gate reads exactly the two registered paths the
+        #     witness resolution certified and nothing else.
+        #   - a member PRESENT AND NULL is not a witness and not a mismatch:
+        #     019-format transcripts carry the nested member holding null in
+        #     every call, and the sweep's witness step already ruled a null
+        #     occurrence a non-witness; a membership test here would build
+        #     {None} and refuse every 019-shaped transcript, the exact failure
+        #     M-24 predicted of this module.
+        #   - EVERY turn_context, not merely one — the cwd clause's rule.
+        #   - a nested level that is not an object is an absent path, never an
+        #     exception: every other refusal in this module leaves through
+        #     `TranscriptError` with a reason and a side, and a malformed
+        #     `collaboration_mode` must not hand `classify()` an AttributeError
+        #     it has no classification for.
+        def _nested(payload):
+            mode = payload.get("collaboration_mode")
+            if not isinstance(mode, dict):
+                return None
+            settings = mode.get("settings")
+            if not isinstance(settings, dict):
+                return None
+            return settings.get("reasoning_effort")
+
+        named_efforts = set()
+        for context in contexts:
+            for value in (context.get("effort"), _nested(context)):
+                if value is not None:
+                    named_efforts.add(value)
+        if named_efforts and named_efforts != {effort}:
+            raise TranscriptError(
+                "the transcript's turn context names the reasoning effort %r, "
+                "not the pinned %r"
+                % (sorted(named_efforts), effort),
+                reason="turn-context-mismatch")

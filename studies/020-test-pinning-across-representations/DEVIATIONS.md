@@ -30,3 +30,50 @@ Named in advance so a reader knows what a silent absence would mean. Each is reg
 | A corrected or retracted R1 | §10 | the entry, plus a banner at the head of `ANALYSIS.md`, per `CORRECTION-TARGETS.md` |
 
 *(No entries.)*
+
+## Operational record — pre-freeze, not deviations
+
+Recorded here because the sweep driver's single-sweep gate names this file as the place a
+re-invocation is explained. Nothing below changed any registered text, and no model call was
+made or token spent in either refused attempt.
+
+- **2026-08-24, sweep attempt 1** (`sweeps/refused-attempt-01-leak-tokens/`): all 27 calls
+  preflight-refused by the wrapper's leak-token screen — the operator passed a `--scratch-parent`
+  under the session scratchpad, whose absolute path carries the study's own name. Zero spend.
+- **2026-08-24, sweep attempt 2** (`sweeps/refused-attempt-02-unregistered-label/`): all 27 calls
+  preflight-refused by the wrapper's slot anchor — the operator passed `--label
+  2026-08-24-effort-sweep-02`, which does not match the registered `<UTC date>-effort-sweep`
+  shape. Zero spend.
+- **2026-08-24, sweep attempt 3**: run under the registered label `2026-08-24-effort-sweep` from
+  a token-free scratch parent outside every worktree (`/tmp/s020sw`), after moving the two
+  refused records to the names above so the single-sweep gate sees a clear registered label.
+  Both refusals were the apparatus working as registered against operator error; neither
+  consumed the §2.1 cap, which counts calls made under the registered label's tree.
+  **Completed 27/27, zero apparatus codes, zero timeouts, zero aborts**; §2.1's fill carries
+  the table, the chosen condition (`low`, N = 50 by the operable-condition-match rule) and the
+  witness branch (`gate-5-extension`).
+- **2026-08-24, the rates the driver may not compute**: §2.1's fill obligation names per-arm
+  perfect and identity rates in the published sweep table, and the driver's registered
+  self-description forbids it computing any rate. `harness/sweep_rates.py` (registered,
+  covered, tested) scored the 27 slots through the registered components and appended the
+  rates section to `SWEEP.md` with `SWEEP-RATES.json` beside it. No kill quantity was
+  computed, by registered scope.
+- **2026-08-24, the §2.1 fill and its pre-commit adversarial verification**: the fill (chosen
+  condition `low` / N = 60, the witness branch, the gate-5 extension, the schedule re-derivation)
+  was verified by a four-lens adversarial pass before commit, which (a) refuted the fill's first
+  N-justification (it claimed §5.6's operating characteristics live at N = 50; they are stated at
+  N = 60, and the registered N was corrected to 60 with the order re-derived), (b) found two
+  errors in PRE-SWEEP registered text, both now corrected in place with marked notes — the
+  dual-pricing table's sweep and smoke rows divided calls by nine instead of three
+  (understating the pilot-like total as ~64.8 h where it is ~71.2 h against the 72 h budget),
+  and the catalog paragraph's `max` availability and default-tier counts — and (c) hardened the
+  gate-5 extension against malformed `turn_context` payloads with the driver seat made
+  mutation-visible. All findings and their dispositions are visible in the fill's own text and
+  the round-1 reviewer sees this entry.
+- **2026-08-24, a stale line citation inside published sweep bytes**: `SWEEP.json`'s
+  witness-resolution note cites `transcript_check.py:603-608`, which is the correct span in
+  STUDY 019's copy and stale for 020's (the port note shifted the module by nine lines; the
+  clause is gate 5's `turn-context-mismatch` membership idiom). The published ledger's bytes
+  stand as published; the living carriers of the citation (`PREREGISTRATION.md`,
+  `harness/batch.py`, `harness/tests/test_sweep.py`) now name the clause instead of a line
+  span.
