@@ -20,3 +20,33 @@ the ruling adopts it. M-1 was answered 2026-08-22 (**BOTH**; the two-tier footin
 Rulings on the construct (M-18/M-26), the condition (M-8/M-20), and the amendment (M-15)
 were put to the maintainer as explicit forks and answered 2026-08-23; the remainder adopt
 the brief's recommendations as a block, so ruled and so recorded.
+
+## M-14 verdict (2026-08-23, forensic read complete — a third mechanism, proven both ways)
+
+Neither candidate. **One Rego language-semantics error — `"key" in object` tests values,
+not keys — is the arm-B/C E1 collapse.** The presence test gating U1 (`"riskScore" in
+input.vendor`) is false even when the member is present, so every input is judged
+unreadable, the candidate sweep fires on every row, and the grid almost never collapses
+to a singleton → `unresolved:[unknown]`. Evidence, bidirectional: run-011 reproduces
+RESULTS.json exactly (31/86/0); repairing only that operator takes it to 117/117 and,
+across all 40 affected runs, makes 26 perfect and improves 32; mutating the correct
+idiom out of 8 perfect runs collapses 8/8 to the exact observed signature including the
+`eval_conflict_error` pattern. Discriminator: 40 of 76 B+C policies use bare-object
+`in` → zero perfect; all 22 perfect runs avoid it. The ROW-ERRORs are the same bug's
+conflict face (B 94%, C 100% — and C's 89 are a single run), not a second mechanism.
+Counterfactual E1 under this one repair: **B 0.267 → 0.800, C 0.467 → 0.767 — both hold
+the 0.6 floor.** Three corrections to the brief's framing are recorded with it: run-011
+carries zero ROW-ERRORs; arm C's are one run's; the dominant class is the all-unknown
+collapse (25 of 37 failing runs).
+
+**Design consequence, measured not argued:** neither of 020's planned repairs touches
+this — the wire-form contract was already stated and followed, and the prompt's bundled
+Rego reference already flags the exact trap (`"foo" in {"foo": 1} # false`) yet it fired
+in 40 of 76 runs. More prose is demonstrated ineffective. The preregistration must
+therefore decide an **engine-level or admission-level guard** (a lint-style presence-
+idiom check, or a registered authoring-checklist admission step requiring
+`object.keys`/`object.get(...) != null` for presence), registered with its own power
+analysis; and the arm-A/arm-B asymmetry note belongs in the ledger — arm A's format has
+no analogous single-operator trap on this surface, and its near-miss profile (92% row
+accuracy, zero faults) stands unexplained by this mechanism. All of this is Tier-D
+material: descriptive, direction-free, and no decision reads it.
