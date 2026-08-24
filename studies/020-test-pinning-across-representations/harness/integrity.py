@@ -1,0 +1,1083 @@
+#!/usr/bin/env python3
+"""The port chain and the pin registry in code: verified before any call and
+any count — PARTIAL PORT.
+
+PORTED from Study 019's `harness/integrity.py`
+(sha256 `ba2175ad213abcd019e10dc7768aa16f5bcb7f52f77c5af1520c942fc81657e3`, the
+digest Study 019's own `harness/PORTS.md` records in its destination cell AND
+the digest Study 019's own `harness/STUDY-MANIFEST.sha256` records for it, at
+commit `e87e1311da11c28e929edf1e7e39f048e4ec0e6a`). What was taken, what
+changed and what was deliberately left behind is enumerated in this study's
+`harness/PORTS.md`, whose table this module machine-reads.
+
+**The chain, one level and every link a pinned digest — and the source study
+publishes TWO authorities, not one.** Study 019 inherited from Study 012
+through a single level of PORTS.md destination cells, which left every file 019
+did NOT port — its scorer, its ten `e4lib` modules, its round-status renderer —
+with no committed per-file digest a successor could bind to. 019 closed that
+hole for its own successors with ADR 0004's exact-set manifest, and this study
+is the first to use it as a port authority:
+
+```
+this file                                (pinned in harness/PINS.json at port time)
+    -> Study 019's harness/PINS.json          9ba6394d…  (pinned below, and in PINS.json)
+       Study 019's harness/PORTS.md           (pinned by 019's OWN registry, ownPorts)
+       Study 019's harness/STUDY-MANIFEST.sha256
+                                              (pinned by 019's OWN registry, studyManifest)
+```
+
+`verify_chain()` therefore, in order: verifies Study 019's `harness/PINS.json`
+against the digest this file pins for it; verifies Study 019's `harness/PORTS.md`
+and `harness/STUDY-MANIFEST.sha256` against the digests **019's own registry**
+records for them under `ownPorts` and `studyManifest` (not digests this study
+chooses); verifies THIS study's `harness/PORTS.md` against the digest this
+study's `harness/PINS.json` records for it, so the file that says what each
+enumerated change *was* cannot be rewritten after the review; and then binds
+each row of the port table to the authority that row actually has.
+
+**Two source-side tiers, and the stronger one is named per row.**
+`TIER_PORTS_PATHS` names the destinations Study 019's own `PORTS.md` publishes
+a destination cell for. A row in that tier is bound TWICE on the source side —
+to 019's PORTS.md destination cell and to 019's manifest entry — and the two
+must agree, which is a stronger binding than either alone and is the reason the
+tier exists rather than being folded into the other. `TIER_MANIFEST_PATHS`
+names every other file taken from 019: 019 publishes no ports row for them, but
+its exact-set manifest publishes a per-file digest that 019's own registry
+pins, so the source cell answers to the SOURCE study exactly as a ports cell
+does. Nothing here is bound to a commit alone — Study 019's
+`make_manifest.py` row, the one row 019 itself could bind only to a commit
+because Study 014 pinned none of its harness sources, is bound here to 019's
+manifest like every other row, and the recorded commit is provenance rather
+than authority.
+
+**The lineage before 019 is recorded as HISTORY, not re-verified.**
+`PINS.json`'s `pinnedFrom.history` carries Study 019's own `pinnedFrom` — the
+Study 012 registry digest and the Study 014 note — so the chain a reader has to
+walk backwards is written down. `verify_chain()` checks that the recorded
+history is the history 019's registry actually carries, and does NOT reach into
+Study 012: a two-level walk would make this study's freeze depend on a tree two
+studies away, and 019's own verification is what covers that level.
+
+**What is NOT carried, said plainly so §7 cannot claim it.** Study 019's design
+prototypes, its `arms/`, `results/` and `reviews/` trees, and its spent reviewer
+mutant set are all absent. The registered study artifacts of §4.1 — the gold
+suite, both mutant corpora and their manifests, both reference implementations,
+the off-gold certificate, the capabilities file and the witness tables — are
+`GATE(pre-freeze)` and are NOT in this tree yet; `harness/SCAFFOLD.md` item A1
+records that, and every harness test that reads one of them SKIPS by a named
+reason rather than passing vacuously.
+
+**Stage-aware by design.** Every freeze pin in `harness/PINS.json` is null
+until the freeze, and `study_label()` — not a comment — is what makes that
+visible: any null freeze pin labels the run **PILOT**, and only a registry
+whose every freeze pin is non-null labels it REGISTERED. The toolchain blocks
+(`jpack`, `opa`, `python`) are resolved at design time and carry Study 019's
+digests already; they are marked `resolvedAtDesignTime` and are enforced under
+both labels. `codex.model` and `codex.reasoningEffort` are the two DESIGN-TIME
+pins that are still unresolved (§2.1, M-24/M-25): they are not freeze pins,
+they are null, and a null in either one labels the run PILOT exactly as a null
+freeze pin does — with one registered exemption, the `--sweep` label, which
+exempts `codex.reasoningEffort` ALONE because the sweep is the procedure that
+resolves it.
+"""
+
+
+from __future__ import annotations
+import hashlib
+import json
+import os
+import platform
+import re
+import subprocess
+import sys
+
+# The ceremony's commands run with bytecode writing disabled: set structurally,
+# not left to the operator's environment. This file is invoked by path, so it is
+# one of those commands — the flag belongs in every entry the ceremony names,
+# not in one.
+sys.dont_write_bytecode = True
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+STUDY = os.path.dirname(HERE)
+# The one source study. Study 020 inherits from Study 019 and from nothing
+# else: the Study 012 and Study 014 levels behind it are recorded as HISTORY in
+# `PINS.json`'s `pinnedFrom.history` and are deliberately not walked (see the
+# module docstring).
+NINETEEN = os.path.normpath(
+    os.path.join(STUDY, "..", "019-authorship-across-representations"))
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
+
+# The chain's one pinned end, in reviewed code. Study 019's registry digest is
+# this file's; the digests of 019's PORTS.md and of 019's STUDY-MANIFEST are
+# NOT here — they are read from 019's OWN registry, which is what "the digests
+# 019 pins for them, not ones this study chooses" means in code.
+NINETEEN_PINS_SHA256 = \
+    "9ba6394db66f0e3723359c17f68e4a612870a015f3f973e1efad10fd522a759c"
+# The commit the port was taken at. It is PROVENANCE and not an authority: every
+# row below is bound to a digest Study 019's own registry pins, so a row cannot
+# be satisfied by "whatever that commit happened to hold".
+PORT_COMMIT = "e87e1311da11c28e929edf1e7e39f048e4ec0e6a"
+# Study 019's own recorded lineage, restated here so `verify_chain()` can check
+# that `PINS.json`'s history members are the ones 019's registry actually
+# carries rather than a summary this study wrote for itself.
+SOURCE_STUDY = "studies/019-authorship-across-representations"
+HISTORY_STUDIES = ("studies/012-policy-perturbation",
+                   "studies/014-openworkproof-binding")
+
+ARMS = ("A", "B", "C")
+
+# The port table's registered destination set. A row deleted from PORTS.md is a
+# check silently dropped, so the set must be exact — and a row ADDED must be as
+# loud. Study 019 registered SEVEN destinations because seven files were all it
+# ported; Study 020 ports 019's whole executable harness surface, so the set is
+# every module the scorer, the driver and the wrapper execute. `presence_idiom`
+# is deliberately ABSENT: it is new here (§3.2) and a two-sided row would claim
+# an inheritance that does not exist.
+REQUIRED_PORTS = frozenset((
+    "harness/authoring_call.sh",
+    "harness/batch.py",
+    "harness/grid_gate.py",
+    "harness/integrity.py",
+    "harness/leak_tokens.py",
+    "harness/make_manifest.py",
+    "harness/render_round_status.py",
+    "harness/score.py",
+    "harness/transcript_check.py",
+    "harness/e4lib/__init__.py",
+    "harness/e4lib/admit.py",
+    "harness/e4lib/capabilities.py",
+    "harness/e4lib/census.py",
+    "harness/e4lib/decision.py",
+    "harness/e4lib/domain.py",
+    "harness/e4lib/e4.py",
+    "harness/e4lib/engines.py",
+    "harness/e4lib/extract.py",
+    "harness/e4lib/reviewer.py",
+    "harness/e4lib/stats.py",
+))
+
+# TIER PORTS (the stronger tier): destination -> the path Study 019's own
+# `PORTS.md` records a DESTINATION cell for. A row here is bound twice on the
+# source side — to 019's ports cell and to 019's manifest entry — and the two
+# must agree.
+TIER_PORTS_PATHS = {
+    "harness/authoring_call.sh": "harness/authoring_call.sh",
+    "harness/batch.py": "harness/batch.py",
+    "harness/integrity.py": "harness/integrity.py",
+    "harness/make_manifest.py": "harness/make_manifest.py",
+    "harness/transcript_check.py": "harness/transcript_check.py",
+    "harness/e4lib/census.py": "harness/e4lib/census.py",
+    "harness/e4lib/stats.py": "harness/e4lib/stats.py",
+}
+# TIER MANIFEST: destination -> the path Study 019's exact-set manifest records
+# a per-file digest for. 019 publishes no ports row for these — they were new
+# in 019, or assembled from its own design prototypes — but its manifest is
+# pinned by its own registry, so the source cell answers to the source study.
+TIER_MANIFEST_PATHS = {
+    "harness/grid_gate.py": "harness/grid_gate.py",
+    "harness/leak_tokens.py": "harness/leak_tokens.py",
+    "harness/render_round_status.py": "harness/render_round_status.py",
+    "harness/score.py": "harness/score.py",
+    "harness/e4lib/__init__.py": "harness/e4lib/__init__.py",
+    "harness/e4lib/admit.py": "harness/e4lib/admit.py",
+    "harness/e4lib/capabilities.py": "harness/e4lib/capabilities.py",
+    "harness/e4lib/decision.py": "harness/e4lib/decision.py",
+    "harness/e4lib/domain.py": "harness/e4lib/domain.py",
+    "harness/e4lib/e4.py": "harness/e4lib/e4.py",
+    "harness/e4lib/engines.py": "harness/e4lib/engines.py",
+    "harness/e4lib/extract.py": "harness/e4lib/extract.py",
+    "harness/e4lib/reviewer.py": "harness/e4lib/reviewer.py",
+}
+
+# The freeze pins §2 and §7 register, in the order PINS.json carries them. A
+# null anywhere here makes the run a PILOT (`study_label()`); REGISTERED
+# requires every one of them.
+#
+# Study 019 carried EIGHTEEN. Study 020 carries SEVENTEEN, and the one that
+# left is not a relaxation: `codex.model` moves to `DESIGN_TIME_PINS` below
+# under ruling M-25, where its null still labels the run PILOT. It moved
+# because the compute condition (the model AND the reasoning effort) is an
+# OUTPUT of the pre-pilot sweep (§2.1), and the sweep runs BEFORE the freeze —
+# a value the freeze ceremony fills cannot be a value the pre-freeze sweep is
+# required to have already filled.
+FREEZE_PINS = (
+    ("preregistration", ("preregistration", "sha256")),
+    ("policyProse", ("policyProse", "sha256")),
+    ("goldSuite", ("goldSuite", "sha256")),
+    ("matrixA", ("arms", "A", "promptSha256")),
+    ("matrixB", ("arms", "B", "promptSha256")),
+    ("matrixC", ("arms", "C", "promptSha256")),
+    ("mutantManifests", ("mutantManifests", "sha256")),
+    ("referenceA", ("references", "A", "sha256")),
+    ("referenceB", ("references", "B", "sha256")),
+    ("offGoldCertificate", ("offGoldCertificate", "sha256")),
+    ("studyManifest", ("studyManifest", "sha256")),
+    ("opaCapabilities", ("opa", "capabilitiesSha256")),
+    ("jpackBuildAttestation", ("jpack", "reproducibleBuildAttestation")),
+    ("probePrompt", ("probePrompt", "sha256")),
+    ("goldenContext", ("golden", "sha256")),
+    ("isolationAssent", ("isolationNegative", "assent")),
+    ("reviewerMutantSet", ("reviewerMutantSet", "sha256")),
+    # NEW IN 020. §5.1's E5 registers the census stimulus's count as
+    # freeze-pinned, and Study 019 registered the same stimulus while pinning no
+    # count — which is how a published census table came to name a row count its
+    # own data did not have, twice (019's R1-19 and R4-6). A registration that
+    # says "freeze-pinned" and is enforced nowhere is R7-9's defect wearing a
+    # different number.
+    ("censusStimulusCount", ("censusStimulus", "count")),
+)
+
+# M-25, ruled 2026-08-23. The two DESIGN-TIME-RESOLVED pins that are not yet
+# resolved. `registeredLabelRule` names design-time-resolved pins as checked
+# "whether or not the freeze has happened", so a null in either one labels the
+# run PILOT exactly as a null freeze pin does — and `study_label()` reads BOTH
+# tuples, which is the whole of the restatement §7's delta 6 owes.
+#
+# The registered exemption is one value wide and one label wide: under the
+# `--sweep` label `codex.reasoningEffort` ALONE is exempt, because the sweep is
+# the registered procedure that RESOLVES it and a gate that refuses the sweep
+# is a gate that forbids its own input. `codex.model` is never exempt.
+DESIGN_TIME_PINS = (
+    ("model", ("codex", "model")),
+    ("reasoningEffort", ("codex", "reasoningEffort")),
+)
+SWEEP_EXEMPT_PINS = ("reasoningEffort",)
+SWEEP_LABEL = "SWEEP"
+
+# ROUND-7 FINDING R7-8 (Study 019), carried: a pin whose SOURCE nobody names is
+# a pin nobody fills. Every pin `study_label()` reads — freeze and design-time
+# alike — names the artifact its value is computed from, and
+# `tests/test_pins.py` requires the two tables to have exactly the same members.
+PIN_SOURCES = {
+    "preregistration": "sha256 of the reviewed PREREGISTRATION.md (filled LAST)",
+    "policyProse": "sha256 of policy/POLICY.md, ported frozen from Study 019 "
+                   "(§7 delta 10: 020 drafts no policy prose of its own)",
+    "goldSuite": "sha256 of gold/GOLD.json, ported by digest (§4.1)",
+    "matrixA": "sha256 of arms/A/PROMPT.txt, assembled deterministically",
+    "matrixB": "sha256 of arms/B/PROMPT.txt, assembled deterministically",
+    "matrixC": "sha256 of arms/C/PROMPT.txt, assembled deterministically",
+    "mutantManifests": "sha256 over mutants/MANIFEST-jps.json and "
+                       "mutants/MANIFEST-rego.json, ported by digest (§4.1)",
+    "referenceA": "sha256 of reference/refA/pack.json",
+    "referenceB": "sha256 of reference/refB/policy.rego",
+    "offGoldCertificate": "sha256 of controls/off-gold-equivalence.json",
+    "studyManifest": "sha256 of harness/STUDY-MANIFEST.sha256, written by "
+                     "harness/make_manifest.py --freeze",
+    "opaCapabilities": "sha256 of the pinned OPA capabilities file",
+    "jpackBuildAttestation": "the pinned jpack build's reproducible-build "
+                             "attestation",
+    "probePrompt": "sha256 of the golden-context probe prompt",
+    "goldenContext": "sha256 of the golden-context capture, WRITTEN by the "
+                     "capture command",
+    "isolationAssent": "the recorded assent from the isolation negative control, "
+                       "WRITTEN by that control",
+    "censusStimulusCount": "the row count of the frozen gold-row input set "
+                           "(gold/GOLD.json), which §5.1's E5 registers as "
+                           "freeze-pinned; e4lib/census.py derives its published "
+                           "label from the suite it actually read, so this pin "
+                           "cannot become the source of a stale count",
+    "reviewerMutantSet": "sha256 of controls/reviewer-mutants/MANIFEST.json — "
+                         "the FRESH set §4.3 registers, authored during review "
+                         "rounds; Study 019's set is spent and does not carry",
+    "model": "the model id the authoring wrapper is invoked with, by explicit "
+             "flag; chosen with the reasoning effort by the pre-pilot sweep "
+             "(§2.1, M-8/M-20) and resolved at design time, not at the freeze",
+    "reasoningEffort": "the codex reasoning-effort setting the pre-pilot sweep "
+                       "selects (§2.1, M-24/M-25); stamped into every CALL.json "
+                       "and, where a transcript witness exists, bound by "
+                       "transcript gate 5",
+}
+
+
+# | `source` | `sha` | `destination` | `sha` | changed |
+ROW = re.compile(
+    r"^\|\s*`([^`]+)`\s*\|\s*`([0-9a-f]{64})`\s*\|\s*`([^`]+)`\s*\|\s*`([0-9a-f]{64})`\s*\|")
+
+
+class IntegrityError(Exception):
+    """A refusal that precedes every call and every count."""
+
+
+def digest(path: str) -> str:
+    with open(path, "rb") as handle:
+        return hashlib.sha256(handle.read()).hexdigest()
+
+
+def _refuse_duplicate_keys(pairs):
+    keys = [key for key, _ in pairs]
+    if len(set(keys)) != len(keys):
+        raise IntegrityError("duplicate object keys")
+    return dict(pairs)
+
+
+def load_json(path: str):
+    """Duplicate-key-rejecting JSON. A registry or a lock with a shadowed
+    member cannot mean one thing here and another to a reader."""
+    with open(path, "rb") as handle:
+        return json.loads(handle.read().decode("utf-8"),
+                          object_pairs_hook=_refuse_duplicate_keys)
+
+
+def bare(value) -> str:
+    """A digest with or without the `sha256:` prefix, as a bare hex string."""
+    if not isinstance(value, str):
+        raise IntegrityError("a digest is missing where one is required: %r" % (value,))
+    return value.split(":")[-1].strip()
+
+
+def parse_ports(ports_path: str) -> list:
+    """[(source, source sha256, destination, destination sha256)] from a
+    PORTS.md table. What each column is checked AGAINST is verify_chain()'s
+    business, and it is not this table."""
+    if not os.path.isfile(ports_path):
+        raise IntegrityError("no ports record at %s" % ports_path)
+    rows = []
+    with open(ports_path, "rb") as handle:
+        for line in handle.read().decode("utf-8").splitlines():
+            match = ROW.match(line.strip())
+            if match:
+                rows.append(tuple(match.groups()))
+    if not rows:
+        raise IntegrityError("%s carries no parseable port rows" % ports_path)
+    return rows
+
+
+def parse_manifest(manifest_path: str) -> dict:
+    """{path: sha256} from an ADR 0004 exact-set manifest.
+
+    New in Study 020 and the whole of what lets a successor bind to files the
+    source study never put in a ports row. The format is `sha256sum`'s — two
+    spaces between the digest and the path — and a duplicate path is refused
+    rather than resolved, for the reason `_refuse_duplicate_keys()` exists."""
+    if not os.path.isfile(manifest_path):
+        raise IntegrityError("no exact-set manifest at %s" % manifest_path)
+    entries = {}
+    with open(manifest_path, "rb") as handle:
+        for number, line in enumerate(
+                handle.read().decode("utf-8").splitlines(), 1):
+            if not line.strip():
+                continue
+            parts = line.split("  ", 1)
+            if len(parts) != 2 or len(parts[0]) != 64:
+                raise IntegrityError(
+                    "%s line %d is not a `<sha256>  <path>` entry: %r"
+                    % (manifest_path, number, line))
+            if parts[1] in entries:
+                raise IntegrityError(
+                    "%s names %s twice" % (manifest_path, parts[1]))
+            entries[parts[1]] = parts[0]
+    if not entries:
+        raise IntegrityError("%s carries no entries" % manifest_path)
+    return entries
+
+
+# --- the chain -------------------------------------------------------------
+
+
+def verify_chain(study: str = STUDY, nineteen: str = NINETEEN,
+                 ports_path: str = None, pins_path: str = None) -> dict:
+    """The one-level chain, then the rows, bound by the authority each row has.
+
+    Study 019's `verify_chain()` bound seven rows to one source-side authority
+    (012's ports cells) and one row to a commit. This is that function with a
+    SECOND source-side authority added — Study 019's own exact-set manifest,
+    pinned by 019's own registry — and with the commit-only tier removed,
+    because with the manifest in hand no row needs it. Everything the shape of
+    the check rests on is 012's through 019's: the placeholder scan, the
+    registry's own `pinnedFrom` members checked against the review-bound
+    constants above, the exact destination set, and per-row source and
+    destination digests."""
+    ports_path = ports_path or os.path.join(study, "harness", "PORTS.md")
+    pins_path = pins_path or os.path.join(study, "harness", "PINS.json")
+
+    source_pins_path = os.path.join(nineteen, "harness", "PINS.json")
+    source_ports_path = os.path.join(nineteen, "harness", "PORTS.md")
+    source_manifest_path = os.path.join(nineteen, "harness",
+                                        "STUDY-MANIFEST.sha256")
+    if not os.path.isfile(source_pins_path):
+        raise IntegrityError("Study 019's harness/PINS.json is missing")
+    actual = digest(source_pins_path)
+    if actual != NINETEEN_PINS_SHA256:
+        raise IntegrityError(
+            "Study 019's harness/PINS.json is sha256:%s, not the pinned sha256:%s"
+            % (actual, NINETEEN_PINS_SHA256))
+    source_pins = load_json(source_pins_path)
+
+    # 019's PORTS.md and 019's manifest at the digests 019's OWN registry pins
+    # for them — not ones this study chooses. This is the whole of what makes
+    # the source cells below an inheritance rather than a transcription.
+    own = source_pins.get("ownPorts") or {}
+    source_ports_pin = bare(own.get("sha256"))
+    if own.get("path") != "harness/PORTS.md":
+        raise IntegrityError(
+            "Study 019's registry records its ports file at %r, not "
+            "harness/PORTS.md" % (own.get("path"),))
+    if not os.path.isfile(source_ports_path):
+        raise IntegrityError("Study 019's harness/PORTS.md is missing")
+    actual = digest(source_ports_path)
+    if actual != source_ports_pin:
+        raise IntegrityError(
+            "Study 019's harness/PORTS.md is sha256:%s, not the sha256:%s its "
+            "own registry records for it" % (actual, source_ports_pin))
+
+    recorded_manifest = source_pins.get("studyManifest") or {}
+    source_manifest_pin = bare(recorded_manifest.get("sha256"))
+    if recorded_manifest.get("path") != "harness/STUDY-MANIFEST.sha256":
+        raise IntegrityError(
+            "Study 019's registry records its manifest at %r, not "
+            "harness/STUDY-MANIFEST.sha256"
+            % (recorded_manifest.get("path"),))
+    if not os.path.isfile(source_manifest_path):
+        raise IntegrityError(
+            "Study 019's harness/STUDY-MANIFEST.sha256 is missing")
+    actual = digest(source_manifest_path)
+    if actual != source_manifest_pin:
+        raise IntegrityError(
+            "Study 019's harness/STUDY-MANIFEST.sha256 is sha256:%s, not the "
+            "sha256:%s its own registry records for it"
+            % (actual, source_manifest_pin))
+    source_manifest = parse_manifest(source_manifest_path)
+
+    if not os.path.isfile(pins_path):
+        raise IntegrityError("no registry at %s" % pins_path)
+    # A `(port time)` placeholder surviving into either run-time file is an
+    # unfinished port, refused by name (Study 012 §7's sentence, carried).
+    for path, name in ((ports_path, "harness/PORTS.md"),
+                       (pins_path, "harness/PINS.json")):
+        with open(path, "rb") as handle:
+            if b"(port time)" in handle.read():
+                raise IntegrityError(
+                    "%s still carries a `(port time)` placeholder: the port is "
+                    "not finished" % name)
+    pins = load_json(pins_path)
+    own_ports_pin = bare((pins.get("ownPorts") or {}).get("sha256"))
+    actual_ports = digest(ports_path)
+    if actual_ports != own_ports_pin:
+        raise IntegrityError(
+            "harness/PORTS.md is sha256:%s, not the sha256:%s harness/PINS.json "
+            "records for it" % (actual_ports, own_ports_pin))
+
+    recorded = pins.get("pinnedFrom") or {}
+    entry = recorded.get("pins") or {}
+    if bare(entry.get("sha256")) != NINETEEN_PINS_SHA256 \
+            or entry.get("path") != "harness/PINS.json":
+        raise IntegrityError(
+            "the registry's pinnedFrom.pins member (%r) is not the "
+            "review-bound harness/PINS.json at %s"
+            % (entry, NINETEEN_PINS_SHA256))
+    if recorded.get("study") != SOURCE_STUDY \
+            or recorded.get("commit") != PORT_COMMIT:
+        raise IntegrityError(
+            "the registry's pinnedFrom study or commit is not the recorded port "
+            "provenance (%s at %s)" % (SOURCE_STUDY, PORT_COMMIT))
+
+    # The lineage before 019, recorded rather than walked. What is CHECKED is
+    # that this study's history members are the ones 019's own registry
+    # carries: a history a successor writes for itself is a summary, and a
+    # summary is what this member exists not to be.
+    history = recorded.get("history") or {}
+    if tuple(sorted(history)) != tuple(sorted(HISTORY_STUDIES)):
+        raise IntegrityError(
+            "the registry's pinnedFrom.history names %s; Study 019's recorded "
+            "lineage is %s"
+            % (sorted(history) or "nothing", sorted(HISTORY_STUDIES)))
+    source_lineage = source_pins.get("pinnedFrom") or {}
+    twelve_recorded = bare(((history.get("studies/012-policy-perturbation")
+                             or {}).get("pins") or {}).get("sha256"))
+    twelve_actual = bare(((source_lineage.get("pins")) or {}).get("sha256"))
+    if twelve_recorded != twelve_actual:
+        raise IntegrityError(
+            "the recorded Study 012 registry digest (%s) is not the one Study "
+            "019's own registry carries (%s)"
+            % (twelve_recorded, twelve_actual))
+    fourteen_recorded = (history.get("studies/014-openworkproof-binding")
+                         or {}).get("file")
+    fourteen_actual = (source_lineage.get("alsoTakenFrom") or {}).get("file")
+    if fourteen_recorded != fourteen_actual:
+        raise IntegrityError(
+            "the recorded Study 014 lineage file (%r) is not the one Study "
+            "019's own registry carries (%r)"
+            % (fourteen_recorded, fourteen_actual))
+
+    rows = parse_ports(ports_path)
+    destinations = set(row[2] for row in rows)
+    if destinations != set(REQUIRED_PORTS):
+        missing = sorted(set(REQUIRED_PORTS) - destinations)
+        extra = sorted(destinations - set(REQUIRED_PORTS))
+        raise IntegrityError(
+            "harness/PORTS.md does not name exactly the registered port set "
+            "(missing %s, unexpected %s)" % (missing or "none", extra or "none"))
+    if len(rows) != len(destinations):
+        raise IntegrityError(
+            "harness/PORTS.md carries %d rows for %d destinations: a second row "
+            "naming a destination refuses, whatever it names as its source"
+            % (len(rows), len(destinations)))
+
+    source_rows = {row[2]: row for row in parse_ports(source_ports_path)}
+
+    for source, source_sha, destination, destination_sha in rows:
+        here = os.path.join(study, destination)
+        if not os.path.isfile(here):
+            raise IntegrityError("the ported file %s is missing" % destination)
+        actual = digest(here)
+        if actual != destination_sha:
+            raise IntegrityError(
+                "%s is sha256:%s, not the sha256:%s harness/PORTS.md records"
+                % (destination, actual, destination_sha))
+
+        tier_ports = destination in TIER_PORTS_PATHS
+        relative = (TIER_PORTS_PATHS if tier_ports
+                    else TIER_MANIFEST_PATHS)[destination]
+        if source != relative:
+            raise IntegrityError(
+                "harness/PORTS.md names %r as the source of %s; Study 019's "
+                "path is %r" % (source, destination, relative))
+
+        # Authority 1, for every row: Study 019's exact-set manifest, pinned by
+        # 019's own registry.
+        manifest_sha = source_manifest.get(relative)
+        if manifest_sha is None:
+            raise IntegrityError(
+                "Study 019's exact-set manifest carries no entry for %s"
+                % relative)
+        if source_sha != manifest_sha:
+            raise IntegrityError(
+                "harness/PORTS.md records sha256:%s as the 019-side digest of "
+                "%s and 019's own manifest records sha256:%s"
+                % (source_sha, relative, manifest_sha))
+
+        # Authority 2, for the stronger tier only: 019's own ports destination
+        # cell. The two must AGREE; a row where they disagree is refused rather
+        # than resolved in either direction.
+        if tier_ports:
+            row = source_rows.get(relative)
+            if row is None:
+                raise IntegrityError(
+                    "Study 019's PORTS.md carries no provenance row for %s"
+                    % relative)
+            if source_sha != row[3]:
+                raise IntegrityError(
+                    "harness/PORTS.md records sha256:%s as the 019-side digest "
+                    "of %s and 019's own PORTS.md destination cell records "
+                    "sha256:%s" % (source_sha, relative, row[3]))
+
+        origin = os.path.join(nineteen, relative)
+        if not os.path.isfile(origin) or digest(origin) != source_sha:
+            raise IntegrityError(
+                "Study 019's %s does not hash to the recorded 019-side digest"
+                % relative)
+
+    return {"pins": pins, "rows": rows,
+            "study019PortsSha256": source_ports_pin,
+            "study019ManifestSha256": source_manifest_pin}
+
+
+# --- the registered label rule ----------------------------------------------
+
+# The literal stand-ins a half-finished registry carries, and the reason they
+# need naming here. Study 012 registered one such refusal — `harness/PORTS.md`
+# and `harness/PINS.json` may carry no `(port time)` cell, because an unfinished
+# port is not a soft state — but it lived in the ports parser and reached the
+# label rule not at all. The salvage audit probed this rule directly: with all
+# eighteen freeze pins set to `""`, `"TODO(prereg)"`, `0`, `[]`, `{}` or
+# `False`, `study_label()` answered REGISTERED and `unfilled_pins()` answered
+# `[]`. A registry of eighteen empty strings is not a registration.
+#
+# Matched on the STRIPPED, case-folded value, so `"  todo  "` is the same
+# refusal as `"TODO"`. `TODO(`-prefixed sentinels (`"TODO(prereg)"`) are matched
+# by prefix rather than by membership, since their parenthetical varies.
+PIN_PLACEHOLDERS = ("(port time)", "todo", "tbd", "fixme", "xxx", "pending",
+                    "n/a", "na", "none", "null", "nil", "-", "?")
+PIN_PLACEHOLDER_PREFIXES = ("todo(", "tbd(", "fixme(")
+
+
+def pin_is_filled(value) -> bool:
+    """Whether a freeze-pin value counts as FILLED.
+
+    Filled means: not null, not empty, and not a stand-in. Concretely — `None`,
+    any falsy value (`""`, `0`, `0.0`, `False`, `[]`, `{}`), a string that is
+    only whitespace, and a string whose stripped case-folded form is one of
+    `PIN_PLACEHOLDERS` or begins with one of `PIN_PLACEHOLDER_PREFIXES` are all
+    UNFILLED. Everything else is filled.
+
+    **This decides FILLED, not CORRECT.** Whether the digest a pin carries is
+    the digest of the bytes on disk is `verify()`'s business and is checked
+    under both labels; whether a filled pin has the right SHAPE is the
+    registry's own gates'. The one thing this function may not do is what it
+    used to do — count a stand-in as a registration, which made REGISTERED
+    reachable without a single real value being determined."""
+    if value is None or not value:
+        return False
+    if isinstance(value, str):
+        candidate = value.strip().lower()
+        if not candidate:
+            return False
+        if candidate in PIN_PLACEHOLDERS:
+            return False
+        if candidate.startswith(PIN_PLACEHOLDER_PREFIXES):
+            return False
+    return True
+
+
+def _pin_value(pins: dict, path):
+    node = pins
+    for key in path:
+        node = node.get(key) if isinstance(node, dict) else None
+        if node is None:
+            break
+    return node
+
+
+def freeze_pin_state(pins: dict) -> dict:
+    """{registered pin name: True when filled} over `FREEZE_PINS`.
+
+    A member whose parent object is absent counts as null rather than raising:
+    a registry that has not grown the member yet is exactly the pre-freeze state
+    this rule exists to label. `pin_is_filled()` decides what "filled" means, and
+    it is stricter than `is not None` for the reason recorded above it."""
+    return {name: pin_is_filled(_pin_value(pins, path))
+            for name, path in FREEZE_PINS}
+
+
+def design_time_pin_state(pins: dict) -> dict:
+    """{registered pin name: True when filled} over `DESIGN_TIME_PINS`.
+
+    M-25, and §7's delta 6. These are not freeze pins — they are resolved by
+    the pre-pilot sweep, which runs BEFORE the freeze — but `registeredLabelRule`
+    names design-time-resolved pins as checked whether or not the freeze has
+    happened, so a null in either one is a PILOT just as a null freeze pin is.
+    Keeping them in a tuple of their own is what makes that sentence checkable:
+    a reader can see which pins the FREEZE fills and which the SWEEP fills
+    without having to know the ceremony."""
+    return {name: pin_is_filled(_pin_value(pins, path))
+            for name, path in DESIGN_TIME_PINS}
+
+
+def label_pin_state(pins: dict, label_context: str = None) -> dict:
+    """Every pin the label rule reads, freeze and design-time together.
+
+    `label_context` is the one registered exemption and it is one value wide:
+    under `SWEEP_LABEL` the pins named in `SWEEP_EXEMPT_PINS` are not read,
+    because the sweep is the registered procedure that RESOLVES them (§2.1,
+    M-25). Any other context reads everything; an UNKNOWN context is refused
+    rather than treated as "no exemption", because a typo that silently buys an
+    exemption is the failure this argument exists to prevent."""
+    if label_context not in (None, SWEEP_LABEL):
+        raise IntegrityError(
+            "%r is not a registered label context; the only one is %r"
+            % (label_context, SWEEP_LABEL))
+    state = dict(freeze_pin_state(pins))
+    state.update(design_time_pin_state(pins))
+    if label_context == SWEEP_LABEL:
+        for name in SWEEP_EXEMPT_PINS:
+            state.pop(name, None)
+    return state
+
+
+# The two freeze pins the PRE-FREEZE CEREMONY fills, and the reason they need a
+# name of their own (round-1 R1-9's consequence, stated rather than worked
+# around). `golden.sha256` is written by the golden-context capture and
+# `isolationNegative.assent` by the isolation negative control — both of which
+# are commands that run BEFORE the freeze and are what PRODUCE those values. A
+# gate on the whole freeze set is therefore circular for exactly those two
+# commands and for nothing else: they cannot require a value they exist to
+# create.
+#
+# They ARE freeze pins: `study_label()` reads the whole set, so a REGISTERED
+# attempt is unreachable while either is null, and the scorer's golden-context
+# gate reads them again at attempt time. This tuple exempts them at ONE place —
+# the driver's pre-ceremony gate — and nowhere else.
+CEREMONY_LIFECYCLE_PINS = ("goldenContext", "isolationAssent")
+
+
+def ceremony_unfilled_pins(pins: dict) -> list:
+    """`unfilled_pins()` minus the two the ceremony has not reached yet."""
+    return [name for name in unfilled_pins(pins)
+            if name not in CEREMONY_LIFECYCLE_PINS]
+
+
+def study_label(pins: dict, label_context: str = None) -> str:
+    """REGISTERED iff every pin the label rule reads is filled; any null -> PILOT.
+
+    The label is computed from the registry and never passed in. Study 014's
+    round 3 found a registered run reachable with only the preregistration
+    digest filled, which left the registry the attempt adjudicated unpinned;
+    the rule is therefore over the WHOLE set, and this function is the only
+    place it is decided. Study 020 widens "the whole set" to the design-time
+    pins as well (M-25) and narrows it, at one label only, by
+    `SWEEP_EXEMPT_PINS`."""
+    return ("REGISTERED" if all(label_pin_state(pins, label_context).values())
+            else "PILOT")
+
+
+def unfilled_pins(pins: dict, label_context: str = None) -> list:
+    """The pins still null, in registered order — what a PILOT label owes the
+    reader. Freeze pins first, then the design-time pins, which is the order
+    the ceremony fills them in reverse: the sweep resolves the design-time pins
+    BEFORE the freeze fills the rest."""
+    state = label_pin_state(pins, label_context)
+    return [name for name, _path in FREEZE_PINS + DESIGN_TIME_PINS
+            if name in state and not state[name]]
+
+
+def unfilled_pin_sources(pins: dict, label_context: str = None) -> list:
+    """ROUND-7 FINDING R7-8: every null pin WITH the artifact it is filled from,
+    so the ceremony's remaining work is readable rather than remembered."""
+    return [(name, PIN_SOURCES[name])
+            for name in unfilled_pins(pins, label_context)]
+
+
+# --- the interpreter, carried verbatim --------------------------------------
+
+
+def verify_interpreter(pins: dict) -> str:
+    """The registry's `python` member, read by code rather than only recorded
+    (implementation exactly, version series exactly; the patch level is
+    recorded, not required)."""
+    entry = pins.get("python")
+    if not isinstance(entry, dict):
+        raise IntegrityError("harness/PINS.json pins no interpreter")
+    implementation = platform.python_implementation()
+    if implementation != entry.get("implementation"):
+        raise IntegrityError(
+            "this harness is running on %s and harness/PINS.json registers %r"
+            % (implementation, entry.get("implementation")))
+    series = "%d.%d" % sys.version_info[:2]
+    if series != entry.get("series"):
+        raise IntegrityError(
+            "this harness is running on %s %s and harness/PINS.json registers "
+            "the %r series" % (implementation, platform.python_version(),
+                               entry.get("series")))
+    return "%s %s" % (implementation, platform.python_version())
+
+
+# --- unreviewed bytes: carried verbatim from Study 012 ----------------------
+
+
+def _code_equal(left, right) -> bool:
+    """Structural equality of two code objects: every code attribute, with
+    co_consts compared element-wise — nested code objects recursed, sets and
+    frozensets compared as sets (their marshal order is hash-seed-dependent),
+    everything else by type and value."""
+    code_type = type(left)
+    if not isinstance(right, code_type):
+        return False
+    members = ("co_argcount", "co_posonlyargcount", "co_kwonlyargcount",
+               "co_nlocals", "co_stacksize", "co_flags", "co_code",
+               "co_names", "co_varnames", "co_freevars", "co_cellvars",
+               "co_filename", "co_name", "co_qualname",
+               "co_exceptiontable", "co_firstlineno", "co_linetable",
+               "co_lnotab")
+    for member in members:
+        if getattr(left, member, None) != getattr(right, member, None):
+            return False
+    left_consts = left.co_consts
+    right_consts = right.co_consts
+    if len(left_consts) != len(right_consts):
+        return False
+    for a, b in zip(left_consts, right_consts):
+        if not _const_equal(a, b, code_type):
+            return False
+    return True
+
+
+def _const_equal(a, b, code_type) -> bool:
+    """Type-strict, recursive constant equality: Python's == says
+    (0, 1) == (False, True) and 0.0 == 0, which is exactly the laundering a
+    poisoned cache would use (round 7, finding 1). Types must be identical at
+    every depth; tuples recurse; sets compare as sets but with type-identical
+    members; nested code recurses through _code_equal."""
+    if type(a) is not type(b):
+        return False
+    if isinstance(a, code_type):
+        return _code_equal(a, b)
+    if isinstance(a, tuple):
+        return len(a) == len(b) and all(
+            _const_equal(x, y, code_type) for x, y in zip(a, b))
+    if isinstance(a, float):
+        # Python equality says 0.0 == -0.0 and would launder a sign flip a
+        # cache carries into "the same constant" (round 8, finding 3): a
+        # float is its bits.
+        import struct
+        return struct.pack("<d", a) == struct.pack("<d", b)
+    if isinstance(a, complex):
+        import struct
+        return struct.pack("<dd", a.real, a.imag) == struct.pack(
+            "<dd", b.real, b.imag)
+    if isinstance(a, frozenset):
+        if len(a) != len(b):
+            return False
+        remaining = list(b)
+        for x in a:
+            for index, y in enumerate(remaining):
+                if _const_equal(x, y, code_type):
+                    del remaining[index]
+                    break
+            else:
+                return False
+        return True
+    return a == b
+
+
+def verify_bytecode(study: str = STUDY) -> None:
+    """Compiled bytecode beside a reviewed source loads even under -B, so a
+    cache the sources did not produce is a byte that runs unreviewed (round 5,
+    finding 3). The gate VALIDATES rather than banning: a cache entry is
+    admitted only when it provably compiles from the source beside it — the
+    running interpreter's magic number and, per the header's own mode, the
+    source's exact mtime-and-size stamp or its source hash. An orphaned entry
+    (no source), a foreign interpreter's, or a stale one refuses. A fresh
+    cache of a reviewed source is that source compiled, and passes."""
+    import importlib.util
+    import marshal
+    magic = importlib.util.MAGIC_NUMBER
+    bad = []
+    # An UNTRACKED Python source shadows a reviewed one at import time — an
+    # untracked harness/integrity/__init__.py takes precedence over the
+    # reviewed integrity.py and bypasses every gate without touching the
+    # manifest (round 7, finding 2). The reviewed bytes are the bytes that
+    # run only if no unreviewed source can be imported at all.
+    tracked = set(subprocess.run(
+        ["git", "ls-files", "-z", "--", "."],
+        cwd=study, capture_output=True, check=True
+    ).stdout.decode("utf-8").split("\0"))
+    # A TRACKED cache is refused unconditionally, before any freshness question
+    # is asked (round 5, finding 1). The validating gate below admits a cache
+    # that provably compiles from the source beside it, which is the right rule
+    # for a working tree and the wrong one for the index: a `.pyc` is fresh on
+    # the machine that wrote it and stale on every checkout after, so a
+    # committed one passes here and refuses everywhere else — which is exactly
+    # what happened, and what made a green suite describe a tree HEAD was not.
+    # Read from the index, so a cache deleted from disk but still committed is
+    # still refused.
+    for name in sorted(tracked):
+        if not name:
+            continue
+        parts = name.split("/")
+        if "__pycache__" in parts or name.endswith((".pyc", ".pyo")):
+            bad.append((name, "tracked bytecode (committed, not merely present)"))
+    for base, directories, files in os.walk(study):
+        for name in files:
+            if not name.endswith(".py"):
+                continue
+            rel = os.path.relpath(os.path.join(base, name), study)
+            if rel.replace(os.sep, "/") not in tracked:
+                bad.append((rel, "untracked Python source"))
+    for base, directories, files in os.walk(study):
+        in_cache = os.path.basename(base) == "__pycache__"
+        for name in files:
+            path = os.path.join(base, name)
+            if not in_cache:
+                # A sourceless .pyc imports on its own; one outside a cache
+                # directory is a byte that runs with no reviewed source
+                # beside it (round 6, finding 1).
+                if name.endswith(".pyc"):
+                    bad.append((os.path.relpath(path, study),
+                                "bytecode outside __pycache__"))
+                continue
+            if not name.endswith(".pyc"):
+                bad.append((os.path.relpath(path, study), "not bytecode"))
+                continue
+            try:
+                source = importlib.util.source_from_cache(path)
+            except ValueError:
+                bad.append((os.path.relpath(path, study), "unmappable name"))
+                continue
+            if not os.path.isfile(source):
+                bad.append((os.path.relpath(path, study), "orphaned"))
+                continue
+            with open(path, "rb") as handle:
+                header = handle.read(16)
+            if len(header) < 16 or header[:4] != magic:
+                bad.append((os.path.relpath(path, study),
+                            "foreign interpreter"))
+                continue
+            flags = int.from_bytes(header[4:8], "little")
+            with open(source, "rb") as handle:
+                source_bytes = handle.read()
+            if flags & 0b1:
+                stored = header[8:16]
+                expected = importlib.util.source_hash(source_bytes)
+                if stored != expected:
+                    bad.append((os.path.relpath(path, study), "stale hash"))
+                    continue
+            else:
+                stat = os.stat(source)
+                mtime = int.from_bytes(header[8:12], "little")
+                size = int.from_bytes(header[12:16], "little")
+                if mtime != int(stat.st_mtime) & 0xFFFFFFFF or                         size != stat.st_size & 0xFFFFFFFF:
+                    bad.append((os.path.relpath(path, study), "stale stamp"))
+                    continue
+            # The header is provenance; the PAYLOAD is what executes. A header
+            # spliced onto foreign bytecode passes every stamp, so "provably
+            # compiles from the source beside it" is checked on the marshalled
+            # body itself: it must equal the running interpreter's own
+            # compilation of that source (round 6, finding 1).
+            with open(path, "rb") as handle:
+                payload = handle.read()[16:]
+            # Two subtleties make this a STRUCTURAL comparison, not a byte
+            # one. The compile name must be the CACHED object's own
+            # co_filename (caches record the path as imported, relative
+            # under a cwd-dependent sys.path entry) — reading it from the
+            # cache is inert, since whatever name is planted, the code must
+            # still equal the reviewed source compiled under that name. And
+            # marshal bytes of set constants depend on the writing process's
+            # hash seed, so equality is decided on the code objects
+            # themselves: bytecode, names, and consts, with sets compared as
+            # sets and nested code recursed. marshal is not hardened against
+            # hostile bytes; a crafted payload that kills the interpreter
+            # here kills a refusing gate, which refuses.
+            try:
+                cached_code = marshal.loads(payload)
+                cached_name = cached_code.co_filename
+            except Exception:
+                bad.append((os.path.relpath(path, study),
+                            "unreadable payload"))
+                continue
+            if not isinstance(cached_name, str):
+                bad.append((os.path.relpath(path, study),
+                            "unreadable payload"))
+                continue
+            try:
+                expected_code = compile(source_bytes, cached_name, "exec",
+                                        dont_inherit=True)
+            except (SyntaxError, ValueError):
+                bad.append((os.path.relpath(path, study),
+                            "source does not compile"))
+                continue
+            if not _code_equal(cached_code, expected_code):
+                bad.append((os.path.relpath(path, study),
+                            "payload is not this source compiled"))
+    if bad:
+        raise IntegrityError(
+            "compiled bytecode that the reviewed sources did not produce sits "
+            "in the study tree (%s): delete it (§2.10)"
+            % ", ".join("%s: %s" % item for item in sorted(bad)))
+
+
+# --- the manifest, the whole verification, the entry ------------------------
+
+
+def verify_manifest(study: str = STUDY, pins: dict = None) -> str:
+    """ADR 0004's exact-set manifest, and the pin over it.
+
+    Study 012's `[D-20]` whole-tree git manifest is deliberately not carried
+    (module docstring). This study's manifest covers what must not change, and
+    `harness/make_manifest.py` excludes `DEVIATIONS.md`, `README.md`,
+    `PREREG-REVIEW.md`, `CORRECTION-TARGETS.md` and `harness/ADVISORIES.md` by
+    named constant (ADR 0004, §4b). Two things are checked here: the committed manifest still equals
+    the tree it covers, and — once the freeze has filled it — the registry's
+    `studyManifest.sha256` is that file's digest.
+
+    Pre-freeze the pin is null and only the exact-set comparison runs, because a
+    manifest that does not describe its own tree is a defect at any stage."""
+    pins = pins if pins is not None else load_json(
+        os.path.join(study, "harness", "PINS.json"))
+    sys.path.insert(0, os.path.join(study, "harness"))
+    import make_manifest
+    problems = make_manifest.manifest_problems()
+    if problems:
+        raise IntegrityError(
+            "the study manifest does not describe the tree it covers: %s"
+            % "; ".join(problems))
+    pinned = ((pins.get("studyManifest") or {}).get("sha256"))
+    manifest_path = os.path.join(study, "harness", "STUDY-MANIFEST.sha256")
+    if pinned is None:
+        return "unbound (pre-freeze; the manifest is pinned at the freeze)"
+    actual = digest(manifest_path)
+    if actual != bare(pinned):
+        raise IntegrityError(
+            "harness/STUDY-MANIFEST.sha256 is sha256:%s, not the sha256:%s the "
+            "registry pins" % (actual, bare(pinned)))
+    return "sha256:" + actual
+
+
+def verify(study: str = STUDY, nineteen: str = NINETEEN,
+           label_context: str = None) -> dict:
+    """Everything this partial port can establish, in the registered order: no
+    unreviewed bytecode or untracked source, the port chain, the interpreter,
+    the exact-set manifest, and the label the registry earns.
+
+    IntegrityError on the first refusal; a summary dict when every check passed.
+    What it deliberately does NOT establish is in the module docstring, and the
+    unported controls are in `harness/SCAFFOLD.md` — a green summary here is not
+    a statement that the study is ready to run."""
+    verify_bytecode(study)
+    chain = verify_chain(study, nineteen)
+    interpreter = verify_interpreter(chain["pins"])
+    manifest = verify_manifest(study, chain["pins"])
+    label = study_label(chain["pins"], label_context)
+    return {"portedFiles": sorted(row[2] for row in chain["rows"]),
+            "study019PortsSha256": "sha256:" + chain["study019PortsSha256"],
+            "study019ManifestSha256":
+                "sha256:" + chain["study019ManifestSha256"],
+            "studyManifest": manifest,
+            "label": label,
+            "labelContext": label_context,
+            "unfilledPins": unfilled_pins(chain["pins"], label_context),
+            "unfilledPinSources":
+                unfilled_pin_sources(chain["pins"], label_context),
+            "interpreter": interpreter}
+
+
+def main(argv: list) -> int:
+    try:
+        summary = verify()
+    except IntegrityError as error:
+        print("refused: %s" % error)
+        return 1
+    print("integrity verified: %d ported files; manifest %s; on %s"
+          % (len(summary["portedFiles"]), summary["studyManifest"],
+             summary["interpreter"]))
+    print("label: %s%s"
+          % (summary["label"],
+             "" if not summary["unfilledPins"]
+             else " (%d null pin(s))" % len(summary["unfilledPins"])))
+    # ROUND-7 FINDING R7-8: each with the artifact it is filled from, because a
+    # list of names is a list of things somebody has to already know.
+    # …and WHICH TUPLE each one is in, because 020 has two and they are filled
+    # by different events: a freeze pin waits for the freeze ceremony, a
+    # design-time pin waits for the pre-pilot sweep (M-25). Printing both under
+    # one label would tell an operator to wait for the wrong thing.
+    design_time = {name for name, _path in DESIGN_TIME_PINS}
+    for name, source in summary["unfilledPinSources"]:
+        print("  null %s pin: %s — %s"
+              % ("design-time" if name in design_time else "freeze",
+                 name, source))
+    return 0
+
+
+def _refuse_unsafe_import_path():
+    """Round 10, finding 1, for the THIRD path-invoked entry (README step 1).
+
+    This file carries no untracked-source tripwire of its own — the tree-wide
+    scan it needs is the first thing `verify()` does, inside `verify_bytecode()`
+    — and round 9 called its head "clean" on the narrower ground that it imports
+    nothing study-local at module scope. That property is real and unchanged,
+    but it is not the whole of it: running a script BY PATH puts that script's
+    own directory first on `sys.path`, so the head imports above — `subprocess`,
+    which `verify_bytecode()` asks git what is tracked with, among them —
+    resolve from the study's own harness directory before any byte of this file
+    runs, and `sys.path.insert(0, HERE)` at module scope has no scan before it.
+    Nothing inside the file can close that: `sys.path[0]` is populated before
+    the file is read.
+
+    `-P` / `PYTHONSAFEPATH=1` is the closure, and README step 0 exports it. This
+    refusal only establishes that the operator applied it — a discipline check
+    against operator error, not a gate against a hostile tree, because it
+    executes after the head imports it is about."""
+    if not sys.flags.safe_path:
+        print("refused: run this file with -P, or with PYTHONSAFEPATH=1 in the "
+              "environment as README step 0 exports it; invoking a script by "
+              "path puts its own directory first on sys.path, so this file's "
+              "head imports — `subprocess`, which the tree-wide untracked "
+              "source scan in verify_bytecode() runs on, among them — resolve "
+              "from the harness directory that scan exists to police (§2.10, "
+              "round 10 finding 1)", file=sys.stderr)
+        raise SystemExit(2)
+
+
+if __name__ == "__main__":
+    _refuse_unsafe_import_path()
+    raise SystemExit(main(sys.argv))

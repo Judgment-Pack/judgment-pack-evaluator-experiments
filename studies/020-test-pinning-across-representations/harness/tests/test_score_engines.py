@@ -1,0 +1,565 @@
+"""The execution layer's own arithmetic — wire forms, payload reading, the canary.
+
+Section 7 forbids invoking `codex`, `jpack` or `opa` in CI, so what is exercised
+here is everything the layer decides BEFORE and AFTER a subprocess: how an input
+point becomes a wire document, how a payload becomes a scored-surface tuple, and
+what the capabilities gate concludes from a check's exit status. The flags
+themselves are pinned by `design/TOOLCHAIN-NOTES.md` and re-verified at attempt
+time, and `test_the_registered_flags_are_carried_verbatim` asserts the argv this
+module would build rather than running it.
+"""
+import json
+
+from e4lib import engines
+
+
+class StubTools:
+    jpack = "/pins/jpack"
+    opa = "/pins/opa"
+    caps = "/pins/caps.json"
+
+
+# --- the wire forms ---------------------------------------------------------
+
+def test_facts_documents_drop_unreadable_members_rather_than_nulling_them():
+    """An OMITTED member is the wire form of "unreadable / unreported", and
+    section 4's input-domain closure turns on that being a distinct state."""
+    facts, evidence = engines.facts_documents(
+        {"risk": "55", "spend": None, "country": "LOW", "finEvidence": "present",
+         "insurance": None})
+    assert facts == {"vendor": {"riskScore": "55", "countryRisk": "LOW"}}
+    assert evidence == {"financial-evidence": "present"}
+
+
+def test_the_rego_input_splices_numbers_exactly_from_the_decimal_strings():
+    """Round-tripping `500000.01` through a float would put a binary
+    approximation on one side of a `>` the policy tests — the silent boundary
+    flip the mutant classes exist to detect."""
+    document = engines.render_rego_input({"risk": "40", "spend": "500000.01",
+                                          "country": "LOW"})
+    assert '"requestedSpend": 500000.01' in document
+    assert '"riskScore": 40' in document
+    parsed = json.loads(document)
+    assert parsed["vendor"]["requestedSpend"] == 500000.01
+    assert parsed["evidence"] == {}
+
+
+def test_the_rego_input_quotes_strings_and_omits_unreadables():
+    document = engines.render_rego_input({"sanctions": "CLEAR",
+                                          "country": None,
+                                          "insurance": "absent"})
+    parsed = json.loads(document)
+    assert parsed["vendor"] == {"sanctionsStatus": "CLEAR"}
+    assert parsed["evidence"] == {"insurance-certificate": "absent"}
+
+
+def test_the_two_wire_forms_carry_the_same_members():
+    """One naming appendix, two representations: a member present in one wire
+    form and absent from the other would make the arms answer different
+    questions."""
+    inputs = {"risk": "40", "spend": "1.00", "sanctions": "CLEAR",
+              "country": "LOW", "newVendor": "yes", "critical": "no",
+              "prior": "no", "finEvidence": "present", "insurance": "present"}
+    facts, evidence = engines.facts_documents(inputs)
+    rendered = json.loads(engines.render_rego_input(inputs))
+    assert set(facts["vendor"]) == set(rendered["vendor"])
+    assert set(evidence) == set(rendered["evidence"])
+
+
+# --- the scored surface -----------------------------------------------------
+
+def test_scope_str_spells_every_scored_surface_shape():
+    assert engines.scope_str(("outcome", "approve", ())) == "outcome:approve"
+    assert engines.scope_str(("unresolved", None, ("no-match", "unknown"))) == \
+        "unresolved:[no-match,unknown]"
+    assert engines.scope_str(("ROW-ERROR", "engine-timeout", ())) == \
+        "ROW-ERROR:engine-timeout"
+    assert engines.scope_str(None) == "<unreadable-expectation>"
+
+
+def test_a_pack_payload_becomes_the_scored_surface_and_nothing_else(monkeypatch,
+                                                                    tmp_path):
+    """`handoff` and `trace[]` are outside every endpoint (section 5) and are
+    not read at all, so no later filter can forget to drop them."""
+    monkeypatch.setattr(engines, "jpack_json", lambda *a, **k: (
+        {"status": "evaluated",
+         "disposition": {"kind": "outcome", "outcomeId": "review",
+                         "reasons": []},
+         "handoff": {"state": "pending", "target": "committee"},
+         "trace": [{"rule": "r-d3"}]}, 0, "", ""))
+    assert engines.eval_pack(StubTools(), "pack.json", {}, {},
+                             str(tmp_path)) == ("outcome", "review", ())
+
+
+def test_a_refused_evaluation_is_a_row_error_with_its_class(monkeypatch,
+                                                            tmp_path):
+    monkeypatch.setattr(engines, "jpack_json", lambda *a, **k: (
+        {"status": "refused", "error": {"class": "facts-schema"}}, 1, "", ""))
+    assert engines.eval_pack(StubTools(), "pack.json", {}, {},
+                             str(tmp_path)) == ("ROW-ERROR", "facts-schema", ())
+
+
+def test_a_non_json_payload_is_a_row_error_not_a_crash(monkeypatch, tmp_path):
+    monkeypatch.setattr(engines, "jpack_json", lambda *a, **k: (None, 5, "", ""))
+    assert engines.eval_pack(StubTools(), "pack.json", {}, {},
+                             str(tmp_path))[1] == "non-json-payload"
+    monkeypatch.setattr(engines, "jpack_json", lambda *a, **k: (None, 124, "", ""))
+    assert engines.eval_pack(StubTools(), "pack.json", {}, {},
+                             str(tmp_path))[1] == "engine-timeout"
+
+
+def test_an_unresolved_pack_answer_sorts_its_reasons(monkeypatch, tmp_path):
+    monkeypatch.setattr(engines, "jpack_json", lambda *a, **k: (
+        {"status": "evaluated",
+         "disposition": {"kind": "unresolved",
+                         "reasons": ["unknown", "no-match"]}}, 0, "", ""))
+    assert engines.eval_pack(StubTools(), "pack.json", {}, {}, str(tmp_path)) \
+        == ("unresolved", None, ("no-match", "unknown"))
+
+
+def test_a_rego_answer_becomes_the_same_three_tuple(monkeypatch, tmp_path):
+    payload = json.dumps({"result": [{"expressions": [{"value": {
+        "disposition": "review", "reasons": []}}]}]})
+    monkeypatch.setattr(engines, "_run", lambda *a, **k: (0, payload, ""))
+    assert engines.eval_rego(StubTools(), "policy.rego", {}, str(tmp_path)) == \
+        ("outcome", "review", ())
+
+
+def test_a_rego_contract_violation_is_a_row_error(monkeypatch, tmp_path):
+    payload = json.dumps({"result": [{"expressions": [{"value": {
+        "disposition": 7, "reasons": []}}]}]})
+    monkeypatch.setattr(engines, "_run", lambda *a, **k: (0, payload, ""))
+    assert engines.eval_rego(StubTools(), "policy.rego", {},
+                             str(tmp_path))[1] == "contract-shape"
+    monkeypatch.setattr(engines, "_run", lambda *a, **k: (0, "{}", ""))
+    assert engines.eval_rego(StubTools(), "policy.rego", {},
+                             str(tmp_path))[1] == "undefined"
+
+
+def test_rego_error_codes_are_recorded_and_message_prose_is_not(monkeypatch,
+                                                                tmp_path):
+    payload = json.dumps({"errors": [
+        {"code": "eval_conflict_error", "message": "upstream prose"}]})
+    monkeypatch.setattr(engines, "_run", lambda *a, **k: (1, payload, ""))
+    observed = engines.eval_rego(StubTools(), "policy.rego", {}, str(tmp_path))
+    assert observed == ("ROW-ERROR", "eval_conflict_error", ())
+    assert "upstream prose" not in engines.scope_str(observed)
+
+
+# --- the flags, and the canary ----------------------------------------------
+
+def test_the_registered_flags_are_carried_verbatim(monkeypatch, tmp_path):
+    captured = {}
+
+    def capture(argv, cwd, timeout=engines.ENGINE_TIMEOUT_S):
+        captured["argv"] = argv
+        return 0, "{}", ""
+    monkeypatch.setattr(engines, "_run", capture)
+    engines.eval_rego(StubTools(), "policy.rego", {}, str(tmp_path))
+    argv = captured["argv"]
+    for flag in ("eval", "--format", "json", "--fail", "--strict-builtin-errors",
+                 "--capabilities", "--timeout"):
+        assert flag in argv
+    assert argv[-1] == engines.REGO_ENTRYPOINT
+    assert "exec" not in argv, "opa exec does not accept --capabilities at v1.19.0"
+
+
+# `opa test` and the ADJUDICATION `opa eval` share `_run`, so the stub routes on
+# the subcommand (round-2 R2-3). `adjudication` is what the strict-mode
+# re-evaluation of a failed test answers: `{}` is "a real assertion failure" and
+# an `errors` list is an evaluation fault.
+_CLEAN_ADJUDICATION = "{}"
+_FAULT_ADJUDICATION = json.dumps(
+    {"errors": [{"code": "eval_builtin_error", "message": "div: divide by zero"}]})
+
+
+def _opa_test(monkeypatch, tmp_path, code, out="", err="",
+              adjudication=_CLEAN_ADJUDICATION, adjudication_code=0):
+    def route(argv, cwd, timeout=None):
+        if "eval" in argv:
+            return adjudication_code, adjudication, ""
+        return code, out, err
+    monkeypatch.setattr(engines, "_run", route)
+    return engines.opa_test(StubTools(), "p.rego", "s.rego", str(tmp_path))
+
+
+def test_opa_test_reads_the_result_document_and_not_the_exit_status(monkeypatch,
+                                                                    tmp_path):
+    """ROUND-1 R1-8's enforcing test at the engine layer.
+
+    The old table said exit 1 was a test failure and exit 2 an error; measured
+    on the pinned OPA v1.19.0 it is the other way round, and
+    `design/TOOLCHAIN-NOTES.md` ("a failing test exits **2**") and §2 were right
+    all along. Nothing is keyed on the status now regardless: the result
+    document is what says whether a test FAILED, and the exit status is carried
+    only as a record."""
+    passing = json.dumps([{"package": "data.s_test", "name": "test_ok"}])
+    failing = json.dumps([{"package": "data.s_test", "name": "test_ok",
+                           "fail": True}])
+    errored = json.dumps([{"package": "data.s_test", "name": "test_ok",
+                           "error": {"code": "eval_conflict_error"}}])
+    # The same document under BOTH exit statuses gives the same answer: the
+    # status is not consulted.
+    for code in (0, 1, 2, 77):
+        assert _opa_test(monkeypatch, tmp_path, code,
+                         passing)["status"] == engines.TEST_PASS
+        assert _opa_test(monkeypatch, tmp_path, code,
+                         failing)["status"] == engines.TEST_FAILED
+        assert _opa_test(monkeypatch, tmp_path, code,
+                         errored)["status"] == engines.TEST_ERRORED
+
+
+def test_a_reported_failure_that_is_an_evaluation_fault_is_not_a_kill(
+        monkeypatch, tmp_path):
+    """ROUND-2 R2-3 at the engine layer, and the result document alone cannot
+    tell these apart.
+
+    `opa test` has no `--strict-builtin-errors` at v1.19.0, so a builtin fault
+    inside a test body does not error — it makes the body undefined and the test
+    reports `fail: true` with no `error` member. The reviewer's probe is exactly
+    that: a reference-passing test containing `1 / denominator == 1` against a
+    valid mutant that zeroes the denominator, credited as a kill. The failure is
+    adjudicated in strict mode now, and a fault is a refusal."""
+    failing = json.dumps([{"package": "data.s_test", "name": "test_div",
+                           "fail": True}])
+    record = _opa_test(monkeypatch, tmp_path, 2, failing,
+                       adjudication=_FAULT_ADJUDICATION, adjudication_code=2)
+    assert record["status"] == engines.TEST_ERRORED
+    assert record["failed"] == []
+    assert record["evaluationFaults"] == [
+        {"test": "data.s_test.test_div", "fault": "eval_builtin_error"}]
+    assert record["status"] not in engines.TEST_SUITE_STATUSES
+
+
+def test_an_adjudication_that_cannot_be_read_refuses_rather_than_killing(
+        monkeypatch, tmp_path):
+    """Fail-closed has a direction: an adjudication that did not answer is not
+    evidence of a kill."""
+    failing = json.dumps([{"package": "data.s_test", "name": "test_x",
+                           "fail": True}])
+    record = _opa_test(monkeypatch, tmp_path, 2, failing,
+                       adjudication="not json", adjudication_code=1)
+    assert record["status"] == engines.TEST_ERRORED
+    assert record["evaluationFaults"][0]["fault"] == "unreadable-adjudication"
+
+
+def test_the_adjudication_is_the_strict_builtin_error_query_of_that_test(
+        monkeypatch, tmp_path):
+    """It queries the RULE, under the pinned capabilities and strict mode, over
+    the same two files — the pinned binary's own reading, not a re-implementation
+    of Rego."""
+    seen = []
+
+    def route(argv, cwd, timeout=None):
+        if "eval" in argv:
+            seen.append(argv)
+            return 0, "{}", ""
+        return 2, json.dumps([{"package": "data.s_test", "name": "test_x/sub",
+                               "fail": True}]), ""
+
+    monkeypatch.setattr(engines, "_run", route)
+    engines.opa_test(StubTools(), "p.rego", "s.rego", str(tmp_path))
+    assert len(seen) == 1
+    assert "--strict-builtin-errors" in seen[0]
+    assert "--capabilities" in seen[0]
+    # the sub-test suffix is dropped: the RULE is what is queried.
+    assert seen[0][-1] == "data.s_test.test_x"
+
+
+def test_opa_test_routes_every_non_suite_outcome_away_from_the_suite(monkeypatch,
+                                                                     tmp_path):
+    """A load/parse/compile failure emits no result list, a harness timeout
+    emits nothing at all, and unreadable stdout is neither. None of the three is
+    evidence about a suite, and `TEST_SUITE_STATUSES` is the two that are."""
+    assert _opa_test(monkeypatch, tmp_path, 1, "", "1 error occurred")["status"] \
+        == engines.TEST_INVOCATION_REFUSED
+    assert _opa_test(monkeypatch, tmp_path, 124)["status"] == engines.TEST_TIMEOUT
+    assert _opa_test(monkeypatch, tmp_path, 0, "{not a list}")["status"] \
+        == engines.TEST_UNREADABLE
+    assert engines.TEST_SUITE_STATUSES == (engines.TEST_PASS,
+                                           engines.TEST_FAILED)
+
+
+def test_opa_test_names_every_failing_test_and_counts_them(monkeypatch,
+                                                           tmp_path):
+    """ROUND-3 R3-3, and this test is REVERSED from what it asserted.
+
+    It used to require `failed == ["data.s_test.b"]` and carried the comment
+    "the scan stops at the first failure that SURVIVES adjudication: one real
+    assertion failure is a kill and the rest is diagnosis" — which is the
+    behaviour R3-3 found and is the reason the fault below it was never looked
+    at. Every reported failure is adjudicated now, so every genuine one is
+    named."""
+    document = json.dumps([
+        {"package": "data.s_test", "name": "a"},
+        {"package": "data.s_test", "name": "b", "fail": True},
+        {"package": "data.s_test", "name": "c", "fail": True}])
+    record = _opa_test(monkeypatch, tmp_path, 2, document)
+    assert record["tests"] == 3
+    assert record["failed"] == ["data.s_test.b", "data.s_test.c"]
+    assert record["errored"] == []
+    assert record["exitCode"] == 2
+    assert record["status"] == engines.TEST_FAILED
+
+
+# --- ROUND-3 R3-3: a mixed list, in BOTH lexical orders ---------------------
+
+def _opa_test_mixed(monkeypatch, tmp_path, names, faulting):
+    """`opa test` reporting several failures, with `faulting` naming the tests
+    whose strict-mode adjudication comes back as an evaluation fault.
+
+    The adjudication is routed PER QUERY — `evaluation_fault()` puts the test's
+    own rule path last on the `opa eval` argv — because the whole of R3-3 is
+    that one adjudication's answer must not stand in for another's."""
+    document = json.dumps([{"package": "data.s_test", "name": name,
+                            "fail": True} for name in names])
+
+    def route(argv, cwd, timeout=None):
+        if "eval" in argv:
+            query = argv[-1]
+            if query in faulting:
+                return 2, _FAULT_ADJUDICATION, ""
+            return 0, _CLEAN_ADJUDICATION, ""
+        return 2, document, ""
+
+    monkeypatch.setattr(engines, "_run", route)
+    return engines.opa_test(StubTools(), "p.rego", "s.rego", str(tmp_path))
+
+
+def test_a_fault_after_a_genuine_failure_still_refuses_the_invocation(
+        monkeypatch, tmp_path):
+    """THE REVIEWER'S R3-3 PROBE, in its damaging order.
+
+    "A two-failure probe — lexically first a genuine assertion, later a
+    divide-by-zero fault — returned `status:"failed"`, no evaluation faults, and
+    `kill_arm_rego = killed`." The genuine failure sorted first, the scan
+    stopped there, and the fault the run really suffered was never adjudicated.
+    §2 makes a runtime failure an apparatus refusal, so the invocation refuses:
+    the genuine failure is still NAMED, and it does not decide the status."""
+    record = _opa_test_mixed(monkeypatch, tmp_path,
+                             ["test_aaa_genuine", "test_zzz_fault"],
+                             {"data.s_test.test_zzz_fault"})
+    assert record["failed"] == ["data.s_test.test_aaa_genuine"]
+    assert record["errored"] == ["data.s_test.test_zzz_fault"]
+    assert record["evaluationFaults"] == [
+        {"test": "data.s_test.test_zzz_fault", "fault": "eval_builtin_error"}]
+    assert record["status"] == engines.TEST_ERRORED
+    assert record["status"] not in engines.TEST_SUITE_STATUSES
+
+
+def test_the_same_two_failures_in_the_other_lexical_order_answer_identically(
+        monkeypatch, tmp_path):
+    """The order the old code happened to survive. A rule whose answer depends
+    on which test name sorts first is not a rule, and `opa test --format json`
+    does not order its own list — so the two orders are required to agree
+    member for member, not merely in their status."""
+    damaging = _opa_test_mixed(monkeypatch, tmp_path,
+                               ["test_aaa_genuine", "test_zzz_fault"],
+                               {"data.s_test.test_zzz_fault"})
+    benign = _opa_test_mixed(monkeypatch, tmp_path,
+                             ["test_aaa_fault", "test_zzz_genuine"],
+                             {"data.s_test.test_aaa_fault"})
+    assert benign["status"] == damaging["status"] == engines.TEST_ERRORED
+    assert benign["failed"] == ["data.s_test.test_zzz_genuine"]
+    assert benign["errored"] == ["data.s_test.test_aaa_fault"]
+    assert len(benign["evaluationFaults"]) == len(damaging["evaluationFaults"]) == 1
+
+
+def test_a_reported_error_member_outranks_a_genuine_failure_beside_it(
+        monkeypatch, tmp_path):
+    """The same precedence at the other source of apparatus evidence: a test the
+    result document itself reports as ERRORED refuses the invocation even when a
+    genuine assertion failure sits beside it. `failed` used to be consulted
+    first, so the errored test was recorded and then ignored."""
+    document = json.dumps([
+        {"package": "data.s_test", "name": "test_broken",
+         "error": {"code": "eval_conflict_error"}},
+        {"package": "data.s_test", "name": "test_real", "fail": True}])
+    record = _opa_test(monkeypatch, tmp_path, 2, document)
+    assert record["failed"] == ["data.s_test.test_real"]
+    assert record["errored"] == ["data.s_test.test_broken"]
+    assert record["status"] == engines.TEST_ERRORED
+
+
+def test_opa_test_asks_for_the_machine_readable_format(monkeypatch, tmp_path):
+    seen = {}
+
+    def capture(argv, cwd, timeout=None):
+        seen["argv"] = argv
+        return 0, "[]", ""
+
+    monkeypatch.setattr(engines, "_run", capture)
+    engines.opa_test(StubTools(), "p.rego", "s.rego", str(tmp_path))
+    assert "--format" in seen["argv"]
+    assert seen["argv"][seen["argv"].index("--format") + 1] == "json"
+
+
+def test_opa_parse_asks_the_pinned_binary_for_the_syntax_tree(monkeypatch,
+                                                              tmp_path):
+    """Round-1 R1-3: arms B/C's case inputs are enumerated from the parser's own
+    tree, and parsing is a syntax operation that takes no capabilities file."""
+    seen = {}
+
+    def capture(argv, cwd, timeout=None):
+        seen["argv"] = argv
+        return 0, "{}", ""
+
+    monkeypatch.setattr(engines, "_run", capture)
+    code, raw = engines.opa_parse(StubTools(), "s.rego", str(tmp_path))
+    assert code == 0 and raw == b"{}"
+    assert seen["argv"][1:] == ["parse", "--format", "json", "s.rego"]
+    assert "--capabilities" not in seen["argv"]
+
+
+def test_the_canary_gate_passes_only_when_the_canary_is_refused(monkeypatch,
+                                                               tmp_path):
+    """"The canary passed" reads both ways in English, and section 5 spells the
+    FAILURE as "capabilities canary passes" — so the record says `refused`."""
+    monkeypatch.setattr(engines, "opa_check",
+                        lambda *a, **k: (1, ["rego_type_error"]))
+    assert engines.capabilities_canary(StubTools(), str(tmp_path))["refused"]
+    monkeypatch.setattr(engines, "opa_check", lambda *a, **k: (0, []))
+    assert not engines.capabilities_canary(StubTools(), str(tmp_path))["refused"]
+
+
+def test_the_canary_source_lives_in_this_reviewed_module():
+    """A gate whose probe is a data file can be defanged by editing a fixture."""
+    assert "time.now_ns" in engines.CANARY_REGO
+    assert "import rego.v1" in engines.CANARY_REGO
+
+
+# --- the canary's SECOND arm ------------------------------------------------
+#
+# A canary refused under the pinned file is half a control. Refused BOTH ways is
+# a broken probe — a typo is refused everywhere — and proves nothing about the
+# filter. The unfiltered arm compiles the same probe under the binary's own
+# capability set, and `bothDirections` is the conjunction.
+
+FULL_SET = {"builtins": [{"name": "time.now_ns", "decl": {"type": "function"},
+                          "nondeterministic": True}],
+            "features": ["rego_v1"], "future_keywords": ["in"],
+            "wasm_abi_versions": [{"version": 1, "minor_version": 3}]}
+
+
+def _two_armed_run(monkeypatch, filtered_code, unfiltered_code, seen=None):
+    """Stub `_run` so `capabilities --current` answers and `check` answers by
+    WHICH capabilities file it was handed."""
+    def fake(argv, cwd, timeout=None):
+        if argv[1] == "capabilities":
+            return 0, json.dumps(FULL_SET), ""
+        if seen is not None:
+            seen.append(list(argv))
+        caps = argv[argv.index("--capabilities") + 1]
+        code = unfiltered_code if caps.endswith("caps-full.json") \
+            else filtered_code
+        if code == 0:
+            return 0, "", ""
+        return code, "", json.dumps({"errors": [{"code": "rego_type_error"}]})
+
+    monkeypatch.setattr(engines, "_run", fake)
+
+
+def test_both_directions_is_accepted_unfiltered_and_refused_filtered(
+        monkeypatch, tmp_path):
+    _two_armed_run(monkeypatch, filtered_code=1, unfiltered_code=0)
+    record = engines.capabilities_canary(StubTools(), str(tmp_path))
+    assert record["refused"] is True
+    assert record["errorCodes"] == ["rego_type_error"]
+    assert record["acceptedUnfiltered"] is True
+    assert record["unfilteredProblem"] is None
+    assert record["bothDirections"] is True
+
+
+def test_a_probe_refused_both_ways_is_a_broken_canary_not_a_working_filter(
+        monkeypatch, tmp_path):
+    """The failure a one-armed canary cannot see: the filtered arm still says
+    `refused`, and only `bothDirections` says the control demonstrated
+    nothing."""
+    _two_armed_run(monkeypatch, filtered_code=1, unfiltered_code=1)
+    record = engines.capabilities_canary(StubTools(), str(tmp_path))
+    assert record["refused"] is True
+    assert record["acceptedUnfiltered"] is False
+    assert record["bothDirections"] is False
+
+
+def test_a_probe_accepted_both_ways_fails_both_the_gate_and_the_conjunction(
+        monkeypatch, tmp_path):
+    _two_armed_run(monkeypatch, filtered_code=0, unfiltered_code=0)
+    record = engines.capabilities_canary(StubTools(), str(tmp_path))
+    assert record["refused"] is False
+    assert record["bothDirections"] is False
+
+
+def test_the_two_arms_differ_only_in_which_capabilities_file_is_named(
+        monkeypatch, tmp_path):
+    """An arm that omitted `--capabilities` would make accepted/refused an
+    artefact of the flag rather than of the file."""
+    seen = []
+    _two_armed_run(monkeypatch, filtered_code=1, unfiltered_code=0, seen=seen)
+    engines.capabilities_canary(StubTools(), str(tmp_path))
+    assert len(seen) == 2
+    for argv in seen:
+        assert "--capabilities" in argv
+    positions = [argv.index("--capabilities") for argv in seen]
+    stripped = [argv[:at] + argv[at + 2:] for argv, at in zip(seen, positions)]
+    assert stripped[0] == stripped[1]
+    named = [argv[at + 1] for argv, at in zip(seen, positions)]
+    assert named[0] == StubTools.caps and named[0] != named[1]
+
+
+def test_an_unrunnable_second_arm_is_recorded_as_unknown_not_as_failure(
+        monkeypatch, tmp_path):
+    """`None` is not `False`: "the second arm did not run" and "the probe was
+    refused unfiltered too" are different facts, and a boolean would merge them.
+    Only the filtered arm is stubbed here, so `StubTools.opa` — not a real path
+    — is what the derivation tries to invoke, and it cannot."""
+    monkeypatch.setattr(engines, "opa_check",
+                        lambda *a, **k: (1, ["rego_type_error"]))
+    record = engines.capabilities_canary(StubTools(), str(tmp_path))
+    assert record["refused"] is True
+    assert record["acceptedUnfiltered"] is None
+    assert record["unfilteredProblem"]
+    assert record["bothDirections"] is False
+
+
+def test_the_second_arm_never_turns_a_refusal_into_a_pass(monkeypatch,
+                                                          tmp_path):
+    """The registered gate reads `refused`, so the additive arm must be unable
+    to move it in the permissive direction."""
+    for unfiltered in (0, 1):
+        _two_armed_run(monkeypatch, filtered_code=1,
+                       unfiltered_code=unfiltered)
+        assert engines.capabilities_canary(StubTools(),
+                                           str(tmp_path))["refused"] is True
+
+
+def test_which_failure_is_recorded_does_not_depend_on_the_report_order(
+        monkeypatch, tmp_path):
+    """Determinism, and it is a REGISTERED property of what the scorer writes.
+
+    `opa test --format json` does not order its result list (`--sort` defaults to
+    `none`), so "the first reported failure" was not a stable choice: two
+    scorings of one batch recorded different named tests in `failedTests`, and
+    the pilot artifact stopped being byte-identical across reruns. The
+    adjudication order is sorted, so the recorded failures are a function of the
+    data. ROUND-3 R3-3 makes the property stronger rather than weaker: every
+    reported failure is adjudicated and retained, so the two readings must agree
+    on the WHOLE list and not merely on its first member."""
+    entries = [{"package": "data.s_test", "name": name, "fail": True}
+               for name in ("test_c", "test_a", "test_b")]
+    forward = _opa_test(monkeypatch, tmp_path, 2, json.dumps(entries))
+    reversed_ = _opa_test(monkeypatch, tmp_path, 2,
+                          json.dumps(list(reversed(entries))))
+    assert forward["failed"] == reversed_["failed"] == [
+        "data.s_test.test_a", "data.s_test.test_b", "data.s_test.test_c"]
+
+
+def test_the_errored_list_is_sorted_whatever_the_report_order(monkeypatch,
+                                                              tmp_path):
+    entries = [{"package": "data.s_test", "name": name,
+                "error": {"code": "eval_conflict_error"}}
+               for name in ("test_c", "test_a", "test_b")]
+    record = _opa_test(monkeypatch, tmp_path, 2, json.dumps(entries))
+    assert record["errored"] == ["data.s_test.test_a", "data.s_test.test_b",
+                                 "data.s_test.test_c"]
+    assert record["status"] == engines.TEST_ERRORED

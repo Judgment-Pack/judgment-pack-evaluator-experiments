@@ -9,9 +9,10 @@ is the single machine-readable source for round counts, verdicts and open state 
 ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 0 review rounds are on the record, 0 have returned a verdict — none has returned a verdict — and no round is open.
 <!-- round-status:end -->
 
-> The sentence above is hand-written to be byte-identical to what the block renders, and is
-> **marked for mechanical regeneration at harness-port time**: `render_round_status.py` arrives
-> with the harness (`PREREGISTRATION.md` §7, delta 10) and its first act is `--write`.
+> The sentence above is **rendered** from `PREREG-REVIEW.md`'s round-state block by
+> `harness/render_round_status.py`. It was hand-written until the harness port landed; the
+> port's first act was `--write`, which reported `nothing moved` — the hand-written sentence
+> was already byte-identical to the rendered one. Edit the block, never this sentence.
 
 ## The registered question
 
@@ -70,6 +71,22 @@ coverage is identical and only authoring validity differs**.
   govern.**
 - [`design/PANEL-FINDINGS.md`](design/PANEL-FINDINGS.md) — the panel findings on brief v1,
   verbatim.
+- [`harness/`](harness) — Study 019's machinery, inherited by port (`PREREGISTRATION.md` §7).
+  [`harness/PORTS.md`](harness/PORTS.md) is the two-sided digest table with an enumerated
+  change list per row; [`harness/PINS.json`](harness/PINS.json) is the registry, with **every
+  freeze pin null**; [`harness/SCAFFOLD.md`](harness/SCAFFOLD.md) is the register of what the
+  port leaves owed, item by item, with the freeze gated on each;
+  [`harness/POWER-PRESENCE-IDIOM.md`](harness/POWER-PRESENCE-IDIOM.md) is §3.2's pre-freeze
+  power analysis for the presence-idiom guard.
+- [`policy/POLICY.md`](policy/POLICY.md) — the frozen policy prose, ported byte-for-byte from
+  Study 019. This study drafts none of its own.
+
+**What the harness port did NOT bring.** The registered study artifacts of §4.1 — the gold
+suite, both mutant corpora, both reference implementations, the off-gold certificate and the
+verification documents — are ported by digest and are a `GATE(pre-freeze)`
+(`harness/SCAFFOLD.md` item A1). They are not in this tree yet, `harness/PINS.json` records each
+one's 019-side digest under a `…AtSource` member, and every harness test that reads one skips by
+a named reason rather than passing vacuously.
 
 ## The ceiling, stated now
 
