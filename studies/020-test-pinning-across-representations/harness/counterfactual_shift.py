@@ -15,10 +15,13 @@ THE RECODE, DERIVED FROM THE REGISTRATION AND NOT CHOSEN HERE
 -------------------------------------------------------------
 Section 3.2 registers what the code DOES: a flagged run is "valid, counted, and
 scoring zero on every endpoint it reaches, exactly as the other authoring codes
-do." On Study 019's batch the other authoring codes (`unparseable-artifact`,
-`opa-check-failed`, `no-marker-block`) all present the same way: the record
-carries NO kill block and `identityPass: false` — all 24 coded records, no
-exception. And `e4lib/admit.py` makes both properties structural rather than
+do." On Study 019's batch every authoring-coded record carries
+`identityPass: false`, and eighteen of the twenty-four carry no kill block at
+all; the other six (section 5.2 pin 4's runs) carry a DEFECTIVE block with no
+survivor vector, which the adapter routes to the same unscoreable state — so
+"no scoring information and no per-protocol membership" is the uniform
+presentation, reached through two record shapes (R1-11 corrected this
+paragraph: its first printing claimed all 24 lacked kill blocks). And `e4lib/admit.py` makes both properties structural rather than
 incidental: a flagged run's `admit_arm_rego()` returns no policy path, so
 nothing downstream can run the identity control or a suite. The counterfactual
 unit for a flagged run is therefore
@@ -26,9 +29,9 @@ unit for a flagged run is therefore
     family.unit_from_kill_record(run_id, arm, identity_pass=False,
                                  case_count, kill=None, corpus)
 
-— admitted, in every ITT denominator, scoring zero, taking no offset, out of
-the per-protocol population — which is `family.py`'s registered meaning of a
-run with no kill record (finding F-3's scoreability predicate). Nothing else
+— admitted, in every ITT denominator, scoring zero, taking no offset under
+either of R1-3's predicates, out of the per-protocol population — which is
+`family.py`'s registered meaning of a run with no kill record. Nothing else
 about any unit changes: the 28 admitted-but-unflagged B/C runs, all 36 arm-A
 units and all 24 already-coded records pass through byte-identically.
 
@@ -39,11 +42,15 @@ The 32 flagged runs are re-derived here by running the certified detector
 over the policies extracted from Study 019's retained completion bytes with the
 pinned OPA binary — the same registered operating set, "each admitted
 arm-B/arm-C policy". The script then REFUSES to publish unless the derivation
-reproduces the certified counts exactly: 32 flagged of the 60 admitted, arm B
-15 of 30, arm C 17 of 30. A wrong count here means the detector, the extractor
-or the 019 tree has drifted from what the power analysis certified, and a shift
-computed over a drifted set would be a new measurement wearing a certified
-one's name.
+reproduces the certified partition exactly — the counts (32 flagged of the 60
+admitted, arm B 19 of 30, arm C 13 of 30; this sentence's first printing
+carried the corrected-away B 15 / C 17, caught by R1-11) AND, per R1-11, the
+IDENTITY of the set: the sha256 over the sorted run ids, pinned below, so a
+drift that swaps a true positive for a same-arm false positive cannot pass on
+arithmetic alone. A wrong count or a wrong digest means the detector, the
+extractor or the 019 tree has drifted from what the power analysis certified,
+and a shift computed over a drifted set would be a new measurement wearing a
+certified one's name.
 
 WHAT IS PUBLISHED
 -----------------
@@ -109,6 +116,10 @@ OUTPUT_NAME = "COUNTERFACTUAL-SHIFT.json"
 #: C 13 with the same certified total of 32.
 CERTIFIED_FLAGGED = {"B": 19, "C": 13}
 CERTIFIED_ADMITTED = {"B": 30, "C": 30}
+#: R1-11: the certified set's IDENTITY, not only its arithmetic — sha256 over
+#: "\n".join(sorted(run ids)). Pinned from the certified derivation; a
+#: same-arm substitution passes the counts and fails this.
+CERTIFIED_FLAGGED_SHA256 = "759b0ddcf8c5eb23b4bd3a8a98d927ca0b73f43873480fa5168a4afc6a25b2da"
 
 #: 019's `run` ids restart per arm (fixture finding in `test_family.py`), so
 #: every id in this module is `ARM/run-NNN`.
@@ -191,22 +202,23 @@ def build_units(batch: dict, corpus, recode_flagged=frozenset()) -> dict:
                 record.get("caseCount"), kill, corpus))
             continue
         except family.EmptySurvivorAmbiguity:
-            # Section 5.2 Fact-1: `killedPaired: 0` beside an empty survivor
-            # vector. Zero killed is unambiguous on its own — every paired
-            # mutant survived.
+            # Section 5.2 Fact-1, re-read under R1-3: 019 gated mutant
+            # execution on identity, so this state means NOTHING RAN — the
+            # unit carries the record and is not evaluated, exactly as
+            # `test_family.py`'s adapter now builds it.
             if kill.get("killedPaired") != 0:
                 raise ShiftError(
                     "SHIFT-ADAPTER %s: an ambiguous survivor vector with a "
                     "non-zero kill count is not the Fact-1 defect and has no "
                     "registered repair" % run_id)
+            if record["identityPass"] is not False:
+                raise ShiftError(
+                    "SHIFT-ADAPTER %s: an identity-passing run in the "
+                    "empty-survivor state breaks the R1-3 inference" % run_id)
             repaired_empty.append(run_id)
-            language = family.ARM_LANGUAGE[record["arm"]]
-            units.append(family.unit_from_kill_record(
+            units.append(family.unit_not_evaluated(
                 run_id, record["arm"], record["identityPass"],
-                record.get("caseCount"),
-                {"survivorsPaired": corpus.paired_members(language),
-                 "killedPaired": 0,
-                 "killedPairedExcludingEngineSupplied": 0}, corpus))
+                record.get("caseCount")))
         except family.FamilyError as refusal:
             # Section 5.2 pin 4: a kill block with no survivor vector at all.
             if "FAMILY-NO-SURVIVOR-VECTOR" not in str(refusal):
@@ -269,9 +281,21 @@ def derive_flagged(tools: engines.Toolchain, batch: dict, scratch: str) -> dict:
                      "identityPassAsScored": bool(record["identityPass"]),
                      "hadKillRecord": record.get("kill") is not None})
     certify_counts(counts)
-    return {"rows": rows, "counts": counts,
-            "flagged": tuple(sorted(row["run"] for row in rows
-                                    if row["flagged"]))}
+    flagged = tuple(sorted(row["run"] for row in rows if row["flagged"]))
+    certify_identity(flagged)
+    return {"rows": rows, "counts": counts, "flagged": flagged}
+
+
+def certify_identity(flagged) -> None:
+    """R1-11's other half: the set itself, not its row sums."""
+    import hashlib
+    digest = hashlib.sha256("\n".join(flagged).encode("utf-8")).hexdigest()
+    if digest != CERTIFIED_FLAGGED_SHA256:
+        raise ShiftError(
+            "SHIFT-NOT-CERTIFIED the derived flagged set hashes to %s, not "
+            "the certified %s: the counts alone cannot tell a certified set "
+            "from a same-arm substitution, and this gate exists so they do "
+            "not have to" % (digest, CERTIFIED_FLAGGED_SHA256))
 
 
 def certify_counts(counts: dict) -> None:

@@ -1,7 +1,7 @@
 # Study 020 — test pinning across representations
 
-**Status: DRAFT preregistration, first revision. Not frozen. Nothing citable has run, and no
-review round is on the record.** [`PREREGISTRATION.md`](PREREGISTRATION.md) is the protocol;
+**Status: DRAFT preregistration, first revision, under review. Not frozen. Nothing citable
+has run; the review record's state is the rendered sentence below and only there.** [`PREREGISTRATION.md`](PREREGISTRATION.md) is the protocol;
 [`PREREG-REVIEW.md`](PREREG-REVIEW.md) is the pre-freeze review record and its round-state block
 is the single machine-readable source for round counts, verdicts and open state (ADR 0005).
 
@@ -62,7 +62,9 @@ coverage is identical and only authoring validity differs**.
 - [`PREREGISTRATION.md`](PREREGISTRATION.md) — the draft protocol, with `GATE(pre-freeze)` markers
   for the ceremony's work and `TODO(prereg)` markers for values that cannot exist yet.
 - [`PREREG-REVIEW.md`](PREREG-REVIEW.md) — the pre-freeze review record and the round-state block.
-- [`DEVIATIONS.md`](DEVIATIONS.md) — empty until something departs from a frozen preregistration;
+- [`DEVIATIONS.md`](DEVIATIONS.md) — no deviations until something departs from a frozen
+  preregistration, and already carrying the pre-freeze OPERATIONAL RECORD (the sweep's two
+  refused invocations, the fill's verification corrections);
   nothing is frozen. Outside the freeze set by design.
 - [`design/BRIEF.md`](design/BRIEF.md) — the design brief v2, every figure re-derived from 019's
   frozen artifacts with no new model calls.

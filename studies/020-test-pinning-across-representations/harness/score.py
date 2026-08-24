@@ -1419,7 +1419,16 @@ def registered_family(e4_by_arm: dict, per_arm_runs: dict, context: dict,
                 and not verdicts[decision.CONTRAST_PRIMARY].get("claim"):
             break
         try:
-            report = family_lib.family_report(units, corpus, left, right)
+            # R1-5: the permutation seed and the BCa pair come from the
+            # registry, so the published intervals rest on registered numbers
+            # rather than on bca_interval()'s refusal.
+            family_pins = (context.get("pins") or {}).get("family") or {}
+            kwargs = {"bca_resamples": family_pins.get("bcaResamples"),
+                      "bca_seed": family_pins.get("bcaSeed")}
+            if family_pins.get("permutationSeed") is not None:
+                kwargs["seed"] = family_pins["permutationSeed"]
+            report = family_lib.family_report(units, corpus, left, right,
+                                              **kwargs)
         except Exception as error:                   # noqa: BLE001 (named below)
             where = ("family" if key == decision.CONTRAST_PRIMARY
                      else "familySecondary")
@@ -2215,6 +2224,10 @@ def main(argv=None) -> int:
                    "pairing": pairing,
                    "sharedClasses": shared,
                    "pairedDenominators": denominators,
+                   # R1-5: the family's registered stream parameters travel
+                   # with the context so `registered_family()` reads them from
+                   # the registry rather than from a constant it trusts.
+                   "pins": pins,
                    "referenceA": os.path.join(STUDY, REFERENCE_A_RELATIVE),
                    "referenceB": os.path.join(STUDY, REFERENCE_B_RELATIVE)}
         floor_gate = references_reproduce_gold(

@@ -237,7 +237,9 @@ from reject to not-reject: **M2 and M5**, the L1 per-protocol members
 either contrast. In A–B the ITT amplification is larger (+0.246 … +0.303) and
 the PP members barely move (|shift| ≤ 0.011, mixed sign). The full 36-row
 table with p-values under both codings is in `COUNTERFACTUAL-SHIFT.json`; the
-unflagged column reproduces Reprint 1's certified figures to the printed digit
+unflagged column reproduces Reprint 1's certified figures — to the printed digit for
+point estimates and unadjusted p-values, to the decision boundary for the six ANCOVA
+p-values (PREREGISTRATION.md §5.5's marked R1-6 scope note prints both streams)
 (M17 A–C +0.1275; F-2's anchor p-values exactly), which is the evidence the
 script's adapter is the fixture adapter and not a second reading of 019's
 batch.

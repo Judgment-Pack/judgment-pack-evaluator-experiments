@@ -64,6 +64,9 @@ def arm(covered, denominator, name="A"):
 
 
 def family(claim=True, sign="+", arms=("A", "C")):
+    # R1-8 moved the decision layer onto the production verdict shape (closed
+    # `verdict` token, exact registered id set), so this fixture carries both;
+    # the per-member dicts stay because the PUBLICATION renders their columns.
     return {"contrast": "%s-%s" % arms, "arms": list(arms),
             "members": [{"id": "M%d" % (index + 1), "level": "L1",
                          "engine": "incl", "population": "ITT",
@@ -72,7 +75,8 @@ def family(claim=True, sign="+", arms=("A", "C")):
                          "p": 0.001, "rejects": True}
                         for index in range(decision.REGISTERED_FAMILY_SIZE)],
             "signUnanimous": claim, "allReject": claim, "sign": sign,
-            "claim": claim}
+            "claim": claim,
+            "verdict": "CLAIM" if claim else "INDETERMINATE-BY-DISAGREEMENT"}
 
 
 def _runs():

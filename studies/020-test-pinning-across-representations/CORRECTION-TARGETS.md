@@ -59,4 +59,9 @@ divided calls by nine instead of three (corrected totals ~8.05 h / ~71.2 h; the 
 sweep corroborates the corrected basis), and the swept-set catalog paragraph miscounted
 `max`'s availability (4/8, not absent-from-five) and the default tiers (`medium` ×6 +
 `high` ×1). Both corrections stand in the document at the claims' own prominence with
-marked notes; neither touches the swept set or the rule's load-bearing input.
+marked notes; neither touches the swept set or the rule's load-bearing input. Round-1
+finding R1-21 extended the dual-pricing correction to `design/BRIEF.md` §8 (the same table,
+appended correction, historical bytes untouched), and R1-20 CORRECTED THE CORRECTION on the
+catalog counts: the pre-sweep figures were true of the build-owned `--bundled` catalog, the
+first "correction" had recounted a mutable post-call cache, and the original figures are
+restored with the provenance lesson marked in §2.1.

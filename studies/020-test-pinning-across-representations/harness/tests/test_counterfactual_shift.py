@@ -87,14 +87,16 @@ def test_the_recode_preempts_the_kill_block(batch, corpus):
     per-protocol population, fails here."""
     plain = dict((unit.run_id, unit)
                  for unit in cs.build_units(batch, corpus)["units"])
-    assert plain["B/run-011"].scoreable
+    assert plain["B/run-011"].carries_kill_record
+    assert plain["B/run-011"].evaluated
     assert plain["B/run-011"].identity_pass
     recoded_adapter = cs.build_units(batch, corpus,
                                      recode_flagged=frozenset(["B/run-011"]))
     assert recoded_adapter["recoded"] == ("B/run-011",)
     recoded = dict((unit.run_id, unit) for unit in recoded_adapter["units"])
     unit = recoded["B/run-011"]
-    assert not unit.scoreable
+    assert not unit.carries_kill_record
+    assert not unit.evaluated
     assert not unit.identity_pass
     assert unit.survivors == frozenset()
     assert unit.killed_paired == {}
@@ -103,9 +105,10 @@ def test_the_recode_preempts_the_kill_block(batch, corpus):
         if run_id == "B/run-011":
             continue
         mine = recoded[run_id]
-        assert (mine.scoreable, mine.identity_pass, mine.survivors,
-                mine.killed_paired) == (other.scoreable, other.identity_pass,
-                                        other.survivors, other.killed_paired)
+        assert (mine.carries_kill_record, mine.evaluated, mine.identity_pass,
+                mine.survivors, mine.killed_paired) == (
+            other.carries_kill_record, other.evaluated, other.identity_pass,
+            other.survivors, other.killed_paired)
 
 
 # ---------------------------------------------------------------------------

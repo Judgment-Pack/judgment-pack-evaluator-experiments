@@ -59,6 +59,14 @@
     "timeoutRateCap": 0.1,
     "window": "three consecutive UTC calendar days"
   },
+  "family": {
+    "permutationsUnadjusted": 20000,
+    "permutationsAdjusted": 4000,
+    "permutationSeed": 11,
+    "bcaResamples": 10000,
+    "bcaSeed": 13,
+    "note": "ROUND-1 FINDING R1-5: section 5.3 pins the permutation B and seed and says the BCa seed is 'pinned in PINS.json', and no member carried any of them - the permutation values lived as constants in e4lib/family.py and the BCa pair existed nowhere, so bca_interval()'s registered refusal fired on every production call and the intervals section 5.3 registers could never be published. The permutation members here are the SAME numbers family.py transcribes from section 5.3/5.5 (a harness test asserts the equality, so the registry and the module cannot drift apart); the BCa pair is registered here 2026-08-24, before any citable computation, resamples 10000 at seed 13 (a seed distinct from the permutation stream's 11 so the two schemes cannot share a stream by accident), and harness/score.py threads it into every family_report() call. Tier D only; no decision reads an interval."
+  },
   "calibration": {
     "derivedFloor": null,
     "label": null,
@@ -124,7 +132,7 @@
     "rego": "sha256:06cb8d2f46a3833253d1eb6dc314c5ab847412061f378dbfb19facfa1f29225b",
     "sha256": null
   },
-  "note": "Pin registry, 011/012/014/019 convention. It is a pin, not an attestation - but every non-null member here is ENFORCED before anything is spent, not merely declared: harness/integrity.py verifies the port chain and the exact-set study manifest, harness/authoring_call.sh verifies the codex binary digest, the CLI version, the interpreter, the per-arm prompt digest and the registered timeout ceiling before any call, and harness/score.py verifies the rest before it adjudicates anything. EVERY FREEZE PIN BELOW IS NULL and both design-time pins the sweep owes are null: this study is pre-freeze, nothing citable has run, no review round is on the record, and registeredLabelRule makes that visible in every output rather than in a banner.",
+  "note": "Pin registry, 011/012/014/019 convention. It is a pin, not an attestation - but every non-null member here is ENFORCED before anything is spent, not merely declared: harness/integrity.py verifies the port chain and the exact-set study manifest, harness/authoring_call.sh verifies the codex binary digest, the CLI version, the interpreter, the per-arm prompt digest and the registered timeout ceiling before any call, and harness/score.py verifies the rest before it adjudicates anything. EVERY FREEZE PIN BELOW IS NULL and both design-time pins are FILLED (the model pre-sweep, the effort by section 2.1's fill): this study is pre-freeze, nothing citable has run, review round 1 is on the record and open (PREREG-REVIEW.md's block is the authority), and registeredLabelRule makes the pre-freeze state visible in every output rather than in a banner. (R1-23: this note's earlier form said both design-time pins were null and no round existed, after both had changed.)",
   "offGoldCertificate": {
     "note": "Ported by digest from Study 019 (§4.1): the registered exclusion registry is EMPTY and the certificate records exactly 0 divergences over 236,196 cells. Freeze pin, null pre-freeze.",
     "path": "controls/off-gold-equivalence.json",
@@ -157,7 +165,7 @@
   },
   "ownPorts": {
     "path": "harness/PORTS.md",
-    "sha256": "sha256:c8238723cd26bdcce3ad9afa5e9d0790c771998543d4e90fe5fe3321bcf0d045"
+    "sha256": "sha256:f78aef78f028baaa8342d91136af4334d97cf20f848198382edad07b47e5671b"
   },
   "pinnedFrom": {
     "commit": "e87e1311da11c28e929edf1e7e39f048e4ec0e6a",
@@ -270,7 +278,7 @@
       "high"
     ],
     "settingsNote": "REGISTERED 2026-08-24, BEFORE THE SWEEP, as the maintainer's decision - PREREGISTRATION.md section 2.1, 'The three swept settings'. The registered shape (3 settings x 3/arm) names a cardinality and no members, and a set whose members are chosen after the durations are seen is a picked set and not a swept one. The three are the pinned CLI's own named reasoning-effort tiers low, medium, high, in that order. The TODO this note once held open - the chosen condition, effort and per-arm N together - CLOSED with section 2.1's fill after the sweep ran: chosenSetting above, codex.reasoningEffort and batch.n carry it. Naming three tiers was not choosing one, and the record keeps the two moments distinct.",
-    "settingsProvenance": "Measured 2026-08-24 against the pinned binary with no model call. (1) codex exec --help names no reasoning-effort flag; the spelling is the config override recorded under codex.reasoningEffortFlag / codex.reasoningEffortConfigKey. (2) codex debug models renders this build's own model catalog offline: over its EIGHT models the tier vocabulary is low, medium, high, xhigh, max, ultra; low/medium/high/xhigh are supported by 8/8, max by 4/8 and ultra by 2/8. (This member first printed max as 3/8 and the defaults as 'medium for the other seven'; a post-sweep verification recount against the same pinned binary corrected both - see the marked correction in PREREGISTRATION.md section 2.1.) The swept set is the three LOWEST of the universally supported four, so it survives whichever model codex.model is pinned to. (3) Every model's own default_reasoning_level lies inside the SUPPORTED four - low for gpt-5.6-sol, the model Study 019's batch ran, medium for six, high for one - so the set contains the default 019's batch implicitly ran at and extends monotonically upward in cost. xhigh is as AVAILABLE as the three swept tiers, so its exclusion is a BUDGET decision and is registered as one, not passed off as an availability limit.",
+    "settingsProvenance": "Measured 2026-08-24 against the pinned binary with no model call. (1) codex exec --help names no reasoning-effort flag; the spelling is the config override recorded under codex.reasoningEffortFlag / codex.reasoningEffortConfigKey. (2) codex debug models --bundled renders the catalog BAKED INTO the pinned binary - the only build-owned reading: over its EIGHT models the tier vocabulary is low, medium, high, xhigh, max, ultra; low/medium/high/xhigh are supported by 8/8, max by 3/8 and ultra by 2/8. (Provenance history, per round-1 finding R1-20: this member's first printing carried these same figures; a verification recount then 'corrected' them to 4/8 and medium x6 + high x1 by reading plain codex debug models, which renders a mutable post-call cache; the bundled recount restored the original figures and the preregistration's marked note records the lesson - build-owned means --bundled.) The swept set is the three LOWEST of the universally supported four, so it survives whichever model codex.model is pinned to. (3) Every model's own default_reasoning_level lies inside the set - low for gpt-5.6-sol, the model Study 019's batch ran, medium for the other seven - so the set contains the default 019's batch implicitly ran at and extends monotonically upward in cost. xhigh is as AVAILABLE as the three swept tiers, so its exclusion is a BUDGET decision and is registered as one, not passed off as an availability limit.",
     "settingsUncapClause": "xhigh, max and ultra are NOT swept and are reachable only by a DEVIATIONS.md entry naming the reason and republishing the price, under the same cap clause that governs raising callCap: reaching a costlier tier is the same act as buying more calls. harness/batch.py refuses a setting outside sweep.settings, and harness/authoring_call.sh refuses one too, so the deviation has to be written before either will run it."
   }
 }

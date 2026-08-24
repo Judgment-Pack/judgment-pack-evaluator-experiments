@@ -29,12 +29,24 @@ def test_the_registered_vectors_reproduce():
             assert round(observed[1], 4) == high, (n, k, "upper")
 
 
-def test_n_is_50_because_that_is_this_studys_denominator():
-    """Section 2 registers N = 50 runs per arm, so 012's n = 50 row is not a
-    control here — it is the row this study will actually read."""
+def test_the_vectors_are_port_controls_and_the_studys_n_is_the_registrys():
+    """R1-16. This test's earlier form said 012's n = 50 row "is the row this
+    study will actually read" — true of the port carry, false since §2.1's
+    fill registered N = 60. The vectors certify the ported arithmetic against
+    numbers a predecessor published; the study's own denominator has exactly
+    one home, the registry, and this test binds the two facts apart."""
     assert 50 in stats.REGISTERED_VECTORS
     assert stats.clopper_pearson(50, 50)[1] == 1.0
     assert stats.clopper_pearson(0, 50)[0] == 0.0
+    import json
+    import os
+    harness = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    with open(os.path.join(harness, "PINS.json"), "rb") as handle:
+        pins = json.loads(handle.read().decode("utf-8"))
+    assert pins["batch"]["n"] == 60
+    assert pins["batch"]["n"] not in (30, 25), (
+        "the registered N colliding with a port-control row would let the two "
+        "meanings blur again")
 
 
 def test_the_degenerate_ends_are_pinned_not_bisected():
@@ -130,9 +142,11 @@ def test_the_ordering_statistic_is_exact_rational():
     assert table[0][0] == 0 and table[4][4] == 0
 
 
-def test_the_critical_level_at_the_registered_n_is_the_prototypes():
-    """`design/mutants/oc_table.py` computes c* = 625/154 with realised size
-    just under alpha at N = 50. The port reproduces both."""
+def test_the_critical_level_at_the_prototypes_n_reproduces():
+    """`design/mutants/oc_table.py` (Study 019's) computes c* = 625/154 with
+    realised size just under alpha at ITS N = 50; the port reproduces both.
+    A source-study reproduction, not a claim about 020's registered N
+    (R1-16)."""
     cstar, size = stats.critical_level_at(50)
     assert cstar == Fraction(625, 154)
     assert size <= stats.FM_ALPHA
@@ -176,7 +190,8 @@ def test_a_wide_gap_at_the_registered_n_decides():
     A 1/5, C 5/5 as the pilot's fractions. Those figures are three pilot issues out of
     date — the current issue is arm A 1/5 and arm C 0/5, the opposite sign — and a
     statistics test has no business anchoring itself to a pilot at all: the arithmetic
-    it exercises is 0.20 against 1.00 at N = 50, which holds whatever any pilot says.
+    it exercises is 0.20 against 1.00 at n = 50 — an arithmetic case, not the
+    registered N — which holds whatever any pilot says.
     Recast as the arithmetic boundary case it always was. The pilot's own fractions are
     asserted where they belong, against the pilot artifact, in
     `test_prereg_currency.py`."""

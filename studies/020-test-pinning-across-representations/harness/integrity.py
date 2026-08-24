@@ -253,13 +253,15 @@ PROMPT_PATHS = {arm: "arms/%s/PROMPT.txt" % arm for arm in ARMS}
 # null anywhere here makes the run a PILOT (`study_label()`); REGISTERED
 # requires every one of them.
 #
-# Study 019 carried EIGHTEEN. Study 020 carries SEVENTEEN, and the one that
-# left is not a relaxation: `codex.model` moves to `DESIGN_TIME_PINS` below
-# under ruling M-25, where its null still labels the run PILOT. It moved
-# because the compute condition (the model AND the reasoning effort) is an
-# OUTPUT of the pre-pilot sweep (§2.1), and the sweep runs BEFORE the freeze —
-# a value the freeze ceremony fills cannot be a value the pre-freeze sweep is
-# required to have already filled.
+# Study 019 carried EIGHTEEN and Study 020 carries EIGHTEEN — but not the same
+# eighteen, and the arithmetic is two moves, not zero (R1-23: this comment once
+# said seventeen, counting the departure and not the arrival). `codex.model`
+# LEFT for `DESIGN_TIME_PINS` below under ruling M-25 — not a relaxation: its
+# null still labels the run PILOT — because the compute condition is an OUTPUT
+# of the pre-pilot sweep (§2.1) and the sweep runs BEFORE the freeze, so a
+# value the freeze ceremony fills cannot be one the sweep is required to have
+# already filled. `censusStimulusCount` ARRIVED (R7-9's lesson wearing a new
+# number: a count the freeze claims must be a pin the gate reads).
 FREEZE_PINS = (
     ("preregistration", ("preregistration", "sha256")),
     ("policyProse", ("policyProse", "sha256")),

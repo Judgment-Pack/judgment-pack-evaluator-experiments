@@ -749,3 +749,28 @@ Nothing in this document is registered. The following are put to the maintainer,
 > **M-26 — does Tier C's claim sentence carry the "against the shared reference, not against the accompanying policy" qualifier, or does M-13's control land first?** Panel #19 asks for one of the two. If M-13 lands, `identityPass` changes meaning and **every per-protocol member's population changes with it**, so §4.3.2's dispersion figures and §4.3.3–§4.3.4's operating characteristics would all have to be re-derived. This brief has no basis to prefer either and takes no position.
 
 **Not decided anywhere in this document, and not by an M-block:** whether the study is worth running at all if the maintainer's answer to M-20 is (a) and the truth resembles 019 — in which case Tier C returns INDETERMINATE with probability approaching 1, and the study's entire yield is Tier D's descriptive battery plus a repaired instrument. That is a programme judgement, and it belongs to the maintainer, not to the brief.
+
+---
+
+## Correction, appended 2026-08-24 (round-1 finding R1-21; historical bytes above unchanged)
+
+**§8's pricing table understates two rows threefold.** The sweep row (27 calls) and the smoke
+row (~6 calls) were priced by dividing calls by NINE instead of by three — 27 calls are nine
+round-triples, six calls are two — while the pilot and batch rows used the correct basis. The
+corrected rows and totals, on §8's own registered triples (349 s / 3,087 s):
+
+| line | calls | wall clock, registered condition | wall clock, pilot-like durations |
+|---|---|---|---|
+| pre-pilot effort sweep, 3 settings × 3/arm | 27 | **0.87 h** | **7.72 h** |
+| pilot, 12/arm (C1–C5) | 36 | 1.16 h | 10.29 h |
+| D-1/D-2 smoke | ~6 | **~0.19 h** | **~1.72 h** |
+| primary batch, N = 60/arm | 180 | 5.82 h | 51.46 h (2.14 d) |
+| **total under M-23 = (a)** | **~249** | **~8.05 h** | **~71.2 h** |
+
+The pilot-like total leaves roughly 1 % headroom against the 72 h budget, not the ~10 % the
+original table implied. The observed sweep corroborates the corrected basis: it cost 1.44 h,
+1.65× the corrected registered-condition row and 5× the erroneous one. The same error was
+registered into `PREREGISTRATION.md` §2.1's dual-pricing table and corrected there with a
+marked note by the fill's verification pass; §0.1 makes this brief governing where the rulings
+are silent, so the correction lands here too — appended, at the same table shape, with the
+historical bytes above untouched. `CORRECTION-TARGETS.md` records this venue.

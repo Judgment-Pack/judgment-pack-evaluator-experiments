@@ -103,8 +103,14 @@ F-1. **Section 5.2's Fact-2 table misstates the engine-excluded Rego weight.**
      can still be scored on. On 019 the excluded-column offset is then
 
          registered (shared denominators)   -0.04922 (PP)  -0.04813 (ITT)
-         native, vacuous coverage pooled    -0.00567 (PP)  -0.00805 (ITT)
+         native, vacuous coverage pooled    -0.00567 (PP)  -0.00554 (ITT)
          native, marginal over the 29       +0.03795 (PP)  +0.03711 (ITT)
+
+     (The pooled-vacuous ITT cell first measured -0.00805 under the old
+     adapter's all-survivor synthesis for the two never-evaluated runs —
+     pooled-vacuous is the one reading that pays vacuous coverage, so it
+     alone moved when R1-3 recoded them; no cell here ever reproduced a
+     published 019 figure.)
 
      — three values for one registered symbol, two of them of the wrong sign to
      reproduce M16/M17/M18. `offset(..., weighting="native")` computes the
@@ -113,6 +119,16 @@ F-1. **Section 5.2's Fact-2 table misstates the engine-excluded Rego weight.**
      maintainer must rule before the freeze: the choice moves M17 between
      +0.1275 and roughly +0.0403, a factor of three on the family's largest
      member.
+     RULED 2026-08-24 (round-1 finding R1-4, the maintainer decision this
+     note demanded): the registered estimand is the HYBRID this module
+     implements — the OUTCOME over language-native denominators (Rego /62 in
+     the excluded column) and L2c's OFFSET over the shared-class denominators
+     (57/55) — because the outcome measures what an arm's own language can
+     reach while the offset de-biases over the support both arms share, and
+     because it is the only reading that reproduces every published reprint
+     figure. The two single-universe alternatives stay published beside it in
+     `family_report()`'s offsets block. The ruling's registered text is in
+     PREREGISTRATION.md §5.2, beside the M-16(d) ceilings; round 2 verifies.
 F-2. **The six adjusted members' p-values are not byte-reproducible.** The
      twelve unadjusted members reproduce to the last published digit under
      `random.Random(11)` with repeated `shuffle()` of one persistent payload
@@ -132,10 +148,17 @@ F-3. **Section 5.2's "unscoreable runs ... take no offset" needs one more
      per-protocol set) and the offset is subtracted from the 36 arm-A runs that
      carry one — not from the 34 that also pass the identity control. The two
      empty-survivor runs are therefore SCOREABLE-WITH-ZERO, not unscoreable:
-     `killedPaired: 0` is a measurement, and this module treats "carries a kill
-     record" as the scoreability predicate throughout. That reading is the only
-     one consistent with every published figure and it is what `Unit.scoreable`
-     means here.
+     `killedPaired: 0` is a measurement, and 019's published figures select the
+     offset marginal on "carries a kill record". RESOLVED BY SPLIT, 2026-08-24
+     (round-1 finding R1-3): 019's scorer gated mutant execution on identity,
+     so those two runs EVALUATED NOTHING, and one flag cannot carry both "the
+     record exists" (019's marginal, size 90, reproduces every published
+     offset) and "something ran" (size 88, the corrected marginal). `Unit`
+     now carries `carries_kill_record` and `evaluated` separately, `offset()`
+     takes the predicate as an argument, `family_report()` publishes both ITT
+     readings side by side, and the preregistration's §5.2 carries the marked
+     correction of 019's four affected member figures (M13/M16, both
+     contrasts; no decision moves at alpha = 0.05).
 """
 from __future__ import annotations
 
@@ -371,23 +394,38 @@ def build_corpus(pairing_table, engine_supplied):
 class Unit(object):
     """One section-1a admitted run.
 
-    `scoreable` means THE RUN CARRIES A KILL RECORD — see finding F-3. It does
-    not mean the run passed `referenceIdentity`; that is `identity_pass`, and it
-    is what the per-protocol population selects on. A run that killed nothing
-    and failed the identity control is scoreable-with-zero, is in the offset's
-    population, and takes the offset like every other arm-A unit."""
+    ROUND-1 FINDING R1-3, IMPLEMENTED AS TWO PREDICATES WHERE ONE FLAG USED TO
+    CONFLATE THEM. `carries_kill_record` is finding F-3's predicate — the run
+    carries a kill record, which is what Study 019's published offsets select
+    the marginal on (90 of its 90 admitted runs) — and `evaluated` is the
+    stricter fact that at least one mutant actually ran against the suite.
+    They differ on exactly two frozen 019 runs (`A/run-025`, `A/run-046`:
+    identity failed, so 019's scorer evaluated no mutant, yet the records
+    carry a kill block), and `offset()` takes the predicate as an argument so
+    both readings are computations rather than sentences. Neither predicate
+    means the run passed `referenceIdentity`; that is `identity_pass`, and it
+    is what the per-protocol population selects on. The old single flag
+    (`scoreable`) is DELETED rather than aliased, so no call site can keep a
+    third reading alive by accident."""
 
-    __slots__ = ("run_id", "arm", "language", "scoreable", "identity_pass",
-                 "case_count", "survivors", "killed_paired")
+    __slots__ = ("run_id", "arm", "language", "carries_kill_record",
+                 "evaluated", "identity_pass", "case_count", "survivors",
+                 "killed_paired")
 
-    def __init__(self, run_id, arm, scoreable, identity_pass, case_count,
-                 survivors, killed_paired):
+    def __init__(self, run_id, arm, carries_kill_record, evaluated,
+                 identity_pass, case_count, survivors, killed_paired):
         if arm not in ARM_LANGUAGE:
             raise FamilyError("FAMILY-UNKNOWN-ARM %r" % (arm,))
+        if evaluated and not carries_kill_record:
+            raise FamilyError(
+                "FAMILY-PREDICATE-ORDER %s: an evaluated run without a kill "
+                "record is not a state 019's scorer or this study's can emit"
+                % (run_id,))
         self.run_id = run_id
         self.arm = arm
         self.language = ARM_LANGUAGE[arm]
-        self.scoreable = bool(scoreable)
+        self.carries_kill_record = bool(carries_kill_record)
+        self.evaluated = bool(evaluated)
         self.identity_pass = bool(identity_pass)
         self.case_count = case_count
         self.survivors = frozenset(survivors or ())
@@ -399,13 +437,29 @@ class Unit(object):
         A class is covered iff the suite kills ALL of its members in the run's
         own language (section 5.2's pinned coverage rule). A class with no
         members of that language in this column is covered VACUOUSLY and carries
-        weight zero, so the vacuity never reaches a number."""
-        if not self.scoreable:
+        weight zero, so the vacuity never reaches a number. Gated on
+        `evaluated`: a run that evaluated nothing reaches nothing (for the two
+        R1-3 runs this is numerically identical to the old gate — their
+        synthesized all-survivor vector already covered no class — and the
+        gate now says why)."""
+        if not self.evaluated:
             return ()
         language = self.language
         return tuple(
             i for i in range(len(corpus.classes))
             if not (set(corpus.members(i, language, column)) & self.survivors))
+
+
+def unit_not_evaluated(run_id, arm, identity_pass, case_count):
+    """A run whose kill record exists and says NOTHING RAN (R1-3).
+
+    Study 019's two identity-failing admitted runs are this state: the frozen
+    record carries a kill block (`killedPaired: 0` beside an empty survivor
+    vector), and 019's scorer — mutant execution gated on identity — evaluated
+    no mutant. The unit carries the record (F-3's marginal keeps its 90-run
+    denominator under the `kill-record` predicate) and is not evaluated (the
+    `evaluated` marginal and every outcome read zero)."""
+    return Unit(run_id, arm, True, False, identity_pass, case_count, (), {})
 
 
 def unit_from_kill_record(run_id, arm, identity_pass, case_count, kill,
@@ -420,9 +474,11 @@ def unit_from_kill_record(run_id, arm, identity_pass, case_count, kill,
     "nothing evaluated" — and raises rather than scoring a perfect 33/33.
 
     `kill` of `None` is a run with no kill record: it is admitted, it is in the
-    ITT denominator, it scores 0, it takes no offset, and it is not scoreable."""
+    ITT denominator, it scores 0, it takes no offset under EITHER predicate,
+    and neither `carries_kill_record` nor `evaluated` holds."""
     if kill is None:
-        return Unit(run_id, arm, False, identity_pass, case_count, (), {})
+        return Unit(run_id, arm, False, False, identity_pass, case_count,
+                    (), {})
     if "survivorsPaired" not in kill:
         raise FamilyError(
             "FAMILY-NO-SURVIVOR-VECTOR %s carries a kill block with no "
@@ -432,7 +488,7 @@ def unit_from_kill_record(run_id, arm, identity_pass, case_count, kill,
     if survivors is None:
         raise FamilyError(
             "FAMILY-NO-SURVIVOR-VECTOR %s carries survivorsPaired: null" % run_id)
-    unit = Unit(run_id, arm, True, identity_pass, case_count, survivors,
+    unit = Unit(run_id, arm, True, True, identity_pass, case_count, survivors,
                 {"included": kill.get("killedPaired"),
                  "excluded": kill.get("killedPairedExcludingEngineSupplied")})
     for column in COLUMNS:
@@ -528,8 +584,9 @@ def population_units(units, population):
 
 def raw_outcome(unit, corpus, level, column, weighting="native"):
     """The member's weighted count over the run's coverage set S, before L2c's
-    offset. An unscoreable run scores 0 in every level and every column."""
-    if not unit.scoreable:
+    offset. A run that evaluated nothing scores 0 in every level and every
+    column (R1-3)."""
+    if not unit.evaluated:
         return 0.0
     table = corpus.weights(level, column, weighting)
     index = 0 if unit.language == "jps" else 1
@@ -537,34 +594,50 @@ def raw_outcome(unit, corpus, level, column, weighting="native"):
     return math.fsum(table[i][index] for i in covered if i in table)
 
 
-def offset(units, corpus, column, population, weighting="shared"):
+def offset(units, corpus, column, population, weighting="shared",
+           predicate="kill-record"):
     """L2c's registered de-biasing estimator.
 
     off^ = sum_g pi^_g (w^A_g - w^C_g), pi^ the pooled, ARM-LABEL-FREE coverage
-    marginal over the SCOREABLE runs of that member's own analysis population
+    marginal over the selected runs of that member's own analysis population
     (section 5.2, "L2c, registered definition"). No arm label is read: the
-    marginal pools every scoreable unit of the population regardless of arm, and
+    marginal pools every selected unit of the population regardless of arm, and
     the weights come from the manifests.
 
-    `weighting` is finding F-1's open question. `"shared"` reproduces section
-    5.2's published -0.04956 / -0.04846 / -0.04922 / -0.04813 and Reprint 1's
-    M13..M18; `"native"` is the reading section 5.2's Fact-2 table row states in
-    words, and on 019 it does not reproduce any published figure. Both are
-    computable and Tier D publishes both until a maintainer rules."""
-    scoreable = [unit for unit in population_units(units, population)
-                 if unit.scoreable]
-    if not scoreable:
+    `weighting` was finding F-1's open question, RULED 2026-08-24 (R1-4):
+    `"shared"` is the registered reading — it reproduces section 5.2's
+    published -0.04956 / -0.04846 / -0.04922 / -0.04813 and Reprint 1's
+    M13..M18 — and `"native"` stays computable and Tier D beside it.
+
+    `predicate` is ROUND-1 FINDING R1-3's split: `"kill-record"` selects the
+    units that carry a kill record — F-3's predicate, the only one that
+    reproduces 019's published ITT offsets (marginal size 90) — and
+    `"evaluated"` selects the units that actually evaluated a mutant (88 on
+    019: the two identity-failing arm-A runs leave). The two per-protocol
+    marginals are identical (both runs fail identity); the two ITT readings
+    are both published, the kill-record one as 019's own and the evaluated
+    one as the R1-3 correction."""
+    if predicate == "kill-record":
+        selected = [unit for unit in population_units(units, population)
+                    if unit.carries_kill_record]
+    elif predicate == "evaluated":
+        selected = [unit for unit in population_units(units, population)
+                    if unit.evaluated]
+    else:
+        raise FamilyError("FAMILY-UNKNOWN-PREDICATE %r" % (predicate,))
+    if not selected:
         raise EmptyArmDenominator(
-            "FAMILY-EMPTY-ARM the %s population has no scoreable run, so the "
-            "coverage marginal L2c's offset needs is undefined" % population)
+            "FAMILY-EMPTY-ARM the %s population has no %s run, so the "
+            "coverage marginal L2c's offset needs is undefined"
+            % (population, predicate))
     table = corpus.weights("L2c", column, weighting)
     indices = sorted(table)
     counts = dict((i, 0) for i in indices)
-    for unit in scoreable:
+    for unit in selected:
         for i in unit.covered(corpus, column):
             if i in counts:
                 counts[i] += 1
-    size = float(len(scoreable))
+    size = float(len(selected))
     return math.fsum((counts[i] / size) * (table[i][0] - table[i][1])
                      for i in indices)
 
@@ -593,7 +666,10 @@ def member_outcomes(member, units, corpus, weighting="native",
     rows = []
     for unit in selected:
         value = raw_outcome(unit, corpus, level, member.column, weighting)
-        if level == "L2c" and unit.scoreable and unit.arm == "A":
+        if level == "L2c" and unit.carries_kill_record and unit.arm == "A":
+            # F-3's registered subtraction population — the arm-A runs that
+            # carry a kill record (36 on 019), which with the kill-record
+            # marginal above is the reading that reproduces Reprint 1.
             value -= shift
         if member.adjusted and unit.case_count is None:
             raise FamilyError(
@@ -811,11 +887,17 @@ def bca_interval(rows, left, right, adjusted, resamples=None, seed=None,
     half. The caller passes the pinned pair once `PINS.json` carries one.
 
     The resampling is STRATIFIED BY ARM, which is the only scheme under which
-    the resampled statistic is the same functional as the observed one; the
-    jackknife acceleration is over the pooled two-arm units, one left out at a
-    time. Coverage is approximate and is labelled so in the returned block; the
-    word "exact" is used only of a permutation null distribution (section 5.3)
-    and does not appear here."""
+    the resampled statistic is the same functional as the observed one, and
+    ROUND-1 FINDING R1-5's second half fixed WHICH arms that stratification
+    covers. The adjusted statistic fits the pooled within-arm slope over ALL
+    THREE arms (section 5.2's registered ANCOVA), so for an adjusted member
+    every arm is data and every stratum is resampled, and the jackknife
+    deletes over every row; holding arm B fixed — the first implementation —
+    bootstrapped a different functional than the observed one. For an
+    unadjusted member the statistic reads only the two contrast arms, and the
+    scheme resamples exactly those. Coverage is approximate and is labelled so
+    in the returned block; the word "exact" is used only of a permutation null
+    distribution (section 5.3) and does not appear here."""
     if resamples is None or seed is None:
         raise IntervalUnpinned(
             "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins "
@@ -826,19 +908,26 @@ def bca_interval(rows, left, right, adjusted, resamples=None, seed=None,
     if not subset:
         raise EmptyArmDenominator(
             "FAMILY-EMPTY-ARM the %s-%s subset is empty" % (left, right))
-    rest = [row for row in rows if row[0] not in (left, right)]
+    # R1-5: the resampled arms are the arms the STATISTIC reads — all of them
+    # for an adjusted member (the three-arm slope), the contrast pair for an
+    # unadjusted one.
+    if adjusted:
+        resampled_arms = sorted(set(row[0] for row in rows))
+    else:
+        resampled_arms = [left, right]
+    rest = [row for row in rows if row[0] not in resampled_arms]
     observed = difference(rows, left, right, adjusted)
-    strata = {left: [row for row in subset if row[0] == left],
-              right: [row for row in subset if row[0] == right]}
+    strata = dict((arm, [row for row in rows if row[0] == arm])
+                  for arm in resampled_arms)
     for arm in (left, right):
-        if not strata[arm]:
+        if not strata.get(arm):
             raise EmptyArmDenominator(
                 "FAMILY-EMPTY-ARM arm %s has no unit" % arm)
     engine = random.Random(seed)
     replicates = []
     for _ in range(resamples):
         drawn = []
-        for arm in (left, right):
+        for arm in resampled_arms:
             pool = strata[arm]
             drawn.extend(pool[engine.randrange(len(pool))]
                          for _ in range(len(pool)))
@@ -857,8 +946,9 @@ def bca_interval(rows, left, right, adjusted, resamples=None, seed=None,
     else:
         bias = _normal_quantile(fraction)
     jackknife = []
-    for index in range(len(subset)):
-        held = subset[:index] + subset[index + 1:]
+    pooled = [row for arm in resampled_arms for row in strata[arm]]
+    for index in range(len(pooled)):
+        held = pooled[:index] + pooled[index + 1:]
         try:
             jackknife.append(difference(held + rest, left, right, adjusted))
         except FamilyError:
@@ -873,7 +963,9 @@ def bca_interval(rows, left, right, adjusted, resamples=None, seed=None,
             "resamples": resamples, "seed": seed, "alpha": alpha,
             "biasCorrection": bias, "acceleration": acceleration,
             "coverage": "approximate",
-            "method": "BCa bootstrap, stratified by arm"}
+            "resampledArms": list(resampled_arms),
+            "method": "BCa bootstrap, stratified by arm over the arms the "
+                      "statistic reads"}
 
 
 def _bca_endpoint(replicates, bias, acceleration, level):
@@ -1004,6 +1096,41 @@ def verdict(rows, arms=("A", "C")):
         raise MembershipError(
             "FAMILY-MEMBERSHIP-DUPLICATE a member appears twice; an IU verdict "
             "over a multiset is not the registered test")
+    # ROUND-1 FINDING R1-8, three refusals the old checks lacked:
+    extras = [member_id for member_id in seen if member_id not in MEMBERS_BY_ID]
+    if extras:
+        raise MembershipError(
+            "FAMILY-MEMBERSHIP-EXTRA the verdict was handed rows for %s, which "
+            "the registration does not contain; a favourable row wearing a "
+            "registered id's seat is exactly what a closed membership exists "
+            "to refuse" % ", ".join(sorted(extras)))
+    for row in rows:
+        member = MEMBERS_BY_ID[row["id"]]
+        if (row.get("level"), row.get("engine"), row.get("population"),
+                row.get("adjustment")) != (member.level, member.column,
+                                           member.population,
+                                           "ANCOVA" if member.adjusted
+                                           else None):
+            raise MembershipError(
+                "FAMILY-MEMBERSHIP-RELABELLED %s's row states axes %r and the "
+                "registration says %r; a row cannot sit in a member's seat by "
+                "carrying its id alone" % (
+                    row["id"],
+                    (row.get("level"), row.get("engine"),
+                     row.get("population"), row.get("adjustment")),
+                    (member.level, member.column, member.population,
+                     "ANCOVA" if member.adjusted else None)))
+        derived_sign = (0 if row["difference"] == 0.0
+                        else (1 if row["difference"] > 0.0 else -1))
+        derived_rejects = row["p"] < ALPHA
+        if row["sign"] != derived_sign or bool(row["rejects"]) != derived_rejects:
+            raise MembershipError(
+                "FAMILY-MEMBERSHIP-INCONSISTENT %s carries sign %r / rejects "
+                "%r where its own difference %r and p %r derive %r / %r; the "
+                "verdict recomputes both and refuses a row whose stated "
+                "booleans disagree with its stated numbers"
+                % (row["id"], row["sign"], row["rejects"], row["difference"],
+                   row["p"], derived_sign, derived_rejects))
     signs = set(row["sign"] for row in rows)
     unanimous_sign = len(signs) == 1 and 0 not in signs
     all_reject = all(row["rejects"] for row in rows)
@@ -1058,6 +1185,54 @@ def drop_a_pole(rows):
     return table
 
 
+def refused_cell_tier_d(units, corpus, left="A", right="C",
+                        offset_weighting="shared"):
+    """ROUND-1 FINDING R1-7: section 5.2's six argued-out ITT x ANCOVA
+    quantities, published as TIER D — non-member, non-decision — beside the
+    family's hard refusal of the cell.
+
+    The cell is refused as a MEMBER because adjusting the ITT pole drops the
+    covariate-less runs, a covert change of population; what section 5.2
+    registers instead is DISCLOSURE: the six adjusted differences over the
+    artifact-bearing complete-case population (the ITT units that carry a
+    caseCount), with that population's per-arm composition printed beside
+    them so a reader sees exactly what the refused cell would have been
+    computed over. `member_outcomes()` still refuses the cell; this function
+    is the disclosure, reads no member seat, and nothing in
+    `e4lib/decision.py` reads it."""
+    itt = population_units(units, "ITT")
+    complete = [unit for unit in itt if unit.case_count is not None]
+    composition = {
+        "population": "artifact-bearing complete-case (ITT with a caseCount)",
+        "perArm": dict((arm, sum(1 for unit in complete if unit.arm == arm))
+                       for arm in sorted(ARM_LANGUAGE)),
+        "droppedPerArm": dict(
+            (arm, sum(1 for unit in itt
+                      if unit.arm == arm and unit.case_count is None))
+            for arm in sorted(ARM_LANGUAGE)),
+    }
+    quantities = []
+    for level in LEVELS:
+        for column in COLUMNS:
+            shift = offset(units, corpus, column, "ITT", offset_weighting)
+            rows = []
+            for unit in complete:
+                value = raw_outcome(unit, corpus, level, column)
+                if level == "L2c" and unit.carries_kill_record                         and unit.arm == "A":
+                    value -= shift
+                rows.append((unit.arm, value, unit.case_count))
+            quantities.append({
+                "level": level, "engine": column,
+                "population": "ITT", "adjustment": "ANCOVA",
+                "adjustedDifference": adjusted_difference(rows, left, right),
+                "tier": "D",
+                "reason": "section 5.2's refused cell, disclosed over the "
+                          "complete-case population named beside it; not a "
+                          "member, read by no decision",
+            })
+    return {"composition": composition, "quantities": quantities}
+
+
 def family_report(units, corpus, left="A", right="C",
                   seed=PERMUTATION_SEED, weighting="native",
                   offset_weighting="shared", bca_resamples=None,
@@ -1083,6 +1258,16 @@ def family_report(units, corpus, left="A", right="C",
             for reading in ("shared", "native"):
                 offsets["%s/%s/%s" % (column, population, reading)] = offset(
                     units, corpus, column, population, reading)
+                # R1-3: the evaluation-corrected marginal, published beside
+                # 019's own kill-record reading. The two differ only on ITT
+                # (the two runs the predicates split on fail identity, so the
+                # PP marginals are one set), and publishing the PP pair too
+                # would print one number under two names.
+                if population == "ITT":
+                    offsets["%s/%s/%s/evaluated"
+                            % (column, population, reading)] = offset(
+                        units, corpus, column, population, reading,
+                        predicate="evaluated")
     return {
         "contrast": "%s-%s" % (left, right),
         "alpha": ALPHA,
@@ -1098,6 +1283,11 @@ def family_report(units, corpus, left="A", right="C",
                           "reason": "section 5.2: covert change of population; "
                                     "the scorer refuses rather than falls back"}
                          for population, adjusted in REFUSED_CELLS],
+        # R1-7: the refusal above stays a refusal; the six argued-out
+        # quantities and the complete-case composition are DISCLOSED beside
+        # it, Tier D, exactly as section 5.2 promises.
+        "refusedCellTierD": refused_cell_tier_d(units, corpus, left, right,
+                                                offset_weighting),
         "corpus": {
             "sharedClasses": dict(
                 (column, len(corpus.column_indices(column)))

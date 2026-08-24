@@ -50,8 +50,10 @@ made or token spent in either refused attempt.
   Both refusals were the apparatus working as registered against operator error; neither
   consumed the §2.1 cap, which counts calls made under the registered label's tree.
   **Completed 27/27, zero apparatus codes, zero timeouts, zero aborts**; §2.1's fill carries
-  the table, the chosen condition (`low`, N = 50 by the operable-condition-match rule) and the
-  witness branch (`gate-5-extension`).
+  the table, the chosen condition and the witness branch (`gate-5-extension`). *(Marked
+  2026-08-24, round-1 finding R1-16: this sentence first read "N = 50" — written before the
+  fill's verification pass corrected the registered N to 60, and left standing unmarked; the
+  registered condition is `low`, N = 60, and the correction entry below is the authority.)*
 - **2026-08-24, the rates the driver may not compute**: §2.1's fill obligation names per-arm
   perfect and identity rates in the published sweep table, and the driver's registered
   self-description forbids it computing any rate. `harness/sweep_rates.py` (registered,
