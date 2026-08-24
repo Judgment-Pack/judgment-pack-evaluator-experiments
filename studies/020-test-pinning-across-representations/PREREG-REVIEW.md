@@ -46,10 +46,17 @@ mechanical.
  "rounds": [
   {
    "number": 1,
-   "state": "awaiting-review",
-   "verdict": null,
-   "severities": null,
-   "findings": null
+   "state": "awaiting-response",
+   "verdict": "DO NOT FREEZE",
+   "severities": {
+    "BLOCKER": 13,
+    "MAJOR": 9,
+    "MINOR": 1
+   },
+   "findings": {
+    "first": 1,
+    "last": 23
+   }
   }
  ]
 }
@@ -59,13 +66,22 @@ ROUND-STATE-BLOCK -->
 
 | Round | State | Verdict | BLOCKER | MAJOR | MINOR | Findings |
 |---|---|---|---|---|---|---|
-| 1 | awaiting-review | — | — | — | — | — |
+| 1 | awaiting-response | DO NOT FREEZE | 13 | 9 | 1 | R1-1 … R1-23 |
 
 **Round 1 opened 2026-08-24** on the filled draft (the sweep run, §2.1 filled at `low` /
 N = 60, the gate-5 extension landed, the rates published): `reviews/round-1/PROMPT.md`
 committed verbatim, this block moved to `awaiting-review`, both front doors re-rendered.
 Reviewer: codex-cli 0.145.0 / gpt-5.6-sol (OpenAI), reasoning effort ultra, read-only
 sandbox, invoked over this repository checkout with the prompt's bytes on stdin.
+
+**Round 1 returned 2026-08-24, the same day: `DO NOT FREEZE`, 13 BLOCKER / 9 MAJOR /
+1 MINOR (R1-1 … R1-23)**, committed verbatim at `reviews/round-1/REVIEW.md`. The reviewer
+independently reconciled the whole port chain (46 rows, 382 artifacts), the sweep ledgers
+and every §2.1 figure, and the study's registered counts before finding against the tree —
+the verdict is carried by the findings, not by drift in what was checked. The reviewer is
+prepared to author the fresh sealed mutant set in a later round and authored none in this
+one. Dispositions follow below as the maintainer's written response; the round closes when
+every finding carries one.
 
 ## Dispositions
 
@@ -74,3 +90,37 @@ round's review does. A round is CLOSED when a written disposition per finding is
 a round whose prompt is committed while its review has not landed is open in the other
 direction. The lifecycle is a state read from the round's own artifacts and compared to the
 block member-by-member; exactly one round — the highest — may be open.)*
+
+## Round 1 — 2026-08-24
+
+**`DO NOT FREEZE`, 13 BLOCKER / 9 MAJOR / 1 MINOR.** The verbatim review is
+`reviews/round-1/REVIEW.md`; the reviewer independently reconciled the port chain, the sweep
+ledgers, the §2.1 figures and every registered count before finding, and is prepared to author
+the sealed mutant set in a later round. Dispositions land row by row below; a placeholder cell
+is a finding the maintainer has not yet answered, and the round stays open until none remains.
+
+| Finding | Severity | Disposition |
+|---|---|---|
+| R1-1 | BLOCKER | — |
+| R1-2 | BLOCKER | — |
+| R1-3 | BLOCKER | — |
+| R1-4 | BLOCKER | — |
+| R1-5 | BLOCKER | — |
+| R1-6 | MAJOR | — |
+| R1-7 | MAJOR | — |
+| R1-8 | MAJOR | — |
+| R1-9 | BLOCKER | — |
+| R1-10 | BLOCKER | — |
+| R1-11 | MAJOR | — |
+| R1-12 | BLOCKER | — |
+| R1-13 | BLOCKER | — |
+| R1-14 | MAJOR | — |
+| R1-15 | BLOCKER | — |
+| R1-16 | BLOCKER | — |
+| R1-17 | BLOCKER | — |
+| R1-18 | BLOCKER | — |
+| R1-19 | MAJOR | — |
+| R1-20 | MAJOR | — |
+| R1-21 | MAJOR | — |
+| R1-22 | MAJOR | — |
+| R1-23 | MINOR | — |

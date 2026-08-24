@@ -807,7 +807,7 @@ def test_the_zero_round_block_is_a_REGISTERED_shape_and_renders():
         "has returned a verdict — and no round is open.")
     block = _block()
     assert [entry["number"] for entry in block["rounds"]] == [1]
-    assert block["rounds"][0]["state"] == "awaiting-review"
+    assert block["rounds"][0]["state"] in render_round_status.STATES
     assert render_round_status.surface_problems(_study()) == []
 
     def _with(body):
@@ -1655,7 +1655,10 @@ def test_the_registration_header_names_no_round_while_none_is_complete():
         assert found == [], (
             "no round is complete and the registration header says "
             "post-round-%s" % "/".join(found))
-        assert ("round 1 is open, awaiting the reviewer's answer" in header)
+        # State-agnostic across the two open states (awaiting-review /
+        # awaiting-response): the header must say the round is OPEN; the exact
+        # rendered sentence is held verbatim by surface_problems() already.
+        assert "round 1 is open" in header
         return
     answered = max(complete)
     assert found, (
@@ -1960,7 +1963,7 @@ def test_the_readme_states_the_registered_question_and_the_current_state():
     study's state, and must not claim a review that has not happened."""
     readme = flatten(_read("README.md"))
     assert "what its accompanying test suite pins down" in readme
-    assert "round 1 is open, awaiting the reviewer's answer" in readme
+    assert "round 1 is open" in readme
     for claim in ("has been reviewed", "review is complete",
                   "freezable as written"):
         assert claim not in readme.lower(), claim

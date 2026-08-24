@@ -13,7 +13,7 @@ Study 019 and inherits its machinery by port** (§7); where 020 departs from 019
 is registered here rather than discovered in review.
 
 <!-- round-status:begin -->
-ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 1 review round is on the record, 0 have returned a verdict — none has returned a verdict — and round 1 is open, awaiting the reviewer's answer.
+ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 1 review round is on the record, 1 has returned a verdict — round 1 returned DO NOT FREEZE — and round 1 is open, awaiting the maintainer's written disposition per finding.
 <!-- round-status:end -->
 
 > **On the sentence above — the gate is CLOSED.** `harness/render_round_status.py` is 019
