@@ -6,7 +6,7 @@ review round is on the record.** [`PREREGISTRATION.md`](PREREGISTRATION.md) is t
 is the single machine-readable source for round counts, verdicts and open state (ADR 0005).
 
 <!-- round-status:begin -->
-ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 0 review rounds are on the record, 0 have returned a verdict — none has returned a verdict — and no round is open.
+ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 1 review round is on the record, 0 have returned a verdict — none has returned a verdict — and round 1 is open, awaiting the reviewer's answer.
 <!-- round-status:end -->
 
 > The sentence above is **rendered** from `PREREG-REVIEW.md`'s round-state block by

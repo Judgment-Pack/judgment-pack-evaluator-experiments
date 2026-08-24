@@ -157,7 +157,7 @@
   },
   "ownPorts": {
     "path": "harness/PORTS.md",
-    "sha256": "sha256:d5b6394ab059500b998b1563e8a0d16867917c8efe777b5b813fe9afb1bce79c"
+    "sha256": "sha256:9f1e298675be26a72e58132c20bfbd5251fb7f948026a54ac51686b49e52d2a7"
   },
   "pinnedFrom": {
     "commit": "e87e1311da11c28e929edf1e7e39f048e4ec0e6a",

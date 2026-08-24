@@ -788,14 +788,26 @@ def test_the_zero_round_block_is_a_REGISTERED_shape_and_renders():
     is exactly as wide as it was registered to be: the empty block parses and
     renders, and the refusals it does NOT relax still bite — an absent block, a
     `rounds` member that is not a list, and rounds that are not 1..N."""
-    block = _block()
-    assert block["rounds"] == [], (
-        "a round has opened: this test records the ZERO-round state §7's delta "
-        "10 registers, and it must be rebuilt against the first real round")
-    rendered = render_round_status.render(block)
+    # Rebuilt against the first real round, exactly as its pre-round-1 form
+    # obliged: the EMPTY block is exercised SYNTHETICALLY now — §7 delta 10's
+    # relaxation is a parser property, not a property of the live record —
+    # while the live block carries round 1 open and both front doors render
+    # that state verbatim.
+    text = _review_record()
+    head, _, rest = text.partition(render_round_status.BLOCK_OPEN)
+    _, _, tail = rest.partition(render_round_status.BLOCK_CLOSE)
+    body = json.dumps({"blockVersion": 1, "rounds": []}, indent=2)
+    synthetic = "%s%s\n%s\n%s%s" % (head, render_round_status.BLOCK_OPEN,
+                                    body, render_round_status.BLOCK_CLOSE,
+                                    tail)
+    rendered = render_round_status.render(
+        render_round_status.parse_block(synthetic))
     assert rendered.endswith(
         "0 review rounds are on the record, 0 have returned a verdict — none "
         "has returned a verdict — and no round is open.")
+    block = _block()
+    assert [entry["number"] for entry in block["rounds"]] == [1]
+    assert block["rounds"][0]["state"] == "awaiting-review"
     assert render_round_status.surface_problems(_study()) == []
 
     def _with(body):
@@ -1643,7 +1655,7 @@ def test_the_registration_header_names_no_round_while_none_is_complete():
         assert found == [], (
             "no round is complete and the registration header says "
             "post-round-%s" % "/".join(found))
-        assert "0 review rounds are on the record" in header
+        assert ("round 1 is open, awaiting the reviewer's answer" in header)
         return
     answered = max(complete)
     assert found, (
@@ -1948,7 +1960,7 @@ def test_the_readme_states_the_registered_question_and_the_current_state():
     study's state, and must not claim a review that has not happened."""
     readme = flatten(_read("README.md"))
     assert "what its accompanying test suite pins down" in readme
-    assert "0 review rounds are on the record" in readme
+    assert "round 1 is open, awaiting the reviewer's answer" in readme
     for claim in ("has been reviewed", "review is complete",
                   "freezable as written"):
         assert claim not in readme.lower(), claim

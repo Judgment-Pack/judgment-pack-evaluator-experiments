@@ -43,19 +43,29 @@ mechanical.
 <!-- ROUND-STATE-BLOCK
 {
  "blockVersion": 1,
- "rounds": []
+ "rounds": [
+  {
+   "number": 1,
+   "state": "awaiting-review",
+   "verdict": null,
+   "severities": null,
+   "findings": null
+  }
+ ]
 }
 ROUND-STATE-BLOCK -->
 
 ## Rounds
 
-*(None. The first round opens by committing `reviews/round-1/PROMPT.md`, adding the round entry
-to the block above in state `awaiting-review`, running `render_round_status.py --write`,
-regenerating the manifest, and archive-verifying the commit per ADR 0005 decision 1.)*
-
 | Round | State | Verdict | BLOCKER | MAJOR | MINOR | Findings |
 |---|---|---|---|---|---|---|
-| — | — | — | — | — | — | — |
+| 1 | awaiting-review | — | — | — | — | — |
+
+**Round 1 opened 2026-08-24** on the filled draft (the sweep run, §2.1 filled at `low` /
+N = 60, the gate-5 extension landed, the rates published): `reviews/round-1/PROMPT.md`
+committed verbatim, this block moved to `awaiting-review`, both front doors re-rendered.
+Reviewer: codex-cli 0.145.0 / gpt-5.6-sol (OpenAI), reasoning effort ultra, read-only
+sandbox, invoked over this repository checkout with the prompt's bytes on stdin.
 
 ## Dispositions
 
