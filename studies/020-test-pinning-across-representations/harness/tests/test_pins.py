@@ -388,23 +388,58 @@ def test_an_unregistered_label_context_is_refused_rather_than_ignored(pins):
         integrity.study_label(_fill(pins), "PRIMARY")
 
 
-def test_the_two_design_time_pins_are_null_in_the_committed_registry(pins):
-    """Pre-sweep, both are null and the registry says why. `codex.model` was
-    FILLED in Study 019's registry; carrying 019's value forward would pin a
-    compute condition §2.1 registers as an output of a sweep that has not run."""
-    assert pins["codex"]["model"] is None
+def test_the_design_time_pins_are_in_their_pre_sweep_states(pins):
+    """Pre-sweep, the two design-time pins are in DIFFERENT states, and the
+    difference is M-25's own text. `codex.reasoningEffort` is null: it is the
+    output of the sweep, and §2.1's exemption is one value and one label wide
+    so a sweep can run while it is null. `codex.model` is NOT swept — all 27
+    sweep calls run the same pinned model — and M-25 says in terms that
+    "codex.model is never exempt" from the null check, so the sweep driver
+    refuses to spend a call while it is null. This test originally asserted
+    both null on the ground that carrying 019's model forward would "pin a
+    compute condition the sweep outputs"; that conflated the model with the
+    condition (effort + N), and under it the registered sweep could never run.
+    Adjudicated 2026-08-24: the model is design-time-resolved before the sweep,
+    the effort after it."""
+    assert pins["codex"]["model"] == "gpt-5.6-sol"
     assert pins["codex"]["reasoningEffort"] is None
-    assert "PILOT" in pins["codex"]["note"]
     assert "recorded intention" in pins["codex"]["reasoningEffortNote"]
 
 
 def test_the_effort_pin_records_the_witness_branch_it_has_not_taken(pins):
-    """M-24. The witness-resolution step is registered and has not run, so the
-    two members it fills are null and the note carries BOTH branches — the
-    gate-5 extension and the self-report fallback. A registration that named
-    only the branch it hoped for would be a registration of a hope."""
-    assert pins["codex"]["reasoningEffortFlag"] is None
+    """M-24. The witness resolution needs a CALL and has not run, so the member
+    it fills is null and the note carries BOTH branches — the gate-5 extension
+    and the self-report fallback. A registration that named only the branch it
+    hoped for would be a registration of a hope.
+
+    §2.1's TODO had two halves and they resolve at different moments. The
+    SPELLING half needed no call and is closed (below); the WITNESS half is
+    resolved as the sweep's step zero, over the first sweep call's own
+    transcript, and `reasoningEffortWitness` is where the branch lands."""
     assert pins["codex"]["reasoningEffortWitness"] is None
     note = pins["codex"]["reasoningEffortNote"]
     assert "transcript gate 5" in note
     assert "self-report" in note
+
+
+def test_the_effort_flag_spelling_is_resolved_and_needed_two_members(pins):
+    """The SPELLING half of §2.1's TODO, closed empirically on 2026-08-24
+    against the pinned binary and with no model call.
+
+    The finding is a negative one and the registry has to be able to say it:
+    `codex exec --help` at `codex-cli 0.145.0` names NO reasoning-effort flag,
+    so the only spelling the build accepts is the config override
+    `-c model_reasoning_effort=<tier>`. That is a flag AND a key, and the
+    wrapper's seat emits `FLAG VALUE` — so one member could not carry it
+    without either hard-coding the key in the shell, which §2.1 forbids, or
+    sending the bare tier after `-c`, which this build reads as a malformed
+    override. Two members, and the provenance says how they were measured."""
+    assert pins["codex"]["reasoningEffortFlag"] == "-c"
+    assert pins["codex"]["reasoningEffortConfigKey"] == "model_reasoning_effort"
+    provenance = pins["codex"]["reasoningEffortFlagProvenance"]
+    assert "2026-08-24" in provenance
+    assert "NO model call" in provenance
+    assert "no reasoning-effort flag" in provenance
+    # …and it is still NOT a pin the label rule reads: the spelling is how the
+    # value travels, and the VALUE is what §2.1 registers as the sweep's output.
+    assert "reasoningEffortFlag" not in [name for name, _ in ALL_PINS]

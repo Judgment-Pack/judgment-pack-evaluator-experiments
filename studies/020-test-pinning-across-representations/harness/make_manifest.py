@@ -283,6 +283,23 @@ PRIMARY_ATTEMPT_ROOT = RESULTS_DIR + "/primary-attempt-001"
 # and REQUIRED.
 CALIBRATION_ROOT = "calibration"
 
+# NEW IN 020. The pre-pilot effort sweep's subtree (§2.1), asserted equal to
+# `batch.SWEEP_ROOT` by `tests/test_manifest.py` and `tests/test_sweep.py`
+# rather than spelled twice.
+#
+# IT IS PERMITTED AND IT IS NOT REQUIRED, and the asymmetry with
+# `CALIBRATION_ROOT` is deliberate. PERMITTED for the same structural reason:
+# `prior_authoring_problems()` derives every path it refuses from
+# `authoring_state_paths()`, which walks `batch.slot_path()` under
+# `batch.ARMS_ROOT`, so a tree that is not under `arms/` is outside that gate by
+# construction and needs no exclusion entry — `tests/test_sweep.py` drives that
+# in both directions rather than leaving it as a reading of this comment. NOT
+# REQUIRED because nothing registers the sweep's TREE as a freeze precondition:
+# §2a registers the PILOT as one, which is why `calibration_problems()` exists
+# and demands the subtree, and inventing a matching demand here would be this
+# module legislating a gate no section states.
+SWEEP_ROOT = "sweeps"
+
 
 def authoring_state_paths():
     """ROUND-10 FINDING R10-1. `(slot directories, ledger files)` — the places

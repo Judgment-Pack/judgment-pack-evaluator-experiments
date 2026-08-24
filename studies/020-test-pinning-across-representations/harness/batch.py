@@ -109,12 +109,36 @@ The enumerated changes to what is carried (PREREGISTRATION.md §2 "Batch shape",
    path is a seam and not a hole (`harness/tests/test_batch.py` asserts the
    refusal under the committed registry).
 
+13. **THE PRE-PILOT EFFORT SWEEP IS A MODE OF THIS DRIVER** (§2.1, M-8/M-20/
+   M-24/M-25) — section D9, and the one addition here that Study 012 has no
+   counterpart for at all. §2.1 registers `n = 3/arm across three settings —
+   27 calls`, run through this apparatus and never outside it, published in
+   full, `citable: false`, with a per-setting abort rule and a call cap; the
+   registration was on the record and the harness had no mode that could run
+   it. `batch.py sweep` is that mode. It carries §2.1's registered constants —
+   the swept SET (`SWEEP_SETTINGS`, the maintainer's dated 2026-08-24
+   decision), the per-arm count, the derived 27-call cap, the 72 h budget and
+   its priced N branch — and checks every one of them against the registry's
+   own `sweep` block before a call, because a registration carried in two
+   places is only safe if a disagreement refuses. It writes under
+   `SWEEP_ROOT` and not `arms/`, which is what keeps R10-1's occupancy gate
+   off it structurally; it claims `PIN_LABEL=SWEEP` and the per-call
+   `SWEEP_EFFORT` at `invoke()` and nowhere else; it runs M-24's WITNESS
+   RESOLUTION as step zero over the first sweep call's own transcript and
+   records which branch fired; and it publishes `SWEEP.json` and `SWEEP.md`
+   after every call rather than at the end. It computes no rate and chooses no
+   setting: §2.1 registers the choice as made from the table by a rule named
+   when the choice is made, and a driver that picked the winner out of the data
+   it had just produced would be making that decision on the maintainer's
+   behalf.
+
 Deliberately unchanged: `schedule_entries()`'s derivation of `slotIndex` from
 the order, `slot_path()`'s `arms/<ARM>/authoring/run-NNN` layout, and the five
 `SCHEDULE_KEYS` — the members a slot carries so a drift is a per-slot check and
 not a claim about bookkeeping.
 """
 from __future__ import annotations
+import datetime
 import hashlib
 import itertools
 import json
@@ -123,6 +147,7 @@ import shutil
 import stat
 import subprocess
 import sys
+import time
 from collections import Counter
 
 # The ceremony's commands run with bytecode writing disabled (Study 012 §2.10,
@@ -212,6 +237,24 @@ ARMS_ROOT = os.path.join(STUDY, "arms")
 # freeze REQUIRES it. `harness/tests/test_manifest.py` asserts the two roots are
 # these two and that neither gate reaches the other's tree.
 CALIBRATION_ROOT = os.path.join(STUDY, "calibration")
+# NEW IN 020 (§2.1). The PRE-PILOT EFFORT SWEEP's root, and it is a THIRD root
+# for the same structural reason `CALIBRATION_ROOT` is a second one — one step
+# earlier in the ceremony. The sweep runs before the pilot, which runs before
+# the freeze, and it leaves 27 authored slots behind. Putting them in `arms/`
+# would make R10-1's `prior_authoring_problems()` refuse the freeze over runs
+# the registration requires; the gate derives every path it refuses from
+# `authoring_state_paths()`, which walks `slot_path()` under `ARMS_ROOT`, so a
+# tree outside `arms/` is outside that gate BY CONSTRUCTION and needs no
+# exclusion list. `make_manifest.SWEEP_ROOT` is the study-relative spelling and
+# `harness/tests/test_sweep.py` asserts the two are one name and drives the
+# occupancy gate in both directions — a sweep tree does not refuse the freeze,
+# an `arms/<ARM>/authoring` tree still does.
+#
+# Unlike the pilot, the sweep is NOT required at the freeze: `calibration/` is
+# permitted AND required because §2a registers the pilot as a precondition;
+# nothing registers the sweep's TREE as one, and inventing a freeze gate no
+# section states would be this driver legislating.
+SWEEP_ROOT = os.path.join(STUDY, "sweeps")
 SCRIPT = os.path.join(HERE, "authoring_call.sh")
 DEFAULT_PINS = os.path.join(HERE, "PINS.json")
 DEFAULT_CAPTURES = os.path.join(STUDY, "controls", "recapture")
@@ -1493,12 +1536,73 @@ def preflight(entries: list, slots: list, scratch_parent: str, pins_path: str,
 # could supply would be the same hole wearing a new name.
 PIN_LABELS = ("PRIMARY", "SWEEP")
 SWEEP_LABEL = "SWEEP"
+# The environment member the sweep's per-call SETTING travels in. It is not part
+# of Study 011's four-member contract and it is not a fifth general one: it is
+# legal under one label, it is set unconditionally by `invoke()` exactly as
+# `PIN_LABEL` is, and the wrapper refuses it under `PRIMARY`. A setting an
+# operator's shell could supply would be the sweep run outside the harness
+# wearing the harness's own name.
+SWEEP_EFFORT_ENV = "SWEEP_EFFORT"
+
+# --- §2.1's registered sweep, as constants -----------------------------------
+#
+# THE SWEPT SET, registered 2026-08-24, BEFORE THE SWEEP, as the maintainer's
+# decision (PREREGISTRATION.md §2.1, "The three swept settings"). The registered
+# shape — 3 settings × 3/arm — names a cardinality and no members, and a set
+# whose members are chosen after the durations are seen is a picked set and not
+# a swept one. These three are the pinned CLI's own named reasoning-effort
+# tiers, in cost order.
+#
+# It is a CONSTANT here and a member there: `harness/PINS.json`'s
+# `sweep.settings` carries the same three, and `harness/tests/test_sweep.py`
+# binds this tuple to that member AND to §2.1's own paragraph, currency-style —
+# a set edited in one place and not the others fails the suite rather than
+# running.
+#
+# `xhigh`, `max` and `ultra` are reachable only by a `DEVIATIONS.md` entry
+# naming the reason and republishing the price. That is enforced and not merely
+# stated: `invoke()` refuses a setting outside this tuple and the wrapper
+# refuses one outside `sweep.settings`, so the deviation has to be WRITTEN
+# before either will run it.
+SWEEP_SETTINGS = ("low", "medium", "high")
+SWEEP_PER_ARM = 3
+# 3 settings × 3 arms × 3 runs. Derived, so a fourth setting cannot silently
+# leave the registered cap behind — and checked against the registry's own
+# `sweep.callCap`, so a cap raised in one place and not the other refuses.
+SWEEP_CALL_CAP = len(SWEEP_SETTINGS) * POSITIONS * SWEEP_PER_ARM
+# The abort rule's second clause (§2.1). `SWEEP_BUDGET_PROJECTION_N` is the ONE
+# branch §2.1's dual-pricing table prices — N = 60/arm — which that table calls
+# a priced illustration and not a registered N. When `batch.n` is filled the
+# projection is made at THAT value instead and the ledger records which of the
+# two it used; the driver never silently takes the cheaper one.
+SWEEP_BUDGET_HOURS = 72
+SWEEP_BUDGET_PROJECTION_N = 60
+# The sweep's dated label and the directory a call at the CLI's own default
+# lands under. The label's SHAPE is checked by the wrapper too, from the slot
+# path, because that is the one anchor component the wrapper cannot compute.
+SWEEP_LABEL_SUFFIX = "-effort-sweep"
+SWEEP_DEFAULT_SETTING_DIR = "default"
+SWEEP_LEDGER_NAME = "SWEEP.json"
+SWEEP_TABLE_NAME = "SWEEP.md"
+# M-24's witness resolution. The member names a `turn_context` payload could use
+# for the effort, searched at any depth: 019's transcripts carry
+# `collaboration_mode.settings.reasoning_effort` and hold NULL there, which is
+# the state M-24 describes and the reason the resolution is a step and not an
+# assumption. A name matched here with a NON-NULL value is a witness; the same
+# name holding null is not.
+EFFORT_WITNESS_MEMBERS = ("reasoning_effort", "reasoningEffort",
+                          "model_reasoning_effort", "reasoning_level",
+                          "default_reasoning_level", "effort")
+# The two branches M-24 registers, named so the ledger records a registered word
+# and not a sentence somebody wrote at the keyboard.
+WITNESS_BRANCH_GATE5 = "gate-5-extension"
+WITNESS_BRANCH_SELF_REPORT = "call-json-self-report"
 
 
 def invoke(slot: str, scratch_parent: str, pins_path: str, cli_override: str,
            prompt_kind: str, arm: str, arm_prompt_path: str,
            isolation: str = "isolated", golden_sha256: str = None,
-           pin_label: str = "PRIMARY") -> tuple:
+           pin_label: str = "PRIMARY", sweep_effort: str = None) -> tuple:
     """(wrapper exit status, refusal code or None, stderr) for one call.
 
     `arm` and `arm_prompt_path` are the wrapper's two arm arguments, inserted
@@ -1536,9 +1640,24 @@ def invoke(slot: str, scratch_parent: str, pins_path: str, cli_override: str,
             "%r is not a registered pin label; the registered labels are %s, "
             "and an unrecognised one is refused rather than treated as PRIMARY"
             % (pin_label, ", ".join(PIN_LABELS)))
+    if sweep_effort is not None and pin_label != SWEEP_LABEL:
+        raise BatchError(
+            "a sweep setting (%r) was passed with the pin label %r: §2.1's "
+            "per-call setting travels under %s alone, and a primary call runs "
+            "the registry's codex.reasoningEffort or it does not run"
+            % (sweep_effort, pin_label, SWEEP_LABEL))
+    if sweep_effort is not None and sweep_effort not in SWEEP_SETTINGS:
+        raise BatchError(
+            "%r is not one of the registered sweep settings %s: §2.1 registers "
+            "the swept SET on 2026-08-24, before the sweep, and a tier outside "
+            "it needs a DEVIATIONS.md entry naming the reason and republishing "
+            "the price" % (sweep_effort, ", ".join(SWEEP_SETTINGS)))
     # Set UNCONDITIONALLY, never defaulted from the inherited environment: the
-    # sweep exemption is claimed by the driver or not at all.
+    # sweep exemption is claimed by the driver or not at all. Both members, for
+    # the same reason and by the same rule — an operator's stray `PIN_LABEL` or
+    # `SWEEP_EFFORT` is overwritten here whether or not this call is a sweep's.
     environment["PIN_LABEL"] = pin_label
+    environment[SWEEP_EFFORT_ENV] = sweep_effort or ""
     # The helper interpreters the wrapper runs must not write bytecode beside
     # the reviewed sources: an existing cache loads even under -B, and the
     # verification gate refuses on one.
@@ -3305,6 +3424,810 @@ def declare_shortfall(reason: str, pins_path: str) -> int:
     return 0
 
 
+# --- D9: the pre-pilot effort sweep (§2.1) -----------------------------------
+#
+# THE THING THE REGISTRATION REGISTERS AND THE HARNESS LACKED. §2.1 registers
+# `n = 3/arm across three settings — 27 calls`, run through this apparatus,
+# published in full, `citable: false`, outside every population, with a
+# per-setting abort rule and a call cap. Every one of those words is a behaviour
+# here rather than a promise somewhere else:
+#
+#   *sequential, arm-interleaved, A first* — `sweep_schedule()`. A first because
+#     the abort rule reads the setting's FIRST ARM-A CALL, and a schedule that
+#     opened on B would make the registered sentence unreadable.
+#   *27 calls, capped* — `SWEEP_CALL_CAP`, derived from the settings and the
+#     per-arm count and checked against the registry's `sweep.callCap`.
+#   *the sweep's own root* — `SWEEP_ROOT`, outside `arms/` so R10-1's occupancy
+#     gate cannot see it (the constant carries the argument).
+#   *`PIN_LABEL=SWEEP`, claimed by the driver* — `invoke()`, unconditionally.
+#   *the effort threaded per call* — `SWEEP_EFFORT`, likewise unconditionally,
+#     legal under one label and refused outside the registered set at BOTH ends.
+#   *published in full* — `SWEEP.json` and `SWEEP.md`, written after every call
+#     rather than at the end, so a sweep killed mid-run has published what it
+#     spent.
+#   *`citable: false`* — stamped by the wrapper into every `CALL.json`, by this
+#     driver into every ledger row, into the ledger's header and into the
+#     rendered table's own first line.
+#
+# WHAT THIS MODE DOES NOT DO. It computes no rate, chooses no setting and fills
+# no pin. §2.1 registers the compute condition as chosen from the sweep's result
+# by a rule that is named when the choice is made; a driver that picked the
+# winner would be making the registered decision on the maintainer's behalf out
+# of the data it had just produced. It publishes the table and stops.
+
+
+def sweep_label(when=None) -> str:
+    """`<UTC date>-effort-sweep`, the sweep's dated directory name.
+
+    A DATE and not a timestamp: §2.1's sweep is one procedure run once, and two
+    sweeps on one day are a second sweep, which the cap clause governs — the
+    label collides, the slots collide, and the driver refuses rather than
+    interleaving two sweeps in one tree. `when` is the injection seam the tests
+    use; production takes today's UTC date."""
+    day = when or datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+    return "%s%s" % (day, SWEEP_LABEL_SUFFIX)
+
+
+def sweep_setting_dir(setting) -> str:
+    """The directory a setting's slots live in. `None` — a sweep call at the
+    CLI's own default — lands under the registered literal rather than under an
+    empty component, because a path with an empty component is a path with one
+    fewer component."""
+    return setting if setting else SWEEP_DEFAULT_SETTING_DIR
+
+
+def sweep_slot_path(label: str, setting, arm: str, run_index: int) -> str:
+    """`sweeps/<label>/<setting>/arm-<ARM>/run-NNN`, absolute.
+
+    The wrapper recomputes this from the registry, the threaded setting and the
+    arm, and refuses a slot that is not it — so this function is the driver's
+    half of an agreement and not the authority for it."""
+    if arm not in ARMS:
+        raise BatchError("%r is not one of this study's arms %s"
+                         % (arm, ", ".join(ARMS)))
+    return os.path.join(SWEEP_ROOT, label, sweep_setting_dir(setting),
+                        "arm-%s" % arm, "run-%03d" % run_index)
+
+
+def sweep_schedule(setting: str, per_arm: int = SWEEP_PER_ARM) -> list:
+    """One setting's calls: ARM-INTERLEAVED, A FIRST, sequential.
+
+    A B C A B C A B C at `per_arm = 3`. Two registered properties live in that
+    order and neither is decorative:
+
+    * **A is first.** The abort rule's first clause reads "a setting whose FIRST
+      arm-A call exceeds 2700 s", and under an interleaved order opening on A
+      the setting's first call and its first arm-A call are the same call. A
+      block order (AAA BBB CCC) would satisfy that sentence too, and would spend
+      three arm-A calls before ever seeing B — which is precisely the state the
+      SECOND clause's per-arm projection cannot be computed from.
+    * **Interleaved, not blocked.** The projection needs a mean for every arm,
+      and interleaving reaches one call per arm after three calls instead of
+      after seven. A setting that is out of budget is then detectable at a third
+      of the price.
+
+    This is NOT the primary batch's carryover-balanced Williams order and does
+    not pretend to be: three runs per arm cannot balance first-order carryover,
+    the sweep is `citable: false` and outside every population, and a sweep
+    dressed as a balanced design would invite exactly the reading §2.1 forbids.
+    """
+    if per_arm < 1:
+        raise BatchError("a sweep setting runs at least one call per arm")
+    entries, index = [], 0
+    for run_index in range(1, per_arm + 1):
+        for arm in ARMS:                      # ("A", "B", "C") — A first
+            index += 1
+            entries.append({
+                "setting": setting,
+                "arm": arm,
+                "runIndex": run_index,
+                "indexWithinSetting": index,
+            })
+    return entries
+
+
+# --- D9a: M-24's witness resolution, as the sweep's step zero ----------------
+
+def _witness_occurrences(payload, prefix: str = "") -> list:
+    """Every `EFFORT_WITNESS_MEMBERS` name reachable in one payload, at any
+    depth, as `[(dotted path, value)]`.
+
+    Recursive because the occurrence M-24 actually found in 019's transcripts is
+    three levels down — `collaboration_mode.settings.reasoning_effort` — and a
+    scan of the payload's top-level keys would have reported "no member names
+    the effort" about a transcript that names it twice."""
+    found = []
+    if isinstance(payload, dict):
+        for key, value in payload.items():
+            here = "%s.%s" % (prefix, key) if prefix else str(key)
+            if key in EFFORT_WITNESS_MEMBERS:
+                found.append((here, value))
+            found.extend(_witness_occurrences(value, here))
+    elif isinstance(payload, list):
+        for position, value in enumerate(payload):
+            found.extend(
+                _witness_occurrences(value, "%s[%d]" % (prefix, position)))
+    return found
+
+
+def effort_witness(session_path: str) -> dict:
+    """M-24's WITNESS RESOLUTION over one retained transcript.
+
+    §2.1 registers a step that "sets the flag and inspects the resulting
+    `session.jsonl` for a non-null member naming the effort", with two branches:
+
+    * a non-null member exists — transcript gate 5 is extended to it with the
+      same `turn-context-mismatch` reason tag and the same apparatus-side
+      classification (`WITNESS_BRANCH_GATE5`);
+    * none exists — the effort pin is a `CALL.json` SELF-REPORT where no
+      transcript witness exists, with `reasoning_output_tokens` entering C4 as a
+      band (`WITNESS_BRANCH_SELF_REPORT`).
+
+    THE BRANCH IS DECIDED ON `turn_context` AND ONLY ON `turn_context`, because
+    gate 5 is a `turn_context` gate: extending it to a member that lives in some
+    other record type would be extending a different gate. A non-null occurrence
+    elsewhere in the transcript is real evidence and is REPORTED — under
+    `otherOccurrences`, with the note that says why it did not decide the branch
+    — rather than being dropped or quietly promoted.
+
+    NULL occurrences are counted separately and on purpose. 019's transcripts
+    carry exactly one, `collaboration_mode.settings.reasoning_effort: null`, and
+    reporting "no occurrences" about a transcript that has one would make the
+    next reader re-do this work to find out whether the member was absent or
+    present-and-empty. `transcript_check.py:603-608` would refuse every call
+    against that null, which is the fact M-24 is a ruling about.
+
+    THIS FUNCTION AMENDS NOTHING. It reports which branch fired; extending gate
+    5 is a change to `harness/transcript_check.py` that lands with the branch,
+    under the preregistration's own sentence, and not on this driver's
+    authority."""
+    if not os.path.isfile(session_path):
+        raise BatchError(
+            "M-24's witness resolution has no transcript to read at %s: the "
+            "step is registered as run over the FIRST sweep call's own "
+            "session.jsonl, and a first call that retained none resolves "
+            "nothing" % session_path)
+    turn_context, other, nulls = [], [], []
+    with open(session_path, "rb") as handle:
+        for number, line in enumerate(handle, start=1):
+            text = line.decode("utf-8", "replace").strip()
+            if not text:
+                continue
+            try:
+                record = json.loads(text)
+            except ValueError:
+                # A transcript line that is not JSON is the transcript's
+                # problem and `transcript_check` is where it is adjudicated;
+                # this step reports what it could read rather than refusing a
+                # resolution over a line it does not own.
+                continue
+            if not isinstance(record, dict):
+                continue
+            kind = record.get("type")
+            payload = record.get("payload")
+            for where, value in _witness_occurrences(payload):
+                row = {"line": number, "recordType": kind, "member": where,
+                       "value": value}
+                if value is None:
+                    nulls.append(row)
+                elif kind == "turn_context":
+                    turn_context.append(row)
+                else:
+                    other.append(row)
+    branch = WITNESS_BRANCH_GATE5 if turn_context else WITNESS_BRANCH_SELF_REPORT
+    return {
+        "branch": branch,
+        "sessionSha256": _digest(session_path),
+        "turnContextOccurrences": turn_context,
+        "otherOccurrences": other,
+        "nullOccurrences": nulls,
+        "searchedMembers": list(EFFORT_WITNESS_MEMBERS),
+        "note": (
+            "M-24, resolved as the sweep's step zero over the FIRST sweep "
+            "call's retained transcript. The branch is decided on turn_context "
+            "alone, because transcript gate 5 is a turn_context gate; a "
+            "non-null occurrence in another record type is reported under "
+            "otherOccurrences and does not decide it. A null occurrence is "
+            "reported under nullOccurrences and is NOT a witness: 019's "
+            "transcripts carry exactly one such member and "
+            "transcript_check.py:603-608 would refuse every call against it."),
+        "obligation": (
+            "transcript gate 5 is EXTENDED to this member, with the same "
+            "turn-context-mismatch reason tag and the same apparatus-side "
+            "classification, before the primary batch. The sweep publishes the "
+            "branch; it does not amend the gate."
+            if branch == WITNESS_BRANCH_GATE5 else
+            "the effort pin is registered as a CALL.json SELF-REPORT where no "
+            "transcript witness exists, with reasoning_output_tokens entering "
+            "C4 as a band. The condition is asserted by the wrapper and not "
+            "independently witnessed, and that sentence travels with every "
+            "published record of the condition."),
+    }
+
+
+def reasoning_output_tokens(session_path: str):
+    """The transcript's LAST `reasoning_output_tokens`, or None.
+
+    §2.1's publication obligation names this column, and the pinned CLI carries
+    it in `event_msg`/`token_count` under `info.total_token_usage` — a running
+    total, so the last one is the call's. It is read WHERE THE TRANSCRIPT
+    CARRIES IT and is None where it does not: a sweep row with no token count is
+    published as a row with no token count, not as a zero."""
+    if not os.path.isfile(session_path):
+        return None
+    value = None
+    with open(session_path, "rb") as handle:
+        for line in handle:
+            text = line.decode("utf-8", "replace").strip()
+            if not text or "reasoning_output_tokens" not in text:
+                continue
+            try:
+                record = json.loads(text)
+            except ValueError:
+                continue
+            found = _token_total(record)
+            if found is not None:
+                value = found
+    return value
+
+
+def _token_total(record):
+    """`info.total_token_usage.reasoning_output_tokens` from one record, or
+    None. Read by PATH and not by a recursive name search: `last_token_usage`
+    carries the same member name for a different quantity, and a search that
+    took whichever came first would publish one or the other by dict order."""
+    if not isinstance(record, dict):
+        return None
+    payload = record.get("payload")
+    if not isinstance(payload, dict):
+        return None
+    info = payload.get("info")
+    if not isinstance(info, dict):
+        return None
+    usage = info.get("total_token_usage")
+    if not isinstance(usage, dict):
+        return None
+    value = usage.get("reasoning_output_tokens")
+    return value if isinstance(value, int) and not isinstance(value, bool) else None
+
+
+# --- D9b: the abort rule, as two functions that decide nothing else ----------
+
+def sweep_budget_n(pins: dict) -> tuple:
+    """`(N, which branch it came from)` for the abort rule's projection.
+
+    `batch.n` is NULL by construction until this sweep produces it, so the
+    projection is made at the ONE branch §2.1's dual-pricing table prices —
+    `N = 60/arm` — and the ledger records that it was the priced branch and not
+    a registered N. A registry that has since filled `batch.n` is projected at
+    THAT value, and the ledger records that instead. The driver never picks the
+    cheaper of the two."""
+    registered = (pins.get("batch") or {}).get("n")
+    if isinstance(registered, int) and not isinstance(registered, bool) \
+            and registered > 0:
+        return registered, "batch.n"
+    return SWEEP_BUDGET_PROJECTION_N, "the §2.1 priced branch (N = 60/arm)"
+
+
+def projected_batch_hours(per_arm_means: dict, n: int) -> float:
+    """The primary batch's wall clock at these per-arm means, in hours.
+
+    `n × Σ_arm mean_arm ÷ 3600` — the SLOT-TRIPLE arithmetic §2.1's own table
+    uses: the pilot-like triple 1660.184 + 803.042 + 624.114 s = 3087.34 s at
+    N = 60 gives 51.46 h, which is the figure that table prints. Computing the
+    projection the same way the registration priced it is what makes "beyond
+    72 h" mean the same number to the driver and to the reader.
+
+    Refuses on a partial mean set rather than projecting from two arms: a
+    projection over an incomplete triple understates the batch, and understating
+    it is the direction that spends money."""
+    missing = [arm for arm in ARMS if arm not in per_arm_means]
+    if missing:
+        raise BatchError(
+            "no budget projection is made from %d of %d arms (missing %s): a "
+            "triple short an arm understates the batch, and understating it is "
+            "the direction that spends"
+            % (len(per_arm_means), len(ARMS), ", ".join(missing)))
+    return n * sum(per_arm_means[arm] for arm in ARMS) / 3600.0
+
+
+def sweep_abort_verdict(calls: list, n: int, n_source: str) -> dict:
+    """§2.1's PER-SETTING ABORT RULE over one setting's calls so far, exactly as
+    registered and not one clause wider.
+
+    > A setting whose **first** arm-A call exceeds **2700 s** (the registered
+    > per-call ceiling) is aborted after that call; a setting whose per-arm mean
+    > duration projects a primary batch beyond **72 h** at the registered N
+    > branch is recorded as **out of budget** and is not swept further. Aborted
+    > settings are published with the call that aborted them.
+
+    Two clauses, two verdicts, and they are different words on purpose:
+    `aborted` is a setting whose first call ran past the apparatus ceiling, and
+    `out-of-budget` is a setting the arithmetic priced out. Returning one word
+    for both would make the published table unable to say which happened.
+
+    CLAUSE ONE reads the setting's first arm-A call — which, under
+    `sweep_schedule()`'s A-first interleave, is the setting's first call. The
+    duration compared is the DRIVER-MEASURED wall clock, which includes the
+    wrapper's own setup and its kill grace; a call the wrapper terminated at the
+    ceiling therefore satisfies "exceeds 2700 s" without the rule needing a
+    second sentence about timeouts, and the ledger records `timedOut` beside the
+    duration so a reader can see which it was.
+
+    CLAUSE TWO is evaluated as soon as EVERY arm has a completed call — after
+    three calls under the interleaved order — because "is not swept further" is
+    only a rule if it can still stop something. A refused call contributes no
+    duration to any mean: a call that never reached the model is not evidence
+    about what the model costs.
+
+    Returns `{"verdict", "reason", "abortingCall", …}` with verdict `None` when
+    the setting continues. It DECIDES NOTHING ELSE — it does not choose a
+    setting, does not stop other settings, and does not touch the cap."""
+    completed = [call for call in calls if call.get("code") is None]
+    first_arm_a = next((call for call in calls if call["arm"] == "A"), None)
+    if first_arm_a is not None and first_arm_a["indexWithinSetting"] == 1 \
+            and first_arm_a["durationSeconds"] > CALL_TIMEOUT_SECONDS:
+        return {
+            "verdict": "aborted",
+            "clause": "first-arm-A-call-over-ceiling",
+            "reason": (
+                "the setting's first arm-A call ran %.1f s, past the registered "
+                "%d s per-call ceiling; §2.1 aborts the setting AFTER that call, "
+                "and the call is published with it"
+                % (first_arm_a["durationSeconds"], CALL_TIMEOUT_SECONDS)),
+            "abortingCall": first_arm_a,
+            "projectedBatchHours": None,
+        }
+    means = {}
+    for arm in ARMS:
+        durations = [call["durationSeconds"] for call in completed
+                     if call["arm"] == arm]
+        if durations:
+            means[arm] = sum(durations) / len(durations)
+    if len(means) == len(ARMS):
+        hours = projected_batch_hours(means, n)
+        if hours > SWEEP_BUDGET_HOURS:
+            return {
+                "verdict": "out-of-budget",
+                "clause": "projected-batch-over-budget",
+                "reason": (
+                    "the per-arm means (%s) project a primary batch of %.2f h at "
+                    "%s, past the registered %d h; §2.1 records the setting out "
+                    "of budget and sweeps it no further"
+                    % (", ".join("%s %.1f s" % (arm, means[arm]) for arm in ARMS),
+                       hours, n_source, SWEEP_BUDGET_HOURS)),
+                "abortingCall": calls[-1],
+                "projectedBatchHours": hours,
+                "perArmMeanSeconds": means,
+            }
+        return {"verdict": None, "clause": None, "reason": None,
+                "abortingCall": None, "projectedBatchHours": hours,
+                "perArmMeanSeconds": means}
+    return {"verdict": None, "clause": None, "reason": None,
+            "abortingCall": None, "projectedBatchHours": None,
+            "perArmMeanSeconds": means}
+
+
+# --- D9c: the sweep's own preflight ------------------------------------------
+
+def sweep_preflight(label: str, slots: list, scratch_parent: str,
+                    pins_path: str, cli_override: str) -> dict:
+    """Everything checkable before the sweep's first call, and NOT the primary
+    batch's preflight.
+
+    The two differ because the sweep runs at a different point in the ceremony,
+    and pretending otherwise would make it un-runnable:
+
+    * `require_freeze()` refuses while any freeze pin is null. The sweep runs
+      BEFORE the freeze — every freeze pin is null by construction — so this
+      gate reads the DESIGN-TIME pins under the registered sweep label instead
+      (`integrity.design_time_pin_state()` minus `SWEEP_EXEMPT_PINS`), which
+      leaves exactly one requirement: `codex.model` is filled. That is M-25's
+      own sentence — one exemption, one value and one label wide, and
+      `codex.model` never exempt — enforced rather than restated.
+    * `check_registry()` refuses while `batch.n` is null. `batch.n` is this
+      sweep's OUTPUT; requiring it would be requiring the answer before the
+      question.
+    * `require_golden()` and `require_isolation_negative()` are preconditions of
+      the BATCH. §3.2's golden capture is a fact about the environment at
+      capture time and the sweep precedes it; gating the sweep on it would
+      reorder the registered ceremony.
+
+    What it does NOT relax: the ported bytes, the canonical registry (R10-1),
+    the CLI digest, the arm prompt digests, the attempt root, the lawful
+    destination and the never-rewrite-a-slot rule are all checked here, and the
+    wrapper re-checks the binary digest, the CLI version, the interpreter and
+    the per-arm prompt digest per call."""
+    verify_ported_bytes()
+    if not slots:
+        raise BatchError("a sweep needs at least one call")
+    if len(slots) > SWEEP_CALL_CAP:
+        raise BatchError(
+            "this sweep plans %d calls and §2.1 caps the sweep at %d: the cap is "
+            "not raised without a DEVIATIONS.md entry naming the reason and "
+            "republishing the price" % (len(slots), SWEEP_CALL_CAP))
+    if not os.path.isfile(SCRIPT):
+        raise BatchError("no authoring wrapper at %s" % SCRIPT)
+    if not os.path.isdir(scratch_parent):
+        raise BatchError("scratch parent %s is not a directory" % scratch_parent)
+    require_canonical_registry(pins_path)
+    pins = _load_json(pins_path)
+    # The registered constants and the registry's own members are the same
+    # numbers, or the sweep does not run. §2.1's set, cap, per-arm count, root
+    # and budget are carried in both places so a reader of either can see them;
+    # carrying them in both places is only safe if a drift refuses.
+    sweep = pins.get("sweep") or {}
+    for member, expected, what in (
+            ("settings", list(SWEEP_SETTINGS), "the swept set (§2.1, 2026-08-24)"),
+            ("perArm", SWEEP_PER_ARM, "the per-arm call count"),
+            ("callCap", SWEEP_CALL_CAP, "the registered call cap"),
+            ("root", os.path.basename(SWEEP_ROOT), "the sweep's slot root"),
+            ("budgetHours", SWEEP_BUDGET_HOURS, "the abort rule's budget"),
+            ("budgetProjectionN", SWEEP_BUDGET_PROJECTION_N,
+             "the abort rule's priced N branch")):
+        if sweep.get(member) != expected:
+            raise BatchError(
+                "harness/PINS.json's sweep.%s is %r and this driver's constant "
+                "for %s is %r: the two are one registration in two places, and a "
+                "sweep is not run under a disagreement about what it is"
+                % (member, sweep.get(member), what, expected))
+    if sweep.get("citable") is not False:
+        raise BatchError(
+            "harness/PINS.json's sweep.citable is %r: §2.1 registers the sweep's "
+            "outputs as citable: false and outside every population, and a "
+            "registry that does not say so is not the registry this mode runs "
+            "under" % sweep.get("citable"))
+    # M-25's gate, at the width M-25 registers it. `integrity` owns the tuples
+    # and the exemption; this reads them rather than restating them.
+    state = integrity.design_time_pin_state(pins)
+    unfilled = [name for name, filled in state.items()
+                if not filled and name not in integrity.SWEEP_EXEMPT_PINS]
+    if unfilled:
+        raise BatchError(
+            "harness/PINS.json leaves these design-time pins null: %s. §2.1's "
+            "exemption is one value and one label wide — codex.reasoningEffort "
+            "alone, because the sweep is what resolves it — and codex.model is "
+            "never exempt: a sweep is still a call to a named model, and 019's "
+            "pilot's defining defect was a call whose model nothing recorded"
+            % ", ".join(sorted(unfilled)))
+    for arm in ARMS:
+        path, pinned = arm_prompt(pins, arm)
+        if not os.path.isfile(path):
+            raise BatchError("arm %s's prompt is missing from %s"
+                             % (arm, os.path.relpath(path, STUDY)))
+        actual = _digest(path)
+        if not _matches(actual, pinned):
+            raise BatchError(
+                "arm %s's prompt is %s, not the pinned %s: no sweep call is made "
+                "with bytes that are not the arm's" % (arm, actual, pinned))
+    if cli_override is not None:
+        if not os.path.isfile(cli_override):
+            raise BatchError("no CLI at %s" % cli_override)
+        override_digest = _digest(cli_override)
+        if not _matches(override_digest, pins["codex"]["binarySha256"]):
+            raise BatchError("the CLI at %s is %s, not the pinned %s"
+                             % (cli_override, override_digest,
+                                pins["codex"]["binarySha256"]))
+    if os.path.exists(ATTEMPT_ROOT):
+        raise BatchError(
+            "%s exists: a sweep is a call, and no call is made after a rate has "
+            "been computed" % os.path.relpath(ATTEMPT_ROOT, STUDY))
+    # The sweep root must be a place this harness may write. It is, and it is
+    # asserted rather than assumed: ADR 0004's exact set reaches no byte under
+    # `sweeps/`, exactly as it reaches none under `arms/` or `calibration/`.
+    require_lawful_destination(os.path.join(SWEEP_ROOT, label),
+                               "the sweep root")
+    here = os.path.join(SWEEP_ROOT, label)
+    if os.path.lexists(here):
+        raise BatchError(
+            "%s already exists: §2.1's sweep is one procedure run once, and a "
+            "second sweep under the same dated label would interleave two sweeps "
+            "in one tree. Move the first out of the way and record the second in "
+            "DEVIATIONS.md" % os.path.relpath(here, STUDY))
+    existing = [os.path.relpath(slot, STUDY) for slot in slots
+                if os.path.lexists(slot)]
+    if existing:
+        raise BatchError("these sweep slots already exist and are never "
+                         "rewritten: %s" % ", ".join(existing))
+    return pins
+
+
+# --- D9d: the ledger and the rendered table ----------------------------------
+
+def sweep_ledger_body(label: str, pins_path: str, pins: dict, n: int,
+                      n_source: str, settings: list, witness) -> dict:
+    """`SWEEP.json`'s whole content. Written after every call, so a sweep killed
+    part way through has published what it spent — the prereg's
+    published-in-full obligation is about the calls that were MADE, and a ledger
+    written only at the end publishes nothing about a sweep that did not
+    finish."""
+    return {
+        "sweepVersion": "1",
+        "citable": False,
+        "label": label,
+        "study": os.path.basename(STUDY),
+        "registration": "PREREGISTRATION.md §2.1 — the pre-pilot effort sweep. "
+                        "Outputs are citable: false and outside every "
+                        "population. The compute condition is chosen from this "
+                        "table by a rule named when the choice is made; this "
+                        "file chooses nothing.",
+        "registeredSettings": list(SWEEP_SETTINGS),
+        "perArm": SWEEP_PER_ARM,
+        "callCap": SWEEP_CALL_CAP,
+        "callTimeoutSeconds": CALL_TIMEOUT_SECONDS,
+        "budgetHours": SWEEP_BUDGET_HOURS,
+        "budgetProjectionN": n,
+        "budgetProjectionNSource": n_source,
+        "pinsSha256": _digest(pins_path),
+        "model": (pins.get("codex") or {}).get("model"),
+        "cli": (pins.get("codex") or {}).get("version"),
+        "reasoningEffortFlag": (pins.get("codex") or {}).get(
+            "reasoningEffortFlag"),
+        "reasoningEffortConfigKey": (pins.get("codex") or {}).get(
+            "reasoningEffortConfigKey"),
+        "witnessResolution": witness,
+        "settings": settings,
+    }
+
+
+def render_sweep_table(body: dict) -> str:
+    """`SWEEP.md` — §2.1's "full per-setting table", rendered from the ledger
+    this driver just wrote and from nothing else.
+
+    One row per (setting, arm, run), because the registration names per-arm
+    DURATIONS, completion BYTES and `reasoning_output_tokens` and a table that
+    published only the means would have discarded the dispersion the compute
+    decision is about. The per-setting summary sits under its own rows rather
+    than in a second table, so a reader cannot read a mean without seeing what
+    it is a mean of."""
+    lines = [
+        "# Pre-pilot effort sweep — %s" % body["label"],
+        "",
+        "**`citable: false`. Outside every population.** PREREGISTRATION.md "
+        "§2.1 registers this sweep as `n = 3/arm across three settings — 27 "
+        "calls`, published in full. Nothing here is evidence for or against R1, "
+        "and no setting is chosen by this file.",
+        "",
+        "| what | value |",
+        "|---|---|",
+        "| registered settings | %s |" % ", ".join(body["registeredSettings"]),
+        "| per arm | %d |" % body["perArm"],
+        "| call cap | %d |" % body["callCap"],
+        "| per-call ceiling | %d s |" % body["callTimeoutSeconds"],
+        "| budget | %d h at N = %d/arm (%s) |"
+        % (body["budgetHours"], body["budgetProjectionN"],
+           body["budgetProjectionNSource"]),
+        "| model | `%s` |" % body["model"],
+        "| CLI | `%s` |" % body["cli"],
+        "| effort argument | `%s %s=<tier>` |"
+        % (body["reasoningEffortFlag"], body["reasoningEffortConfigKey"]),
+        "| registry | `%s` |" % body["pinsSha256"],
+        "",
+    ]
+    witness = body.get("witnessResolution")
+    lines.extend([
+        "## M-24's witness resolution — the sweep's step zero",
+        "",
+    ])
+    if not witness:
+        lines.extend([
+            "Not resolved: no sweep call retained a transcript to read it from.",
+            "",
+        ])
+    else:
+        lines.extend([
+            "**Branch: `%s`.**" % witness["branch"],
+            "",
+            witness["obligation"],
+            "",
+            "| occurrences | count |",
+            "|---|---|",
+            "| non-null, in `turn_context` (the gate-5 surface) | %d |"
+            % len(witness["turnContextOccurrences"]),
+            "| non-null, in another record type | %d |"
+            % len(witness["otherOccurrences"]),
+            "| present and NULL | %d |" % len(witness["nullOccurrences"]),
+            "",
+        ])
+        for row in witness["nullOccurrences"][:5]:
+            lines.append("- null at `%s` (`%s`, line %d)"
+                         % (row["member"], row["recordType"], row["line"]))
+        for row in witness["otherOccurrences"][:5]:
+            lines.append("- non-null at `%s` = `%r` (`%s`, line %d) — NOT a "
+                         "gate-5 witness: gate 5 reads `turn_context`"
+                         % (row["member"], row["value"], row["recordType"],
+                            row["line"]))
+        lines.append("")
+    for setting in body["settings"]:
+        lines.extend([
+            "## Setting `%s` — %s" % (setting["setting"], setting["outcome"]),
+            "",
+        ])
+        if setting.get("reason"):
+            lines.extend([setting["reason"], ""])
+        lines.extend([
+            "| arm | run | duration s | completion bytes | reasoning tokens | "
+            "exit | code | timed out |",
+            "|---|---|---|---|---|---|---|---|",
+        ])
+        for call in setting["calls"]:
+            lines.append(
+                "| %s | %d | %.1f | %s | %s | %d | %s | %s |"
+                % (call["arm"], call["runIndex"], call["durationSeconds"],
+                   "—" if call["completionBytes"] is None
+                   else call["completionBytes"],
+                   "—" if call["reasoningOutputTokens"] is None
+                   else call["reasoningOutputTokens"],
+                   call["wrapperExit"], call["code"] or "complete",
+                   "yes" if call["timedOut"] else "no"))
+        lines.append("")
+        means = setting.get("perArmMeanSeconds") or {}
+        if means:
+            lines.extend([
+                "| arm | mean duration s | completed calls |",
+                "|---|---|---|",
+            ])
+            for arm in ARMS:
+                if arm in means:
+                    completed = len([call for call in setting["calls"]
+                                     if call["arm"] == arm
+                                     and call["code"] is None])
+                    lines.append("| %s | %.1f | %d |"
+                                 % (arm, means[arm], completed))
+            lines.append("")
+        if setting.get("projectedBatchHours") is not None:
+            lines.extend([
+                "Projected primary batch at N = %d/arm: **%.2f h** "
+                "(budget %d h)."
+                % (body["budgetProjectionN"], setting["projectedBatchHours"],
+                   body["budgetHours"]),
+                "",
+            ])
+    return "\n".join(lines) + "\n"
+
+
+# --- D9e: the sweep itself ----------------------------------------------------
+
+def _completion_bytes(slot: str):
+    path = os.path.join(slot, "completion.txt")
+    return os.path.getsize(path) if os.path.isfile(path) else None
+
+
+def run_sweep(scratch_parent: str, pins_path: str, cli_override: str,
+              label: str = None, settings: list = None,
+              dry_run: bool = False) -> int:
+    """§2.1's pre-pilot effort sweep, end to end.
+
+    Sequential — never parallel, like the batch, and for the batch's reason: the
+    sweep is measuring durations, and two calls sharing a machine measure the
+    machine's contention. Arm-interleaved with A first. `PIN_LABEL=SWEEP` and
+    the per-call setting claimed by this driver at `invoke()` and by nothing
+    else. Published after every call.
+
+    A refused call does not stop the sweep: the sweep exists to price settings,
+    and a wrapper refusal is priced information about the apparatus, recorded
+    with its code. What stops a setting is the abort rule and nothing else; what
+    stops the sweep is the cap."""
+    label = label or sweep_label()
+    settings = list(settings or SWEEP_SETTINGS)
+    unregistered = [name for name in settings if name not in SWEEP_SETTINGS]
+    if unregistered:
+        raise BatchError(
+            "these settings are not in §2.1's registered set %s: %s. The swept "
+            "SET was registered on 2026-08-24, before the sweep; a tier outside "
+            "it needs a DEVIATIONS.md entry naming the reason and republishing "
+            "the price" % (", ".join(SWEEP_SETTINGS), ", ".join(unregistered)))
+    planned = []
+    for setting in settings:
+        for entry in sweep_schedule(setting):
+            planned.append((entry, sweep_slot_path(label, setting, entry["arm"],
+                                                   entry["runIndex"])))
+    pins = sweep_preflight(label, [slot for _entry, slot in planned],
+                           scratch_parent, pins_path, cli_override)
+    n, n_source = sweep_budget_n(pins)
+    if dry_run:
+        print("sweep %s: %d calls over %d settings (%s), %d/arm, cap %d"
+              % (label, len(planned), len(settings), ", ".join(settings),
+                 SWEEP_PER_ARM, SWEEP_CALL_CAP))
+        for entry, slot in planned:
+            print("  %-8s %s run-%03d  %s"
+                  % (entry["setting"], entry["arm"], entry["runIndex"],
+                     os.path.relpath(slot, STUDY)))
+        return 0
+    root = os.path.join(SWEEP_ROOT, label)
+    published = []
+    witness = None
+    spent = 0
+    for setting in settings:
+        calls, verdict = [], {"verdict": None, "reason": None,
+                              "projectedBatchHours": None,
+                              "perArmMeanSeconds": {}}
+        for entry in sweep_schedule(setting):
+            if spent >= SWEEP_CALL_CAP:
+                raise BatchError(
+                    "the sweep has spent its registered cap of %d calls and the "
+                    "next call would be number %d: §2.1's cap is not raised "
+                    "without a DEVIATIONS.md entry naming the reason and "
+                    "republishing the price" % (SWEEP_CALL_CAP, spent + 1))
+            slot = sweep_slot_path(label, setting, entry["arm"],
+                                   entry["runIndex"])
+            path, _pinned = arm_prompt(pins, entry["arm"])
+            started = time.monotonic()
+            status, code, stderr = invoke(
+                slot, scratch_parent, pins_path, cli_override, "registered",
+                entry["arm"], path, pin_label=SWEEP_LABEL, sweep_effort=setting)
+            duration = time.monotonic() - started
+            spent += 1
+            session = os.path.join(slot, "session.jsonl")
+            call = dict(entry)
+            call.update({
+                "slot": os.path.relpath(slot, STUDY),
+                "globalIndex": spent,
+                "durationSeconds": round(duration, 3),
+                "wrapperExit": status,
+                "code": code,
+                "timedOut": code == WRAPPER_CODES.get(12),
+                "completionBytes": _completion_bytes(slot),
+                "reasoningOutputTokens": reasoning_output_tokens(session),
+                "sessionRetained": os.path.isfile(session),
+                "citable": False,
+                "stderrTail": (stderr or "")[-STDERR_TAIL:] if code else None,
+            })
+            calls.append(call)
+            # STEP ZERO, on the first sweep call that retained a transcript.
+            # M-24 registers the resolution over "the resulting session.jsonl",
+            # and the first call that produced one is the first call the step
+            # can read; a refused first call resolves nothing and the step waits
+            # for the next transcript rather than reporting an absence as a
+            # branch.
+            if witness is None and os.path.isfile(session):
+                witness = effort_witness(session)
+                witness["resolvedFrom"] = call["slot"]
+            verdict = sweep_abort_verdict(calls, n, n_source)
+            published = _publish_sweep(
+                root, label, pins_path, pins, n, n_source, published, setting,
+                calls, verdict, witness)
+            if verdict["verdict"] is not None:
+                print("setting %s: %s — %s"
+                      % (setting, verdict["verdict"], verdict["reason"]))
+                break
+    print("sweep %s: %d calls under %s, published under %s (citable: false)"
+          % (label, spent, SWEEP_LABEL, os.path.relpath(root, STUDY)))
+    return 0
+
+
+def _publish_sweep(root: str, label: str, pins_path: str, pins: dict, n: int,
+                   n_source: str, published: list, setting: str, calls: list,
+                   verdict: dict, witness) -> list:
+    """Rewrite `SWEEP.json` and `SWEEP.md` with this setting's state folded in.
+
+    Called after EVERY call. The published set is rebuilt rather than appended
+    to, so the file on disk is always the whole sweep so far and never a
+    fragment plus an assumption about what came before it."""
+    current = {
+        "setting": setting,
+        "outcome": verdict["verdict"] or "swept",
+        "reason": verdict.get("reason"),
+        "clause": verdict.get("clause"),
+        "abortingCall": verdict.get("abortingCall"),
+        "projectedBatchHours": verdict.get("projectedBatchHours"),
+        "perArmMeanSeconds": verdict.get("perArmMeanSeconds") or {},
+        "callsMade": len(calls),
+        "callsRegistered": POSITIONS * SWEEP_PER_ARM,
+        "citable": False,
+        "calls": calls,
+    }
+    rest = [row for row in published if row["setting"] != setting]
+    published = rest + [current]
+    body = sweep_ledger_body(label, pins_path, pins, n, n_source, published,
+                             witness)
+    os.makedirs(root, exist_ok=True)
+    _write_json(os.path.join(root, SWEEP_LEDGER_NAME), body)
+    with open(os.path.join(root, SWEEP_TABLE_NAME), "w") as handle:
+        handle.write(render_sweep_table(body))
+    return published
+
+
 # --- the argument surface ----------------------------------------------------
 
 def _argument(argv: list, flag: str, default=None):
@@ -3326,6 +4249,16 @@ USAGE = (
     "       batch.py capture-isolation-negative --scratch-parent DIR [--out DIR]\n"
     "                    [--pins PATH] [--golden PATH] [--cli-override PATH]\n"
     "       batch.py shortfall --reason TEXT [--pins PATH]\n"
+    "       batch.py sweep --scratch-parent DIR [--pins PATH]\n"
+    "                    [--cli-override PATH] [--label NAME] [--settings LIST]\n"
+    "                    [--dry-run]\n"
+    "\n"
+    "sweep is PREREGISTRATION.md §2.1's pre-pilot effort sweep: 3 settings x\n"
+    "3 arms x 3 runs = 27 calls, sequential, arm-interleaved with A first,\n"
+    "under PIN_LABEL=SWEEP, published in full under sweeps/<label>/ as\n"
+    "SWEEP.json and SWEEP.md, citable: false and outside every population.\n"
+    "--settings names a SUBSET of the registered three (a resumed or a\n"
+    "single-setting run); it cannot introduce a fourth.\n"
     "\n"
     "--pins names a registry only under the stand-in study of the harness\n"
     "tests. In this tree it is refused unless it names harness/PINS.json:\n"
@@ -3333,7 +4266,7 @@ USAGE = (
     "(round-10 finding R10-1).")
 
 COMMANDS = ("plan", "run", "capture", "capture-golden",
-            "capture-isolation-negative", "shortfall")
+            "capture-isolation-negative", "shortfall", "sweep")
 
 # Flags a command line may still carry from an earlier driver, each removed by a
 # registered decision. They refuse by name rather than being ignored: a command
@@ -3416,6 +4349,17 @@ def main(argv: list) -> int:
                 _argument(argv, "--out", DEFAULT_NEGATIVE), scratch_parent,
                 pins_path, _argument(argv, "--cli-override"),
                 _argument(argv, "--golden"))
+        if command == "sweep":
+            scratch_parent = _argument(argv, "--scratch-parent")
+            if scratch_parent is None:
+                raise BatchError("--scratch-parent is required")
+            named = _argument(argv, "--settings")
+            return run_sweep(scratch_parent, pins_path,
+                             _argument(argv, "--cli-override"),
+                             _argument(argv, "--label"),
+                             [name.strip() for name in named.split(",")
+                              if name.strip()] if named else None,
+                             "--dry-run" in argv)
         if command == "capture-golden":
             slots_dir = _argument(argv, "--slots")
             if slots_dir is None:

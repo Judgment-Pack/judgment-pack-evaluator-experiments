@@ -1862,11 +1862,23 @@ class TheEffortFlagSeat(StandInStudy):
         self.assertIs(record["reasoningEffortWitnessed"], False)
         self.assertEqual(record["pinLabel"], "PRIMARY")
         self.assertIs(record["citable"], True)
+        # THE RESOLVED SPELLING (2026-08-24). `codex exec --help` at the pinned
+        # CLI names no reasoning-effort flag at all, so the effort travels as a
+        # CONFIG OVERRIDE — `-c model_reasoning_effort=<tier>` — and the slot
+        # records the two registry members it was composed from beside the tier
+        # and beside the exact argv token. `-c <tier>` would be a malformed
+        # override this build reads as a literal, which is precisely the guess
+        # §2.1 forbade the wrapper to make.
+        self.assertEqual(record["reasoningEffortConfigKey"],
+                         "model_reasoning_effort")
+        self.assertEqual(record["reasoningEffortArg"],
+                         "model_reasoning_effort=high")
         # Positionally, because `-c` is also the flag that carries
         # `mcp_servers={}`: the effort pair sits between `-m <model>` and
         # `--sandbox`, and asserting membership would pass on the wrong one.
-        self.assertEqual(record["argv"][3:7], ["-m", "s020-stand-in-model",
-                                               "-c", "high"])
+        self.assertEqual(record["argv"][3:7],
+                         ["-m", "s020-stand-in-model", "-c",
+                          "model_reasoning_effort=high"])
         self.assertEqual(record["argv"][7], "--sandbox")
 
     def test_a_null_effort_refuses_a_primary_call(self):
