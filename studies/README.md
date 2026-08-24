@@ -30,6 +30,7 @@ and agreement tracks are kept separate and why.
 | [017](017-witnessed-currency/) | What does a minimal witness/cross-view comparison step buy against the registry split view — and which contract clause does each remaining silence isolate? | Currency governance | — | Frozen + run — R1 holds (both strata) |
 | [018](018-transition-rules/) | What does a cited registry head buy a stated transition rule — and where does the evidence stop? | Currency governance | — | Frozen + run — R1 holds; reviewer holdout diverged on three preregistered cells |
 | [019](019-authorship-across-representations/) | Does a constrained judgment representation change how reliably a model authors an executable policy, compared with a general policy language? | Blinded authorship | Open Policy Agent; codex-cli (author) | **Frozen + run — R1 inconclusive (control gate failed: E1 floor)** |
+| [020](020-test-pinning-across-representations/) | Instrument repair for 019's question: does the representation change what an authored suite covers? | Blinded authorship | codex-cli (author) | **Design shelf-ready — not proceeding** (two-tier footing; R2 amendment published) |
 
 
 Study 012 is the only study here whose registered prediction **failed**. No longer
