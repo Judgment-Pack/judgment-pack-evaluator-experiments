@@ -1,0 +1,27 @@
+{
+ "adequacyStampPresent": {
+  "A": true,
+  "B": true
+ },
+ "arms": [
+  "A",
+  "B"
+ ],
+ "armsCovered": {
+  "A": true,
+  "B": true
+ },
+ "byteIdentical": true,
+ "closureEvaluatedUnder": "regenerated scratch tree",
+ "coversBothArms": true,
+ "differing": [],
+ "filesCompared": 376,
+ "identical": 376,
+ "note": "byteIdentical is the reproducibility claim; `pass` additionally requires BOTH arms and the adequacy disposition stamp. The tail PRODUCES that stamp here, out of a committed hand-written drop registry this command may not invent and which must cover the regenerated corpus's empty-witness census exactly, in both directions, before anything is written (R3-2). The undispositioned census is read from the regenerated tree, never from the committed one (R2-11).",
+ "pass": true,
+ "record": "end-to-end regeneration byte-comparison (R1-12, R2-11)",
+ "undispositionedEmptyWitnessMutants": {
+  "A": [],
+  "B": []
+ }
+}

@@ -1,0 +1,192 @@
+{
+ "anchorOrder": "LINEAR, 014-style, and in this order: (1) harness/STUDY-MANIFEST.sha256 covers the registered documents, the artifacts and the code, and covers NEITHER itself NOR this file; (2) this file pins that manifest's digest in studyManifest.sha256; (3) the freeze commit anchors this file. Each link is fillable in one pass, and after the freeze harness/make_manifest.py can still rewrite the manifest but cannot rewrite the digest pinned here. Study 014's round 3 established this order after round 2 built a cycle - the manifest hashing PINS.json while PINS.json stored the manifest's digest - which cannot be initialized without finding a SHA-256 fixed point. DEVIATIONS.md, README.md, PREREG-REVIEW.md, CORRECTION-TARGETS.md and harness/ADVISORIES.md are outside the manifest by construction (ADR 0004, PREREGISTRATION.md \u00a77 delta 11), so a post-freeze deviation entry breaks no anchor.",
+ "arms": {
+  "A": {
+   "path": "arms/A/PROMPT.txt",
+   "promptBytes": 84289,
+   "promptSha256": null,
+   "representation": "Judgment Pack (specVersion 0.2.0-draft) + matrixVersion-2 test matrix"
+  },
+  "B": {
+   "path": "arms/B/PROMPT.txt",
+   "promptBytes": 204333,
+   "promptSha256": null,
+   "representation": "Rego v1 policy + opa test file, informal contract"
+  },
+  "C": {
+   "path": "arms/C/PROMPT.txt",
+   "promptBytes": 206686,
+   "promptSha256": null,
+   "representation": "Rego v1 policy + opa test file, prescribed judgment convention"
+  }
+ },
+ "batch": {
+  "arms": [
+   "A",
+   "B",
+   "C"
+  ],
+  "callTimeoutSeconds": 2700,
+  "n": 50,
+  "note": "PORT CARRY AT STUDY 019's ROUND COUNT, AND NOT YET A STUDY 020 REGISTRATION. PREREGISTRATION.md \u00a72.1 registers the compute condition \u2014 the codex.reasoningEffort value AND the per-arm N together \u2014 as an OUTPUT of the pre-pilot effort sweep, and \u00a72 carries a TODO(prereg) for the re-derived call order, the attained position spread and the re-pinned batch.order / batch.n / batch.slots. \u00a77 delta 7 has landed the DERIVATION: harness/batch.py holds no round count of its own and reads this block, derive_order(rounds) is the authority at any N, schedule() asserts the expansion attains the spreads PUBLISHED here rather than 019's (1, 1), and harness/tests/test_schedule.py re-runs the search at whatever round count this block names. The numbers below are Study 019's, independently re-derived by that search at 50 rounds and carried so the ported driver runs; re-pinning at the swept N is `batch.py derive-schedule --rounds N` plus an edit of this block, and no constant in batch.py moves. Sequential, never parallel. The per-call timeout ceiling is an APPARATUS bound: a call that reaches it is pipeline-invalid, excluded from every rate's denominator and reported with its own rate, and a per-arm timeout rate above timeoutRateCap is a control-gate failure adjudicating R1 in neither direction. The wrapper reads callTimeoutSeconds and timeoutKillAfterSeconds from HERE, so the registry, the driver and the wrapper cannot hold three ceilings; a harness test asserts these two values equal batch.py's constants.",
+  "order": {
+   "blockOrder": [
+    "W1",
+    "W2",
+    "W3",
+    "W4",
+    "W6",
+    "W5"
+   ],
+   "blocks": 8,
+   "construction": "W1-W3 increment every symbol A->B->C->A per row; W4-W6 are those rows reversed",
+   "derivedBy": "harness/batch.py derive_order(rounds=50), exhaustively over the 720 orderings of W1-W6 and the 30 ordered two-sequence tails, keeping the orders in which no arm ever immediately follows itself and returning the lexicographically-least of those minimizing (position spread, transition spread). The spreads above are what that search ATTAINED at this round count; \u00a77 delta 7 publishes them because 019 asserted the pair (1, 1) as a floor, which is true at 50 rounds and wrong by construction at any other N.",
+   "firstRow": [
+    "A",
+    "B",
+    "C"
+   ],
+   "note": "50 rounds of three arms: eight whole blocks of the six Williams sequences and a two-sequence tail, because 50 is not a multiple of 6. Exact balance is arithmetically unavailable at three arms over 50 rounds - 50 slots do not divide over 3 positions and 149 transitions do not divide over 6 ordered pairs - so what the search attains is position spread 1 and directed-transition spread 1, with no arm ever immediately following itself. Those attained values are published above as data; harness/batch.py's schedule() requires the expansion to attain them EXACTLY, so a drifted order fails and a stale registry fails too, and harness/tests/test_schedule.py re-runs the search rather than trusting this cache.",
+   "positionSpread": 1,
+   "rounds": 50,
+   "selfSuccessions": 0,
+   "tail": [
+    "W4",
+    "W6"
+   ],
+   "tailLength": 2,
+   "transitionSpread": 1
+  },
+  "slots": 150,
+  "timeoutKillAfterSeconds": 60,
+  "timeoutRateCap": 0.1,
+  "window": "three consecutive UTC calendar days"
+ },
+ "codex": {
+  "binarySha256": "sha256:a2a05dafaa1acb002a45eaec0a462de5b13694fcfcd7bc43305f14781ce7be14",
+  "model": null,
+  "note": "The binary digest is byte-identical to Study 012's pin, so continuity with the 011/012 baselines holds with no re-pin. The MODEL is null here and is named by explicit flag at batch time: a model name is not a digest (Study 012's correction). harness/authoring_call.sh REFUSES while it is null rather than passing the string None to -m. reasoningEffort is new in 020 (PREREGISTRATION.md \u00a72.1, M-24): the wrapper passes it explicitly and CALL.json stamps it. It is null because \u00a72.1 registers the compute condition as an OUTPUT of the pre-pilot effort sweep, and the sweep cannot require the value it exists to resolve - so \u00a72.1 registers a distinct --sweep label that exempts THIS MEMBER ALONE from the null check (harness/batch.py's SWEEP_EXEMPT_PINS), with the sweep's outputs citable: false and outside every population. M-24, stated rather than glossed: there is no transcript witness to bind the effort to today - 019's session.jsonl carries one turn_context naming model and no effort member - so unless the witness-resolution step at pin time finds one, this pin is a CALL.json SELF-REPORT WHERE NO TRANSCRIPT WITNESS EXISTS. A pin nobody can check is a recorded intention, and that sentence travels with every published record of the condition. model and reasoningEffort are design-time-resolved pins, NOT freeze pins: they are not in integrity.FREEZE_PINS and neither makes a run a PILOT on its own; what they do is refuse the CALL, under both labels.",
+  "reasoningEffort": null,
+  "resolvedAtDesignTime": true,
+  "version": "codex-cli 0.145.0"
+ },
+ "freeze": {
+  "commit": null,
+  "note": "Null until the freeze. At the freeze every pin above is filled, results/primary-attempt-001 must not exist, and the scorer refuses if it does. The freeze commit is the squash-merge commit of the freeze PR on main \u2014 named by reference because a squash hash cannot exist before the merge."
+ },
+ "goldSuite": {
+  "note": "Ported by digest from Study 019 (\u00a74.1): 117 rows, both engines reproduce every row, clean-room oracle 117/117. The digest here is a FREEZE pin and is null pre-freeze; what binds the bytes today is harness/integrity.py's verify_ported_artifacts(), which compares them against Study 019's own frozen lock.",
+  "path": "gold/GOLD.json",
+  "rows": 117,
+  "sha256": null
+ },
+ "golden": {
+  "note": "Captured for THIS study's environment before the batch, from at least two independent agreeing probes. Study 019's capture does NOT carry: a golden context is a claim about an environment at a time.",
+  "path": "transcription/GOLDEN-CONTEXT.json",
+  "sha256": null
+ },
+ "isolationNegative": {
+  "assent": null,
+  "note": "The isolation negative control runs against the operator's real home under recorded operator assent, and is a precondition of the batch rather than of its own command. 019's assent does not carry: assent is given for a named control in a named study."
+ },
+ "jpack": {
+  "archive": "judgment-pack_0.17.0_linux_amd64.tar.gz",
+  "archiveSha256": "sha256:4046a101e3b638eee87f5d3f2f17b8337d2e4be35a34d45060789639b816d8dc",
+  "binarySha256": "sha256:42f35f7900bea6dfce215631b50729ab22dd347289e1bde3412604fb043a22e9",
+  "note": "Verified 2026-08-14 against the release checksums.txt (design/TOOLCHAIN-NOTES.md). The operator PATH binary is v0.10.0 and must never be invoked; the harness refuses on digest mismatch. Verdicts and error classes are read from the JSON payload only. The reproducible-build attestation (local build from the tag reproducing the published digest, the Study 013 pattern) is deferred to harness time and is null until then.",
+  "reproducibleBuildAttestation": null,
+  "resolvedAtDesignTime": true,
+  "version": "0.17.0"
+ },
+ "mutantManifests": {
+  "combinationRule": "sha256 over the concatenation of the two manifests' bytes, MANIFEST-jps.json then MANIFEST-rego.json \u2014 the order the pin source names them in",
+  "jps": "sha256:5f553baa68a50daefc046823e0488ff6831d083969663cc5d125f5eddd212b6d",
+  "note": "Ported by digest from Study 019 (\u00a74.1), with every payload bound file by file against 019's lock. The combined digest is a freeze pin and is null pre-freeze.",
+  "path": "mutants/",
+  "rego": "sha256:06cb8d2f46a3833253d1eb6dc314c5ab847412061f378dbfb19facfa1f29225b",
+  "sha256": null
+ },
+ "note": "Pin registry, 011/012/014/019 convention \u2014 and at this revision a PORT SKELETON. It is a pin, not an attestation, but every non-null member is ENFORCED before anything is spent: harness/integrity.py verifies Study 019's lock, the port chain, the ported artifacts and the exact-set study manifest; harness/authoring_call.sh verifies the codex binary digest, the CLI version, the interpreter, the per-arm prompt digest and the registered timeout ceiling before any call; and the scorer verifies the rest before it adjudicates anything. EVERY freeze pin below is null: this study is pre-freeze, nothing has run, and registeredLabelRule makes that visible in every output rather than in a banner. Members marked PORT SKELETON, HANDED OFF carry a registered delta's work item instead of a value \u2014 they are not Study 019's values kept warm.",
+ "offGoldCertificate": {
+  "note": "Ported by digest from Study 019 (\u00a74.1): the registered exclusion registry is EMPTY and the certificate records exactly 0 divergences over 236,196 cells. Freeze pin, null pre-freeze.",
+  "path": "controls/off-gold-equivalence.json",
+  "sha256": null
+ },
+ "opa": {
+  "asset": "opa_linux_amd64_static",
+  "assetSha256": "sha256:1dd5c5591ff856f5e20a1d66bafae9511ddf3c5552ed3b5070c70b2b6580ee3f",
+  "capabilitiesDenylist": [
+   "clock",
+   "network",
+   "rand",
+   "uuid",
+   "opa.runtime",
+   "print",
+   "trace",
+   "timezone-taking time forms",
+   "net.cidr_expand"
+  ],
+  "capabilitiesDenylistNote": "The nine families PREREGISTRATION.md section 2 calls \"the registered denylist\". Section 2 names the phrase and nowhere names its members, so the members are registered HERE as bytes rather than left to a reading of the sentence; harness/e4lib/capabilities.py transcribes this member into REGISTERED_DENYLIST and harness/tests/test_score_capabilities.py binds the two in both directions. Each word is implemented as a RULE over the builtin's own capability record, never as a list of builtin names - measured against the pinned binary, denying the two builtins literally named print and trace leaves print(\"x\") compiling, because the compiler lowers the call to internal.print. The rules deny a SUPERSET of what these nine words name: the binary's own \"nondeterministic\": true flag also removes io.jwt.decode_verify, io.jwt.encode_sign and io.jwt.encode_sign_raw, which no family word here names, and that over-denial is recorded in capabilities.py's CATCH_ALL_ONLY_AT_PIN rather than hidden.",
+  "capabilitiesPath": "controls/opa-capabilities.json",
+  "capabilitiesSha256": null,
+  "license": "Apache-2.0 (verified from LICENSE at tag v1.19.0)",
+  "note": "Toolchain pins resolved at design time and carried from Study 019 by digest; they are enforced under BOTH labels. capabilitiesSha256 is a FREEZE pin and is null: 020's capabilities file is generated from the pinned binary and the registered capabilitiesDenylist by harness/e4lib/capabilities.py AT PIN TIME and committed at capabilitiesPath \u2014 it is not copied from Study 019. No reproducible-build claim exists - official builds embed a build timestamp - so the pin is against the published artifact, stated rather than glossed. opa exec does not accept --capabilities at this version; scored invocations use per-row opa eval --format json --fail --strict-builtin-errors --capabilities ... --timeout ... under env -i with TZ=UTC. The time.now_ns canary must be REFUSED by the filtered capabilities file, and that is re-verified at attempt time as a control gate. The capabilities file is generated from the pinned binary and the registered capabilitiesDenylist by harness/e4lib/capabilities.py and is committed at capabilitiesPath. capabilitiesSha256 is a FREEZE pin and stays null until the freeze fills it; until then capabilities.py's check_committed() re-derives the file from the pinned binary and compares it byte for byte, which is what binds the bytes pre-freeze. Nothing RESOLVES capabilitiesPath at run time: engines.Toolchain still reads the capabilities path from $OPA_CAPS and records the null pin in unenforcedPins, so a scored invocation names whatever file the operator names and the attempt record says which pins were declarations rather than enforcements.",
+  "regoVersion": "v1",
+  "reproducibleBuild": false,
+  "resolvedAtDesignTime": true,
+  "version": "1.19.0"
+ },
+ "ownPorts": {
+  "path": "harness/PORTS.md",
+  "sha256": "sha256:b3bea0350e630dc3f60098ca5d7d4b5d78c7d8a3ce6bf340d79614117c146c17"
+ },
+ "pinnedFrom": {
+  "commit": "e87e1311da11c28e929edf1e7e39f048e4ec0e6a",
+  "designCarry": "design/ is carried WITHOUT a digest binding: Study 019's manifest covers no path under design/, so the commit above is the whole of that carry's source-side authority. harness/PORTS.md says so in its own section.",
+  "lockNote": "Study 019's harness/STUDY-MANIFEST.sha256 is NOT pinned here. Its digest is read from Study 019's own registry (studyManifest), so the source-side cells of this study's port table answer to the source study's frozen lock and not to a digest this study chose. harness/integrity.py's source_lock() is the one function that reads it.",
+  "pins": {
+   "path": "harness/PINS.json",
+   "sha256": "sha256:9ba6394db66f0e3723359c17f68e4a612870a015f3f973e1efad10fd522a759c"
+  },
+  "study": "studies/019-authorship-across-representations"
+ },
+ "pinsVersion": "1",
+ "policyProse": {
+  "note": "Ported frozen from Study 019 by digest (\u00a77) rather than drafted here. Bound today by verify_ported_artifacts() against 019's lock; the digest member is a freeze pin and is null pre-freeze.",
+  "path": "policy/POLICY.md",
+  "sha256": null
+ },
+ "preregistration": {
+  "path": "PREREGISTRATION.md",
+  "sha256": null
+ },
+ "probePrompt": {
+  "path": "transcription/PROBE-PROMPT.txt",
+  "sha256": null
+ },
+ "python": {
+  "implementation": "CPython",
+  "note": "Implementation and series enforced by harness/integrity.py and by the call wrapper before any helper step; the running interpreter's full version is reported at run time and deliberately not pinned here (Study 012's round 3, finding 20). Runbooks name the interpreter by absolute path.",
+  "series": "3.12"
+ },
+ "references": {
+  "A": {
+   "path": "reference/REFERENCE-A.md",
+   "sha256": null
+  },
+  "B": {
+   "path": "reference/REFERENCE-B.md",
+   "sha256": null
+  }
+ },
+ "registeredLabelRule": "The label is REGISTERED only when EVERY freeze pin below is non-null and not a stand-in, and any null one makes the run a PILOT. harness/integrity.py's study_label() is the one place that decides it, over the WHOLE eighteen-member freeze set (Study 014's round 3 found a registered run reachable with only the preregistration digest filled), and pin_is_filled() refuses the stand-ins a half-finished registry carries - empty strings, 0, [], {}, false, 'TODO(prereg)' - because a registry of eighteen empty strings is not a registration. Every output carries the label and the unfilled pins, so a PILOT is visible in the record rather than in a banner, and no PILOT spends the registered quota: harness/batch.py's require_freeze() is this same rule as a precondition of the CALLS. SEPARATELY, and under BOTH labels: the pins \u00a72 marks resolvedAtDesignTime - codex.model, codex.reasoningEffort, codex.binarySha256, jpack.binarySha256, opa.assetSha256 - are checked WHETHER OR NOT THE FREEZE HAS HAPPENED, by harness/batch.py's require_design_time_pins(); they are not freeze pins and a null one does not make a run a PILOT, it refuses the call. THE ONE EXEMPTION, registered by PREREGISTRATION.md \u00a72.1 (M-25): the pre-pilot effort sweep runs under a distinct --sweep label that exempts codex.reasoningEffort ALONE from that null check, because the sweep is what RESOLVES the effort value and a gate on it would require the value the command exists to create. Nothing else is exempt at any label, the sweep still runs inside the harness (running it outside is the 019 failure exactly), each sweep call's setting is stamped into its CALL.json, and the sweep's outputs are citable: false and outside every population. harness/tests/test_pins.py drives this rule PIN BY PIN: each freeze pin, nulled alone on an otherwise-full registry, must produce PILOT; each design-time pin, nulled alone, must refuse the call; and the --sweep label must exempt exactly one member. THE FREEZE SET, in registered order, is: preregistration, policyProse, goldSuite, matrixA, matrixB, matrixC, mutantManifests, referenceA, referenceB, offGoldCertificate, studyManifest, opaCapabilities, jpackBuildAttestation, model, probePrompt, goldenContext, isolationAssent, reviewerMutantSet. harness/integrity.py's FREEZE_PINS is that list as data and PIN_SOURCES names the artifact each one's value is computed from, so a pin added without a source - or a source left behind by a deleted pin - fails the suite. NOTE, as a finding rather than a silence: PREREGISTRATION.md \u00a72.1 rules codex.model a DESIGN-TIME-RESOLVED pin and not a freeze pin, and it is still a member of FREEZE_PINS in the ported harness/integrity.py; harness/tests/test_pins.py asserts that overlap explicitly so the disagreement is visible rather than reconciled by whichever rule runs first.",
+ "reviewerMutantSet": {
+  "note": "PORT SKELETON, HANDED OFF. PREREGISTRATION.md \u00a77 registers this member's value as a DELTA, not as a port: it carries no value here and the delta's own work item fills it. \u00a74.3 and \u00a77 delta 9: Study 019's reviewer set is SPENT and does not carry. 020 registers a FRESH sealed set, authored during review rounds, committed verbatim, freeze-pinned by digest, validated without execution before the attempt, and first executed at the primary attempt.",
+  "path": "controls/reviewer-mutants/",
+  "sha256": null
+ },
+ "studyManifest": {
+  "path": "harness/STUDY-MANIFEST.sha256",
+  "sha256": null
+ }
+}
