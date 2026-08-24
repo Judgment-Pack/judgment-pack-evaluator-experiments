@@ -726,13 +726,14 @@ a repair, not an exclusion, and not a prompt edit.**
   faults) stands **unexplained** by this mechanism and is published as Tier D material —
   descriptive, direction-free, and no decision reads it.
 
-**The obligation, and it is a freeze gate — SATISFIED for (i), (ii), (iii) and (v).**
+**The obligation, and it is a freeze gate — SATISFIED for all five of (i)–(v).**
 `GATE(pre-freeze)`: **the guard is registered with its own power analysis, computed and published
 before the freeze.** The analysis is mechanical and its inputs already exist in 019's frozen tree,
 so it was an obligation with a deadline rather than a hope; it has been executed and is published
 at `harness/POWER-PRESENCE-IDIOM.md`, with the numbers reprinted in the filled entry below and
-`harness/PINS.json`'s `presenceIdiomGuard` block carrying the verdict as data. **(iv) alone
-remains open**, and what blocks it is named there. It must report, at minimum: (i) **sensitivity** — the detector run over 019's 76 retained
+`harness/PINS.json`'s `presenceIdiomGuard` block carrying the verdict as data. (iv) was the last
+to fill: it was blocked on the family scorer (§7 delta 5) and is now computed by the registered
+script `harness/counterfactual_shift.py`. It must report, at minimum: (i) **sensitivity** — the detector run over 019's 76 retained
 B+C policies must fire on the 40 that use bare-object `in`; (ii) **specificity** — it must fire on
 **none** of the 22 perfect runs; (iii) the **false-positive rate on lawful `in` uses** (over sets
 and arrays) across the same 76 policies and across both reference implementations; (iv) the
@@ -742,8 +743,7 @@ figures, so the code's effect on the family is a measured quantity rather than a
 (v) a **mutation check** in the program's standing discipline: break the detector, confirm the
 test that certifies it fails, and label any assertion that cannot discriminate.
 
-> **FILLED — the presence-idiom guard's power-analysis numbers (i), (ii), (iii) and (v); (iv)
-> remains a `TODO(prereg)` and names what blocks it.** The detector exists
+> **FILLED — all five of the presence-idiom guard's power-analysis numbers.** The detector exists
 > (`harness/e4lib/presence_idiom.py`), it was run over Study 019's retained arm-B/arm-C
 > policies with the pinned binary, and the analysis is published in full at
 > **`harness/POWER-PRESENCE-IDIOM.md`**, which is a registered document (`harness/
@@ -759,7 +759,7 @@ test that certifies it fails, and label any assertion that cannot discriminate.
 > | **(i) sensitivity** | **40/40 in-class runs receive an authoring code.** The in-class set was re-derived from the policy SOURCE BYTES by an independent oracle sharing no code and no input representation with the detector, and it is 40 of the 76 — arm B 21, arm C 19 — reproducing M-14's discriminator by a method M-14 did not use. The detector flags **39/39** of the policies the pinned parser accepts and **32/32** of the admitted policies, the population §3.2 registers it to run over; the fortieth (`B run-040`) is refused by the parser and receives the earlier registered code `unparseable-artifact`. Agreement with the oracle is exact at the USE level too: 178 flagged uses against 178, with zero per-run count mismatches over all 73 parseable policies. |
 > | **(ii) specificity** | **0/22 perfect runs flagged**, in every population; all 22 parse and all 22 are admitted. |
 > | **(iii) false positives on lawful `in`** | **0/392 lawful uses, 0/15 over sets and arrays** — the two forms this section names. 599 membership terms were read over the 73 parseable policies: 248 presence tests (178 flagged, 38 lawful over set-returning calls, 3 over non-object names, 29 unclassified — 178 + 38 + 3 + 29 = 248) and 351 iterations and bindings, none flagged. 29 uses are UNCLASSIFIED and none is flagged: an unresolvable name is reported, never guessed at. |
-> | **(iv) counterfactual per-member shift** | **NOT COMPUTED, and the blocker is named**: it requires all eighteen of §5.2's members recomputed with the flagged runs coded `presence-idiom-unsound`, and the eighteen-member family scorer is §7's delta 5 (`harness/SCAFFOLD.md` item S4), which has not landed and which the freeze is gated on. Computing it with an ad-hoc implementation would publish eighteen numbers no registered code path can reproduce. **This sub-item stays open.** What is stated instead, as a bound rather than an estimate: the flagged set is 32 of the 60 admitted 019 runs — arm B 15 of 30, arm C 17 of 30. |
+> | **(iv) counterfactual per-member shift** | **COMPUTED** by the registered script `harness/counterfactual_shift.py` (reproduced by `harness/tests/test_counterfactual_shift.py`; full 36-row table in `harness/COUNTERFACTUAL-SHIFT.json`). The flagged set is **derived, then gated**: the script re-runs the certified detector over the 60 admitted 019 policies and refuses to publish off the certified counts — **32 of 60, arm B 19 of 30, arm C 13 of 30** (this document first printed the split as B 15 / C 17; that was unmeasured arithmetic, the gate refused it, and the correction note in `harness/POWER-PRESENCE-IDIOM.md` §(iv) records the reconciliation — every other certified figure stands). The recode is the registered one: identity false, no kill record, exactly as the other authoring codes present. **Measured effect (A–C):** every ITT member amplified (+0.168 … +0.209), every PP member attenuated (−0.031 … −0.022), PP/ANCOVA essentially unmoved (−0.008 … −0.002); exactly two α = 0.05 decisions flip, **M2 and M5** (L1/PP, both columns: p 0.0213 → 0.3483), from reject to not-reject. A–B: ITT +0.246 … +0.303, PP \|shift\| ≤ 0.011. The unflagged column reproduces Reprint 1's certified figures to the printed digit, pinning the script's adapter to the fixture adapter. The effect is **direction-heterogeneous by population** — ITT away from the null, PP toward it — so no single-direction story about the guard's effect is licensed. |
 > | **(v) mutation check** | Break the detector by dropping the object-type branch: flagged runs fall **39/39 → 23/39** and flagged uses 178 → 83, so condition (i) fails and the certifying measurement discriminates. Driven in CI as `harness/tests/test_score_presence_idiom.py::test_breaking_the_object_branch_makes_the_sensitivity_case_fail`. **One assertion was found not to discriminate and was rebuilt** — its first version patched a function the scan does not call — and the finding is recorded in the published analysis. |
 >
 > **Two measured ceilings are published with it**, rather than discovered later: a presence

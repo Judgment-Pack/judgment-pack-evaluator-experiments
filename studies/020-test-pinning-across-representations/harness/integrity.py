@@ -184,8 +184,10 @@ REQUIRED_PORTS = frozenset(
 # Study 019's lock must not name the path. A file 019 does have is a file this
 # study owes a row for, and calling it new does not make it new.
 NEW_IN_020 = frozenset((
+    "harness/counterfactual_shift.py",
     "harness/e4lib/family.py",
     "harness/e4lib/presence_idiom.py",
+    "harness/tests/test_counterfactual_shift.py",
     "harness/tests/test_family.py",
     "harness/tests/test_score_presence_idiom.py",
     "harness/tests/test_sweep.py",

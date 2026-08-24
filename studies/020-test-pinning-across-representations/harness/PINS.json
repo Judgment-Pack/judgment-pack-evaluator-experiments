@@ -160,7 +160,7 @@
   },
   "ownPorts": {
     "path": "harness/PORTS.md",
-    "sha256": "sha256:7bda217811495ccbde6365995c3b6d15bd7e3e2d1cbcb117dac75aeb9fa98cad"
+    "sha256": "sha256:d91c7886567d002756c0517580e49dff541111169d987418bc173b890cdfcccf"
   },
   "pinnedFrom": {
     "commit": "e87e1311da11c28e929edf1e7e39f048e4ec0e6a",
@@ -198,7 +198,21 @@
     "sha256": null
   },
   "presenceIdiomGuard": {
-    "counterfactualPerMemberShift": "TODO(prereg) - section 3.2(iv) requires all eighteen of section 5.2's members recomputed with the flagged runs coded presence-idiom-unsound. The eighteen-member family scorer is section 7's delta 5 and harness/SCAFFOLD.md item S4; it does not exist in this tree, and computing the shift with an ad-hoc implementation would produce eighteen numbers no registered code path can reproduce.",
+    "counterfactualPerMemberShift": {
+      "computed": true,
+      "script": "harness/counterfactual_shift.py",
+      "published": "harness/COUNTERFACTUAL-SHIFT.json",
+      "flaggedSet": {
+        "total": 32,
+        "admitted": 60,
+        "armB": 19,
+        "armC": 13,
+        "derivation": "re-derived by the certified detector and gated on these exact counts; the document's first printed split (B 15 / C 17) was unmeasured arithmetic and the gate refused it - correction note in harness/POWER-PRESENCE-IDIOM.md section (iv)"
+      },
+      "recode": "identityPass false, no kill record - section 3.2's registered semantics, structural in e4lib/admit.py",
+      "measuredEffect": "direction-heterogeneous by population: every ITT member amplified (A-C shift +0.168..+0.209, A-B +0.246..+0.303), every A-C PP member attenuated (-0.031..-0.022); exactly two alpha=0.05 decisions flip, M2 and M5 (L1/PP), reject -> not-reject",
+      "reproducedBy": "harness/tests/test_counterfactual_shift.py"
+    },
     "falsePositivesOnLawfulIn": "0/392 lawful uses, 0/15 over sets and arrays",
     "measuredCeilings": "Two, published rather than discovered later: a presence test over a FUNCTION PARAMETER is not detected (2 runs, B run-023 and C run-040, both non-perfect); and the alias map over-approximates scope, which costs nothing on this corpus and is measured rather than assumed. The code is also structurally unreachable in arm A (section 11.11).",
     "mutationCheck": "drop the object-type branch: flagged runs 39/39 -> 23/39 and flagged uses 178 -> 83, so condition (i) fails and the certifying measurement discriminates. Driven in CI as harness/tests/test_score_presence_idiom.py::test_breaking_the_object_branch_makes_the_sensitivity_case_fail.",

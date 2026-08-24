@@ -193,28 +193,79 @@ and arm A's own near-miss profile in 019 stands unexplained by this mechanism.
 
 ---
 
-## (iv) The counterfactual per-member shift — NOT COMPUTED, and why
+## (iv) The counterfactual per-member shift — COMPUTED
 
 §3.2(iv) asks for **every one of §5.2's eighteen members recomputed with the
 flagged runs coded `presence-idiom-unsound`, published beside the unflagged
-figures.** It is not computed here and it is not deferred quietly:
+figures.** This section first shipped as "NOT COMPUTED, and why": the
+eighteen-member family scorer was §7's delta 5, `harness/SCAFFOLD.md` item S4,
+and computing the shift with an ad-hoc implementation would have published
+eighteen numbers no registered code path can reproduce. The scorer has landed
+(`e4lib/family.py`), and the shift is now computed by the registered script
+**`harness/counterfactual_shift.py`**, reproduced by
+`harness/tests/test_counterfactual_shift.py`, and published in full —
+four `family_report()` blocks and the per-member distillation — at
+**`harness/COUNTERFACTUAL-SHIFT.json`**.
 
-**the eighteen-member family scorer does not exist in this tree.** It is §7's
-delta 5 — the eighteen members, L2c's offset estimator, the two permutation
-schemes with their pinned B and seed, the IU verdict, the drop-a-pole table, the
-BCa intervals and the ITT × ANCOVA refusal — and it is carried open in
-`harness/SCAFFOLD.md` item **S4**, with the freeze gated on it. Computing the
-shift with an ad-hoc eighteen-member implementation written for this document
-would produce eighteen numbers that no registered code path can reproduce, which
-is the defect §7's delta 5 exists to prevent.
+**The recode, derived from the registration:** a flagged run becomes what every
+other authoring-coded run already is on 019's batch — identity false, no kill
+record — because `e4lib/admit.py` returns no policy path for a flagged run, so
+nothing downstream can run the identity control or a suite. The run stays in
+every ITT denominator scoring zero, takes no offset, and leaves the
+per-protocol population.
 
-The registered obligation therefore stands and the preregistration's
-`TODO(prereg)` stays open **for (iv) alone**, with (i), (ii), (iii) and (v)
-filled from this document. What can be said now, and is said as a bound rather
-than an estimate: **the flagged set is 32 of the 60 admitted runs** — arm B 15
-of 30, arm C 17 of 30 — so the code moves those runs from "scored" to "scoring
-zero" in every ITT member and out of every per-protocol member, and the shift is
-a function of that reallocation and of nothing this analysis chose.
+**The flagged set is derived, then gated:** the script re-runs the certified
+detector over the 60 admitted policies and refuses to publish unless it lands
+on the certified counts exactly — **32 of the 60 admitted runs, arm B 19 of
+30, arm C 13 of 30** (the corrected split; the note below records how the gate
+caught this document's own first printing).
+
+**The measured effect on the family, A–C (the primary contrast):**
+
+| members | unflagged | counterfactual | shift |
+|---|---|---|---|
+| all six ITT members (M1/M4/M7/M10/M13/M16) | +0.138 … +0.232 | +0.306 … +0.426 | **+0.168 … +0.209, all positive** |
+| all six PP members (M2/M5/M8/M11/M14/M17) | +0.031 … +0.128 | +0.006 … +0.104 | **−0.022 … −0.031, all negative** |
+| all six PP/ANCOVA members (M3/M6/M9/M12/M15/M18) | −0.004 … +0.091 | −0.008 … +0.088 | −0.008 … −0.002, all negative |
+
+The code **amplifies every ITT member** (32 B/C runs move from "scored" to
+"scoring zero", widening arm A's intention-to-treat lead) and **attenuates
+every A–C per-protocol member** (the flagged runs leave the PP denominator, and
+the runs that remain are the better ones). Two α = 0.05 decisions flip, both
+from reject to not-reject: **M2 and M5**, the L1 per-protocol members
+(p 0.0213 → 0.3483 in both columns). No other member's decision moves in
+either contrast. In A–B the ITT amplification is larger (+0.246 … +0.303) and
+the PP members barely move (|shift| ≤ 0.011, mixed sign). The full 36-row
+table with p-values under both codings is in `COUNTERFACTUAL-SHIFT.json`; the
+unflagged column reproduces Reprint 1's certified figures to the printed digit
+(M17 A–C +0.1275; F-2's anchor p-values exactly), which is the evidence the
+script's adapter is the fixture adapter and not a second reading of 019's
+batch.
+
+What (iv) was registered to settle is therefore settled by measurement: the
+code's effect on the family is **direction-heterogeneous by population** —
+it moves ITT members away from the null and PP members toward it — so no
+single-direction story about "the guard's effect" is licensed, and any §5
+verdict sensitive to those two L1/PP rejections now has the counterfactual
+figure to cite instead of an assumption.
+
+> **CORRECTION (pre-freeze, found by the (iv) computation).** This document
+> first published the per-arm split as "arm B 15 of 30, arm C 17 of 30". That
+> split was never measured: it was arithmetic that assumed how the in-class
+> runs overlap the not-admitted runs, exactly the enumerate-instead-of-derive
+> defect this programme's standing rule names. When
+> `harness/counterfactual_shift.py` re-derived the flagged set by running the
+> detector (its certified-counts gate refused to publish over the mismatch),
+> the measured split is **arm B 19 of 30, arm C 13 of 30** — same total, 32.
+> Every other figure in this document reconciles exactly with the measured
+> split and none depended on it: 39/39 parseable is B 20 flagged (19 admitted
+> + `B run-025`, `opa-check-failed`) + C 19 flagged (13 admitted + 6
+> `opa-check-failed`: C `run-017/032/033/036/046/047`), and the oracle's
+> retained in-class split B 21 / C 19 is the measured 19 + 1 + 1 and 13 + 6.
+> No figure outside the split moved, and the preregistration's §3.2(iv) row
+> carries the corrected split with this note cited. The gate that fired is
+> kept firing in CI:
+> `test_counterfactual_shift.py::test_the_certified_gate_refused_the_first_printed_split`.
 
 ---
 
@@ -264,7 +315,7 @@ trees.
 | (i) sensitivity | **40/40 in-class runs receive an authoring code** — 39/39 of those the detector reaches, 32/32 admitted; the fortieth is refused earlier by `opa check` and coded `unparseable-artifact` |
 | (ii) specificity | **0/22 perfect runs flagged** |
 | (iii) false positives on lawful `in` | **0/392 lawful uses, 0/15 over sets and arrays** |
-| (iv) counterfactual per-member shift | not computed — the family scorer is §7 delta 5 and `harness/SCAFFOLD.md` item S4 |
+| (iv) counterfactual per-member shift | **computed** by `harness/counterfactual_shift.py` over the derived-and-gated flagged set (32/60: B 19, C 13) — every ITT member amplified (A–C +0.168…+0.209), every A–C PP member attenuated (−0.031…−0.022), two decisions flip (M2, M5: reject → not-reject); full table in `harness/COUNTERFACTUAL-SHIFT.json` |
 | (v) mutation check | drop the object-type branch: 39/39 → **23/39**, and the certifying test fails |
 | unclassified uses | 29, none flagged |
 | measured false negatives beyond the class | 2 (presence tests over a function parameter) |

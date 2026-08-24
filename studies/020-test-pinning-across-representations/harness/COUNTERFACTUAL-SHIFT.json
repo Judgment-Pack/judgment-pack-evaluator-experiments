@@ -1,0 +1,4295 @@
+{
+  "adapter": {
+    "missingVector": [
+      "B/run-026",
+      "B/run-027",
+      "B/run-032",
+      "B/run-036",
+      "C/run-035",
+      "C/run-050"
+    ],
+    "noKillBlock": [
+      "A/run-016",
+      "A/run-043",
+      "B/run-014",
+      "B/run-016",
+      "B/run-017",
+      "B/run-019",
+      "B/run-025",
+      "B/run-040",
+      "B/run-050",
+      "C/run-014",
+      "C/run-017",
+      "C/run-018",
+      "C/run-025",
+      "C/run-032",
+      "C/run-033",
+      "C/run-036",
+      "C/run-046",
+      "C/run-047"
+    ],
+    "repairedEmpty": [
+      "A/run-025",
+      "A/run-046"
+    ]
+  },
+  "detectorCensus": [
+    {
+      "flagged": true,
+      "flaggedUses": 6,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 10,
+      "run": "B/run-011"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 6,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 10,
+      "run": "B/run-012"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 8,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 12,
+      "run": "B/run-013"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 7,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 14,
+      "run": "B/run-015"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 4,
+      "run": "B/run-020"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 8,
+      "run": "B/run-021"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 14,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 21,
+      "run": "B/run-022"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 7,
+      "run": "B/run-023"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 2,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 12,
+      "run": "B/run-024"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 2,
+      "hadKillRecord": true,
+      "identityPassAsScored": false,
+      "memberships": 6,
+      "run": "B/run-026"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 3,
+      "hadKillRecord": true,
+      "identityPassAsScored": false,
+      "memberships": 7,
+      "run": "B/run-027"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 2,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 9,
+      "run": "B/run-028"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 6,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 13,
+      "run": "B/run-029"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 4,
+      "run": "B/run-030"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 7,
+      "run": "B/run-031"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 3,
+      "hadKillRecord": true,
+      "identityPassAsScored": false,
+      "memberships": 7,
+      "run": "B/run-032"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 4,
+      "run": "B/run-033"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 6,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 13,
+      "run": "B/run-034"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 4,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 9,
+      "run": "B/run-035"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 1,
+      "hadKillRecord": true,
+      "identityPassAsScored": false,
+      "memberships": 12,
+      "run": "B/run-036"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 8,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 15,
+      "run": "B/run-037"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 7,
+      "run": "B/run-038"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 12,
+      "run": "B/run-039"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 5,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 9,
+      "run": "B/run-041"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 7,
+      "run": "B/run-043"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 6,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 13,
+      "run": "B/run-044"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 7,
+      "run": "B/run-045"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 6,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 15,
+      "run": "B/run-046"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 6,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 13,
+      "run": "B/run-047"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 6,
+      "run": "B/run-048"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 4,
+      "run": "C/run-011"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 4,
+      "run": "C/run-012"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 7,
+      "run": "C/run-013"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 4,
+      "run": "C/run-015"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 7,
+      "run": "C/run-016"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 6,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 10,
+      "run": "C/run-019"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 3,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 6,
+      "run": "C/run-020"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 3,
+      "run": "C/run-021"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 2,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 9,
+      "run": "C/run-022"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 8,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 12,
+      "run": "C/run-023"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 2,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 12,
+      "run": "C/run-024"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 5,
+      "run": "C/run-026"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 4,
+      "run": "C/run-027"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 3,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 7,
+      "run": "C/run-028"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 4,
+      "run": "C/run-029"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 3,
+      "run": "C/run-030"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 2,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 9,
+      "run": "C/run-031"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 3,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 7,
+      "run": "C/run-034"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 3,
+      "hadKillRecord": true,
+      "identityPassAsScored": false,
+      "memberships": 7,
+      "run": "C/run-035"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 10,
+      "run": "C/run-037"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 7,
+      "run": "C/run-038"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 12,
+      "run": "C/run-039"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 7,
+      "run": "C/run-040"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 3,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 10,
+      "run": "C/run-041"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 4,
+      "run": "C/run-043"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 6,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 13,
+      "run": "C/run-044"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 4,
+      "run": "C/run-045"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 3,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 7,
+      "run": "C/run-048"
+    },
+    {
+      "flagged": true,
+      "flaggedUses": 3,
+      "hadKillRecord": true,
+      "identityPassAsScored": true,
+      "memberships": 7,
+      "run": "C/run-049"
+    },
+    {
+      "flagged": false,
+      "flaggedUses": 0,
+      "hadKillRecord": true,
+      "identityPassAsScored": false,
+      "memberships": 7,
+      "run": "C/run-050"
+    }
+  ],
+  "members": [
+    {
+      "adjustment": null,
+      "contrast": "A-C",
+      "counterfactual": 0.30632233263812214,
+      "engine": "included",
+      "id": "M1",
+      "level": "L1",
+      "nCounterfactual": {
+        "A": 38,
+        "B": 37,
+        "C": 39
+      },
+      "nUnflagged": {
+        "A": 38,
+        "B": 37,
+        "C": 39
+      },
+      "pCounterfactual": 4.999750012499375e-05,
+      "pUnflagged": 0.013699315034248288,
+      "population": "ITT",
+      "rejectFlips": false,
+      "shift": 0.1678321678321678,
+      "unflagged": 0.13849016480595433
+    },
+    {
+      "adjustment": null,
+      "contrast": "A-C",
+      "counterfactual": 0.017268270944741593,
+      "engine": "included",
+      "id": "M2",
+      "level": "L1",
+      "nCounterfactual": {
+        "A": 34,
+        "B": 11,
+        "C": 16
+      },
+      "nUnflagged": {
+        "A": 34,
+        "B": 26,
+        "C": 28
+      },
+      "pCounterfactual": 0.3482825858707065,
+      "pUnflagged": 0.02129893505324734,
+      "population": "PP",
+      "rejectFlips": true,
+      "shift": -0.023538961038961026,
+      "unflagged": 0.04080723198370262
+    },
+    {
+      "adjustment": "ANCOVA",
+      "contrast": "A-C",
+      "counterfactual": 0.008832421048936334,
+      "engine": "included",
+      "id": "M3",
+      "level": "L1",
+      "nCounterfactual": {
+        "A": 34,
+        "B": 11,
+        "C": 16
+      },
+      "nUnflagged": {
+        "A": 34,
+        "B": 26,
+        "C": 28
+      },
+      "pCounterfactual": 0.5211197200699825,
+      "pUnflagged": 0.2461884528867783,
+      "population": "PP",
+      "rejectFlips": false,
+      "shift": -0.007231856468056463,
+      "unflagged": 0.016064277516992798
+    },
+    {
+      "adjustment": null,
+      "contrast": "A-C",
+      "counterfactual": 0.34857368886407,
+      "engine": "excluded",
+      "id": "M4",
+      "level": "L1",
+      "nCounterfactual": {
+        "A": 38,
+        "B": 37,
+        "C": 39
+      },
+      "nUnflagged": {
+        "A": 38,
+        "B": 37,
+        "C": 39
+      },
+      "pCounterfactual": 4.999750012499375e-05,
+      "pUnflagged": 0.013699315034248288,
+      "population": "ITT",
+      "rejectFlips": false,
+      "shift": 0.19098143236074272,
+      "unflagged": 0.15759225650332725
+    },
+    {
+      "adjustment": null,
+      "contrast": "A-C",
+      "counterfactual": 0.01965010141987833,
+      "engine": "excluded",
+      "id": "M5",
+      "level": "L1",
+      "nCounterfactual": {
+        "A": 34,
+        "B": 11,
+        "C": 16
+      },
+      "nUnflagged": {
+        "A": 34,
+        "B": 26,
+        "C": 28
+      },
+      "pCounterfactual": 0.3482825858707065,
+      "pUnflagged": 0.02129893505324734,
+      "population": "PP",
+      "rejectFlips": true,
+      "shift": -0.0267857142857143,
+      "unflagged": 0.04643581570559263
+    },
+    {
+      "adjustment": "ANCOVA",
+      "contrast": "A-C",
+      "counterfactual": 0.010050686021203403,
+      "engine": "excluded",
+      "id": "M6",
+      "level": "L1",
+      "nCounterfactual": {
+        "A": 34,
+        "B": 11,
+        "C": 16
+      },
+      "nUnflagged": {
+        "A": 34,
+        "B": 26,
+        "C": 28
+      },
+      "pCounterfactual": 0.5211197200699825,
+      "pUnflagged": 0.2461884528867783,
+      "population": "PP",
+      "rejectFlips": false,
+      "shift": -0.008229353911926363,
+      "unflagged": 0.018280039933129766
+    },
+    {
+      "adjustment": null,
+      "contrast": "A-C",
+      "counterfactual": 0.32881602126278703,
+      "engine": "included",
+      "id": "M7",
+      "level": "L3",
+      "nCounterfactual": {
+        "A": 38,
+        "B": 37,
+        "C": 39
+      },
+      "nUnflagged": {
+        "A": 38,
+        "B": 37,
+        "C": 39
+      },
+      "pCounterfactual": 4.999750012499375e-05,
+      "pUnflagged": 0.02104894755262237,
+      "population": "ITT",
+      "rejectFlips": false,
+      "shift": 0.18496770405167356,
+      "unflagged": 0.14384831721111346
+    },
+    {
+      "adjustment": null,
+      "contrast": "A-C",
+      "counterfactual": 0.006342613381230322,
+      "engine": "included",
+      "id": "M8",
+      "level": "L3",
+      "nCounterfactual": {
+        "A": 34,
+        "B": 11,
+        "C": 16
+      },
+      "nUnflagged": {
+        "A": 34,
+        "B": 26,
+        "C": 28
+      },
+      "pCounterfactual": 0.8051097445127744,
+      "pUnflagged": 0.15694215289235539,
+      "population": "PP",
+      "rejectFlips": false,
+      "shift": -0.028217011995637975,
+      "unflagged": 0.0345596253768683
+    },
+    {
+      "adjustment": "ANCOVA",
+      "contrast": "A-C",
+      "counterfactual": -0.007891373480464203,
+      "engine": "included",
+      "id": "M9",
+      "level": "L3",
+      "nCounterfactual": {
+        "A": 34,
+        "B": 11,
+        "C": 16
+      },
+      "nUnflagged": {
+        "A": 34,
+        "B": 26,
+        "C": 28
+      },
+      "pCounterfactual": 0.6560859785053736,
+      "pUnflagged": 0.8882779305173707,
+      "population": "PP",
+      "rejectFlips": false,
+      "shift": -0.005281691414572798,
+      "unflagged": -0.0026096820658914055
+    },
+    {
+      "adjustment": null,
+      "contrast": "A-C",
+      "counterfactual": 0.3784220165799114,
+      "engine": "excluded",
+      "id": "M10",
+      "level": "L3",
+      "nCounterfactual": {
+        "A": 38,
+        "B": 37,
+        "C": 39
+      },
+      "nUnflagged": {
+        "A": 38,
+        "B": 37,
+        "C": 39
+      },
+      "pCounterfactual": 4.999750012499375e-05,
+      "pUnflagged": 0.01654917254137293,
+      "population": "ITT",
+      "rejectFlips": false,
+      "shift": 0.2090201465201466,
+      "unflagged": 0.16940187005976481
+    },
+    {
+      "adjustment": null,
+      "contrast": "A-C",
+      "counterfactual": 0.01562500000000011,
+      "engine": "excluded",
+      "id": "M11",
+      "level": "L3",
+      "nCounterfactual": {
+        "A": 34,
+        "B": 11,
+        "C": 16
+      },
+      "nUnflagged": {
+        "A": 34,
+        "B": 26,
+        "C": 28
+      },
+      "pCounterfactual": 0.584020798960052,
+      "pUnflagged": 0.08709564521773912,
+      "population": "PP",
+      "rejectFlips": false,
+      "shift": -0.03124999999999989,
+      "unflagged": 0.046875
+    },
+    {
+      "adjustment": "ANCOVA",
+      "contrast": "A-C",
+      "counterfactual": -0.0003431021351437691,
+      "engine": "excluded",
+      "id": "M12",
+      "level": "L3",
+      "nCounterfactual": {
+        "A": 34,
+        "B": 11,
+        "C": 16
+      },
+      "nUnflagged": {
+        "A": 34,
+        "B": 26,
+        "C": 28
+      },
+      "pCounterfactual": 0.9835041239690078,
+      "pUnflagged": 0.789052736815796,
+      "population": "PP",
+      "rejectFlips": false,
+      "shift": -0.00564682641426717,
+      "unflagged": 0.005303724279123401
+    },
+    {
+      "adjustment": null,
+      "contrast": "A-C",
+      "counterfactual": 0.34125068848623874,
+      "engine": "included",
+      "id": "M13",
+      "level": "L2c",
+      "nCounterfactual": {
+        "A": 38,
+        "B": 37,
+        "C": 39
+      },
+      "nUnflagged": {
+        "A": 38,
+        "B": 37,
+        "C": 39
+      },
+      "pCounterfactual": 4.999750012499375e-05,
+      "pUnflagged": 0.020998950052497377,
+      "population": "ITT",
+      "rejectFlips": false,
+      "shift": 0.19491854568993416,
+      "unflagged": 0.14633214279630458
+    },
+    {
+      "adjustment": null,
+      "contrast": "A-C",
+      "counterfactual": 0.008901252083386879,
+      "engine": "included",
+      "id": "M14",
+      "level": "L2c",
+      "nCounterfactual": {
+        "A": 34,
+        "B": 11,
+        "C": 16
+      },
+      "nUnflagged": {
+        "A": 34,
+        "B": 26,
+        "C": 28
+      },
+      "pCounterfactual": 0.7415129243537824,
+      "pUnflagged": 0.1991400429978501,
+      "population": "PP",
+      "rejectFlips": false,
+      "shift": -0.022462756608193746,
+      "unflagged": 0.031364008691580625
+    },
+    {
+      "adjustment": "ANCOVA",
+      "contrast": "A-C",
+      "counterfactual": -0.005504776417149415,
+      "engine": "included",
+      "id": "M15",
+      "level": "L2c",
+      "nCounterfactual": {
+        "A": 34,
+        "B": 11,
+        "C": 16
+      },
+      "nUnflagged": {
+        "A": 34,
+        "B": 26,
+        "C": 28
+      },
+      "pCounterfactual": 0.7605598600349912,
+      "pUnflagged": 0.8395401149712571,
+      "population": "PP",
+      "rejectFlips": false,
+      "shift": -0.0018571210011468775,
+      "unflagged": -0.0036476554160025376
+    },
+    {
+      "adjustment": null,
+      "contrast": "A-C",
+      "counterfactual": 0.425843756815073,
+      "engine": "excluded",
+      "id": "M16",
+      "level": "L2c",
+      "nCounterfactual": {
+        "A": 38,
+        "B": 37,
+        "C": 39
+      },
+      "nUnflagged": {
+        "A": 38,
+        "B": 37,
+        "C": 39
+      },
+      "pCounterfactual": 4.999750012499375e-05,
+      "pUnflagged": 0.0007999600019999,
+      "population": "ITT",
+      "rejectFlips": false,
+      "shift": 0.19353045727096296,
+      "unflagged": 0.23231329954411006
+    },
+    {
+      "adjustment": null,
+      "contrast": "A-C",
+      "counterfactual": 0.10349319605327778,
+      "engine": "excluded",
+      "id": "M17",
+      "level": "L2c",
+      "nCounterfactual": {
+        "A": 34,
+        "B": 11,
+        "C": 16
+      },
+      "nUnflagged": {
+        "A": 34,
+        "B": 26,
+        "C": 28
+      },
+      "pCounterfactual": 0.0009499525023748813,
+      "pUnflagged": 4.999750012499375e-05,
+      "population": "PP",
+      "rejectFlips": false,
+      "shift": -0.02397932363413524,
+      "unflagged": 0.12747251968741302
+    },
+    {
+      "adjustment": "ANCOVA",
+      "contrast": "A-C",
+      "counterfactual": 0.08807982139817527,
+      "engine": "excluded",
+      "id": "M18",
+      "level": "L2c",
+      "nCounterfactual": {
+        "A": 34,
+        "B": 11,
+        "C": 16
+      },
+      "nUnflagged": {
+        "A": 34,
+        "B": 26,
+        "C": 28
+      },
+      "pCounterfactual": 0.0004998750312421895,
+      "pUnflagged": 0.00024993751562109475,
+      "population": "PP",
+      "rejectFlips": false,
+      "shift": -0.0030413047216711897,
+      "unflagged": 0.09112112611984646
+    },
+    {
+      "adjustment": null,
+      "contrast": "A-B",
+      "counterfactual": 0.3773654036811932,
+      "engine": "included",
+      "id": "M1",
+      "level": "L1",
+      "nCounterfactual": {
+        "A": 38,
+        "B": 37,
+        "C": 39
+      },
+      "nUnflagged": {
+        "A": 38,
+        "B": 37,
+        "C": 39
+      },
+      "pCounterfactual": 4.999750012499375e-05,
+      "pUnflagged": 0.02294885255737213,
+      "population": "ITT",
+      "rejectFlips": false,
+      "shift": 0.24570024570024568,
+      "unflagged": 0.13166515798094752
+    },
+    {
+      "adjustment": null,
+      "contrast": "A-B",
+      "counterfactual": 0.028115378382758127,
+      "engine": "included",
+      "id": "M2",
+      "level": "L1",
+      "nCounterfactual": {
+        "A": 34,
+        "B": 11,
+        "C": 16
+      },
+      "nUnflagged": {
+        "A": 34,
+        "B": 26,
+        "C": 28
+      },
+      "pCounterfactual": 0.18389080545972702,
+      "pUnflagged": 0.295685215739213,
+      "population": "PP",
+      "rejectFlips": false,
+      "shift": 0.009535918626827788,
+      "unflagged": 0.01857945975593034
+    },
+    {
+      "adjustment": "ANCOVA",
+      "contrast": "A-B",
+      "counterfactual": 0.02855995545236578,
+      "engine": "included",
+      "id": "M3",
+      "level": "L1",
+      "nCounterfactual": {
+        "A": 34,
+        "B": 11,
+        "C": 16
+      },
+      "nUnflagged": {
+        "A": 34,
+        "B": 26,
+        "C": 28
+      },
+      "pCounterfactual": 0.1132216945763559,
+      "pUnflagged": 0.11072231942014496,
+      "population": "PP",
+      "rejectFlips": false,
+      "shift": 0.007236722527849793,
+      "unflagged": 0.02132323292451599
+    },
+    {
+      "adjustment": null,
+      "contrast": "A-B",
+      "counterfactual": 0.42941580418894393,
+      "engine": "excluded",
+      "id": "M4",
+      "level": "L1",
+      "nCounterfactual": {
+        "A": 38,
+        "B": 37,
+        "C": 39
+      },
+      "nUnflagged": {
+        "A": 38,
+        "B": 37,
+        "C": 39
+      },
+      "pCounterfactual": 4.999750012499375e-05,
+      "pUnflagged": 0.02294885255737213,
+      "population": "ITT",
+      "rejectFlips": false,
+      "shift": 0.27958993476234856,
+      "unflagged": 0.14982586942659537
+    },
+    {
+      "adjustment": null,
+      "contrast": "A-B",
+      "counterfactual": 0.031993361607966064,
+      "engine": "excluded",
+      "id": "M5",
+      "level": "L1",
+      "nCounterfactual": {
+        "A": 34,
+        "B": 11,
+        "C": 16
+      },
+      "nUnflagged": {
+        "A": 34,
+        "B": 26,
+        "C": 28
+      },
+      "pCounterfactual": 0.18389080545972702,
+      "pUnflagged": 0.295685215739213,
+      "population": "PP",
+      "rejectFlips": false,
+      "shift": 0.010851217747769426,
+      "unflagged": 0.02114214386019664
+    },
+    {
+      "adjustment": "ANCOVA",
+      "contrast": "A-B",
+      "counterfactual": 0.03249925965269196,
+      "engine": "excluded",
+      "id": "M6",
+      "level": "L1",
+      "nCounterfactual": {
+        "A": 34,
+        "B": 11,
+        "C": 16
+      },
+      "nUnflagged": {
+        "A": 34,
+        "B": 26,
+        "C": 28
+      },
+      "pCounterfactual": 0.1132216945763559,
+      "pUnflagged": 0.11072231942014496,
+      "population": "PP",
+      "rejectFlips": false,
+      "shift": 0.00823489115238063,
+      "unflagged": 0.02426436850031133
+    },
+    {
+      "adjustment": null,
+      "contrast": "A-B",
+      "counterfactual": 0.40562800647171876,
+      "engine": "included",
+      "id": "M7",
+      "level": "L3",
+      "nCounterfactual": {
+        "A": 38,
+        "B": 37,
+        "C": 39
+      },
+      "nUnflagged": {
+        "A": 38,
+        "B": 37,
+        "C": 39
+      },
+      "pCounterfactual": 4.999750012499375e-05,
+      "pUnflagged": 0.031948402579871006,
+      "population": "ITT",
+      "rejectFlips": false,
+      "shift": 0.2680008252527336,
+      "unflagged": 0.13762718121898515
+    },
+    {
+      "adjustment": null,
+      "contrast": "A-B",
+      "counterfactual": 0.011287096379148376,
+      "engine": "included",
+      "id": "M8",
+      "level": "L3",
+      "nCounterfactual": {
+        "A": 34,
+        "B": 11,
+        "C": 16
+      },
+      "nUnflagged": {
+        "A": 34,
+        "B": 26,
+        "C": 28
+      },
+      "pCounterfactual": 0.6943652817359132,
+      "pUnflagged": 0.6133193340332983,
+      "population": "PP",
+      "rejectFlips": false,
+      "shift": -0.0005605081940960321,
+      "unflagged": 0.011847604573244408
+    },
+    {
+      "adjustment": "ANCOVA",
+      "contrast": "A-B",
+      "counterfactual": 0.012037240614283795,
+      "engine": "included",
+      "id": "M9",
+      "level": "L3",
+      "nCounterfactual": {
+        "A": 34,
+        "B": 11,
+        "C": 16
+      },
+      "nUnflagged": {
+        "A": 34,
+        "B": 26,
+        "C": 28
+      },
+      "pCounterfactual": 0.5633591602099475,
+      "pUnflagged": 0.30617345663584106,
+      "population": "PP",
+      "rejectFlips": false,
+      "shift": -0.003932108942712231,
+      "unflagged": 0.015969349556996026
+    },
+    {
+      "adjustment": null,
+      "contrast": "A-B",
+      "counterfactual": 0.4645397276976225,
+      "engine": "excluded",
+      "id": "M10",
+      "level": "L3",
+      "nCounterfactual": {
+        "A": 38,
+        "B": 37,
+        "C": 39
+      },
+      "nUnflagged": {
+        "A": 38,
+        "B": 37,
+        "C": 39
+      },
+      "pCounterfactual": 4.999750012499375e-05,
+      "pUnflagged": 0.02589870506474676,
+      "population": "ITT",
+      "rejectFlips": false,
+      "shift": 0.303088803088803,
+      "unflagged": 0.1614509246088195
+    },
+    {
+      "adjustment": null,
+      "contrast": "A-B",
+      "counterfactual": 0.01948051948051943,
+      "engine": "excluded",
+      "id": "M11",
+      "level": "L3",
+      "nCounterfactual": {
+        "A": 34,
+        "B": 11,
+        "C": 16
+      },
+      "nUnflagged": {
+        "A": 34,
+        "B": 26,
+        "C": 28
+      },
+      "pCounterfactual": 0.5356732163391831,
+      "pUnflagged": 0.4433778311084446,
+      "population": "PP",
+      "rejectFlips": false,
+      "shift": -0.00043706293706313737,
+      "unflagged": 0.01991758241758257
+    },
+    {
+      "adjustment": "ANCOVA",
+      "contrast": "A-B",
+      "counterfactual": 0.02032205318988145,
+      "engine": "excluded",
+      "id": "M12",
+      "level": "L3",
+      "nCounterfactual": {
+        "A": 34,
+        "B": 11,
+        "C": 16
+      },
+      "nUnflagged": {
+        "A": 34,
+        "B": 26,
+        "C": 28
+      },
+      "pCounterfactual": 0.38615346163459136,
+      "pUnflagged": 0.16470882279430143,
+      "population": "PP",
+      "rejectFlips": false,
+      "shift": -0.004205413268035918,
+      "unflagged": 0.02452746645791737
+    },
+    {
+      "adjustment": null,
+      "contrast": "A-B",
+      "counterfactual": 0.42020805776618864,
+      "engine": "included",
+      "id": "M13",
+      "level": "L2c",
+      "nCounterfactual": {
+        "A": 38,
+        "B": 37,
+        "C": 39
+      },
+      "nUnflagged": {
+        "A": 38,
+        "B": 37,
+        "C": 39
+      },
+      "pCounterfactual": 4.999750012499375e-05,
+      "pUnflagged": 0.029648517574121295,
+      "population": "ITT",
+      "rejectFlips": false,
+      "shift": 0.27857043579343715,
+      "unflagged": 0.14163762197275148
+    },
+    {
+      "adjustment": null,
+      "contrast": "A-B",
+      "counterfactual": 0.014033216892770928,
+      "engine": "included",
+      "id": "M14",
+      "level": "L2c",
+      "nCounterfactual": {
+        "A": 34,
+        "B": 11,
+        "C": 16
+      },
+      "nUnflagged": {
+        "A": 34,
+        "B": 26,
+        "C": 28
+      },
+      "pCounterfactual": 0.6458177091145443,
+      "pUnflagged": 0.6570171491425428,
+      "population": "PP",
+      "rejectFlips": false,
+      "shift": 0.003672398559219414,
+      "unflagged": 0.010360818333551514
+    },
+    {
+      "adjustment": "ANCOVA",
+      "contrast": "A-B",
+      "counterfactual": 0.014792427880941483,
+      "engine": "included",
+      "id": "M15",
+      "level": "L2c",
+      "nCounterfactual": {
+        "A": 34,
+        "B": 11,
+        "C": 16
+      },
+      "nUnflagged": {
+        "A": 34,
+        "B": 26,
+        "C": 28
+      },
+      "pCounterfactual": 0.5123719070232442,
+      "pUnflagged": 0.38090477380654836,
+      "population": "PP",
+      "rejectFlips": false,
+      "shift": 0.0005491279829847873,
+      "unflagged": 0.014243299897956696
+    },
+    {
+      "adjustment": null,
+      "contrast": "A-B",
+      "counterfactual": 0.5048011260950229,
+      "engine": "excluded",
+      "id": "M16",
+      "level": "L2c",
+      "nCounterfactual": {
+        "A": 38,
+        "B": 37,
+        "C": 39
+      },
+      "nUnflagged": {
+        "A": 38,
+        "B": 37,
+        "C": 39
+      },
+      "pCounterfactual": 4.999750012499375e-05,
+      "pUnflagged": 0.0014499275036248187,
+      "population": "ITT",
+      "rejectFlips": false,
+      "shift": 0.27718234737446595,
+      "unflagged": 0.22761877872055697
+    },
+    {
+      "adjustment": null,
+      "contrast": "A-B",
+      "counterfactual": 0.10862516086266183,
+      "engine": "excluded",
+      "id": "M17",
+      "level": "L2c",
+      "nCounterfactual": {
+        "A": 34,
+        "B": 11,
+        "C": 16
+      },
+      "nUnflagged": {
+        "A": 34,
+        "B": 26,
+        "C": 28
+      },
+      "pCounterfactual": 0.0022998850057497125,
+      "pUnflagged": 4.999750012499375e-05,
+      "population": "PP",
+      "rejectFlips": false,
+      "shift": 0.0021558315332779188,
+      "unflagged": 0.10646932932938391
+    },
+    {
+      "adjustment": "ANCOVA",
+      "contrast": "A-B",
+      "counterfactual": 0.1094374599222192,
+      "engine": "excluded",
+      "id": "M18",
+      "level": "L2c",
+      "nCounterfactual": {
+        "A": 34,
+        "B": 11,
+        "C": 16
+      },
+      "nUnflagged": {
+        "A": 34,
+        "B": 26,
+        "C": 28
+      },
+      "pCounterfactual": 0.00024993751562109475,
+      "pUnflagged": 0.00024993751562109475,
+      "population": "PP",
+      "rejectFlips": false,
+      "shift": -0.0010629150304988233,
+      "unflagged": 0.11050037495271803
+    }
+  ],
+  "obligation": "PREREGISTRATION.md section 3.2 (iv)",
+  "recode": {
+    "code": "presence-idiom-unsound",
+    "counts": {
+      "B": {
+        "admitted": 30,
+        "flagged": 19
+      },
+      "C": {
+        "admitted": 30,
+        "flagged": 13
+      }
+    },
+    "runs": [
+      "B/run-011",
+      "B/run-012",
+      "B/run-013",
+      "B/run-015",
+      "B/run-022",
+      "B/run-024",
+      "B/run-026",
+      "B/run-027",
+      "B/run-028",
+      "B/run-029",
+      "B/run-032",
+      "B/run-034",
+      "B/run-035",
+      "B/run-036",
+      "B/run-037",
+      "B/run-041",
+      "B/run-044",
+      "B/run-046",
+      "B/run-047",
+      "C/run-019",
+      "C/run-020",
+      "C/run-022",
+      "C/run-023",
+      "C/run-024",
+      "C/run-028",
+      "C/run-031",
+      "C/run-034",
+      "C/run-035",
+      "C/run-041",
+      "C/run-044",
+      "C/run-048",
+      "C/run-049"
+    ],
+    "semantics": "identityPass false, no kill record \u2014 'valid, counted, and scoring zero on every endpoint it reaches, exactly as the other authoring codes do' (section 3.2), as e4lib/admit.py's order makes structural"
+  },
+  "reports": {
+    "counterfactual/A-B": {
+      "alpha": 0.05,
+      "contrast": "A-B",
+      "corpus": {
+        "nativeDenominators": {
+          "excluded": {
+            "jps": 57,
+            "rego": 62
+          },
+          "included": {
+            "jps": 69,
+            "rego": 62
+          }
+        },
+        "sharedClasses": {
+          "excluded": 29,
+          "included": 33
+        },
+        "sharedDenominators": {
+          "excluded": {
+            "jps": 57,
+            "rego": 55
+          },
+          "included": {
+            "jps": 69,
+            "rego": 62
+          }
+        }
+      },
+      "dropAPole": [
+        {
+          "members": [
+            "M7",
+            "M8",
+            "M9",
+            "M10",
+            "M11",
+            "M12",
+            "M13",
+            "M14",
+            "M15",
+            "M16",
+            "M17",
+            "M18"
+          ],
+          "membersLeft": 12,
+          "poleDropped": "L1",
+          "positive": 12,
+          "rejecting": 6,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M1",
+            "M2",
+            "M3",
+            "M4",
+            "M5",
+            "M6",
+            "M13",
+            "M14",
+            "M15",
+            "M16",
+            "M17",
+            "M18"
+          ],
+          "membersLeft": 12,
+          "poleDropped": "L3",
+          "positive": 12,
+          "rejecting": 6,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M1",
+            "M2",
+            "M3",
+            "M4",
+            "M5",
+            "M6",
+            "M7",
+            "M8",
+            "M9",
+            "M10",
+            "M11",
+            "M12"
+          ],
+          "membersLeft": 12,
+          "poleDropped": "L2c",
+          "positive": 12,
+          "rejecting": 4,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M4",
+            "M5",
+            "M6",
+            "M10",
+            "M11",
+            "M12",
+            "M16",
+            "M17",
+            "M18"
+          ],
+          "membersLeft": 9,
+          "poleDropped": "engine-included",
+          "positive": 9,
+          "rejecting": 5,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M1",
+            "M2",
+            "M3",
+            "M7",
+            "M8",
+            "M9",
+            "M13",
+            "M14",
+            "M15"
+          ],
+          "membersLeft": 9,
+          "poleDropped": "engine-excluded",
+          "positive": 9,
+          "rejecting": 3,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M2",
+            "M3",
+            "M5",
+            "M6",
+            "M8",
+            "M9",
+            "M11",
+            "M12",
+            "M14",
+            "M15",
+            "M17",
+            "M18"
+          ],
+          "membersLeft": 12,
+          "poleDropped": "ITT",
+          "positive": 12,
+          "rejecting": 2,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M1",
+            "M4",
+            "M7",
+            "M10",
+            "M13",
+            "M16"
+          ],
+          "membersLeft": 6,
+          "poleDropped": "per-protocol",
+          "positive": 6,
+          "rejecting": 6,
+          "verdict": "CLAIM"
+        },
+        {
+          "members": [
+            "M1",
+            "M2",
+            "M4",
+            "M5",
+            "M7",
+            "M8",
+            "M10",
+            "M11",
+            "M13",
+            "M14",
+            "M16",
+            "M17"
+          ],
+          "membersLeft": 12,
+          "poleDropped": "adjusted",
+          "positive": 12,
+          "rejecting": 7,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M3",
+            "M6",
+            "M9",
+            "M12",
+            "M15",
+            "M18"
+          ],
+          "membersLeft": 6,
+          "poleDropped": "unadjusted",
+          "positive": 6,
+          "rejecting": 1,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        }
+      ],
+      "members": [
+        {
+          "adjustment": null,
+          "difference": 0.3773654036811932,
+          "engine": "included",
+          "id": "M1",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L1",
+          "mde": 0.16977331104375684,
+          "method": "label permutation",
+          "n": {
+            "A": 38,
+            "B": 37,
+            "C": 39
+          },
+          "p": 4.999750012499375e-05,
+          "permutationCount": 0,
+          "permutations": 20000,
+          "population": "ITT",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.26237673206740786,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.028115378382758127,
+          "engine": "included",
+          "id": "M2",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L1",
+          "mde": 0.05538997535317819,
+          "method": "label permutation",
+          "n": {
+            "A": 34,
+            "B": 11,
+            "C": 16
+          },
+          "p": 0.18389080545972702,
+          "permutationCount": 3677,
+          "permutations": 20000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.05699733990138371,
+          "sign": 1
+        },
+        {
+          "adjustment": "ANCOVA",
+          "difference": 0.02855995545236578,
+          "engine": "included",
+          "id": "M3",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L1",
+          "mde": 0.04567068868242989,
+          "method": "whole-record permutation",
+          "n": {
+            "A": 34,
+            "B": 11,
+            "C": 16
+          },
+          "p": 0.1132216945763559,
+          "permutationCount": 452,
+          "permutations": 4000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.046996008750044914,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.42941580418894393,
+          "engine": "excluded",
+          "id": "M4",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L1",
+          "mde": 0.19319031946358536,
+          "method": "label permutation",
+          "n": {
+            "A": 38,
+            "B": 37,
+            "C": 39
+          },
+          "p": 4.999750012499375e-05,
+          "permutationCount": 0,
+          "permutations": 20000,
+          "population": "ITT",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.298566626145671,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.031993361607966064,
+          "engine": "excluded",
+          "id": "M5",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L1",
+          "mde": 0.06302997195361654,
+          "method": "label permutation",
+          "n": {
+            "A": 34,
+            "B": 11,
+            "C": 16
+          },
+          "p": 0.18389080545972702,
+          "permutationCount": 3677,
+          "permutations": 20000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.06485904195674695,
+          "sign": 1
+        },
+        {
+          "adjustment": "ANCOVA",
+          "difference": 0.03249925965269196,
+          "engine": "excluded",
+          "id": "M6",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L1",
+          "mde": 0.05197009401793744,
+          "method": "whole-record permutation",
+          "n": {
+            "A": 34,
+            "B": 11,
+            "C": 16
+          },
+          "p": 0.1132216945763559,
+          "permutationCount": 452,
+          "permutations": 4000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.05347821685349937,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.40562800647171876,
+          "engine": "included",
+          "id": "M7",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L3",
+          "mde": 0.19004625544939605,
+          "method": "label permutation",
+          "n": {
+            "A": 38,
+            "B": 37,
+            "C": 39
+          },
+          "p": 4.999750012499375e-05,
+          "permutationCount": 0,
+          "permutations": 20000,
+          "population": "ITT",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.2937076218865085,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.011287096379148376,
+          "engine": "included",
+          "id": "M8",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L3",
+          "mde": 0.07731148399494181,
+          "method": "label permutation",
+          "n": {
+            "A": 34,
+            "B": 11,
+            "C": 16
+          },
+          "p": 0.6943652817359132,
+          "permutationCount": 13887,
+          "permutations": 20000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.07955498993171593,
+          "sign": 1
+        },
+        {
+          "adjustment": "ANCOVA",
+          "difference": 0.012037240614283795,
+          "engine": "included",
+          "id": "M9",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L3",
+          "mde": 0.05596606922815366,
+          "method": "whole-record permutation",
+          "n": {
+            "A": 34,
+            "B": 11,
+            "C": 16
+          },
+          "p": 0.5633591602099475,
+          "permutationCount": 2253,
+          "permutations": 4000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.057590151474194745,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.4645397276976225,
+          "engine": "excluded",
+          "id": "M10",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L3",
+          "mde": 0.21487695428133552,
+          "method": "label permutation",
+          "n": {
+            "A": 38,
+            "B": 37,
+            "C": 39
+          },
+          "p": 4.999750012499375e-05,
+          "permutationCount": 0,
+          "permutations": 20000,
+          "population": "ITT",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.33208230854615156,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.01948051948051943,
+          "engine": "excluded",
+          "id": "M11",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L3",
+          "mde": 0.08675759459234839,
+          "method": "label permutation",
+          "n": {
+            "A": 34,
+            "B": 11,
+            "C": 16
+          },
+          "p": 0.5356732163391831,
+          "permutationCount": 10713,
+          "permutations": 20000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.08927521769916795,
+          "sign": 1
+        },
+        {
+          "adjustment": "ANCOVA",
+          "difference": 0.02032205318988145,
+          "engine": "excluded",
+          "id": "M12",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L3",
+          "mde": 0.06282275881549493,
+          "method": "whole-record permutation",
+          "n": {
+            "A": 34,
+            "B": 11,
+            "C": 16
+          },
+          "p": 0.38615346163459136,
+          "permutationCount": 1544,
+          "permutations": 4000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.06464581568989554,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.42020805776618864,
+          "engine": "included",
+          "id": "M13",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L2c",
+          "mde": 0.1941673730909848,
+          "method": "label permutation",
+          "n": {
+            "A": 38,
+            "B": 37,
+            "C": 39
+          },
+          "p": 4.999750012499375e-05,
+          "permutationCount": 0,
+          "permutations": 20000,
+          "population": "ITT",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.3000766169459659,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.014033216892770928,
+          "engine": "included",
+          "id": "M14",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L2c",
+          "mde": 0.07937732937600459,
+          "method": "label permutation",
+          "n": {
+            "A": 34,
+            "B": 11,
+            "C": 16
+          },
+          "p": 0.6458177091145443,
+          "permutationCount": 12916,
+          "permutations": 20000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.08168078418631443,
+          "sign": 1
+        },
+        {
+          "adjustment": "ANCOVA",
+          "difference": 0.014792427880941483,
+          "engine": "included",
+          "id": "M15",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L2c",
+          "mde": 0.05822232330886626,
+          "method": "whole-record permutation",
+          "n": {
+            "A": 34,
+            "B": 11,
+            "C": 16
+          },
+          "p": 0.5123719070232442,
+          "permutationCount": 2049,
+          "permutations": 4000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.05991187990830717,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.5048011260950229,
+          "engine": "excluded",
+          "id": "M16",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L2c",
+          "mde": 0.19951365489733788,
+          "method": "label permutation",
+          "n": {
+            "A": 38,
+            "B": 37,
+            "C": 39
+          },
+          "p": 4.999750012499375e-05,
+          "permutationCount": 0,
+          "permutations": 20000,
+          "population": "ITT",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.308339046066529,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.10862516086266183,
+          "engine": "excluded",
+          "id": "M17",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L2c",
+          "mde": 0.08617312562406482,
+          "method": "label permutation",
+          "n": {
+            "A": 34,
+            "B": 11,
+            "C": 16
+          },
+          "p": 0.0022998850057497125,
+          "permutationCount": 45,
+          "permutations": 20000,
+          "population": "PP",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.08867378799578465,
+          "sign": 1
+        },
+        {
+          "adjustment": "ANCOVA",
+          "difference": 0.1094374599222192,
+          "engine": "excluded",
+          "id": "M18",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L2c",
+          "mde": 0.06401013122911407,
+          "method": "whole-record permutation",
+          "n": {
+            "A": 34,
+            "B": 11,
+            "C": 16
+          },
+          "p": 0.00024993751562109475,
+          "permutationCount": 0,
+          "permutations": 4000,
+          "population": "PP",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.06586764452475335,
+          "sign": 1
+        }
+      ],
+      "offsetReadingUsed": "shared",
+      "offsets": {
+        "excluded/ITT/native": -0.02757341382129161,
+        "excluded/ITT/shared": -0.04898103845472267,
+        "excluded/PP/native": -0.024775715067679786,
+        "excluded/PP/shared": -0.050586974141762754,
+        "included/ITT/native": -0.05077658303464753,
+        "included/ITT/shared": -0.05077658303464753,
+        "included/PP/native": -0.05244138903578349,
+        "included/PP/shared": -0.05244138903578349
+      },
+      "outcomeWeightingUsed": "native",
+      "refusedCells": [
+        {
+          "adjustment": "ANCOVA",
+          "population": "ITT",
+          "reason": "section 5.2: covert change of population; the scorer refuses rather than falls back"
+        }
+      ],
+      "registeredMembers": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5",
+        "M6",
+        "M7",
+        "M8",
+        "M9",
+        "M10",
+        "M11",
+        "M12",
+        "M13",
+        "M14",
+        "M15",
+        "M16",
+        "M17",
+        "M18"
+      ],
+      "verdict": {
+        "allReject": false,
+        "alpha": 0.05,
+        "arms": [
+          "A",
+          "B"
+        ],
+        "claim": false,
+        "direction": "positive",
+        "memberCount": 18,
+        "members": [
+          "M1",
+          "M2",
+          "M3",
+          "M4",
+          "M5",
+          "M6",
+          "M7",
+          "M8",
+          "M9",
+          "M10",
+          "M11",
+          "M12",
+          "M13",
+          "M14",
+          "M15",
+          "M16",
+          "M17",
+          "M18"
+        ],
+        "negative": 0,
+        "positive": 18,
+        "rejecting": 8,
+        "rule": "intersection-union: CLAIM iff every registered member agrees in sign and every registered member rejects at two-sided alpha = 0.05 (section 5.4, section 5.9 row 4)",
+        "sign": "+",
+        "signUnanimous": true,
+        "verdict": "INDETERMINATE-BY-DISAGREEMENT",
+        "zero": 0
+      }
+    },
+    "counterfactual/A-C": {
+      "alpha": 0.05,
+      "contrast": "A-C",
+      "corpus": {
+        "nativeDenominators": {
+          "excluded": {
+            "jps": 57,
+            "rego": 62
+          },
+          "included": {
+            "jps": 69,
+            "rego": 62
+          }
+        },
+        "sharedClasses": {
+          "excluded": 29,
+          "included": 33
+        },
+        "sharedDenominators": {
+          "excluded": {
+            "jps": 57,
+            "rego": 55
+          },
+          "included": {
+            "jps": 69,
+            "rego": 62
+          }
+        }
+      },
+      "dropAPole": [
+        {
+          "members": [
+            "M7",
+            "M8",
+            "M9",
+            "M10",
+            "M11",
+            "M12",
+            "M13",
+            "M14",
+            "M15",
+            "M16",
+            "M17",
+            "M18"
+          ],
+          "membersLeft": 12,
+          "poleDropped": "L1",
+          "positive": 9,
+          "rejecting": 6,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M1",
+            "M2",
+            "M3",
+            "M4",
+            "M5",
+            "M6",
+            "M13",
+            "M14",
+            "M15",
+            "M16",
+            "M17",
+            "M18"
+          ],
+          "membersLeft": 12,
+          "poleDropped": "L3",
+          "positive": 11,
+          "rejecting": 6,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M1",
+            "M2",
+            "M3",
+            "M4",
+            "M5",
+            "M6",
+            "M7",
+            "M8",
+            "M9",
+            "M10",
+            "M11",
+            "M12"
+          ],
+          "membersLeft": 12,
+          "poleDropped": "L2c",
+          "positive": 10,
+          "rejecting": 4,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M4",
+            "M5",
+            "M6",
+            "M10",
+            "M11",
+            "M12",
+            "M16",
+            "M17",
+            "M18"
+          ],
+          "membersLeft": 9,
+          "poleDropped": "engine-included",
+          "positive": 8,
+          "rejecting": 5,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M1",
+            "M2",
+            "M3",
+            "M7",
+            "M8",
+            "M9",
+            "M13",
+            "M14",
+            "M15"
+          ],
+          "membersLeft": 9,
+          "poleDropped": "engine-excluded",
+          "positive": 7,
+          "rejecting": 3,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M2",
+            "M3",
+            "M5",
+            "M6",
+            "M8",
+            "M9",
+            "M11",
+            "M12",
+            "M14",
+            "M15",
+            "M17",
+            "M18"
+          ],
+          "membersLeft": 12,
+          "poleDropped": "ITT",
+          "positive": 9,
+          "rejecting": 2,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M1",
+            "M4",
+            "M7",
+            "M10",
+            "M13",
+            "M16"
+          ],
+          "membersLeft": 6,
+          "poleDropped": "per-protocol",
+          "positive": 6,
+          "rejecting": 6,
+          "verdict": "CLAIM"
+        },
+        {
+          "members": [
+            "M1",
+            "M2",
+            "M4",
+            "M5",
+            "M7",
+            "M8",
+            "M10",
+            "M11",
+            "M13",
+            "M14",
+            "M16",
+            "M17"
+          ],
+          "membersLeft": 12,
+          "poleDropped": "adjusted",
+          "positive": 12,
+          "rejecting": 7,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M3",
+            "M6",
+            "M9",
+            "M12",
+            "M15",
+            "M18"
+          ],
+          "membersLeft": 6,
+          "poleDropped": "unadjusted",
+          "positive": 3,
+          "rejecting": 1,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        }
+      ],
+      "members": [
+        {
+          "adjustment": null,
+          "difference": 0.30632233263812214,
+          "engine": "included",
+          "id": "M1",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L1",
+          "mde": 0.16755319285979728,
+          "method": "label permutation",
+          "n": {
+            "A": 38,
+            "B": 37,
+            "C": 39
+          },
+          "p": 4.999750012499375e-05,
+          "permutationCount": 0,
+          "permutations": 20000,
+          "population": "ITT",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.26237673206740786,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.017268270944741593,
+          "engine": "included",
+          "id": "M2",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L1",
+          "mde": 0.048411246875283254,
+          "method": "label permutation",
+          "n": {
+            "A": 34,
+            "B": 11,
+            "C": 16
+          },
+          "p": 0.3482825858707065,
+          "permutationCount": 6965,
+          "permutations": 20000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.05699733990138371,
+          "sign": 1
+        },
+        {
+          "adjustment": "ANCOVA",
+          "difference": 0.008832421048936334,
+          "engine": "included",
+          "id": "M3",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L1",
+          "mde": 0.039916518660130726,
+          "method": "whole-record permutation",
+          "n": {
+            "A": 34,
+            "B": 11,
+            "C": 16
+          },
+          "p": 0.5211197200699825,
+          "permutationCount": 2084,
+          "permutations": 4000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.046996008750044914,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.34857368886407,
+          "engine": "excluded",
+          "id": "M4",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L1",
+          "mde": 0.19066397808183824,
+          "method": "label permutation",
+          "n": {
+            "A": 38,
+            "B": 37,
+            "C": 39
+          },
+          "p": 4.999750012499375e-05,
+          "permutationCount": 0,
+          "permutations": 20000,
+          "population": "ITT",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.298566626145671,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.01965010141987833,
+          "engine": "excluded",
+          "id": "M5",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L1",
+          "mde": 0.05508866023739127,
+          "method": "label permutation",
+          "n": {
+            "A": 34,
+            "B": 11,
+            "C": 16
+          },
+          "p": 0.3482825858707065,
+          "permutationCount": 6965,
+          "permutations": 20000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.06485904195674695,
+          "sign": 1
+        },
+        {
+          "adjustment": "ANCOVA",
+          "difference": 0.010050686021203403,
+          "engine": "excluded",
+          "id": "M6",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L1",
+          "mde": 0.04542224537187287,
+          "method": "whole-record permutation",
+          "n": {
+            "A": 34,
+            "B": 11,
+            "C": 16
+          },
+          "p": 0.5211197200699825,
+          "permutationCount": 2084,
+          "permutations": 4000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.05347821685349937,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.32881602126278703,
+          "engine": "included",
+          "id": "M7",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L3",
+          "mde": 0.18756102885563605,
+          "method": "label permutation",
+          "n": {
+            "A": 38,
+            "B": 37,
+            "C": 39
+          },
+          "p": 4.999750012499375e-05,
+          "permutationCount": 0,
+          "permutations": 20000,
+          "population": "ITT",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.2937076218865085,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.006342613381230322,
+          "engine": "included",
+          "id": "M8",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L3",
+          "mde": 0.06757080706588335,
+          "method": "label permutation",
+          "n": {
+            "A": 34,
+            "B": 11,
+            "C": 16
+          },
+          "p": 0.8051097445127744,
+          "permutationCount": 16102,
+          "permutations": 20000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.07955498993171593,
+          "sign": 1
+        },
+        {
+          "adjustment": "ANCOVA",
+          "difference": -0.007891373480464203,
+          "engine": "included",
+          "id": "M9",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L3",
+          "mde": 0.04891475716982567,
+          "method": "whole-record permutation",
+          "n": {
+            "A": 34,
+            "B": 11,
+            "C": 16
+          },
+          "p": 0.6560859785053736,
+          "permutationCount": 2624,
+          "permutations": 4000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.057590151474194745,
+          "sign": -1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.3784220165799114,
+          "engine": "excluded",
+          "id": "M10",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L3",
+          "mde": 0.2120670177219261,
+          "method": "label permutation",
+          "n": {
+            "A": 38,
+            "B": 37,
+            "C": 39
+          },
+          "p": 4.999750012499375e-05,
+          "permutationCount": 0,
+          "permutations": 20000,
+          "population": "ITT",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.33208230854615156,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.01562500000000011,
+          "engine": "excluded",
+          "id": "M11",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L3",
+          "mde": 0.07582677737867824,
+          "method": "label permutation",
+          "n": {
+            "A": 34,
+            "B": 11,
+            "C": 16
+          },
+          "p": 0.584020798960052,
+          "permutationCount": 11680,
+          "permutations": 20000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.08927521769916795,
+          "sign": 1
+        },
+        {
+          "adjustment": "ANCOVA",
+          "difference": -0.0003431021351437691,
+          "engine": "excluded",
+          "id": "M12",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L3",
+          "mde": 0.05490755442679206,
+          "method": "whole-record permutation",
+          "n": {
+            "A": 34,
+            "B": 11,
+            "C": 16
+          },
+          "p": 0.9835041239690078,
+          "permutationCount": 3934,
+          "permutations": 4000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.06464581568989554,
+          "sign": -1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.34125068848623874,
+          "engine": "included",
+          "id": "M13",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L2c",
+          "mde": 0.1916282548215658,
+          "method": "label permutation",
+          "n": {
+            "A": 38,
+            "B": 37,
+            "C": 39
+          },
+          "p": 4.999750012499375e-05,
+          "permutationCount": 0,
+          "permutations": 20000,
+          "population": "ITT",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.3000766169459659,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.008901252083386879,
+          "engine": "included",
+          "id": "M14",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L2c",
+          "mde": 0.06937637116139175,
+          "method": "label permutation",
+          "n": {
+            "A": 34,
+            "B": 11,
+            "C": 16
+          },
+          "p": 0.7415129243537824,
+          "permutationCount": 14830,
+          "permutations": 20000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.08168078418631443,
+          "sign": 1
+        },
+        {
+          "adjustment": "ANCOVA",
+          "difference": -0.005504776417149415,
+          "engine": "included",
+          "id": "M15",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L2c",
+          "mde": 0.050886739872801824,
+          "method": "whole-record permutation",
+          "n": {
+            "A": 34,
+            "B": 11,
+            "C": 16
+          },
+          "p": 0.7605598600349912,
+          "permutationCount": 3042,
+          "permutations": 4000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.05991187990830717,
+          "sign": -1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.425843756815073,
+          "engine": "excluded",
+          "id": "M16",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L2c",
+          "mde": 0.19690462353391205,
+          "method": "label permutation",
+          "n": {
+            "A": 38,
+            "B": 37,
+            "C": 39
+          },
+          "p": 4.999750012499375e-05,
+          "permutationCount": 0,
+          "permutations": 20000,
+          "population": "ITT",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.308339046066529,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.10349319605327778,
+          "engine": "excluded",
+          "id": "M17",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L2c",
+          "mde": 0.07531594719083098,
+          "method": "label permutation",
+          "n": {
+            "A": 34,
+            "B": 11,
+            "C": 16
+          },
+          "p": 0.0009499525023748813,
+          "permutationCount": 18,
+          "permutations": 20000,
+          "population": "PP",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.08867378799578465,
+          "sign": 1
+        },
+        {
+          "adjustment": "ANCOVA",
+          "difference": 0.08807982139817527,
+          "engine": "excluded",
+          "id": "M18",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L2c",
+          "mde": 0.05594532667135614,
+          "method": "whole-record permutation",
+          "n": {
+            "A": 34,
+            "B": 11,
+            "C": 16
+          },
+          "p": 0.0004998750312421895,
+          "permutationCount": 1,
+          "permutations": 4000,
+          "population": "PP",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.06586764452475335,
+          "sign": 1
+        }
+      ],
+      "offsetReadingUsed": "shared",
+      "offsets": {
+        "excluded/ITT/native": -0.02757341382129161,
+        "excluded/ITT/shared": -0.04898103845472267,
+        "excluded/PP/native": -0.024775715067679786,
+        "excluded/PP/shared": -0.050586974141762754,
+        "included/ITT/native": -0.05077658303464753,
+        "included/ITT/shared": -0.05077658303464753,
+        "included/PP/native": -0.05244138903578349,
+        "included/PP/shared": -0.05244138903578349
+      },
+      "outcomeWeightingUsed": "native",
+      "refusedCells": [
+        {
+          "adjustment": "ANCOVA",
+          "population": "ITT",
+          "reason": "section 5.2: covert change of population; the scorer refuses rather than falls back"
+        }
+      ],
+      "registeredMembers": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5",
+        "M6",
+        "M7",
+        "M8",
+        "M9",
+        "M10",
+        "M11",
+        "M12",
+        "M13",
+        "M14",
+        "M15",
+        "M16",
+        "M17",
+        "M18"
+      ],
+      "verdict": {
+        "allReject": false,
+        "alpha": 0.05,
+        "arms": [
+          "A",
+          "C"
+        ],
+        "claim": false,
+        "direction": "none",
+        "memberCount": 18,
+        "members": [
+          "M1",
+          "M2",
+          "M3",
+          "M4",
+          "M5",
+          "M6",
+          "M7",
+          "M8",
+          "M9",
+          "M10",
+          "M11",
+          "M12",
+          "M13",
+          "M14",
+          "M15",
+          "M16",
+          "M17",
+          "M18"
+        ],
+        "negative": 3,
+        "positive": 15,
+        "rejecting": 8,
+        "rule": "intersection-union: CLAIM iff every registered member agrees in sign and every registered member rejects at two-sided alpha = 0.05 (section 5.4, section 5.9 row 4)",
+        "sign": "none",
+        "signUnanimous": false,
+        "verdict": "INDETERMINATE-BY-DISAGREEMENT",
+        "zero": 0
+      }
+    },
+    "unflagged/A-B": {
+      "alpha": 0.05,
+      "contrast": "A-B",
+      "corpus": {
+        "nativeDenominators": {
+          "excluded": {
+            "jps": 57,
+            "rego": 62
+          },
+          "included": {
+            "jps": 69,
+            "rego": 62
+          }
+        },
+        "sharedClasses": {
+          "excluded": 29,
+          "included": 33
+        },
+        "sharedDenominators": {
+          "excluded": {
+            "jps": 57,
+            "rego": 55
+          },
+          "included": {
+            "jps": 69,
+            "rego": 62
+          }
+        }
+      },
+      "dropAPole": [
+        {
+          "members": [
+            "M7",
+            "M8",
+            "M9",
+            "M10",
+            "M11",
+            "M12",
+            "M13",
+            "M14",
+            "M15",
+            "M16",
+            "M17",
+            "M18"
+          ],
+          "membersLeft": 12,
+          "poleDropped": "L1",
+          "positive": 12,
+          "rejecting": 6,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M1",
+            "M2",
+            "M3",
+            "M4",
+            "M5",
+            "M6",
+            "M13",
+            "M14",
+            "M15",
+            "M16",
+            "M17",
+            "M18"
+          ],
+          "membersLeft": 12,
+          "poleDropped": "L3",
+          "positive": 12,
+          "rejecting": 6,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M1",
+            "M2",
+            "M3",
+            "M4",
+            "M5",
+            "M6",
+            "M7",
+            "M8",
+            "M9",
+            "M10",
+            "M11",
+            "M12"
+          ],
+          "membersLeft": 12,
+          "poleDropped": "L2c",
+          "positive": 12,
+          "rejecting": 4,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M4",
+            "M5",
+            "M6",
+            "M10",
+            "M11",
+            "M12",
+            "M16",
+            "M17",
+            "M18"
+          ],
+          "membersLeft": 9,
+          "poleDropped": "engine-included",
+          "positive": 9,
+          "rejecting": 5,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M1",
+            "M2",
+            "M3",
+            "M7",
+            "M8",
+            "M9",
+            "M13",
+            "M14",
+            "M15"
+          ],
+          "membersLeft": 9,
+          "poleDropped": "engine-excluded",
+          "positive": 9,
+          "rejecting": 3,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M2",
+            "M3",
+            "M5",
+            "M6",
+            "M8",
+            "M9",
+            "M11",
+            "M12",
+            "M14",
+            "M15",
+            "M17",
+            "M18"
+          ],
+          "membersLeft": 12,
+          "poleDropped": "ITT",
+          "positive": 12,
+          "rejecting": 2,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M1",
+            "M4",
+            "M7",
+            "M10",
+            "M13",
+            "M16"
+          ],
+          "membersLeft": 6,
+          "poleDropped": "per-protocol",
+          "positive": 6,
+          "rejecting": 6,
+          "verdict": "CLAIM"
+        },
+        {
+          "members": [
+            "M1",
+            "M2",
+            "M4",
+            "M5",
+            "M7",
+            "M8",
+            "M10",
+            "M11",
+            "M13",
+            "M14",
+            "M16",
+            "M17"
+          ],
+          "membersLeft": 12,
+          "poleDropped": "adjusted",
+          "positive": 12,
+          "rejecting": 7,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M3",
+            "M6",
+            "M9",
+            "M12",
+            "M15",
+            "M18"
+          ],
+          "membersLeft": 6,
+          "poleDropped": "unadjusted",
+          "positive": 6,
+          "rejecting": 1,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        }
+      ],
+      "members": [
+        {
+          "adjustment": null,
+          "difference": 0.13166515798094752,
+          "engine": "included",
+          "id": "M1",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L1",
+          "mde": 0.16452655886052173,
+          "method": "label permutation",
+          "n": {
+            "A": 38,
+            "B": 37,
+            "C": 39
+          },
+          "p": 0.02294885255737213,
+          "permutationCount": 458,
+          "permutations": 20000,
+          "population": "ITT",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.25426812133618426,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.01857945975593034,
+          "engine": "included",
+          "id": "M2",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L1",
+          "mde": 0.05064181187281402,
+          "method": "label permutation",
+          "n": {
+            "A": 34,
+            "B": 26,
+            "C": 28
+          },
+          "p": 0.295685215739213,
+          "permutationCount": 5913,
+          "permutations": 20000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.06938308628471825,
+          "sign": 1
+        },
+        {
+          "adjustment": "ANCOVA",
+          "difference": 0.02132323292451599,
+          "engine": "included",
+          "id": "M3",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L1",
+          "mde": 0.03699090757992353,
+          "method": "whole-record permutation",
+          "n": {
+            "A": 34,
+            "B": 26,
+            "C": 28
+          },
+          "p": 0.11072231942014496,
+          "permutationCount": 442,
+          "permutations": 4000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.050680321999807175,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.14982586942659537,
+          "engine": "excluded",
+          "id": "M4",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L1",
+          "mde": 0.18721987732404194,
+          "method": "label permutation",
+          "n": {
+            "A": 38,
+            "B": 37,
+            "C": 39
+          },
+          "p": 0.02294885255737213,
+          "permutationCount": 458,
+          "permutations": 20000,
+          "population": "ITT",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.2893395863480717,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.02114214386019664,
+          "engine": "excluded",
+          "id": "M5",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L1",
+          "mde": 0.057626889372512494,
+          "method": "label permutation",
+          "n": {
+            "A": 34,
+            "B": 26,
+            "C": 28
+          },
+          "p": 0.295685215739213,
+          "permutationCount": 5913,
+          "permutations": 20000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.07895316715157594,
+          "sign": 1
+        },
+        {
+          "adjustment": "ANCOVA",
+          "difference": 0.02426436850031133,
+          "engine": "excluded",
+          "id": "M6",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L1",
+          "mde": 0.0420931017288785,
+          "method": "whole-record permutation",
+          "n": {
+            "A": 34,
+            "B": 26,
+            "C": 28
+          },
+          "p": 0.11072231942014496,
+          "permutationCount": 442,
+          "permutations": 4000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.05767071124115989,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.13762718121898515,
+          "engine": "included",
+          "id": "M7",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L3",
+          "mde": 0.184019332088312,
+          "method": "label permutation",
+          "n": {
+            "A": 38,
+            "B": 37,
+            "C": 39
+          },
+          "p": 0.031948402579871006,
+          "permutationCount": 638,
+          "permutations": 20000,
+          "population": "ITT",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.2843932929959423,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.011847604573244408,
+          "engine": "included",
+          "id": "M8",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L3",
+          "mde": 0.06858438007067587,
+          "method": "label permutation",
+          "n": {
+            "A": 34,
+            "B": 26,
+            "C": 28
+          },
+          "p": 0.6133193340332983,
+          "permutationCount": 12266,
+          "permutations": 20000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.09396575249279669,
+          "sign": 1
+        },
+        {
+          "adjustment": "ANCOVA",
+          "difference": 0.015969349556996026,
+          "engine": "included",
+          "id": "M9",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L3",
+          "mde": 0.04462458773709033,
+          "method": "whole-record permutation",
+          "n": {
+            "A": 34,
+            "B": 26,
+            "C": 28
+          },
+          "p": 0.30617345663584106,
+          "permutationCount": 1224,
+          "permutations": 4000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.06113903722794411,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.1614509246088195,
+          "engine": "excluded",
+          "id": "M10",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L3",
+          "mde": 0.20808684129793065,
+          "method": "label permutation",
+          "n": {
+            "A": 38,
+            "B": 37,
+            "C": 39
+          },
+          "p": 0.02589870506474676,
+          "permutationCount": 517,
+          "permutations": 20000,
+          "population": "ITT",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.3215885056980992,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.01991758241758257,
+          "engine": "excluded",
+          "id": "M11",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L3",
+          "mde": 0.07675724742919496,
+          "method": "label permutation",
+          "n": {
+            "A": 34,
+            "B": 26,
+            "C": 28
+          },
+          "p": 0.4433778311084446,
+          "permutationCount": 8867,
+          "permutations": 20000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.10516319468846387,
+          "sign": 1
+        },
+        {
+          "adjustment": "ANCOVA",
+          "difference": 0.02452746645791737,
+          "engine": "excluded",
+          "id": "M12",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L3",
+          "mde": 0.0499878426719001,
+          "method": "whole-record permutation",
+          "n": {
+            "A": 34,
+            "B": 26,
+            "C": 28
+          },
+          "p": 0.16470882279430143,
+          "permutationCount": 658,
+          "permutations": 4000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.06848709935580435,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.14163762197275148,
+          "engine": "included",
+          "id": "M13",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L2c",
+          "mde": 0.18742601481617718,
+          "method": "label permutation",
+          "n": {
+            "A": 38,
+            "B": 37,
+            "C": 39
+          },
+          "p": 0.029648517574121295,
+          "permutationCount": 592,
+          "permutations": 20000,
+          "population": "ITT",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.2896581622255786,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.010360818333551514,
+          "engine": "included",
+          "id": "M14",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L2c",
+          "mde": 0.06598357181534353,
+          "method": "label permutation",
+          "n": {
+            "A": 34,
+            "B": 26,
+            "C": 28
+          },
+          "p": 0.6570171491425428,
+          "permutationCount": 13140,
+          "permutations": 20000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.09040244982023565,
+          "sign": 1
+        },
+        {
+          "adjustment": "ANCOVA",
+          "difference": 0.014243299897956696,
+          "engine": "included",
+          "id": "M15",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L2c",
+          "mde": 0.044150721028413734,
+          "method": "whole-record permutation",
+          "n": {
+            "A": 34,
+            "B": 26,
+            "C": 28
+          },
+          "p": 0.38090477380654836,
+          "permutationCount": 1523,
+          "permutations": 4000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.060489804242004806,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.22761877872055697,
+          "engine": "excluded",
+          "id": "M16",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L2c",
+          "mde": 0.1929919122348931,
+          "method": "label permutation",
+          "n": {
+            "A": 38,
+            "B": 37,
+            "C": 39
+          },
+          "p": 0.0014499275036248187,
+          "permutationCount": 28,
+          "permutations": 20000,
+          "population": "ITT",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.29825999702968814,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.10646932932938391,
+          "engine": "excluded",
+          "id": "M17",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L2c",
+          "mde": 0.06918729346327827,
+          "method": "label permutation",
+          "n": {
+            "A": 34,
+            "B": 26,
+            "C": 28
+          },
+          "p": 4.999750012499375e-05,
+          "permutationCount": 0,
+          "permutations": 20000,
+          "population": "PP",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.09479178912920704,
+          "sign": 1
+        },
+        {
+          "adjustment": "ANCOVA",
+          "difference": 0.11050037495271803,
+          "engine": "excluded",
+          "id": "M18",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L2c",
+          "mde": 0.04686050562587371,
+          "method": "whole-record permutation",
+          "n": {
+            "A": 34,
+            "B": 26,
+            "C": 28
+          },
+          "p": 0.00024993751562109475,
+          "permutationCount": 0,
+          "permutations": 4000,
+          "population": "PP",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.06420241268916617,
+          "sign": 1
+        }
+      ],
+      "offsetReadingUsed": "shared",
+      "offsets": {
+        "excluded/ITT/native": -0.008051939885556202,
+        "excluded/ITT/shared": -0.048126882863724976,
+        "excluded/PP/native": -0.005668956114626762,
+        "excluded/PP/shared": -0.049220675656082354,
+        "included/ITT/native": -0.04845722300140248,
+        "included/ITT/shared": -0.04845722300140248,
+        "included/PP/native": -0.04955852352416164,
+        "included/PP/shared": -0.04955852352416164
+      },
+      "outcomeWeightingUsed": "native",
+      "refusedCells": [
+        {
+          "adjustment": "ANCOVA",
+          "population": "ITT",
+          "reason": "section 5.2: covert change of population; the scorer refuses rather than falls back"
+        }
+      ],
+      "registeredMembers": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5",
+        "M6",
+        "M7",
+        "M8",
+        "M9",
+        "M10",
+        "M11",
+        "M12",
+        "M13",
+        "M14",
+        "M15",
+        "M16",
+        "M17",
+        "M18"
+      ],
+      "verdict": {
+        "allReject": false,
+        "alpha": 0.05,
+        "arms": [
+          "A",
+          "B"
+        ],
+        "claim": false,
+        "direction": "positive",
+        "memberCount": 18,
+        "members": [
+          "M1",
+          "M2",
+          "M3",
+          "M4",
+          "M5",
+          "M6",
+          "M7",
+          "M8",
+          "M9",
+          "M10",
+          "M11",
+          "M12",
+          "M13",
+          "M14",
+          "M15",
+          "M16",
+          "M17",
+          "M18"
+        ],
+        "negative": 0,
+        "positive": 18,
+        "rejecting": 8,
+        "rule": "intersection-union: CLAIM iff every registered member agrees in sign and every registered member rejects at two-sided alpha = 0.05 (section 5.4, section 5.9 row 4)",
+        "sign": "+",
+        "signUnanimous": true,
+        "verdict": "INDETERMINATE-BY-DISAGREEMENT",
+        "zero": 0
+      }
+    },
+    "unflagged/A-C": {
+      "alpha": 0.05,
+      "contrast": "A-C",
+      "corpus": {
+        "nativeDenominators": {
+          "excluded": {
+            "jps": 57,
+            "rego": 62
+          },
+          "included": {
+            "jps": 69,
+            "rego": 62
+          }
+        },
+        "sharedClasses": {
+          "excluded": 29,
+          "included": 33
+        },
+        "sharedDenominators": {
+          "excluded": {
+            "jps": 57,
+            "rego": 55
+          },
+          "included": {
+            "jps": 69,
+            "rego": 62
+          }
+        }
+      },
+      "dropAPole": [
+        {
+          "members": [
+            "M7",
+            "M8",
+            "M9",
+            "M10",
+            "M11",
+            "M12",
+            "M13",
+            "M14",
+            "M15",
+            "M16",
+            "M17",
+            "M18"
+          ],
+          "membersLeft": 12,
+          "poleDropped": "L1",
+          "positive": 10,
+          "rejecting": 6,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M1",
+            "M2",
+            "M3",
+            "M4",
+            "M5",
+            "M6",
+            "M13",
+            "M14",
+            "M15",
+            "M16",
+            "M17",
+            "M18"
+          ],
+          "membersLeft": 12,
+          "poleDropped": "L3",
+          "positive": 11,
+          "rejecting": 8,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M1",
+            "M2",
+            "M3",
+            "M4",
+            "M5",
+            "M6",
+            "M7",
+            "M8",
+            "M9",
+            "M10",
+            "M11",
+            "M12"
+          ],
+          "membersLeft": 12,
+          "poleDropped": "L2c",
+          "positive": 11,
+          "rejecting": 6,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M4",
+            "M5",
+            "M6",
+            "M10",
+            "M11",
+            "M12",
+            "M16",
+            "M17",
+            "M18"
+          ],
+          "membersLeft": 9,
+          "poleDropped": "engine-included",
+          "positive": 9,
+          "rejecting": 6,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M1",
+            "M2",
+            "M3",
+            "M7",
+            "M8",
+            "M9",
+            "M13",
+            "M14",
+            "M15"
+          ],
+          "membersLeft": 9,
+          "poleDropped": "engine-excluded",
+          "positive": 7,
+          "rejecting": 4,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M2",
+            "M3",
+            "M5",
+            "M6",
+            "M8",
+            "M9",
+            "M11",
+            "M12",
+            "M14",
+            "M15",
+            "M17",
+            "M18"
+          ],
+          "membersLeft": 12,
+          "poleDropped": "ITT",
+          "positive": 10,
+          "rejecting": 4,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M1",
+            "M4",
+            "M7",
+            "M10",
+            "M13",
+            "M16"
+          ],
+          "membersLeft": 6,
+          "poleDropped": "per-protocol",
+          "positive": 6,
+          "rejecting": 6,
+          "verdict": "CLAIM"
+        },
+        {
+          "members": [
+            "M1",
+            "M2",
+            "M4",
+            "M5",
+            "M7",
+            "M8",
+            "M10",
+            "M11",
+            "M13",
+            "M14",
+            "M16",
+            "M17"
+          ],
+          "membersLeft": 12,
+          "poleDropped": "adjusted",
+          "positive": 12,
+          "rejecting": 9,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        },
+        {
+          "members": [
+            "M3",
+            "M6",
+            "M9",
+            "M12",
+            "M15",
+            "M18"
+          ],
+          "membersLeft": 6,
+          "poleDropped": "unadjusted",
+          "positive": 4,
+          "rejecting": 1,
+          "verdict": "INDETERMINATE-BY-DISAGREEMENT"
+        }
+      ],
+      "members": [
+        {
+          "adjustment": null,
+          "difference": 0.13849016480595433,
+          "engine": "included",
+          "id": "M1",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L1",
+          "mde": 0.1623750522260284,
+          "method": "label permutation",
+          "n": {
+            "A": 38,
+            "B": 37,
+            "C": 39
+          },
+          "p": 0.013699315034248288,
+          "permutationCount": 273,
+          "permutations": 20000,
+          "population": "ITT",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.25426812133618426,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.04080723198370262,
+          "engine": "included",
+          "id": "M2",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L1",
+          "mde": 0.04960633175872666,
+          "method": "label permutation",
+          "n": {
+            "A": 34,
+            "B": 26,
+            "C": 28
+          },
+          "p": 0.02129893505324734,
+          "permutationCount": 425,
+          "permutations": 20000,
+          "population": "PP",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.06938308628471825,
+          "sign": 1
+        },
+        {
+          "adjustment": "ANCOVA",
+          "difference": 0.016064277516992798,
+          "engine": "included",
+          "id": "M3",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L1",
+          "mde": 0.03623454938924006,
+          "method": "whole-record permutation",
+          "n": {
+            "A": 34,
+            "B": 26,
+            "C": 28
+          },
+          "p": 0.2461884528867783,
+          "permutationCount": 984,
+          "permutations": 4000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.050680321999807175,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.15759225650332725,
+          "engine": "excluded",
+          "id": "M4",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L1",
+          "mde": 0.18477161115375645,
+          "method": "label permutation",
+          "n": {
+            "A": 38,
+            "B": 37,
+            "C": 39
+          },
+          "p": 0.013699315034248288,
+          "permutationCount": 273,
+          "permutations": 20000,
+          "population": "ITT",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.2893395863480717,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.04643581570559263,
+          "engine": "excluded",
+          "id": "M5",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L1",
+          "mde": 0.056448584415102754,
+          "method": "label permutation",
+          "n": {
+            "A": 34,
+            "B": 26,
+            "C": 28
+          },
+          "p": 0.02129893505324734,
+          "permutationCount": 425,
+          "permutations": 20000,
+          "population": "PP",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.07895316715157594,
+          "sign": 1
+        },
+        {
+          "adjustment": "ANCOVA",
+          "difference": 0.018280039933129766,
+          "engine": "excluded",
+          "id": "M6",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L1",
+          "mde": 0.04123241827051456,
+          "method": "whole-record permutation",
+          "n": {
+            "A": 34,
+            "B": 26,
+            "C": 28
+          },
+          "p": 0.2461884528867783,
+          "permutationCount": 984,
+          "permutations": 4000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.05767071124115989,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.14384831721111346,
+          "engine": "included",
+          "id": "M7",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L3",
+          "mde": 0.1816129193084843,
+          "method": "label permutation",
+          "n": {
+            "A": 38,
+            "B": 37,
+            "C": 39
+          },
+          "p": 0.02104894755262237,
+          "permutationCount": 420,
+          "permutations": 20000,
+          "population": "ITT",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.2843932929959423,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.0345596253768683,
+          "engine": "included",
+          "id": "M8",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L3",
+          "mde": 0.06718202578922651,
+          "method": "label permutation",
+          "n": {
+            "A": 34,
+            "B": 26,
+            "C": 28
+          },
+          "p": 0.15694215289235539,
+          "permutationCount": 3138,
+          "permutations": 20000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.09396575249279669,
+          "sign": 1
+        },
+        {
+          "adjustment": "ANCOVA",
+          "difference": -0.0026096820658914055,
+          "engine": "included",
+          "id": "M9",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L3",
+          "mde": 0.04371214263506369,
+          "method": "whole-record permutation",
+          "n": {
+            "A": 34,
+            "B": 26,
+            "C": 28
+          },
+          "p": 0.8882779305173707,
+          "permutationCount": 3553,
+          "permutations": 4000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.06113903722794411,
+          "sign": -1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.16940187005976481,
+          "engine": "excluded",
+          "id": "M10",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L3",
+          "mde": 0.20536569874985855,
+          "method": "label permutation",
+          "n": {
+            "A": 38,
+            "B": 37,
+            "C": 39
+          },
+          "p": 0.01654917254137293,
+          "permutationCount": 330,
+          "permutations": 20000,
+          "population": "ITT",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.3215885056980992,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.046875,
+          "engine": "excluded",
+          "id": "M11",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L3",
+          "mde": 0.0751877814013082,
+          "method": "label permutation",
+          "n": {
+            "A": 34,
+            "B": 26,
+            "C": 28
+          },
+          "p": 0.08709564521773912,
+          "permutationCount": 1741,
+          "permutations": 20000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.10516319468846387,
+          "sign": 1
+        },
+        {
+          "adjustment": "ANCOVA",
+          "difference": 0.005303724279123401,
+          "engine": "excluded",
+          "id": "M12",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L3",
+          "mde": 0.04896573435628775,
+          "method": "whole-record permutation",
+          "n": {
+            "A": 34,
+            "B": 26,
+            "C": 28
+          },
+          "p": 0.789052736815796,
+          "permutationCount": 3156,
+          "permutations": 4000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.06848709935580435,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.14633214279630458,
+          "engine": "included",
+          "id": "M13",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L2c",
+          "mde": 0.18497505299489758,
+          "method": "label permutation",
+          "n": {
+            "A": 38,
+            "B": 37,
+            "C": 39
+          },
+          "p": 0.020998950052497377,
+          "permutationCount": 419,
+          "permutations": 20000,
+          "population": "ITT",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.2896581622255786,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.031364008691580625,
+          "engine": "included",
+          "id": "M14",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L2c",
+          "mde": 0.06463439661910768,
+          "method": "label permutation",
+          "n": {
+            "A": 34,
+            "B": 26,
+            "C": 28
+          },
+          "p": 0.1991400429978501,
+          "permutationCount": 3982,
+          "permutations": 20000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.09040244982023565,
+          "sign": 1
+        },
+        {
+          "adjustment": "ANCOVA",
+          "difference": -0.0036476554160025376,
+          "engine": "included",
+          "id": "M15",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L2c",
+          "mde": 0.04324796514435574,
+          "method": "whole-record permutation",
+          "n": {
+            "A": 34,
+            "B": 26,
+            "C": 28
+          },
+          "p": 0.8395401149712571,
+          "permutationCount": 3358,
+          "permutations": 4000,
+          "population": "PP",
+          "rejects": false,
+          "seed": 11,
+          "sigma": 0.060489804242004806,
+          "sign": -1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.23231329954411006,
+          "engine": "excluded",
+          "id": "M16",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L2c",
+          "mde": 0.19046816541582218,
+          "method": "label permutation",
+          "n": {
+            "A": 38,
+            "B": 37,
+            "C": 39
+          },
+          "p": 0.0007999600019999,
+          "permutationCount": 15,
+          "permutations": 20000,
+          "population": "ITT",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.29825999702968814,
+          "sign": 1
+        },
+        {
+          "adjustment": null,
+          "difference": 0.12747251968741302,
+          "engine": "excluded",
+          "id": "M17",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L2c",
+          "mde": 0.0677726113285103,
+          "method": "label permutation",
+          "n": {
+            "A": 34,
+            "B": 26,
+            "C": 28
+          },
+          "p": 4.999750012499375e-05,
+          "permutationCount": 0,
+          "permutations": 20000,
+          "population": "PP",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.09479178912920704,
+          "sign": 1
+        },
+        {
+          "adjustment": "ANCOVA",
+          "difference": 0.09112112611984646,
+          "engine": "excluded",
+          "id": "M18",
+          "interval": null,
+          "intervalRefusal": "FAMILY-BCA-UNPINNED section 5.3 registers a BCa interval and pins neither its resample count nor its seed, and PINS.json carries no family member. Pass the pinned pair; this scorer does not choose one and does not publish an interval it invented the B for.",
+          "level": "L2c",
+          "mde": 0.04590234240229996,
+          "method": "whole-record permutation",
+          "n": {
+            "A": 34,
+            "B": 26,
+            "C": 28
+          },
+          "p": 0.00024993751562109475,
+          "permutationCount": 0,
+          "permutations": 4000,
+          "population": "PP",
+          "rejects": true,
+          "seed": 11,
+          "sigma": 0.06420241268916617,
+          "sign": 1
+        }
+      ],
+      "offsetReadingUsed": "shared",
+      "offsets": {
+        "excluded/ITT/native": -0.008051939885556202,
+        "excluded/ITT/shared": -0.048126882863724976,
+        "excluded/PP/native": -0.005668956114626762,
+        "excluded/PP/shared": -0.049220675656082354,
+        "included/ITT/native": -0.04845722300140248,
+        "included/ITT/shared": -0.04845722300140248,
+        "included/PP/native": -0.04955852352416164,
+        "included/PP/shared": -0.04955852352416164
+      },
+      "outcomeWeightingUsed": "native",
+      "refusedCells": [
+        {
+          "adjustment": "ANCOVA",
+          "population": "ITT",
+          "reason": "section 5.2: covert change of population; the scorer refuses rather than falls back"
+        }
+      ],
+      "registeredMembers": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5",
+        "M6",
+        "M7",
+        "M8",
+        "M9",
+        "M10",
+        "M11",
+        "M12",
+        "M13",
+        "M14",
+        "M15",
+        "M16",
+        "M17",
+        "M18"
+      ],
+      "verdict": {
+        "allReject": false,
+        "alpha": 0.05,
+        "arms": [
+          "A",
+          "C"
+        ],
+        "claim": false,
+        "direction": "none",
+        "memberCount": 18,
+        "members": [
+          "M1",
+          "M2",
+          "M3",
+          "M4",
+          "M5",
+          "M6",
+          "M7",
+          "M8",
+          "M9",
+          "M10",
+          "M11",
+          "M12",
+          "M13",
+          "M14",
+          "M15",
+          "M16",
+          "M17",
+          "M18"
+        ],
+        "negative": 2,
+        "positive": 16,
+        "rejecting": 10,
+        "rule": "intersection-union: CLAIM iff every registered member agrees in sign and every registered member rejects at two-sided alpha = 0.05 (section 5.4, section 5.9 row 4)",
+        "sign": "none",
+        "signUnanimous": false,
+        "verdict": "INDETERMINATE-BY-DISAGREEMENT",
+        "zero": 0
+      }
+    }
+  }
+}
