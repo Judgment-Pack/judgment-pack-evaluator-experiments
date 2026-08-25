@@ -806,8 +806,13 @@ def test_the_zero_round_block_is_a_REGISTERED_shape_and_renders():
         "0 review rounds are on the record, 0 have returned a verdict — none "
         "has returned a verdict — and no round is open.")
     block = _block()
-    assert [entry["number"] for entry in block["rounds"]] == [1]
-    assert block["rounds"][0]["state"] in render_round_status.STATES
+    # 1..N, not a frozen count: the first version said exactly [1] and went
+    # stale the day round 2 opened. The 1..N shape is the registered rule the
+    # parser refuses on; the count is the record's business.
+    numbers = [entry["number"] for entry in block["rounds"]]
+    assert numbers == list(range(1, len(numbers) + 1)) and numbers
+    for entry in block["rounds"]:
+        assert entry["state"] in render_round_status.STATES
     assert render_round_status.surface_problems(_study()) == []
 
     def _with(body):

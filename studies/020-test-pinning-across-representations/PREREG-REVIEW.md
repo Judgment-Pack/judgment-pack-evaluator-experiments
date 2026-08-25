@@ -58,6 +58,13 @@ they described).**
     "first": 1,
     "last": 23
    }
+  },
+  {
+   "number": 2,
+   "state": "awaiting-review",
+   "verdict": null,
+   "severities": null,
+   "findings": null
   }
  ]
 }
@@ -68,6 +75,7 @@ ROUND-STATE-BLOCK -->
 | Round | State | Verdict | BLOCKER | MAJOR | MINOR | Findings |
 |---|---|---|---|---|---|---|
 | 1 | complete | DO NOT FREEZE | 13 | 9 | 1 | R1-1 … R1-23 |
+| 2 | awaiting-review | — | — | — | — | — |
 
 **Round 1 opened 2026-08-24** on the filled draft (the sweep run, §2.1 filled at `low` /
 N = 60, the gate-5 extension landed, the rates published): `reviews/round-1/PROMPT.md`
@@ -93,6 +101,15 @@ exemption); R1-17's calibration instrument built complete — sealed deriver, `b
 the §2a.4(2) declaration (0.20 on the identity floor), and the freeze gate's record
 validation — with the pilot deliberately NOT run: per the finding's own remedy the completed
 instrument goes to round 2 before any pilot call. Round 2 re-reviews the responded tree.
+
+**Round 2 opened 2026-08-25** on the responded tree (all 23 round-1 dispositions written,
+the calibration instrument complete, the §2a.4(2) declaration registered):
+`reviews/round-2/PROMPT.md` committed verbatim, this block moved to `awaiting-review`, both
+front doors re-rendered. Reviewer: codex-cli 0.145.0 / gpt-5.6-sol (OpenAI), reasoning
+effort ultra, read-only sandbox, invoked over this repository checkout with the prompt's
+bytes on stdin. The round's charge: verify every disposition against the bytes it claims,
+adjudicate the three prospective rulings (R1-4, R1-9, R1-15), and review the R1-17
+instrument before any pilot call is spent.
 
 ## Dispositions
 

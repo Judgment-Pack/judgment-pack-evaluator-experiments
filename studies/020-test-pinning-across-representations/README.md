@@ -7,7 +7,7 @@ there.** [`PREREGISTRATION.md`](PREREGISTRATION.md) is the protocol;
 is the single machine-readable source for round counts, verdicts and open state (ADR 0005).
 
 <!-- round-status:begin -->
-ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 1 review round is on the record, 1 has returned a verdict — round 1 returned DO NOT FREEZE — and no round is open.
+ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 2 review rounds are on the record, 1 has returned a verdict — round 1 returned DO NOT FREEZE — and round 2 is open, awaiting the reviewer's answer.
 <!-- round-status:end -->
 
 > The sentence above is **rendered** from `PREREG-REVIEW.md`'s round-state block by
@@ -91,7 +91,9 @@ coverage is identical and only authoring validity differs**.
   registered compute condition chosen from it: **`low`, N = 60/arm** (§2.1's fill), with M-24's
   witness resolution taken on branch `gate-5-extension`.
 - [`CORRECTION-TARGETS.md`](CORRECTION-TARGETS.md) — §10's register of where a correction must
-  land, T1–T7, uncovered by design.
+  land, T1–T7. COVERED and frozen with the tree (round 1, R1-18: a precommitment the maintainer
+  may rewrite post-freeze precommits nothing); later venue/status changes land append-only in
+  [`CORRECTION-TARGETS-LOG.md`](CORRECTION-TARGETS-LOG.md), which stays outside the freeze set.
 - [`policy/POLICY.md`](policy/POLICY.md) — the frozen policy prose, ported byte-for-byte from
   Study 019. This study drafts none of its own.
 
