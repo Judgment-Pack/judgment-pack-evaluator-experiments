@@ -61,10 +61,17 @@ they described).**
   },
   {
    "number": 2,
-   "state": "awaiting-review",
-   "verdict": null,
-   "severities": null,
-   "findings": null
+   "state": "awaiting-response",
+   "verdict": "DO NOT FREEZE",
+   "severities": {
+    "BLOCKER": 11,
+    "MAJOR": 7,
+    "MINOR": 1
+   },
+   "findings": {
+    "first": 1,
+    "last": 19
+   }
   }
  ]
 }
@@ -75,7 +82,7 @@ ROUND-STATE-BLOCK -->
 | Round | State | Verdict | BLOCKER | MAJOR | MINOR | Findings |
 |---|---|---|---|---|---|---|
 | 1 | complete | DO NOT FREEZE | 13 | 9 | 1 | R1-1 … R1-23 |
-| 2 | awaiting-review | — | — | — | — | — |
+| 2 | awaiting-response | DO NOT FREEZE | 11 | 7 | 1 | R2-1 … R2-19 |
 
 **Round 1 opened 2026-08-24** on the filled draft (the sweep run, §2.1 filled at `low` /
 N = 60, the gate-5 extension landed, the rates published): `reviews/round-1/PROMPT.md`
@@ -110,6 +117,12 @@ effort ultra, read-only sandbox, invoked over this repository checkout with the 
 bytes on stdin. The round's charge: verify every disposition against the bytes it claims,
 adjudicate the three prospective rulings (R1-4, R1-9, R1-15), and review the R1-17
 instrument before any pilot call is spent.
+
+**Round 2 returned 2026-08-25, the same day: `DO NOT FREEZE`, 11 BLOCKER / 7 MAJOR /
+1 MINOR (R2-1 … R2-19)**, committed verbatim at `reviews/round-2/REVIEW.md`. The rulings:
+R1-9 and R1-15 BLESSED, R1-4 REFUSED (the §5.2 estimand question reopens — R2-2). Eleven
+round-1 dispositions verified outright; the rest carry named residuals. The pilot remains
+unspent — R2-7 through R2-13 are about the pilot machinery and must land first.
 
 ## Dispositions
 
@@ -152,3 +165,42 @@ is a finding the maintainer has not yet answered, and the round stays open until
 | R1-21 | MAJOR | CONFIRMED. The corrected table is APPENDED to `design/BRIEF.md` as a marked correction section (historical bytes untouched, per the fix's own instruction), with the ~1% budget headroom consequence stated; `CORRECTION-TARGETS.md` records the venue. |
 | R1-22 | MAJOR | CONFIRMED — the chain was clean and the prose was not, which is the worse failure for a document whose job is describing deltas. Every named cell REWRITTEN FROM THE ACTUAL DIFF: the engines row names `opa_parse_tree()` (not `opa_parse()`) and describes the three formerly "byte-identical" cells from their real inequalities; the score row's false function names and its landed/owed inversions (the reference-identity rename HAS landed; the family/threshold deltas HAD landed) are corrected; the make_manifest cell's kept-and-removed contradiction over `CORRECTION-TARGETS.md` is resolved in R1-18's covered direction; the delta-table row 11 agrees with the cell it summarizes; and the test rows publishing unequal digests no longer say byte-identical. `ownPorts` and the manifest recomputed LAST, per the finding's own instruction and ADR 0005's anchor order. The structural lesson is banked where the next port will hit it: the verifier checks digests, so prose cells are claims — this round's currency tests now read the landed-item phrases out of `PORTS.md` itself (`test_prereg_currency.py`'s landed-list updated with the amended delta-11 phrase). |
 | R1-23 | MINOR | CONFIRMED. Every named site fixed: both front-door headers defer to the rendered sentence (revision ordinals kept for the cross-check); PREREG-REVIEW's "two registered facts" recast as the opening-state history they are; README's DEVIATIONS line names the operational record; `PINS.json`'s note reads the filled design-time pins and the open round; `integrity.py`'s freeze-pin comment counts eighteen with the two-move story (model left, censusStimulusCount arrived). |
+
+## Round 2 — 2026-08-25
+
+**`DO NOT FREEZE`, 11 BLOCKER / 7 MAJOR / 1 MINOR (R2-1 … R2-19).** The verbatim review is
+`reviews/round-2/REVIEW.md`. The three prospective rulings are adjudicated in the review's own
+opening: **R1-9's amended criterion is BLESSED** (the guard does not flip to Tier D; its
+carriers and switch test still owe repair — R2-4) and **R1-15's holdout exemption is BLESSED**;
+**R1-4's hybrid estimand ruling is REFUSED** (R2-2: the hybrid reproduces §5.5's history but
+violates §5.2's own de-biasing requirement — the maintainer must pick one coherent universe or
+prospectively replace the criterion). The reviewer independently reproduced the calibration
+ladder and the declaration's pricing arithmetic to ten digits, verified eleven round-1
+dispositions outright, and reconciled every registered count it re-derived (gold 117, mutants
+183/185, off-gold 236,196 cells, sweep 27/27, ports 46 rows / 382 artifacts). It remains
+prepared to author the fresh sealed mutant set once the holdout-input and pilot/attempt
+blockers are repaired, and authored none this round. Dispositions land row by row below; a
+placeholder cell is a finding the maintainer has not yet answered, and the round stays open
+until none remains.
+
+| Finding | Severity | Disposition |
+|---|---|---|
+| R2-1 | BLOCKER | — |
+| R2-2 | BLOCKER | — |
+| R2-3 | MAJOR | — |
+| R2-4 | MAJOR | — |
+| R2-5 | BLOCKER | — |
+| R2-6 | BLOCKER | — |
+| R2-7 | BLOCKER | — |
+| R2-8 | BLOCKER | — |
+| R2-9 | BLOCKER | — |
+| R2-10 | BLOCKER | — |
+| R2-11 | BLOCKER | — |
+| R2-12 | BLOCKER | — |
+| R2-13 | BLOCKER | — |
+| R2-14 | MAJOR | — |
+| R2-15 | MAJOR | — |
+| R2-16 | MAJOR | — |
+| R2-17 | MAJOR | — |
+| R2-18 | MAJOR | — |
+| R2-19 | MINOR | — |
