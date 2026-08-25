@@ -4,11 +4,13 @@ Preregistration §10 pins, before the freeze, where a correction must land and w
 correct — verbatim wording, venue, URL, retrieval date — so that a failed, corrected, or
 retracted claim has a pre-committed place to be corrected IN, with the same prominence as
 the claim (Study 019's pattern; 019 round-7 finding R7-9 is why this is a registered,
-freeze-gated artifact rather than a declared intention). This file is **uncovered by
-design** (ADR 0004, §7 delta 11): it is written and rewritten as targets settle, so
-covering it would let the first settled target break the anchor. The pre-freeze obligation
-is enforced separately: `harness/make_manifest.py` names this file while it is absent and
-refuses `--freeze` on it.
+freeze-gated artifact rather than a declared intention). **This file FREEZES with the tree
+(round-1 finding R1-18):** its first form claimed appendability by design, and a target
+register the maintainer may rewrite after the freeze precommits nothing — the amendment the
+reviewer forced. `harness/make_manifest.py` registers it in the covered set and refuses
+`--freeze` while it is absent; post-freeze venue moves or target status changes are APPENDED
+to `CORRECTION-TARGETS-LOG.md` with their dates, and the corrections themselves land in the
+target files exactly as each row registers.
 
 The study publishes in-repository. Every venue below is a file in
 `Judgment-Pack/judgment-pack-evaluator-experiments`, referenced at `main`; URLs retrieved

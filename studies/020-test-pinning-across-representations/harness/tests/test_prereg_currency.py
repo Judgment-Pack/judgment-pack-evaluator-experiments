@@ -1800,7 +1800,10 @@ def test_no_lifecycle_note_still_calls_a_landed_item_outstanding():
                    "the freeze gate's calibration/ rule",
                    "the fresh sealed reviewer set",
                    "the empty-of-rounds review record",
-                   "CORRECTION-TARGETS.md leaves the covered set",
+                   # R1-18 amended delta 11: the register briefly LEFT the
+                   # covered set and round 1 put it back — the landed phrase
+                   # moved with the ruling.
+                   "the register is COVERED again",
                    "design/pilot/pilot_run.py deleted, not ported",
                    "the D-1 smoke restatement"):
         assert landed in ports, landed
@@ -1960,10 +1963,22 @@ def test_the_presence_idiom_numbers_agree_across_all_three_surfaces(pins):
 
 def test_the_readme_states_the_registered_question_and_the_current_state():
     """The reader-facing front door must state THIS study's question and this
-    study's state, and must not claim a review that has not happened."""
+    study's state, and must not claim a review that has not happened. The
+    state read is the BLOCK'S, not a phrase this test froze at one moment —
+    the first version hard-coded "round 1 is open" and went stale the day the
+    round completed."""
     readme = flatten(_read("README.md"))
     assert "what its accompanying test suite pins down" in readme
-    assert "round 1 is open" in readme
+    states = _block_states()
+    open_rounds = [number for number, entry in states.items()
+                   if entry["state"] != COMPLETE]
+    complete = [number for number, entry in states.items()
+                if entry["state"] == COMPLETE]
+    if open_rounds:
+        assert "round %d is open" % max(open_rounds) in readme
+    else:
+        assert complete, "no round exists and the question test read a state"
+        assert "post-round-%d" % max(complete) in readme
     for claim in ("has been reviewed", "review is complete",
                   "freezable as written"):
         assert claim not in readme.lower(), claim

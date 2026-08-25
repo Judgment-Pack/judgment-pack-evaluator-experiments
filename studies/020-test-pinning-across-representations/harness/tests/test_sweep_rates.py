@@ -214,3 +214,49 @@ def test_the_rates_section_is_in_the_published_sweep_table():
         body = handle.read()
     assert sweep_rates.RATES_HEADING in body
     assert "No kill quantity is computed" in body
+
+
+# ---------------------------------------------------------------------------
+# R1-19: the pinned evidence trees
+# ---------------------------------------------------------------------------
+
+def test_the_sweep_evidence_trees_verify_and_tampering_refuses(tmp_path):
+    """The §2.1 fill's source bytes are pinned per tree and verified byte for
+    byte; a mutated, added or deleted file under a named tree refuses, and an
+    unnamed future tree is permitted. Driven on a COPY so the real evidence
+    never moves."""
+    import shutil
+    import sys
+    sys.path.insert(0, HARNESS)
+    import integrity
+    if not os.path.isdir(os.path.join(STUDY, "sweeps")):
+        pytest.skip("no sweeps tree beside this suite")
+    clone = tmp_path / "study"
+    clone.mkdir()
+    shutil.copytree(os.path.join(STUDY, "sweeps"), clone / "sweeps")
+    (clone / "harness").mkdir()
+    shutil.copy(os.path.join(HARNESS, "PINS.json"),
+                clone / "harness" / "PINS.json")
+    verified = integrity.verify_sweep_evidence(str(clone))
+    assert "2026-08-24-effort-sweep" in verified
+    # an unnamed future tree is permitted
+    (clone / "sweeps" / "2027-01-01-effort-sweep").mkdir()
+    integrity.verify_sweep_evidence(str(clone))
+    # a mutated byte refuses
+    target = clone / "sweeps" / "2026-08-24-effort-sweep" / "SWEEP.md"
+    body = target.read_text(encoding="utf-8")
+    target.write_text(body + "tampered\n", encoding="utf-8")
+    with pytest.raises(integrity.IntegrityError, match="R1-19"):
+        integrity.verify_sweep_evidence(str(clone))
+    target.write_text(body, encoding="utf-8")
+    # an added file refuses
+    extra = clone / "sweeps" / "refused-attempt-01-leak-tokens" / "extra.txt"
+    extra.write_text("x", encoding="utf-8")
+    with pytest.raises(integrity.IntegrityError, match="R1-19"):
+        integrity.verify_sweep_evidence(str(clone))
+    extra.unlink()
+    # a deleted file refuses
+    victim = clone / "sweeps" / "refused-attempt-02-unregistered-label" / "SWEEP.md"
+    victim.unlink()
+    with pytest.raises(integrity.IntegrityError, match="R1-19"):
+        integrity.verify_sweep_evidence(str(clone))

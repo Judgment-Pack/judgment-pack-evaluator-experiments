@@ -552,8 +552,12 @@ class TheSweepRootAndTheOccupancyGate(unittest.TestCase):
         """Unlike `calibration/`, whose absence REFUSES the freeze because §2a
         registers the pilot as a precondition. Nothing registers the sweep's
         tree as one, and a gate no section states would be the harness
-        legislating."""
-        os.makedirs(os.path.join(self.root, "calibration", "pilot-001"))
+        legislating. The pilot tree is the REGISTERED shape via the shared
+        fixture, because since R1-17 the gate validates the record rather than
+        finding the directory."""
+        from pathlib import Path
+        from test_manifest import _fill_calibration
+        _fill_calibration(Path(self.root))
         self.assertEqual(make_manifest.calibration_problems(self.root), [])
         self.assertFalse(
             os.path.isdir(os.path.join(self.root, make_manifest.SWEEP_ROOT)))

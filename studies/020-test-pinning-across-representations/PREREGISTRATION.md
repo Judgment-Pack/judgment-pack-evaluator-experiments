@@ -1,8 +1,9 @@
 # Preregistration — Study 020: test pinning across representations
 
-**Status: DRAFT, first revision, under review. Not frozen. Nothing citable has run; the
-review record's state is the rendered sentence below and only there (R1-23 — this header once
-said "no review round is on the record" beside a sentence saying otherwise).** The cross-vendor review rounds will be recorded in
+**Status: DRAFT, second revision (post-round-1), under review. Not frozen. Nothing citable
+has run; the review record's state is the rendered sentence below and only there (R1-23 —
+this header once said "no review round is on the record" beside a sentence saying
+otherwise).** The cross-vendor review rounds will be recorded in
 [`PREREG-REVIEW.md`](PREREG-REVIEW.md), each verbatim under `reviews/`, and that record's
 round-state block is the single machine-readable source for round counts, verdicts and open
 state (ADR 0005). The rendered sentence below is this header's ONLY statement of them. Every
@@ -14,7 +15,7 @@ Study 019 and inherits its machinery by port** (§7); where 020 departs from 019
 is registered here rather than discovered in review.
 
 <!-- round-status:begin -->
-ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 1 review round is on the record, 1 has returned a verdict — round 1 returned DO NOT FREEZE — and round 1 is open, awaiting the maintainer's written disposition per finding.
+ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 1 review round is on the record, 1 has returned a verdict — round 1 returned DO NOT FREEZE — and no round is open.
 <!-- round-status:end -->
 
 > **On the sentence above — the gate is CLOSED.** `harness/render_round_status.py` is 019
@@ -741,6 +742,25 @@ here so a fifth cannot be discovered later: output under `calibration/<label>/`;
 count; `citable: false`; and the pin state (§2.1's design-time-resolved rule). Pilot N: **12/arm**
 (CP lower bound 0.779 on a clean sweep, from the table above).
 
+**AMENDED (round 1, R1-17) — the mode's landed spellings.** The `--calibration` mode registered
+above is the driver subcommand **`harness/batch.py pilot`**, claiming **`PIN_LABEL=PILOT`** at the
+wrapper — the registered labels are now PRIMARY, SWEEP and PILOT, and the wrapper's PILOT branch
+shares every effort rule with PRIMARY (no exemption, no threaded setting: the fourth registered
+difference is the design-time pin-state rule *applying*, not relaxing) while anchoring slots at
+`calibration/<UTC date>-pilot/arm-<ARM>/run-NNN` and stamping `citable: false`. The driver
+publishes `PILOT.json`/`PILOT.md` after every call and computes no rate; the per-arm counts are
+computed post-hoc by `harness/pilot_rates.py` through the registered scoring components (the
+§2.1 rates scope: **no kill quantity**, by construction) and published as
+`calibration/<label>/PILOT-RATES.json` — the record validated by the sealed
+`calibration/derive_floor.py`'s own `validate_record()` at publication AND at the freeze gate
+(`make_manifest.calibration_record_problems()`), so the producer and the go/no-go's consumer
+cannot drift apart. `batch.py pilot` refuses while `calibration.minimumViable` or
+`calibration.minimumViableBasis` is undeclared — §2a.4(2)'s ordering, enforced rather than
+promised — and refuses a second pilot under §2a.6's one-pilot rule. The wrapper's `PILOT` and
+`integrity.study_label()`'s `PILOT` deliberately coincide: a calibration-pilot call is a call
+under a registry whose freeze pins are null, and a state where the two spellings disagreed would
+be a pilot running after the freeze, which this section's ceremony order forbids.
+
 ### 2a.3 C2 — pin the compute condition, bind it, register what the binding proves
 
 Registered in §2.1: the pin, the wrapper flag, the `CALL.json` stamp, the witness-resolution step,
@@ -756,11 +776,26 @@ proves the derived list has power. Applied here:
    number entering**.
 2. **A minimum viable value declared in advance**, below which the study does not freeze. Under
    M-9's ruling the below-minimum branch **aborts** rather than descopes.
-   > **TODO(prereg) — the minimum viable derived value.** It is declared **before the pilot runs**
-   > and **after** the sweep fixes the compute condition, because the attainable per-arm perfect
-   > rate is condition-dependent and 019's own figure was calibrated on a population its
-   > registered condition never reproduced (§2a.1). The obligation is registered here; the number
-   > is not yet a number, and inventing one now would repeat 019's defect.
+   > **FILLED, 2026-08-25 (round 1, R1-17) — the declaration.** **`calibration.minimumViable =
+   > 0.20`, bound to the IDENTITY floor (`minimumViableBasis = "identityFloor"`)** — the
+   > maintainer's declaration, made after the sweep fixed the compute condition (§2.1: `low`)
+   > and before any pilot call, with `batch.py pilot` refusing to spend a call while the
+   > registry did not carry it. **Why the identity floor and not the perfect floor:** §5.7
+   > registers arm A's imperfection as a REPORTED RESULT (019: A 0/38 perfect), so a
+   > perfect-rate minimum over all arms would abort by design — the declaration would
+   > contradict the registration's own stance; identity-passing is what feeds the per-protocol
+   > population (§5.2), which is the instrument this gate protects. **Why 0.20:** GO requires
+   > the derived floor to reach 0.20 in every arm, which at n = 12 means **≥ 6/12**
+   > identity-passing (6/12 floors at 0.245; 5/12 floors at 0.181 and fails). Priced before
+   > the pilot: at 019's registered identity rates (A 0.895 / B 0.703 / C 0.718) the three-arm
+   > false-abort risk is ≈ 6 %, against ≈ 19 % at the next rung (≥ 7/12, min 0.30); a true
+   > rate of 1/3 — the C arm's swept n = 3 point at `low` — is caught with probability 0.82,
+   > and 1/4 with 0.95. The abort is study-death under M-9 (no descope), so the gate is set to
+   > catch COLLAPSE; thin-but-alive arms are the business of §2a.6's recomputed dispersion
+   > table, a separate pre-freeze instrument. The declared pair lives beside its provenance in
+   > `PINS.json`'s `calibration` block, is read by `calibration/derive_floor.py`'s go/no-go
+   > and by the freeze gate's record validation, and no post-batch row reads it (item 3
+   > below).
 3. **The threshold's seat is a pre-freeze go/no-go, and only that.** Under M-23 (§5.7) there is no
    author-side control gate on the batch, so no post-batch row reads this value.
 
@@ -909,7 +944,12 @@ before the freeze.**
 > detector and not a repair — and it is registered AFTER the first measurement was seen, which
 > is why it does not certify anything by itself: the re-run certification under R1-10's
 > repaired detector must meet it fresh, and round 2 must bless the criterion, before the
-> switch's `registered: true` stands. The analysis is mechanical and its inputs already exist in 019's frozen tree,
+> switch's `registered: true` stands. **The fresh run is EXECUTED (2026-08-24, recorded in
+> `harness/POWER-PRESENCE-IDIOM.md`'s re-certification section): the repaired detector
+> reproduces every certified figure exactly — 39/39, 178 uses, B 19 / C 13 with the pinned
+> set-identity digest, 0/22, 0/392, zero non-string probes in the corpus — so (i-a), (i-b)
+> and (ii) hold under the amendment, all three R1-10 defects measured latent, and only
+> round 2's blessing remains outstanding.** The analysis is mechanical and its inputs already exist in 019's frozen tree,
 so it was an obligation with a deadline rather than a hope; it has been executed and is published
 at `harness/POWER-PRESENCE-IDIOM.md`, with the numbers reprinted in the filled entry below and
 `harness/PINS.json`'s `presenceIdiomGuard` block carrying the verdict as data. (iv) was the last
@@ -943,7 +983,9 @@ test that certifies it fails, and label any assertion that cannot discriminate.
 > | **(iv) counterfactual per-member shift** | **COMPUTED** by the registered script `harness/counterfactual_shift.py` (reproduced by `harness/tests/test_counterfactual_shift.py`; full 36-row table in `harness/COUNTERFACTUAL-SHIFT.json`). The flagged set is **derived, then gated**: the script re-runs the certified detector over the 60 admitted 019 policies and refuses to publish off the certified counts — **32 of 60, arm B 19 of 30, arm C 13 of 30** (this document first printed the split as B 15 / C 17; that was unmeasured arithmetic, the gate refused it, and the correction note in `harness/POWER-PRESENCE-IDIOM.md` §(iv) records the reconciliation — every other certified figure stands). The recode is the registered one: identity false, no kill record, exactly as the other authoring codes present. **Measured effect (A–C):** every ITT member amplified (+0.168 … +0.209), every PP member attenuated (−0.031 … −0.022), PP/ANCOVA essentially unmoved (−0.008 … −0.002); exactly two α = 0.05 decisions flip, **M2 and M5** (L1/PP, both columns: p 0.0213 → 0.3483), from reject to not-reject. A–B: ITT +0.246 … +0.303, PP \|shift\| ≤ 0.011. The unflagged column reproduces Reprint 1's certified figures — to the printed digit for every point estimate and unadjusted p-value, and to the decision boundary for the six ANCOVA p-values, per §5.5's marked R1-6 scope note — pinning the script's adapter to the fixture adapter. The effect is **direction-heterogeneous by population** — ITT away from the null, PP toward it — so no single-direction story about the guard's effect is licensed. |
 > | **(v) mutation check** | Break the detector by dropping the object-type branch: flagged runs fall **39/39 → 23/39** and flagged uses 178 → 83, so condition (i) fails and the certifying measurement discriminates. Driven in CI as `harness/tests/test_score_presence_idiom.py::test_breaking_the_object_branch_makes_the_sensitivity_case_fail`. **One assertion was found not to discriminate and was rebuilt** — its first version patched a function the scan does not call — and the finding is recorded in the published analysis. |
 >
-> **Two measured ceilings are published with it**, rather than discovered later: a presence
+> **Three measured ceilings are published with it**, rather than discovered later (the third
+> — the numeric-key trap outside the non-string-probe class — added by the R1-10
+> re-certification): a presence
 > test over a FUNCTION PARAMETER is not detected (2 runs of the 76, both non-perfect, so the
 > semantic class may be 42 rather than 40 — the analysis does not count them, because moving
 > the boundary after seeing which side the runs fell on is the choice §5.2's admission test
@@ -1699,7 +1741,10 @@ included.**
     door because 020's policy prose is ported frozen rather than drafted here. The first act of the
     port is `--write`, which replaces this document's hand-written sentence with a rendered one.
 11. **`DEVIATIONS.md` is outside the freeze set** — carried from Study 018's lesson and from ADR
-    0004's rule, with an asserting test.
+    0004's rule, with an asserting test. (R1-18 settled a claim made in this delta's name that
+    this text never carried: `CORRECTION-TARGETS.md` is COVERED and freezes with the tree — §10's
+    amended sentence governs — and only `CORRECTION-TARGETS-LOG.md` shares `DEVIATIONS.md`'s
+    appendable status.)
 12. **`design/pilot/pilot_run.py` is deleted, not ported** (§2a.2).
 13. **D-1's smoke is restated** as *"a real exec at the registered prompt bytes, stand-in binary
     permitted"* — D-1's failure was `/usr/bin/env: Argument list too long` at `exec`, which a
@@ -1810,7 +1855,11 @@ truth resembles 019, Tier C returns INDETERMINATE" as a *planned*, not a disappo
 document **`CORRECTION-TARGETS.md`**, in Study 019's pattern (019 round-7 finding R7-9: the obligation
 was once declared in a publication section and enforced nowhere, so the ceremony could complete
 without it). It is named in `harness/make_manifest.py`, **which names it while it is absent and
-refuses `--freeze` on it**, and the freeze runbook carries the step that lands it. `GATE(pre-freeze)`.
+refuses `--freeze` on it**, and the freeze runbook carries the step that lands it. **AMENDED
+2026-08-24 (R1-18): the register is COVERED by the exact-set manifest and freezes with the
+tree** — its first registration excluded it as appendable, and a precommitment the maintainer
+may rewrite post-freeze precommits nothing; post-freeze venue or status changes append to
+`CORRECTION-TARGETS-LOG.md`, which is the appendable half. `GATE(pre-freeze)`.
 020's targets must include, at minimum: the R1 verdict sentence `ANALYSIS.md` will publish (quoted
 verbatim from the scorer's published `verdict` member, whose vocabulary is the closed
 CLAIM / INDETERMINATE-BY-DISAGREEMENT pair plus §5.9's gate rows); the study-index and repo-root index

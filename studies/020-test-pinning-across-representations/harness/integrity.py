@@ -190,9 +190,11 @@ NEW_IN_020 = frozenset((
     "harness/counterfactual_shift.py",
     "harness/e4lib/family.py",
     "harness/e4lib/presence_idiom.py",
+    "harness/pilot_rates.py",
     "harness/sweep_rates.py",
     "harness/tests/test_counterfactual_shift.py",
     "harness/tests/test_family.py",
+    "harness/tests/test_pilot.py",
     "harness/tests/test_score_presence_idiom.py",
     "harness/tests/test_score_reviewer_integration.py",
     "harness/tests/test_sweep.py",
@@ -1171,6 +1173,47 @@ def verify_manifest(study: str = STUDY, pins: dict = None) -> str:
     return "sha256:" + actual
 
 
+def verify_sweep_evidence(study: str = STUDY, pins: dict = None) -> dict:
+    """ROUND-1 FINDING R1-19: the §2.1 fill's evidence — the sweep's ledgers,
+    rates, slot records and the two refused invocations — is PINNED per tree
+    in `sweep.evidenceTrees` and verified here byte for byte. `sweeps/` stays
+    outside the exact-set manifest (a future sweep must be writable), so the
+    pinned trees are what makes the registration event's source bytes
+    tamper-evident: a mutated, added or deleted file under a NAMED tree
+    refuses, and a future unnamed tree is permitted by not being named."""
+    if pins is None:
+        with open(os.path.join(study, "harness", "PINS.json"), "rb") as handle:
+            pins = json.loads(handle.read().decode("utf-8"))
+    trees = dict((pins.get("sweep") or {}).get("evidenceTrees") or {})
+    trees.pop("rule", None)
+    verified = {}
+    for name in sorted(trees):
+        root = os.path.join(study, "sweeps", name)
+        if not os.path.isdir(root):
+            raise IntegrityError(
+                "sweep evidence tree sweeps/%s is pinned and absent: the "
+                "bytes the §2.1 fill was chosen from must stay on the record "
+                "(R1-19)" % name)
+        lines = []
+        for dirpath, dirnames, filenames in os.walk(root):
+            dirnames.sort()
+            for filename in sorted(filenames):
+                path = os.path.join(dirpath, filename)
+                with open(path, "rb") as handle:
+                    lines.append("%s %s" % (
+                        os.path.relpath(path, root),
+                        hashlib.sha256(handle.read()).hexdigest()))
+        digest = hashlib.sha256("\n".join(lines).encode("utf-8")).hexdigest()
+        pinned = str(trees[name]).replace("sha256:", "")
+        if digest != pinned:
+            raise IntegrityError(
+                "sweep evidence tree sweeps/%s hashes to sha256:%s, not the "
+                "pinned sha256:%s: a byte of the §2.1 fill's evidence moved "
+                "(R1-19)" % (name, digest, pinned))
+        verified[name] = "sha256:" + digest
+    return verified
+
+
 def verify(study: str = STUDY, nineteen: str = NINETEEN,
            label_context: str = None) -> dict:
     """Everything this port can establish, in the registered order: no
@@ -1187,12 +1230,14 @@ def verify(study: str = STUDY, nineteen: str = NINETEEN,
                                         chain["study019Pins"])
     interpreter = verify_interpreter(chain["pins"])
     manifest = verify_manifest(study, chain["pins"])
+    sweep_evidence = verify_sweep_evidence(study, chain["pins"])
     label = study_label(chain["pins"], label_context)
     return {"portedFiles": sorted(row[2] for row in chain["rows"]),
             "portedArtifacts": artifacts["portedArtifacts"],
             "study019LockSha256": "sha256:" + chain["study019LockSha256"],
             "study019PortsSha256": "sha256:" + chain["study019PortsSha256"],
             "studyManifest": manifest,
+            "sweepEvidence": sweep_evidence,
             "label": label,
             "labelContext": label_context,
             "unfilledPins": unfilled_pins(chain["pins"], label_context),

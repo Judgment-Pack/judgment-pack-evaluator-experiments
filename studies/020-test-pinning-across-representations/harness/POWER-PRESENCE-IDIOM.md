@@ -166,7 +166,7 @@ the conservative choice for a detector whose output is an authoring code.
 
 ---
 
-## Two measured ceilings, stated here and not discovered later
+## Two measured ceilings, stated here and not discovered later — and a third, added by the R1-10 re-certification above
 
 1. **Presence tests over a FUNCTION PARAMETER are not detected — 2 runs.**
    `B run-023` and `C run-040` both write
@@ -190,6 +190,42 @@ the conservative choice for a detector whose output is an authoring code.
 which is a registered ceiling of the guard rather than a finding of this
 analysis: arm A's format has no analogous single-operator trap on this surface,
 and arm A's own near-miss profile in 019 stands unexplained by this mechanism.
+
+---
+
+## Re-certification under the repaired detector — round-1 findings R1-9 and R1-10, executed 2026-08-24
+
+Round 1 found two false negatives and one false positive outside the disclosed ceilings
+(R1-10), and ruled the original 40/40 kill-switch condition literally unmeetable by an
+admission-level detector (R1-9; the maintainer amended the criterion prospectively, pending
+round-2 review). The detector was repaired — a probe bound statically to a string literal is
+the trap (`k := "riskScore"; k in input.vendor` flags); a dynamic reference tail bound
+statically to a string resolves (`member := "vendor"; "riskScore" in input[member]` flags); a
+non-string scalar probe is lawful VALUE membership (`5 in {"x": 5}` no longer zero-scores a
+correct policy) — and the full census was RE-EXECUTED over Study 019's corpus with the pinned
+binary and the repaired module:
+
+| quantity | certified | re-executed |
+|---|---|---|
+| parseable flagged | 39/39 | **39/39** |
+| flagged uses | 178 | **178** |
+| admitted flagged (B/C) | 19/13, digest `759b0ddc…` | **19/13, digest match** |
+| (ii) perfect runs flagged | 0/22 | **0/22** |
+| (iii) lawful uses | 392 | **392** |
+| unclassified | 29 | **29** |
+| non-string probes in corpus | — | **0 of 599** |
+
+Every certified figure reproduces exactly: all three defects were LATENT on this corpus (probe
+census 351 `var` / 248 `string`, zero number or boolean), so the repairs move adversarial
+constructions only. The amended criterion is met by the re-run — (i-a) 32/32 admitted flagged
+with the pinned set-identity digest, (i-b) 40/40 in-class runs coded, (ii) 0/22 — and the
+switch's `registered: true` stands PENDING round 2's blessing of the amendment.
+
+**The third measured ceiling, named with the first two:** a non-string probe over an object is
+outside the guard's certified class, so the NUMERIC-KEY trap (`5 in {5: "x"}` — Rego object
+keys may be numbers) is not detected. Measured: zero non-string probes anywhere in the
+corpus. The adversarial constructions are pinned in
+`harness/tests/test_score_presence_idiom.py`'s three R1-10 cases, each mutation-checked.
 
 ---
 

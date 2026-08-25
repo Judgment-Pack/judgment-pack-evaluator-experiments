@@ -325,6 +325,14 @@ CALIBRATION_MODES = ("sweep", "pilot")
 PILOT_RUNS_PER_ARM = 12           # §2a.2: "Pilot N: 12/arm"
 # §2a.2's third registered difference, stamped into every calibration record.
 CALIBRATION_CITABLE = False
+# ROUND-1 FINDING R1-17: the pilot mode's own spellings, beside the sweep's.
+# The cap is DERIVED exactly as the sweep's is — the registered per-arm count
+# times the arms (`ARMS` is defined below; the product is spelled at its use
+# in `pilot_schedule()` so this block stays before the arms without a forward
+# reference).
+PILOT_LABEL_SUFFIX = "-pilot"
+PILOT_LEDGER_NAME = "PILOT.json"
+PILOT_TABLE_NAME = "PILOT.md"
 LEDGER_NAME = "BATCH.json"
 # Change 9: a REGISTERED CONSTANT and not a `mkstemp` name. A constant is a
 # destination a static reader of this file can resolve, which is what lets
@@ -409,6 +417,11 @@ ARMS = ("A", "B", "C")
 WILLIAMS_FIRST_ROW = ("A", "B", "C")
 POSITIONS = len(ARMS)
 SEQUENCES = 2 * POSITIONS  # six: the three cyclic rows and those three reversed
+# R1-17: the pilot's call cap, derived from §2a.2's 12/arm and the arms —
+# spelled here because `ARMS` is, and checked against the registry's
+# `calibration.pilotPerArm` in `pilot_preflight()` exactly as the sweep's cap
+# is checked against `sweep.callCap`.
+PILOT_CALL_CAP = POSITIONS * PILOT_RUNS_PER_ARM
 # §7 DELTA 7: THE SCHEDULE IS RE-DERIVED AT THE REGISTERED ROUND COUNT, AND
 # THIS FILE HOLDS NO ROUND COUNT OF ITS OWN.
 #
@@ -1723,19 +1736,32 @@ def preflight(entries: list, slots: list, scratch_parent: str, pins_path: str,
 
 # --- D3: the call ------------------------------------------------------------
 
-# NEW IN 020 (§2.1, M-25). The two labels a call can be made under, and the
-# whole of the sweep exemption's surface on this side. `PRIMARY` is every
-# registered call; `SWEEP` is the pre-pilot effort sweep, whose calls are
-# `citable: false`, outside every population, and exempt from the
-# `codex.reasoningEffort` null check because the sweep is what RESOLVES it.
+# NEW IN 020 (§2.1, M-25; §2a.2, round-1 finding R1-17). The three labels a
+# call can be made under. `PRIMARY` is every registered call; `SWEEP` is the
+# pre-pilot effort sweep, whose calls are `citable: false`, outside every
+# population, and exempt from the `codex.reasoningEffort` null check because
+# the sweep is what RESOLVES it; `PILOT` is §2a.2's pre-freeze calibration
+# pilot — `citable: false` like the sweep, but with NO exemption: the pilot
+# runs AFTER the sweep fixed the compute condition, so its pin state is the
+# primary batch's design-time state exactly (§2a.2's fourth registered
+# difference is the pin state RULE, not a relaxation of it).
+#
+# ONE WORD, TWO RULES, DELIBERATELY COINCIDENT: `integrity.study_label()` also
+# says "PILOT", meaning "a run under a registry with any label-rule pin null".
+# The calibration pilot runs pre-freeze, when every freeze pin is null by
+# construction, so a `PIN_LABEL=PILOT` call IS a `study_label() == "PILOT"`
+# run — the two spellings assert the same fact from two sides, and a state
+# where they disagreed (a PIN_LABEL=PILOT call under a fully-filled registry)
+# is a pilot running after the freeze, which §2a's ceremony order forbids.
 #
 # It is a driver ARGUMENT and not an inherited environment variable:
 # `invoke()` sets `PIN_LABEL` unconditionally, so an operator's stray
 # `PIN_LABEL=SWEEP` in a shell cannot reach the wrapper. Running the sweep
 # outside the harness is the 019 failure exactly (§2a.1), and a label a shell
 # could supply would be the same hole wearing a new name.
-PIN_LABELS = ("PRIMARY", "SWEEP")
+PIN_LABELS = ("PRIMARY", "SWEEP", "PILOT")
 SWEEP_LABEL = "SWEEP"
+PILOT_PIN_LABEL = "PILOT"
 # The environment member the sweep's per-call SETTING travels in. It is not part
 # of Study 011's four-member contract and it is not a fifth general one: it is
 # legal under one label, it is set unconditionally by `invoke()` exactly as
@@ -1810,12 +1836,13 @@ def invoke(slot: str, scratch_parent: str, pins_path: str, cli_override: str,
     """(wrapper exit status, refusal code or None, stderr) for one call.
 
     `arm` and `arm_prompt_path` are the wrapper's two arm arguments, inserted
-    before the optional binary: the wrapper writes into the arm's slot tree — and
-    refuses a slot path that is not `arms/<ARM>/authoring/` — and stamps `arm`
-    and `armPromptSha256` into CALL.json, so an arm mismatch is a per-slot check
-    against retained bytes rather than a claim about this driver's bookkeeping.
-    The probe calls pass the wrapper's registered no-arm literal and the probe
-    prompt's own path.
+    before the optional binary: the wrapper writes into the label's slot tree —
+    `arms/<ARM>/authoring/` under PRIMARY, the sweep's registered anchor under
+    SWEEP, `calibration/<label>/arm-<ARM>/` under PILOT, refusing any other
+    path — and stamps `arm` and `armPromptSha256` into CALL.json, so an arm
+    mismatch is a per-slot check against retained bytes rather than a claim
+    about this driver's bookkeeping. The probe calls pass the wrapper's
+    registered no-arm literal and the probe prompt's own path.
 
     `golden_sha256` is the digest `require_golden()` verified at preflight; the
     wrapper stamps it into the slot's CALL.json, so the scorer can check the
@@ -4441,6 +4468,287 @@ def _publish_sweep(root: str, label: str, pins_path: str, pins: dict, n: int,
     return published
 
 
+# --- §2a.2: the pre-freeze calibration pilot (round-1 finding R1-17) ---------
+#
+# THE OWED HALF OF SCAFFOLD S5. §2a.2 registers a pilot that runs through
+# `authoring_call.sh` and THIS driver — `design/pilot/pilot_run.py` is deleted,
+# not ported — with the differences from the primary batch enumerated as
+# exactly four: output under `calibration/<label>/`, the pilot slot count,
+# `citable: false`, and the pin state. Everything else is the batch's own
+# machinery: the same wrapper, the same prompt-digest gate, the same registry,
+# the same never-rewrite-a-slot rule, and the registry's `codex.reasoningEffort`
+# with NO exemption, because the sweep has already resolved it.
+#
+# WHAT THIS MODE DOES NOT DO, exactly as the sweep mode does not: it computes
+# no rate and fills no pin. `harness/pilot_rates.py` computes the per-arm
+# counts through the registered scoring components afterwards, and
+# `calibration/derive_floor.py` — sealed BEFORE any call here — derives the
+# go/no-go from those counts against the maintainer's pre-declared
+# `calibration.minimumViable`. §2a.4(2)'s ordering is enforced at this
+# driver's preflight: no pilot call is made while the declaration is null,
+# because a value declared after the counts exist is 019's defect again.
+
+
+def pilot_label(when=None) -> str:
+    """`<UTC date>-pilot`, the pilot's dated directory name under
+    `calibration/`. A DATE, like the sweep's, and for the same reason: §2a.6's
+    one-pilot rule makes a second pilot a DEVIATIONS.md event, never a second
+    directory quietly beside the first."""
+    day = when or datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+    return "%s%s" % (day, PILOT_LABEL_SUFFIX)
+
+
+def pilot_slot_path(label: str, arm: str, run_index: int) -> str:
+    """`calibration/<label>/arm-<ARM>/run-NNN`, absolute. The wrapper
+    recomputes this shape from the registry's `calibration.root` and refuses a
+    slot that is not it, so this is the driver's half of an agreement."""
+    if arm not in ARMS:
+        raise BatchError("%r is not one of this study's arms %s"
+                         % (arm, ", ".join(ARMS)))
+    return os.path.join(calibration_root(label), "arm-%s" % arm,
+                        "run-%03d" % run_index)
+
+
+def pilot_schedule(per_arm: int = PILOT_RUNS_PER_ARM) -> list:
+    """The pilot's calls: ARM-INTERLEAVED, A FIRST, sequential — the sweep's
+    order at the pilot's size. The pilot has no abort rule to feed (§2a.4's
+    go/no-go reads the RATES, after the calls), so the interleaving buys
+    something smaller but real: a pilot killed mid-run has spent its loss
+    evenly across arms instead of exhausting A before B exists."""
+    if per_arm < 1:
+        raise BatchError("the pilot runs at least one call per arm")
+    entries, index = [], 0
+    for run_index in range(1, per_arm + 1):
+        for arm in ARMS:                      # ("A", "B", "C") — A first
+            index += 1
+            entries.append({"arm": arm, "runIndex": run_index,
+                            "indexWithinPilot": index})
+    return entries
+
+
+def pilot_preflight(label: str, slots: list, scratch_parent: str,
+                    pins_path: str, cli_override: str) -> dict:
+    """Everything checkable before the pilot's first call.
+
+    The list is the sweep's preflight MINUS the sweep's own relaxations and
+    PLUS §2a's ordering gates, each of which is a registered sentence:
+
+    * **The declaration precedes the pilot** (§2a.4(2)): `calibration
+      .minimumViable` and `.minimumViableBasis` must be FILLED, because a
+      minimum declared after the counts exist is chosen, not declared.
+    * **The deriver precedes the pilot** (§2a.4(1)): `calibration/
+      derive_floor.py` must be on disk — "committed and sealed before the
+      pilot runs".
+    * **No exemption** (§2a.2's fourth difference): every design-time pin is
+      checked, `codex.reasoningEffort` included, because the sweep has
+      resolved it and the pilot claiming the sweep's exemption would be a
+      pilot running at an unpinned condition.
+    * **One pilot** (§2a.6): a filled `calibration.label`, or any existing
+      directory under `calibration/`, is a pilot that has already run — the
+      re-pilot branch is a DEVIATIONS.md entry naming the reason, and this
+      driver refuses rather than opening it."""
+    verify_ported_bytes()
+    if not slots:
+        raise BatchError("a pilot needs at least one call")
+    if len(slots) > PILOT_CALL_CAP:
+        raise BatchError(
+            "this pilot plans %d calls and §2a.2 registers %d/arm — %d in "
+            "all: the count is one of the four registered differences and is "
+            "not raised without a DEVIATIONS.md entry"
+            % (len(slots), PILOT_RUNS_PER_ARM, PILOT_CALL_CAP))
+    if not os.path.isfile(SCRIPT):
+        raise BatchError("no authoring wrapper at %s" % SCRIPT)
+    if not os.path.isdir(scratch_parent):
+        raise BatchError("scratch parent %s is not a directory" % scratch_parent)
+    require_canonical_registry(pins_path)
+    pins = _load_json(pins_path)
+    calibration = pins.get("calibration") or {}
+    for member, expected, what in (
+            ("pilotPerArm", PILOT_RUNS_PER_ARM,
+             "§2a.2's registered per-arm count"),
+            ("root", os.path.basename(CALIBRATION_ROOT),
+             "the calibration subtree's name")):
+        if calibration.get(member) != expected:
+            raise BatchError(
+                "harness/PINS.json's calibration.%s is %r and this driver's "
+                "constant for %s is %r: the two are one registration in two "
+                "places, and a pilot is not run under a disagreement about "
+                "what it is" % (member, calibration.get(member), what, expected))
+    for member in ("minimumViable", "minimumViableBasis"):
+        if not integrity.pin_is_filled(calibration.get(member)):
+            raise BatchError(
+                "harness/PINS.json's calibration.%s is null: §2a.4(2) declares "
+                "the minimum viable value BEFORE the pilot runs and AFTER the "
+                "sweep fixes the compute condition — a minimum read off the "
+                "pilot's own counts is 019's calibration defect again, so no "
+                "pilot call is made until the declaration is in the registry"
+                % member)
+    deriver = os.path.join(CALIBRATION_ROOT, "derive_floor.py")
+    if not os.path.isfile(deriver):
+        raise BatchError(
+            "calibration/derive_floor.py is absent: §2a.4(1) seals the "
+            "threshold deriver BEFORE the pilot runs, so its absence refuses "
+            "the pilot exactly as it refuses the freeze")
+    if integrity.pin_is_filled(calibration.get("label")):
+        raise BatchError(
+            "harness/PINS.json's calibration.label is %r: a filled label is a "
+            "pilot that has run, and §2a.6's one-pilot rule makes a second "
+            "one a DEVIATIONS.md entry naming the reason — this driver does "
+            "not open that branch" % calibration.get("label"))
+    if os.path.isdir(CALIBRATION_ROOT):
+        prior = sorted(entry for entry in os.listdir(CALIBRATION_ROOT)
+                       if os.path.isdir(os.path.join(CALIBRATION_ROOT, entry)))
+        if prior:
+            raise BatchError(
+                "calibration/ already holds %s: §2a.6 registers ONE pilot, "
+                "sealed, and a second needs a DEVIATIONS.md entry naming the "
+                "reason — with the derived threshold then the MAXIMUM over "
+                "all pilots and the bands the tightest" % ", ".join(prior))
+    unfilled = design_time_unfilled(pins, "pilot")
+    if unfilled:
+        raise BatchError(
+            "harness/PINS.json leaves these design-time pins null: %s. The "
+            "pilot has NO exemption — §2.1's is one value and one LABEL wide, "
+            "the sweep's own — because the sweep has already resolved the "
+            "effort, and a pilot at an unpinned condition is 019's pilot "
+            "again" % ", ".join(sorted(unfilled)))
+    for arm in ARMS:
+        path, pinned = arm_prompt(pins, arm)
+        if not os.path.isfile(path):
+            raise BatchError("arm %s's prompt is missing from %s"
+                             % (arm, os.path.relpath(path, STUDY)))
+        actual = _digest(path)
+        if not _matches(actual, pinned):
+            raise BatchError(
+                "arm %s's prompt is %s, not the pinned %s: no pilot call is "
+                "made with bytes that are not the arm's" % (arm, actual, pinned))
+    if cli_override is not None:
+        if not os.path.isfile(cli_override):
+            raise BatchError("no CLI at %s" % cli_override)
+        override_digest = _digest(cli_override)
+        if not _matches(override_digest, pins["codex"]["binarySha256"]):
+            raise BatchError("the CLI at %s is %s, not the pinned %s"
+                             % (cli_override, override_digest,
+                                pins["codex"]["binarySha256"]))
+    if os.path.exists(ATTEMPT_ROOT):
+        raise BatchError(
+            "%s exists: a pilot is a call, and no call is made after a rate "
+            "has been computed" % os.path.relpath(ATTEMPT_ROOT, STUDY))
+    require_lawful_destination(calibration_root(label), "the pilot root")
+    existing = [os.path.relpath(slot, STUDY) for slot in slots
+                if os.path.lexists(slot)]
+    if existing:
+        raise BatchError("these pilot slots already exist and are never "
+                         "rewritten: %s" % ", ".join(existing))
+    return pins
+
+
+def run_pilot(scratch_parent: str, pins_path: str, cli_override: str,
+              label: str = None, dry_run: bool = False) -> int:
+    """§2a.2's pre-freeze calibration pilot, end to end.
+
+    Sequential — never parallel, the batch's contention argument — and
+    arm-interleaved with A first. `PIN_LABEL=PILOT`, no effort threaded: the
+    call runs the registry's `codex.reasoningEffort` or it does not run.
+    Published after every call, so a pilot killed mid-run has published what
+    it spent.
+
+    A refused call does not stop the pilot and is not re-spent: the rates
+    denominator is the registered 12/arm whatever each call did, so a refusal
+    is a slot that will score as its code rather than a call to make again —
+    re-spending it would move the denominator §2a.1's table prices."""
+    label = label or pilot_label()
+    planned = [(entry, pilot_slot_path(label, entry["arm"], entry["runIndex"]))
+               for entry in pilot_schedule()]
+    pins = pilot_preflight(label, [slot for _entry, slot in planned],
+                           scratch_parent, pins_path, cli_override)
+    if dry_run:
+        print("pilot %s: %d calls (%d/arm), arm-interleaved, A first"
+              % (label, len(planned), PILOT_RUNS_PER_ARM))
+        for entry, slot in planned:
+            print("  %s run-%03d  %s" % (entry["arm"], entry["runIndex"],
+                                         os.path.relpath(slot, STUDY)))
+        return 0
+    root = calibration_root(label)
+    calls = []
+    for entry, slot in planned:
+        if len(calls) >= PILOT_CALL_CAP:
+            raise BatchError(
+                "the pilot has spent its registered %d calls and the next "
+                "would be number %d" % (PILOT_CALL_CAP, len(calls) + 1))
+        path, _pinned = arm_prompt(pins, entry["arm"])
+        started = time.monotonic()
+        status, code, stderr = invoke(
+            slot, scratch_parent, pins_path, cli_override, "registered",
+            entry["arm"], path, pin_label=PILOT_PIN_LABEL)
+        duration = time.monotonic() - started
+        session = os.path.join(slot, "session.jsonl")
+        call = dict(entry)
+        call.update({
+            "slot": os.path.relpath(slot, STUDY),
+            "durationSeconds": round(duration, 3),
+            "wrapperExit": status,
+            "code": code,
+            "timedOut": code == WRAPPER_CODES.get(12),
+            "completionBytes": _completion_bytes(slot),
+            "reasoningOutputTokens": reasoning_output_tokens(session),
+            "sessionRetained": os.path.isfile(session),
+            "citable": False,
+            "stderrTail": (stderr or "")[-STDERR_TAIL:] if code else None,
+        })
+        calls.append(call)
+        _publish_pilot(root, label, pins, calls)
+    print("pilot %s: %d calls under %s, published under %s (citable: false). "
+          "Next: harness/pilot_rates.py --label %s --write, then "
+          "calibration/derive_floor.py --record %s"
+          % (label, len(calls), PILOT_PIN_LABEL, os.path.relpath(root, STUDY),
+             label, os.path.join(os.path.relpath(root, STUDY),
+                                 "PILOT-RATES.json")))
+    return 0
+
+
+def _publish_pilot(root: str, label: str, pins: dict, calls: list) -> None:
+    """Rewrite `PILOT.json` and `PILOT.md` with every call so far — the whole
+    pilot on disk after every call, never a fragment plus an assumption."""
+    body = {
+        "record": calibration_record("pilot", label, pins),
+        "callsMade": len(calls),
+        "callsRegistered": PILOT_CALL_CAP,
+        "citable": False,
+        "ratesStep": "harness/pilot_rates.py computes the per-arm counts "
+                     "through the registered scoring components; this driver "
+                     "computes no rate and fills no pin",
+        "calls": calls,
+    }
+    os.makedirs(root, exist_ok=True)
+    _write_json(os.path.join(root, PILOT_LEDGER_NAME), body)
+    with open(os.path.join(root, PILOT_TABLE_NAME), "w") as handle:
+        handle.write(render_pilot_table(body))
+
+
+def render_pilot_table(body: dict) -> str:
+    lines = [
+        "# Pre-freeze calibration pilot — %s" % body["record"]["label"],
+        "",
+        "**citable: false — outside every population (§2a.2).** %d of %d "
+        "registered calls made." % (body["callsMade"], body["callsRegistered"]),
+        "",
+        "| # | arm | run | duration (s) | code | completion bytes |",
+        "|---|-----|-----|--------------|------|------------------|",
+    ]
+    for call in body["calls"]:
+        lines.append("| %d | %s | %03d | %.1f | %s | %s |" % (
+            call["indexWithinPilot"], call["arm"], call["runIndex"],
+            call["durationSeconds"], call["code"] or "—",
+            call["completionBytes"] if call["completionBytes"] is not None
+            else "—"))
+    lines.append("")
+    lines.append("Rates are computed by `harness/pilot_rates.py` and the "
+                 "go/no-go by `calibration/derive_floor.py`; this table "
+                 "records calls, not rates.")
+    lines.append("")
+    return "\n".join(lines)
+
 
 # --- §7 delta 6: the registered label rule's design-time half ---------------
 #
@@ -4736,6 +5044,18 @@ USAGE = (
     "SWEEP.json and SWEEP.md, citable: false and outside every population.\n"
     "--settings names a SUBSET of the registered three (a resumed or a\n"
     "single-setting run); it cannot introduce a fourth.\n"
+    "       batch.py pilot --scratch-parent DIR [--pins PATH]\n"
+    "                    [--cli-override PATH] [--label NAME] [--dry-run]\n"
+    "\n"
+    "pilot is PREREGISTRATION.md §2a.2's pre-freeze calibration pilot: 12/arm\n"
+    "= 36 calls, sequential, arm-interleaved with A first, under\n"
+    "PIN_LABEL=PILOT at the registry's pinned effort (no exemption), into\n"
+    "calibration/<label>/arm-<ARM>/run-NNN, published after every call as\n"
+    "PILOT.json and PILOT.md, citable: false and outside every population.\n"
+    "It refuses while calibration.minimumViable is undeclared (section\n"
+    "2a.4(2)) and refuses a second pilot (section 2a.6). Rates come from\n"
+    "harness/pilot_rates.py afterwards; the go/no-go from\n"
+    "calibration/derive_floor.py.\n"
     "       batch.py derive-schedule --rounds N\n"
     "\n"
     "--pins names a registry only under the stand-in study of the harness\n"
@@ -4744,7 +5064,7 @@ USAGE = (
     "(round-10 finding R10-1).")
 
 COMMANDS = ("plan", "run", "capture", "capture-golden",
-            "capture-isolation-negative", "shortfall", "sweep",
+            "capture-isolation-negative", "shortfall", "sweep", "pilot",
             "derive-schedule")
 
 # Flags a command line may still carry from an earlier driver, each removed by a
@@ -4846,6 +5166,14 @@ def main(argv: list) -> int:
                              _argument(argv, "--label"),
                              [name.strip() for name in named.split(",")
                               if name.strip()] if named else None,
+                             "--dry-run" in argv)
+        if command == "pilot":
+            scratch_parent = _argument(argv, "--scratch-parent")
+            if scratch_parent is None:
+                raise BatchError("--scratch-parent is required")
+            return run_pilot(scratch_parent, pins_path,
+                             _argument(argv, "--cli-override"),
+                             _argument(argv, "--label"),
                              "--dry-run" in argv)
         if command == "capture-golden":
             slots_dir = _argument(argv, "--slots")

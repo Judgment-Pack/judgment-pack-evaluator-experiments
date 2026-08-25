@@ -322,6 +322,71 @@ def _same(left, right) -> bool:
     return json.dumps(left, sort_keys=True) == json.dumps(right, sort_keys=True)
 
 
+def _ref_path_resolved(term, bound):
+    """R1-10(b): `_ref_path()` with statically-bound var tail elements
+    resolved through the bindings map. Returns the static path, or None when
+    any element stays dynamic."""
+    if not isinstance(term, dict) or term.get("type") != "ref":
+        return None
+    parts = term.get("value") or []
+    path = []
+    for index, part in enumerate(parts):
+        if not isinstance(part, dict):
+            return None
+        if part.get("type") == "var":
+            name = part.get("value")
+            if index == 0:
+                path.append(name)
+                continue
+            binding = bound.get(name) if bound else None
+            if isinstance(binding, dict) and binding.get("type") == "string":
+                path.append(binding.get("value"))
+                continue
+            return None
+        if part.get("type") == "string":
+            path.append(part.get("value"))
+            continue
+        return None
+    return tuple(path)
+
+
+def _string_probe(term, bound, depth=0):
+    """R1-10(a) and (c) in one predicate: is this probe a STRING presence
+    probe — a string literal, or a name statically bound to one?
+
+    Two registered narrowings over the first implementation, each measured on
+    the certification corpus before adoption (probe census there:
+    351 var / 248 string, zero number or boolean):
+
+    - (a) a var bound to a string literal IS a probe (`k := "riskScore";
+      k in input.vendor` is M-14 with one extra line, and the first
+      implementation called it lawful before resolving the binding);
+    - (c) a NON-STRING scalar (number, boolean) is NOT in the guard's
+      certified class: `5 in {"x": 5}` is lawful value membership over an
+      object's values, and flagging it zero-scored a correct policy. The
+      numeric-key trap (`5 in {5: "x"}`) is therefore OUTSIDE the guard —
+      §3.2 registers it as the third measured ceiling rather than guessing
+      at key sets statically.
+    """
+    if depth > ALIAS_DEPTH or not isinstance(term, dict):
+        return False
+    kind = term.get("type")
+    if kind == "string":
+        return True
+    if kind == "var":
+        name = term.get("value")
+        binding = bound.get(name) if bound else None
+        if binding is not None:
+            return _string_probe(binding, bound, depth + 1)
+        return False
+    if kind == "ref":
+        path = _ref_path(term)
+        if path is not None and len(path) == 1 and bound                 and path[0] in bound:
+            return _string_probe(bound[path[0]], bound, depth + 1)
+        return False
+    return False
+
+
 def _object_valued(term, bound, depth=0):
     """`(True|False|None, kind)` — is this term an OBJECT, on the syntax tree?
 
@@ -337,6 +402,14 @@ def _object_valued(term, bound, depth=0):
         return False, kind
     if kind == "ref":
         path = _ref_path(term)
+        if path is None:
+            # ROUND-1 FINDING R1-10(b): a tail element that is a VAR bound
+            # statically to a string literal is a static path wearing a
+            # variable's name — `member := "vendor"; "k" in input[member]` —
+            # and the bindings map this module already keeps resolves it.
+            # A tail with any genuinely unresolvable element keeps the
+            # unclassified verdict, exactly as before.
+            path = _ref_path_resolved(term, bound)
         if path is None:
             return None, "ref-with-dynamic-tail"
         if path in object_input_paths():
@@ -387,7 +460,12 @@ def classify(probe, collection, bound) -> tuple:
     `FLAG_REASONS` so the census can be read by mechanism rather than by
     count."""
     probe_type = probe.get("type") if isinstance(probe, dict) else None
-    if probe_type not in SCALAR_TYPES:
+    if probe_type in SCALAR_TYPES and probe_type != "string":
+        # R1-10(c): a number or boolean probe is VALUE membership — lawful
+        # over an object's values — and the numeric-key trap is the third
+        # measured ceiling, not a guess this module makes.
+        return "lawful", "value-membership"
+    if not _string_probe(probe, bound):
         return "lawful", "iteration-or-binding"
     resolved, kind = _object_valued(collection, bound)
     if resolved is True:

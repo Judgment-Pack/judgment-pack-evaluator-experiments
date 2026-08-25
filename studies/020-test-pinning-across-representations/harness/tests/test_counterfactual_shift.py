@@ -137,6 +137,25 @@ def test_the_certified_gate_reads_the_denominator_too():
                            "C": {"admitted": 30, "flagged": 13}})
 
 
+def test_a_same_arm_substitution_passes_the_counts_and_fails_the_identity(
+        published):
+    """R1-11's own attack, driven: replace one true-positive flagged run with
+    a different same-arm run. The COUNTS gate cannot see it (B 19 / C 13
+    exactly as certified) — the finding's point — and the IDENTITY gate must.
+    Mutation check: relax `certify_identity()` to a length or per-arm-count
+    comparison and the swapped set passes both gates, so this test fails."""
+    certified = tuple(sorted(published["recode"]["runs"]))
+    cs.certify_identity(certified)                    # the real set passes
+    flagged_b = [run for run in certified if run.startswith("B/")]
+    substitute = "B/run-999"
+    assert substitute not in certified
+    swapped = tuple(sorted(
+        [run for run in certified if run != flagged_b[0]] + [substitute]))
+    assert len(swapped) == len(certified)             # counts unchanged
+    with pytest.raises(cs.ShiftError, match="SHIFT-NOT-CERTIFIED"):
+        cs.certify_identity(swapped)
+
+
 # ---------------------------------------------------------------------------
 # The published block carries what the script derives
 # ---------------------------------------------------------------------------

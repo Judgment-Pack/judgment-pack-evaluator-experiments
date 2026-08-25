@@ -59,22 +59,17 @@
     "timeoutRateCap": 0.1,
     "window": "three consecutive UTC calendar days"
   },
-  "family": {
-    "permutationsUnadjusted": 20000,
-    "permutationsAdjusted": 4000,
-    "permutationSeed": 11,
-    "bcaResamples": 10000,
-    "bcaSeed": 13,
-    "note": "ROUND-1 FINDING R1-5: section 5.3 pins the permutation B and seed and says the BCa seed is 'pinned in PINS.json', and no member carried any of them - the permutation values lived as constants in e4lib/family.py and the BCa pair existed nowhere, so bca_interval()'s registered refusal fired on every production call and the intervals section 5.3 registers could never be published. The permutation members here are the SAME numbers family.py transcribes from section 5.3/5.5 (a harness test asserts the equality, so the registry and the module cannot drift apart); the BCa pair is registered here 2026-08-24, before any citable computation, resamples 10000 at seed 13 (a seed distinct from the permutation stream's 11 so the two schemes cannot share a stream by accident), and harness/score.py threads it into every family_report() call. Tier D only; no decision reads an interval."
-  },
   "calibration": {
     "derivedFloor": null,
     "label": null,
-    "minimumViable": null,
-    "note": "PREREGISTRATION.md section 2a. The pre-freeze pilot runs through harness/authoring_call.sh and harness/batch.py under a --calibration mode, with output under calibration/<label>/ and citable: false. The registered differences between the pilot and the primary batch are exactly four (section 2a.2) and pilotPerArm is one of them. derivedFloor is emitted by calibration/derive_floor.py from the pilot's own per-arm counts by an exact Clopper-Pearson rule with no human number entering; minimumViable is TODO(prereg) and is declared BEFORE the pilot runs and AFTER the sweep fixes the compute condition. The freeze gate PERMITS AND REQUIRES the calibration/ subtree (019 DEVIATIONS.md D-2) while still refusing any results/primary-attempt-*.",
+    "minimumViable": 0.2,
+    "minimumViableBasis": "identityFloor",
+    "minimumViableProvenance": "Maintainer's section 2a.4(2) declaration, 2026-08-25 (round 1, R1-17): declared AFTER the sweep fixed the compute condition (low) and BEFORE any pilot call, with batch.py pilot refusing while this member was null. Bound to the IDENTITY floor because section 5.7 registers arm A's imperfection as a reported result (019: A 0/38 perfect) — a perfect-rate minimum over all arms would abort by design. GO requires the derived one-sided 95% Clopper-Pearson lower bound of the identity-passing rate to reach 0.20 in EVERY arm, which at n=12 means at least 6/12 (floor 0.245; 5/12 floors at 0.181 and fails). Priced before the pilot: ~6% three-arm false-abort risk at 019's registered identity rates (0.895/0.703/0.718) versus ~19% at the next rung (>=7/12, min 0.30); a true rate of 1/3 (the C arm's swept n=3 point at low) is caught with probability 0.82. The abort is study-death under M-9 (no descope), so the gate catches COLLAPSE; thin-but-alive arms are section 2a.6's recomputed dispersion table's business. Full rationale in PREREGISTRATION.md section 2a.4's fill.",
+    "note": "PREREGISTRATION.md section 2a. The pre-freeze pilot runs through harness/authoring_call.sh and harness/batch.py under the calibration mode `batch.py pilot` (PIN_LABEL=PILOT; round-1 finding R1-17), with output under calibration/<label>/arm-<ARM>/run-NNN and citable: false. The registered differences between the pilot and the primary batch are exactly four (section 2a.2) and pilotPerArm is one of them; root is the subtree's registered name, read by the wrapper's slot-anchor gate. derivedFloor is emitted by calibration/derive_floor.py from the pilot's own per-arm counts by an exact Clopper-Pearson rule with no human number entering; minimumViable and minimumViableBasis are the maintainer's section 2a.4(2) declaration, made BEFORE the pilot runs and AFTER the sweep fixes the compute condition — batch.py pilot refuses while either is null, and derive_floor.py's go/no-go compares the DERIVED floors against the DECLARED minimum on the DECLARED basis (perfectFloor or identityFloor). The freeze gate PERMITS AND REQUIRES the calibration/ subtree (019 DEVIATIONS.md D-2), validates the pilot record's schema and counts through the sealed deriver, and still refuses any results/primary-attempt-*.",
     "outputSha256": null,
     "pilotPerArm": 12,
-    "pilotPerArmProvenance": "exact one-sided 95% Clopper-Pearson lower bound 0.779 on a clean sweep of 12, from section 2a.1's table; 019's 5/5 supported only 0.549"
+    "pilotPerArmProvenance": "exact one-sided 95% Clopper-Pearson lower bound 0.779 on a clean sweep of 12, from section 2a.1's table; 019's 5/5 supported only 0.549",
+    "root": "calibration"
   },
   "censusStimulus": {
     "count": null,
@@ -94,6 +89,14 @@
     "reasoningEffortWitness": "gate-5-extension",
     "resolvedAtDesignTime": true,
     "version": "codex-cli 0.145.0"
+  },
+  "family": {
+    "bcaResamples": 10000,
+    "bcaSeed": 13,
+    "note": "ROUND-1 FINDING R1-5: section 5.3 pins the permutation B and seed and says the BCa seed is 'pinned in PINS.json', and no member carried any of them - the permutation values lived as constants in e4lib/family.py and the BCa pair existed nowhere, so bca_interval()'s registered refusal fired on every production call and the intervals section 5.3 registers could never be published. The permutation members here are the SAME numbers family.py transcribes from section 5.3/5.5 (a harness test asserts the equality, so the registry and the module cannot drift apart); the BCa pair is registered here 2026-08-24, before any citable computation, resamples 10000 at seed 13 (a seed distinct from the permutation stream's 11 so the two schemes cannot share a stream by accident), and harness/score.py threads it into every family_report() call. Tier D only; no decision reads an interval.",
+    "permutationSeed": 11,
+    "permutationsAdjusted": 4000,
+    "permutationsUnadjusted": 20000
   },
   "freeze": {
     "commit": null,
@@ -165,7 +168,7 @@
   },
   "ownPorts": {
     "path": "harness/PORTS.md",
-    "sha256": "sha256:7ecb41c26c57b64cef6efaa6df01ea664c668957d5ce2f22570f3f792f6a214b"
+    "sha256": "sha256:d74c0623af9fe4fac88cefe3086659f1d5d49d478a4d14ef02b8103d57febe5c"
   },
   "pinnedFrom": {
     "commit": "e87e1311da11c28e929edf1e7e39f048e4ec0e6a",
@@ -205,24 +208,25 @@
   "presenceIdiomGuard": {
     "counterfactualPerMemberShift": {
       "computed": true,
-      "script": "harness/counterfactual_shift.py",
-      "published": "harness/COUNTERFACTUAL-SHIFT.json",
       "flaggedSet": {
-        "total": 32,
         "admitted": 60,
         "armB": 19,
         "armC": 13,
-        "derivation": "re-derived by the certified detector and gated on these exact counts; the document's first printed split (B 15 / C 17) was unmeasured arithmetic and the gate refused it - correction note in harness/POWER-PRESENCE-IDIOM.md section (iv)"
+        "derivation": "re-derived by the certified detector and gated on these exact counts; the document's first printed split (B 15 / C 17) was unmeasured arithmetic and the gate refused it - correction note in harness/POWER-PRESENCE-IDIOM.md section (iv)",
+        "total": 32
       },
-      "recode": "identityPass false, no kill record - section 3.2's registered semantics, structural in e4lib/admit.py",
       "measuredEffect": "direction-heterogeneous by population: every ITT member amplified (A-C shift +0.168..+0.209, A-B +0.246..+0.303), every A-C PP member attenuated (-0.031..-0.022); exactly two alpha=0.05 decisions flip, M2 and M5 (L1/PP), reject -> not-reject",
-      "reproducedBy": "harness/tests/test_counterfactual_shift.py"
+      "published": "harness/COUNTERFACTUAL-SHIFT.json",
+      "recode": "the run leaves the referenceIdentity-passing population and carries no kill record - stated here in 020's registered relation names; Study 019's frozen records, which this computation reads, spell the relation under their single identityPass field (R1-11: this member's earlier wording used 019's spelling without saying so)",
+      "reproducedBy": "harness/tests/test_counterfactual_shift.py",
+      "script": "harness/counterfactual_shift.py"
     },
     "falsePositivesOnLawfulIn": "0/392 lawful uses, 0/15 over sets and arrays",
-    "measuredCeilings": "Two, published rather than discovered later: a presence test over a FUNCTION PARAMETER is not detected (2 runs, B run-023 and C run-040, both non-perfect); and the alias map over-approximates scope, which costs nothing on this corpus and is measured rather than assumed. The code is also structurally unreachable in arm A (section 11.11).",
+    "measuredCeilings": "Three, published rather than discovered later: a presence test over a FUNCTION PARAMETER is not detected (2 runs, B run-023 and C run-040, both non-perfect); the alias map over-approximates scope, which costs nothing on this corpus and is measured rather than assumed; and (R1-10, 2026-08-24) a NON-STRING probe is outside the certified class, so the numeric-key trap (5 in {5: 'x'}) is not detected - zero non-string probes measured over the corpus's 599 memberships. The code is also structurally unreachable in arm A (section 11.11).",
     "mutationCheck": "drop the object-type branch: flagged runs 39/39 -> 23/39 and flagged uses 178 -> 83, so condition (i) fails and the certifying measurement discriminates. Driven in CI as harness/tests/test_score_presence_idiom.py::test_breaking_the_object_branch_makes_the_sensitivity_case_fail.",
     "note": "PREREGISTRATION.md section 3.2. The guard is registered ONLY if its pre-freeze power analysis meets (i) and (ii) exactly - the detector fires on every 019 arm-B/C policy that uses bare-object membership and on none of the 22 perfect runs. This block records the outcome as data rather than as prose so the kill switch is machine-readable: registered:false means the code stays and the mechanism is carried as a Tier D descriptive finding only, and harness/e4lib/admit.py's guard_is_registered() refuses to emit presence-idiom-unsound while it is false. It FAILS SHUT: a missing member, or a member that is anything other than true, withholds the code.",
     "powerAnalysis": "harness/POWER-PRESENCE-IDIOM.md",
+    "recertification": "Executed 2026-08-24 under the R1-10-repaired detector (bound string probes flag; statically bound dynamic tails resolve; non-string probes are lawful value-membership): every certified figure reproduces exactly - 39/39 parseable, 178 uses, admitted B 19 / C 13 with the pinned set-identity digest, 0/22, 0/392, 29 unclassified - all three defects latent on the corpus. The R1-9-amended criterion ((i-a) n/n admitted flagged, (i-b) 40/40 coded, (ii) 0/22) is met by this run; registered: true stands PENDING round 2 blessing the amendment, and flips false if round 2 refuses. Record: harness/POWER-PRESENCE-IDIOM.md, re-certification section.",
     "registered": true,
     "sensitivity": "40/40 in-class runs receive an authoring code",
     "sensitivityDetail": "40 of the 76 retained arm-B/C policies are in-class by an INDEPENDENT source-text oracle (B 21 / C 19), reproducing M-14's discriminator by a method M-14 did not use. The detector flags 39/39 of the policies the pinned parser accepts and 32/32 of the admitted policies - the population section 3.2 registers it to run over - with zero false negatives in either. The fortieth, B run-040, is refused by the pinned parser and receives the earlier registered authoring code unparseable-artifact, so the in-class set is fully covered by section 1a's partition. Use-level agreement with the oracle is exact: 178 flagged uses against 178 oracle uses, with zero per-run count mismatches over all 73 parseable policies.",
@@ -266,6 +270,12 @@
     "chosenSetting": "low",
     "chosenSettingNote": "Section 2.1's fill, 2026-08-24: chosen by the operable-condition-match rule from the published sweep (sweeps/2026-08-24-effort-sweep) - the pinned model's own catalog default, the only tier condition-matched to Study 019's batch (section 2a.6), passing operability 9/9 with a 6.72 h projected batch at the registered N = 60 (the ledger's own projection line, printed at the then-carried batch.n = 50, reads 5.60 h). The rule reads registered facts and the sweep's operability columns; it deliberately does not read the published per-arm perfect and identity rates, because a tier chosen on n = 3 rates would be the picked-not-swept condition section 2.1 forbids. The rule's TEXT was named at fill time, as section 2.1 registered ('the chosen setting is named with the rule that chose it'); the fill says so plainly rather than implying the rule predates the sweep.",
     "citable": false,
+    "evidenceTrees": {
+      "2026-08-24-effort-sweep": "sha256:96c36b794c9c0f7ed4e240342eb6f12b6c55077e000947d441eac617ce1768ea",
+      "refused-attempt-01-leak-tokens": "sha256:3bf31aaa9b473ba1de1a0d58a205a2a6c87c0891dc9f734be465c105346ae573",
+      "refused-attempt-02-unregistered-label": "sha256:732c5054680788c1b2df31d79f5a8af9ef03f64af3d4f470ea45da5a2911ed03",
+      "rule": "sha256 over the sorted '<relpath> <sha256>' lines of every file under the named sweeps/ entry - R1-19: the section 2.1 fill's evidence is pinned per tree, harness/integrity.py verifies each named tree byte for byte (a mutated, added or deleted file fails), and a FUTURE sweeps/ entry is permitted by not being named rather than by weakening the pinned ones"
+    },
     "note": "PREREGISTRATION.md section 2.1, rulings M-8/M-20/M-25. The pre-pilot effort sweep is n = 3/arm across three settings, run THROUGH the registered apparatus (harness/authoring_call.sh + harness/batch.py under --sweep, never outside the harness - running it outside is the 019 failure exactly). Its outputs are citable: false and outside every population. The registered compute condition - the codex.reasoningEffort value and the per-arm N together - is chosen from its result and priced at its own observed durations. The cap is not raised without a DEVIATIONS.md entry naming the reason and republishing the price.",
     "noteOnTheModesName": "The mode section 2.1 calls '--sweep' is the driver SUBCOMMAND harness/batch.py sweep - the subcommand form every other mode of this driver takes (plan, run, capture, capture-golden, capture-isolation-negative, shortfall) - and PIN_LABEL=SWEEP is what that mode claims at the wrapper. The name is reconciled in PREREGISTRATION.md section 2.1 under 'Where the set is carried, and the mode's name'; nothing about the exemption's width moves with it, and the wrapper still accepts the label from the driver and from nowhere else.",
     "perArm": 3,

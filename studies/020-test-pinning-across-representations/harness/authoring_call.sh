@@ -103,10 +103,14 @@
 #                      only caller; it retains a verdict, a stripped call
 #                      record and — when there is one — the context digests,
 #                      never the transcript, whose deletion it verifies.)
-#        PIN_LABEL   - "PRIMARY" (default) or "SWEEP" (§2.1, M-25: the one
-#                      registered exemption, one value and one label wide).
-#                      harness/batch.py sets it UNCONDITIONALLY, so an
-#                      operator's stray PIN_LABEL=SWEEP cannot reach here.
+#        PIN_LABEL   - "PRIMARY" (default), "SWEEP" (§2.1, M-25: the one
+#                      registered exemption, one value and one label wide) or
+#                      "PILOT" (§2a.2, round-1 finding R1-17: the pre-freeze
+#                      calibration pilot — citable false like the sweep, NO
+#                      exemption like the primary, anchored under
+#                      calibration/<label>/). harness/batch.py sets it
+#                      UNCONDITIONALLY, so an operator's stray PIN_LABEL
+#                      cannot reach here.
 #        SWEEP_EFFORT - the pre-pilot sweep's setting for THIS call, threaded
 #                      by harness/batch.py's `sweep` subcommand and by nothing
 #                      else. Legal only under PIN_LABEL=SWEEP, refused under
@@ -333,10 +337,15 @@ sys.exit(0 if isinstance(settings, list) and sys.argv[2] in settings else 1)' \
     PINNED_EFFORT=""
     EFFORT_SOURCE="sweep-default"
   fi
-elif [ "$PIN_LABEL" = "PRIMARY" ]; then
-  CITABLE=true
+elif [ "$PIN_LABEL" = "PRIMARY" ] || [ "$PIN_LABEL" = "PILOT" ]; then
+  # PILOT (section 2a.2, round-1 finding R1-17) shares every effort rule with
+  # PRIMARY — the pilot runs AFTER the sweep resolved the condition, so it
+  # claims no exemption and threads no setting; the fourth registered
+  # difference is the pin state RULE applying, not relaxing. What the label
+  # changes is the slot anchor (calibration/<label>/, below) and citability.
+  if [ "$PIN_LABEL" = "PILOT" ]; then CITABLE=false; else CITABLE=true; fi
   if [ -n "$SWEEP_EFFORT" ]; then
-    echo "refused: SWEEP_EFFORT=$SWEEP_EFFORT was supplied under PIN_LABEL=PRIMARY; the sweep's per-call setting travels under the sweep label alone, and a primary call runs the registry's codex.reasoningEffort or it does not run" >&2
+    echo "refused: SWEEP_EFFORT=$SWEEP_EFFORT was supplied under PIN_LABEL=$PIN_LABEL; the sweep's per-call setting travels under the sweep label alone, and a $PIN_LABEL call runs the registry's codex.reasoningEffort or it does not run" >&2
     exit 1
   fi
   if [ "$EFFORT_NULL" = true ]; then
@@ -348,7 +357,7 @@ elif [ "$PIN_LABEL" = "PRIMARY" ]; then
     exit 1
   fi
 else
-  echo "refused: PIN_LABEL=$PIN_LABEL is not a registered label; the registered labels are PRIMARY and SWEEP, and an unrecognised one is refused rather than treated as PRIMARY" >&2
+  echo "refused: PIN_LABEL=$PIN_LABEL is not a registered label; the registered labels are PRIMARY, SWEEP and PILOT, and an unrecognised one is refused rather than treated as PRIMARY" >&2
   exit 1
 fi
 # The one argv token the effort travels as, composed from the registry's two
@@ -467,6 +476,30 @@ case "$PROMPT_KIND" in
       SLOT_ANCHOR="$STUDY/$SWEEP_ROOT_NAME/$SWEEP_LABEL_DIR/$SWEEP_SETTING_DIR/arm-$ARM"
       SLOT_ANCHOR_COMPONENTS="$SWEEP_ROOT_NAME $SWEEP_LABEL_DIR $SWEEP_SETTING_DIR arm-$ARM"
       SLOT_ANCHOR_NAME="$SWEEP_ROOT_NAME/<UTC date>-effort-sweep/$SWEEP_SETTING_DIR/arm-$ARM"
+    elif [ "$PIN_LABEL" = "PILOT" ]; then
+      # Section 2a.2 (round-1 finding R1-17): the pilot writes under
+      # calibration/<label>/arm-<ARM>/run-NNN — the subtree the freeze gate
+      # PERMITS AND REQUIRES, outside arms/ so R10-1's prior-authoring gate
+      # does not see it. Same rule as the sweep's anchor: the root comes from
+      # the registry, the label is the one component this wrapper cannot know,
+      # so it is read from the path and checked against the registered SHAPE.
+      if ! CALIBRATION_ROOT_NAME="$(pin calibration root 2>/dev/null)"; then
+        echo "refused: harness/PINS.json carries no calibration.root member, so this wrapper cannot compute the pilot's registered slot anchor (section 2a.2)" >&2
+        exit 1
+      fi
+      case "$CALIBRATION_ROOT_NAME" in
+        ""|None|null|*/*|*" "*)
+          echo "refused: harness/PINS.json's calibration.root is ${CALIBRATION_ROOT_NAME:-null}, which is not a single directory name this wrapper can anchor a pilot slot under (section 2a.2)" >&2
+          exit 1;;
+      esac
+      PILOT_LABEL_DIR="$(basename "$(dirname "$(dirname "$SLOT")")")"
+      case "$PILOT_LABEL_DIR" in
+        [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]-pilot) ;;
+        *) SLOT_SHAPE=bad;;
+      esac
+      SLOT_ANCHOR="$STUDY/$CALIBRATION_ROOT_NAME/$PILOT_LABEL_DIR/arm-$ARM"
+      SLOT_ANCHOR_COMPONENTS="$CALIBRATION_ROOT_NAME $PILOT_LABEL_DIR arm-$ARM"
+      SLOT_ANCHOR_NAME="$CALIBRATION_ROOT_NAME/<UTC date>-pilot/arm-$ARM"
     else
       SLOT_ANCHOR="$STUDY/arms/$ARM/authoring"
       SLOT_ANCHOR_COMPONENTS="arms $ARM authoring"

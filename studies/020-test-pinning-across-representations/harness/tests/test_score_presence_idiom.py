@@ -111,6 +111,63 @@ TRAPS = {
 }
 
 
+def test_a_probe_bound_to_a_string_literal_is_the_trap():
+    """ROUND-1 FINDING R1-10(a): `k := "riskScore"; k in input.vendor` is
+    M-14 with one extra line, and the first implementation called it lawful
+    because it read the probe's raw AST type before resolving the binding.
+    Measured before adoption: zero occurrences on the certification corpus,
+    so every certified figure stands — but the adversarial construction now
+    flags. Mutation check: restore the raw `probe_type not in SCALAR_TYPES`
+    condition and this fails."""
+    document = _membership(_ref("input", "vendor"),
+                           probe={"type": "var", "value": "k"})
+    document["rules"].insert(0, {
+        "body": [{"index": 0, "terms": {"type": "boolean", "value": True}}],
+        "head": {"name": "k", "value": {"type": "string",
+                                        "value": "riskScore"},
+                 "assign": True, "ref": [{"type": "var", "value": "k"}]}})
+    report = presence_idiom.scan_ast(document)
+    assert report["flagged"] is True
+    assert report["findings"][0]["kind"] in presence_idiom.FLAG_REASONS
+
+
+def test_a_dynamic_tail_bound_to_a_string_resolves_and_flags():
+    """R1-10(b): `member := "vendor"; "riskScore" in input[member]` is a
+    static path wearing a variable's name; the bindings map this module
+    already keeps resolves it. The genuinely UNBOUND tail keeps its
+    unclassified verdict — that case is the parametrized `a ref with a
+    dynamic tail` row above, unchanged."""
+    dynamic = {"type": "ref", "value": [
+        {"type": "var", "value": "input"},
+        {"type": "var", "value": "member"}]}
+    document = _membership(dynamic)
+    document["rules"].insert(0, {
+        "body": [{"index": 0, "terms": {"type": "boolean", "value": True}}],
+        "head": {"name": "member", "value": {"type": "string",
+                                             "value": "vendor"},
+                 "assign": True, "ref": [{"type": "var", "value": "member"}]}})
+    report = presence_idiom.scan_ast(document)
+    assert report["flagged"] is True
+
+
+def test_a_non_string_probe_is_lawful_value_membership():
+    """R1-10(c): `5 in {"x": 5}` is TRUE under the pinned binary — lawful
+    value membership over the object's values — and the first implementation
+    flagged it, zero-scoring a correct policy. A number or boolean probe is
+    outside the guard's certified class now; the numeric-key trap
+    (`5 in {5: "x"}`) is §3.2's THIRD measured ceiling, zero occurrences on
+    the corpus. Mutation check: treat "number" as a probe again and this
+    fails."""
+    trap_shaped = {"type": "object", "value": [
+        [{"type": "string", "value": "x"}, {"type": "number", "value": 5}]]}
+    document = _membership(trap_shaped,
+                           probe={"type": "number", "value": 5})
+    report = presence_idiom.scan_ast(document)
+    assert report["flagged"] is False
+    assert any(use.get("kind") == "value-membership"
+               for use in report["lawful"])
+
+
 @pytest.mark.parametrize("name", sorted(LAWFUL))
 def test_a_lawful_membership_is_not_flagged(name):
     report = presence_idiom.scan_ast(_membership(LAWFUL[name]))

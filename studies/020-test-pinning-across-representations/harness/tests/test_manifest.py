@@ -51,24 +51,26 @@ import pytest
 import make_manifest
 
 # The files ADR 0004 calls appendable in this study, each of which exists today.
+# §7 DELTA 11 AS R1-18 AMENDED IT: the register (`CORRECTION-TARGETS.md`) is
+# COVERED — a precommitment the maintainer may rewrite post-freeze precommits
+# nothing — and the appendable half is the operational LOG, which exists from
+# round 1 on and is excluded exactly as the other appendables are.
 APPENDABLE = ("DEVIATIONS.md", "README.md", "PREREG-REVIEW.md",
-              "harness/ADVISORIES.md")
-
-# §7 DELTA 11. The same rule over a file that does NOT exist yet, which is why
-# it is a separate constant: `APPENDABLE`'s assertions require the file on disk
-# on purpose, and this one requires the exclusion to hold without it.
-APPENDABLE_WHILE_ABSENT = ("CORRECTION-TARGETS.md",)
+              "harness/ADVISORIES.md", "CORRECTION-TARGETS-LOG.md")
 
 
 def test_the_adr_0004_exclusions_are_named_constants_carrying_their_reason():
     """A named constant is the decision's requirement; the REASON travelling
-    with the name is what a later reader needs in order not to argue past it."""
-    for name in APPENDABLE + APPENDABLE_WHILE_ABSENT:
+    with the name is what a later reader needs in order not to argue past it.
+    The LOG's reason cites R1-18, the ruling that created it, rather than ADR
+    0004, whose exact-set argument the other four carry."""
+    for name in APPENDABLE:
         assert name in make_manifest.EXCLUDED_DOCUMENTS, name
         reason = make_manifest.EXCLUDED_DOCUMENTS[name]
         assert isinstance(reason, str) and reason.strip(), name
-        assert "ADR 0004" in reason, (
-            "%s is excluded under ADR 0004 and its reason must say so" % name)
+        assert "ADR 0004" in reason or "R1-18" in reason, (
+            "%s is excluded under ADR 0004 (or R1-18's amendment) and its "
+            "reason must say so" % name)
 
 
 def test_no_appendable_file_is_covered_and_all_of_them_exist(study):
@@ -80,25 +82,31 @@ def test_no_appendable_file_is_covered_and_all_of_them_exist(study):
         assert name not in entries
 
 
-def test_the_correction_target_register_is_excluded_while_absent_and_required(study):
-    """§7 DELTA 11, both halves, and they are different halves.
+def test_the_correction_target_register_is_covered_and_its_log_is_not(study):
+    """§7 DELTA 11 as R1-18 amended it, both halves, and they are different
+    halves.
 
-    EXCLUDED: it is not in the covered set and `_excluded()` says so, whether or
-    not the file exists — because the widening this guards against is somebody
-    adding it back to `REGISTERED_DOCUMENTS` on the day it is first written.
+    COVERED: `CORRECTION-TARGETS.md` is in the exact set and freezes with the
+    tree — round 1 ruled that a precommitment the maintainer may rewrite
+    post-freeze precommits nothing, so the register's bytes are anchored and
+    `pending_documents()` refuses the freeze while it is absent.
 
-    REQUIRED: `pending_documents()` names it while it is absent and `--freeze`
-    refuses on it, which is the whole of what covering it used to buy."""
-    for name in APPENDABLE_WHILE_ABSENT:
-        assert name not in make_manifest.REGISTERED_DOCUMENTS, name
-        assert name not in make_manifest.manifest_entries(), name
-        assert make_manifest._excluded(name), name
-        assert name in make_manifest.UNCOVERED_PRE_FREEZE_DOCUMENTS, name
-        reason = make_manifest.UNCOVERED_PRE_FREEZE_DOCUMENTS[name]
-        assert isinstance(reason, str) and "before the freeze" in reason, name
-        if not os.path.isfile(os.path.join(study, name)):
-            assert any(entry.startswith(name)
-                       for entry in make_manifest.pending_documents()), name
+    NOT COVERED: the appendable half is `CORRECTION-TARGETS-LOG.md`, which
+    records later venue/status changes and must stay writable after the
+    freeze, exactly as the review record does. `UNCOVERED_PRE_FREEZE_DOCUMENTS`
+    is EMPTY — the category stays for a future obligation, and emptiness is
+    asserted so a member sneaking back re-argues the ruling in review."""
+    register = "CORRECTION-TARGETS.md"
+    assert register in make_manifest.REGISTERED_DOCUMENTS
+    assert register in make_manifest.manifest_entries()
+    assert not make_manifest._excluded(register)
+    log = "CORRECTION-TARGETS-LOG.md"
+    assert log not in make_manifest.REGISTERED_DOCUMENTS
+    assert log not in make_manifest.manifest_entries()
+    assert make_manifest._excluded(log)
+    assert make_manifest.UNCOVERED_PRE_FREEZE_DOCUMENTS == {}
+    assert os.path.isfile(os.path.join(study, register))
+    assert os.path.isfile(os.path.join(study, log))
 
 
 def test_an_uncovered_pre_freeze_document_is_never_also_covered():
@@ -415,9 +423,23 @@ def _scratch_study(root):
 
 
 def _fill_calibration(root, label="pilot-001"):
+    """A REGISTERED pilot output, not a directory that merely exists: round-1
+    finding R1-17 made the freeze gate validate the record through the sealed
+    deriver's own `validate_record()`, so the fixture carries the registered
+    shape — the driver's ledger and a counts record with arms exactly A/B/C at
+    12 calls each, `citable: false` in its own bytes. The scratch study has no
+    `harness/PINS.json`, so the §2a.6 pin comparisons are out of scope here by
+    the gate's own rule and `tests/test_pilot.py` drives them instead."""
     where = root / make_manifest.CALIBRATION_ROOT / label
     where.mkdir(parents=True, exist_ok=True)
-    (where / "PILOT.json").write_text('{"citable": false}\n', encoding="utf-8")
+    (where / "PILOT.json").write_text(
+        '{"callsMade": 36, "callsRegistered": 36, "citable": false}\n',
+        encoding="utf-8")
+    record = {"label": label, "citable": False,
+              "perArm": {arm: {"calls": 12, "perfect": 8, "identityPass": 10}
+                         for arm in ("A", "B", "C")}}
+    (where / "PILOT-RATES.json").write_text(
+        json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return where
 
 

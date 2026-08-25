@@ -7,7 +7,9 @@ row and `harness/integrity.py` binds it against that lock).
 
 **§7 DELTA 11 / ADR 0004 — the scope, restated for this study.** 019 excluded
 four appendable documents and the registry. 020 excludes **five** appendable
-documents and the registry: `CORRECTION-TARGETS.md` joins them. It is the same
+documents and the registry: `CORRECTION-TARGETS.md` joins them (R1-18 restored
+it to the COVERED set — the appendable half lives in
+`CORRECTION-TARGETS-LOG.md` now). It is the same
 shape of file as the other four — it is written and rewritten while the review
 runs and it carries no claim a published number rests on — and 019 covered it
 only because round-7 R7-9 needed something that would make `--freeze` refuse
@@ -153,6 +155,7 @@ Run: <the pinned interpreter> harness/make_manifest.py
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import re
 import subprocess
@@ -198,11 +201,14 @@ REGISTERED_DOCUMENTS = (
     #                                    registers a new row for group-size
     #                                    imbalance
     #
-    # §7 DELTA 11: `CORRECTION-TARGETS.md` is NOT in this tuple any more. It is
-    # an appendable document (ADR 0004) and is excluded from the covered set by
-    # named constant; its pre-freeze obligation moved to
-    # `UNCOVERED_PRE_FREEZE_DOCUMENTS` below, so `--freeze` still refuses while
-    # it is absent.
+    # ROUND-1 FINDING R1-18: `CORRECTION-TARGETS.md` is BACK in this tuple.
+    # §7 delta 11 had moved it out as appendable, which un-pinned the very
+    # precommitment §10 registers — a target register the maintainer may
+    # rewrite after the freeze precommits nothing. The register freezes with
+    # the tree; post-freeze venue or status changes land in the appendable
+    # `CORRECTION-TARGETS-LOG.md` (EXCLUDED_DOCUMENTS below), never by
+    # editing the frozen register.
+    "CORRECTION-TARGETS.md",
     "verification/V7-COMPLETENESS.md",
     "verification/V8-ASYMMETRY-LEDGER.md",
     # NEW IN 020, and both are `GATE(pre-freeze)` obligations this study's own
@@ -246,12 +252,12 @@ REGISTERED_DOCUMENTS = (
 # freeze, and it is rewritten as targets are settled — so the two properties are
 # registered separately here. Each entry names the registration that owes it.
 UNCOVERED_PRE_FREEZE_DOCUMENTS = {
-    "CORRECTION-TARGETS.md":
-        "PREREGISTRATION.md §10 pins the CORRECTION.md targets — verbatim "
-        "wording, venue, URL and retrieval date — before the freeze. It is "
-        "appendable by design (ADR 0004) and therefore excluded from the "
-        "covered set; this is the half of R7-9's obligation that survives that "
-        "exclusion.",
+    # R1-18 emptied this mapping: `CORRECTION-TARGETS.md`, its only member,
+    # moved back into REGISTERED_DOCUMENTS (a precommitment the maintainer may
+    # rewrite post-freeze precommits nothing). The category itself stays,
+    # because the two properties it separates — must-exist-before-freeze and
+    # must-not-be-covered — remain distinct, and a future appendable
+    # obligation lands here rather than re-arguing the split.
 }
 
 # The registered payload SETS, each an exact one-level glob. Same finding: every
@@ -281,14 +287,12 @@ REGISTERED_PAYLOAD_SETS = (
 # scope rule that only binds while the file is there is a scope rule the file's
 # arrival can walk past.
 EXCLUDED_DOCUMENTS = {
-    "CORRECTION-TARGETS.md":
-        "ADR 0004, §7 delta 11: appendable by design. The correction-target "
-        "register is written and rewritten as targets are settled, including "
-        "after the freeze if a venue moves, so covering it means the first "
-        "settled target breaks the anchor. It carries no claim a published "
-        "number rests on. Its pre-freeze obligation is registered separately "
-        "in UNCOVERED_PRE_FREEZE_DOCUMENTS, so it is still required before the "
-        "freeze — it is simply not anchored by it.",
+    "CORRECTION-TARGETS-LOG.md":
+        "R1-18: the appendable half of the correction-target machinery. The "
+        "REGISTER (CORRECTION-TARGETS.md) freezes with the tree — a "
+        "precommitment must be pinned — and post-freeze venue moves or target "
+        "status changes are APPENDED here with their dates, so the frozen "
+        "register and the living log cannot be one file with two duties.",
     "DEVIATIONS.md":
         "ADR 0004: appendable by design. Post-freeze corrections go here, so "
         "covering it means the first genuine deviation breaks the anchor the "
@@ -921,7 +925,142 @@ def calibration_problems(study=None):
                 "has not run, which is the state §2a.6's one-pilot rule and "
                 "PINS.json's calibration.label both describe as unreached"
                 % CALIBRATION_ROOT]
-    return []
+    return calibration_record_problems(root, labels)
+
+
+def calibration_record_problems(root, labels):
+    """ROUND-1 FINDING R1-17's freeze-gate half: a pilot-labelled subtree is
+    VALIDATED as a registered pilot output, never merely found.
+
+    The finding's words: "the existing freeze check merely looks for a
+    pilot-labelled subtree rather than validating a registered pilot output."
+    So each fact §2a puts inside that subtree is checked here through the
+    SEALED deriver's own `validate_record()` — one reading of the record
+    contract, `calibration/derive_floor.py`'s, imported from its committed
+    seat rather than re-implemented:
+
+    * ONE label, and it is the pinned one (§2a.6: label into `PINS.json`
+      before the primary attempt; two labels is the re-pilot branch, which is
+      a `DEVIATIONS.md` event this gate does not adjudicate).
+    * `PILOT.json` (the driver's ledger) and `PILOT-RATES.json` (the counts
+      record) both present; the record passes `validate_record()` — arms
+      exactly A/B/C, the registered 12 calls, integer counts in range,
+      `citable: false` in its own bytes.
+    * `calibration.outputSha256` matches the record's bytes and
+      `calibration.derivedFloor` equals the floors recomputed through the
+      sealed rule (§2a.6: N and output digest into `PINS.json`).
+    * The go/no-go is GO under the DECLARED minimum (§2a.4(2): the
+      below-minimum branch ABORTS under M-9 — a freeze over a NO-GO record is
+      that abort ignored).
+
+    The record checks are unconditional; the PIN comparisons run only when
+    `harness/PINS.json` is readable, because a tree with no registry at all
+    fails the freeze on the registry's own gates and repeating that fact here
+    would bury every record problem behind it (the scratch fixtures in
+    `tests/test_manifest.py` are exactly such trees)."""
+    problems = []
+    if len(labels) > 1:
+        problems.append(
+            "calibration/ holds %d labels (%s): §2a.6 registers ONE pilot, "
+            "and the re-pilot branch is a DEVIATIONS.md entry this gate does "
+            "not adjudicate" % (len(labels), ", ".join(labels)))
+    # The §2a.6 pin comparisons run against a READABLE registry and only
+    # that: a tree with no `harness/PINS.json` at all fails the freeze on the
+    # registry's own gates, and this function repeating that fact would put
+    # every record problem behind it. A registry that EXISTS but does not
+    # parse is still named here, because the record checks below would
+    # otherwise silently lose their pin half.
+    calibration = None
+    registry = root / "harness" / "PINS.json"
+    if registry.is_file():
+        try:
+            calibration = json.loads(
+                registry.read_text(encoding="utf-8")).get("calibration") or {}
+        except (ValueError, UnicodeDecodeError):
+            problems.append(
+                "harness/PINS.json is not readable JSON, so the pilot record "
+                "cannot be validated against §2a.6's calibration pins")
+    pinned_label = None
+    if calibration is not None:
+        pinned_label = calibration.get("label")
+        if pinned_label not in labels:
+            problems.append(
+                "PINS.json's calibration.label is %r and calibration/ holds "
+                "%s: §2a.6 puts the pilot's label into the registry before "
+                "the primary attempt, and the freeze anchors the registry"
+                % (pinned_label, ", ".join(labels)))
+            return problems
+    label = pinned_label if pinned_label is not None else labels[0]
+    here = root / "calibration" / label
+    if not (here / "PILOT.json").is_file():
+        problems.append(
+            "calibration/%s/ carries no PILOT.json: a pilot label without the "
+            "driver's ledger is a tree the driver did not write" % label)
+    record_path = here / "PILOT-RATES.json"
+    if not record_path.is_file():
+        problems.append(
+            "calibration/%s/ carries no PILOT-RATES.json: the counts record "
+            "is what §2a.4's go/no-go reads, and a pilot without one has not "
+            "reached the gate the freeze presupposes" % label)
+        return problems
+    record_bytes = record_path.read_bytes()
+    try:
+        record = json.loads(record_bytes.decode("utf-8"))
+    except (ValueError, UnicodeDecodeError):
+        return problems + ["calibration/%s/PILOT-RATES.json is not readable "
+                           "JSON" % label]
+    floor = _derive_floor_module()
+    try:
+        floor.validate_record(record)
+        derived = floor.derive(record)
+    except floor.FloorError as refusal:
+        return problems + ["the sealed deriver refuses calibration/%s/"
+                           "PILOT-RATES.json: %s" % (label, refusal)]
+    if calibration is None:
+        return problems
+    try:
+        verdict = floor.go_no_go(derived, calibration.get("minimumViable"),
+                                 calibration.get("minimumViableBasis"))
+    except floor.FloorError as refusal:
+        return problems + ["the sealed deriver refuses calibration/%s/"
+                           "PILOT-RATES.json: %s" % (label, refusal)]
+    if not verdict["go"]:
+        problems.append(
+            "the pilot record's go/no-go is NO-GO (failing arms %s, declared "
+            "minimum %s on %s): §2a.4(2) under M-9 ABORTS below the minimum, "
+            "and a freeze over a NO-GO record is that abort ignored"
+            % (", ".join(verdict["failingArms"]), verdict["minimumViable"],
+               verdict["basis"]))
+    digest = "sha256:%s" % hashlib.sha256(record_bytes).hexdigest()
+    pinned_digest = calibration.get("outputSha256")
+    if pinned_digest not in (digest, digest.split(":", 1)[1]):
+        problems.append(
+            "PINS.json's calibration.outputSha256 is %r and "
+            "calibration/%s/PILOT-RATES.json is %s: §2a.6 puts the output "
+            "digest into the registry before the primary attempt"
+            % (pinned_digest, label, digest))
+    if calibration.get("derivedFloor") != derived:
+        problems.append(
+            "PINS.json's calibration.derivedFloor does not equal the floors "
+            "recomputed through the sealed rule from the record's own counts: "
+            "the pin is derive_floor.py's OUTPUT (§2a.4), and a pin the rule "
+            "does not reproduce is a chosen number wearing a derived one's "
+            "name")
+    return problems
+
+
+def _derive_floor_module():
+    """§2a.4's sealed deriver, imported from its committed seat — the one
+    reading of the record contract, never a re-implementation. Resolved from
+    THIS module's location rather than the (test-patchable) study argument,
+    because the sealed rule is the committed bytes even when the tree under
+    validation is a stand-in."""
+    path = Path(__file__).resolve().parent.parent / "calibration" \
+        / "derive_floor.py"
+    spec = importlib.util.spec_from_file_location("derive_floor", str(path))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def freeze_gate_problems(study=None):
