@@ -128,8 +128,17 @@ def entries(prompt, answer, cwd, home, model, session_id):
                  "payload": {"type": "reasoning", "id": "rs_1",
                              "summary": [], "encrypted_content": "opaque"}})
     rows.append({"type": "turn_context",
+                 # R1-12: under the gate-5-extension branch a FILLED effort pin
+                 # requires a non-null transcript witness, and the stand-in
+                 # registry fills the pin — so the stand-in transcript carries
+                 # the member exactly as the pinned CLI's real transcripts do,
+                 # in both witnessed spellings.
                  "payload": {"model": model, "cwd": cwd,
-                             "current_date": "2026-08-15"}})
+                             "current_date": "2026-08-15",
+                             "effort": "s020-stand-in-effort",
+                             "collaboration_mode": {"settings": {
+                                 "reasoning_effort":
+                                     "s020-stand-in-effort"}}}})
     rows.append(message("user", prompt))
     rows.append({"type": "event_msg",
                  "payload": {"type": "agent_message", "message": answer}})
@@ -201,6 +210,15 @@ def main(argv):
                    "00000000-0000-4000-8000-%012d" % (index + 1))
     if step.get("no_assistant"):
         rows = drop_assistant(rows)
+    if step.get("no_effort_witness"):
+        # 019's own turn_context shape — no effort member in any spelling —
+        # kept drivable so the witness-resolution step's SELF-REPORT branch
+        # stays an end-to-end case after R1-12 made the default stand-in
+        # witness like the real CLI does.
+        for row in rows:
+            if row.get("type") == "turn_context":
+                row["payload"].pop("effort", None)
+                row["payload"].pop("collaboration_mode", None)
     if step.get("poison_prior"):
         rows = poison_prior(rows, step["poison_prior"])
     if step.get("tool_call"):

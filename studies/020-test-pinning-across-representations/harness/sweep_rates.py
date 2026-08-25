@@ -87,6 +87,13 @@ ARMS = ("A", "B", "C")
 ARM_WIRE = {"A": "string", "B": "number", "C": "number"}
 
 
+# VOCABULARY BOUNDARY (R1-13). This module's published records
+# (SWEEP-RATES.json) carry `identityPass` — already-published sweep history —
+# and are NOT renamed by 020's run-record move to `referenceIdentityPass`;
+# a reader crossing from score.py's records to these is crossing studies'
+# publication moments, not a drifted schema.
+
+
 class RatesError(Exception):
     """A refusal. The message names the precondition that failed."""
 
@@ -124,6 +131,16 @@ def gold_perfect(tools, arm: str, artifact: str, gold: list,
             got = engines.eval_pack(tools, artifact, facts, evidence, workdir)
         else:
             got = engines.eval_rego(tools, artifact, row["inputs"], workdir)
+        if got[0] == "ROW-ERROR" and (
+                got[1] in (engines.INVOCATION_TIMEOUT,
+                           engines.UNREADABLE_INVOCATION,
+                           "non-json-payload")
+                or str(got[1]).startswith(engines.INVOCATION_FAILURE)):
+            # R1-1: no answer at all — apparatus; the caller records it and
+            # the slot leaves the rate.
+            raise engines.EngineError(
+                "ENGINE-INVOCATION-REFUSED gold row %s: %s"
+                % (row.get("id"), got[1]))
         if got != want:
             failures += 1
     return failures == 0, failures
@@ -196,13 +213,23 @@ def score_slot(tools, arm: str, slot_dir: str, gold: list,
     # code ends the slot's scoring, the suite file takes the scorer's own
     # name (`suite.<language>`).
     pair = extract.extract_pair(text, arm)
-    artifact, code, _detail = admit_lib.admit(tools, arm, pair["policy"],
-                                              workdir, guard_registered)
+    try:
+        artifact, code, _detail = admit_lib.admit(tools, arm, pair["policy"],
+                                                  workdir, guard_registered)
+    except engines.EngineError as error:
+        # R1-1: the engine never answered — an apparatus event, published as
+        # its own member and never as an authoring code or a rate input.
+        record["apparatusRefused"] = str(error)[:200]
+        return record
     if code is not None:
         record["code"] = code
         return record
-    record["goldPerfect"], record["goldFailures"] = gold_perfect(
-        tools, arm, artifact, gold, workdir)
+    try:
+        record["goldPerfect"], record["goldFailures"] = gold_perfect(
+            tools, arm, artifact, gold, workdir)
+    except engines.EngineError as error:
+        record["apparatusRefused"] = str(error)[:200]
+        return record
     if pair["suite"] is None:
         record["identityWhy"] = "no-suite"
         return record
@@ -251,6 +278,9 @@ def sweep_rates(tools, label: str, gold: list, scratch: str) -> dict:
                 "perfect": sum(1 for row in mine if row["goldPerfect"]),
                 "identityPass": sum(1 for row in mine if row["identityPass"]),
                 "codes": sorted(row["code"] for row in mine if row["code"]),
+                # R1-1: unanswered invocations, counted apart from every code.
+                "apparatusRefused": sum(1 for row in mine
+                                        if row.get("apparatusRefused")),
             }
         settings.append({"setting": setting["setting"], "perArm": per_arm,
                          "slots": rows})

@@ -309,21 +309,45 @@ def execute(tools, sealed: dict, per_arm_runs: dict, context: dict,
 
     "Scored as authored": the same kill machinery, the same refusal routing, no
     pairing, no cut, no contribution to any registered rate."""
-    if sealed.get("executed"):
+    if sealed.get("executed") or sealed.get("attempted"):
         raise ReviewerSetError(
             "REVIEWER-SET-RE-EXECUTED the sealed set is executed exactly once, "
             "at the primary attempt; a second execution is not what §1a "
             "registers and its result would not be the first")
-    sealed["executed"] = True
+    # ROUND-1 FINDING R1-13: `attempted` marks the once-only promise the moment
+    # execution begins; `executed` is set only after the loop COMPLETES, so an
+    # aborted execution is distinguishable from a completed empty one and
+    # neither can run twice.
+    sealed["attempted"] = True
     per_arm = {}
     for arm in arms:
         language = language_of_arm[arm]
         members = [record for record in sealed["mutants"]
                    if record["language"] == language]
         rows = []
-        for run in per_arm_runs.get(arm) or []:
-            if not run.get("referenceIdentityPass") or not run.get("suitePath"):
-                continue
+        candidates = per_arm_runs.get(arm) or []
+        # R1-13: the input records are VALIDATED, not `.get()`-ed — a schema
+        # drift between the scorer's vocabulary and this module's is fatal
+        # here, never a silent zero-run execution. (The rename this guards
+        # against actually happened: production wrote `identityPass` while
+        # this filter read `referenceIdentityPass`, and every run in every arm
+        # silently skipped.)
+        for run in candidates:
+            for member in ("referenceIdentityPass", "suitePath", "run"):
+                if member not in run:
+                    raise ReviewerSetError(
+                        "REVIEWER-RECORD-SCHEMA run record %r lacks %r: the "
+                        "holdout reads the scorer's registered vocabulary and "
+                        "a missing member is drift, not a run to skip"
+                        % (run.get("run", "<unnamed>"), member))
+            if not isinstance(run["referenceIdentityPass"], bool):
+                raise ReviewerSetError(
+                    "REVIEWER-RECORD-SCHEMA run %r carries a non-boolean "
+                    "referenceIdentityPass %r"
+                    % (run.get("run"), run["referenceIdentityPass"]))
+        eligible = [run for run in candidates
+                    if run["referenceIdentityPass"] and run["suitePath"]]
+        for run in eligible:
             outcomes = {}
             for record in members:
                 if language == "jps":
@@ -342,12 +366,20 @@ def execute(tools, sealed: dict, per_arm_runs: dict, context: dict,
                 "refused": sorted(mutant for mutant, outcome in outcomes.items()
                                   if outcome == e4.REFUSED),
             })
+        if len(rows) != len(eligible):
+            raise ReviewerSetError(
+                "REVIEWER-EXECUTION-SHORT arm %s scored %d of %d eligible "
+                "runs; a holdout that quietly skipped an eligible suite is "
+                "not the execution §4.3 registers" % (arm, len(rows),
+                                                      len(eligible)))
         per_arm[arm] = {
             "arm": arm, "language": language,
             "reviewerMutants": len(members),
             "scoredRuns": len(rows),
+            "eligibleRuns": len(eligible),
             "perRun": rows,
         }
+    sealed["executed"] = True
     return {
         "version": sealed["version"],
         "manifestSha256": "sha256:" + sealed["manifestSha256"],

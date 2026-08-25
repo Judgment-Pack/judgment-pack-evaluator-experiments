@@ -228,7 +228,10 @@ separately, and says which one gates:**
   registered domain agrees with the arm's **unmutated reference** on the scored surface. This is
   the relation that defines the per-protocol population pole (§5.2) and the condition of Fact 1.
 - **`ownPolicyIdentity`** — new, and the substance of M-13: the same suite evaluated against the
-  run's **own authored policy**, one extra engine invocation per run. Its per-run score is a
+  run's **own authored policy** — one extra engine EXPOSURE per run, whose invocation count is
+  arm- and case-dependent (measured, R1-14: arm A evaluates the own pack once per readable case;
+  arms B/C run one `opa test` plus one strict adjudication per reported failure). Its per-run
+  score is a
   **reported quantity** (E6, §5.1) that **gates nothing**.
 
 **R1's construct statement is conditioned on it.** The endpoint measures pinning **against the
@@ -301,8 +304,9 @@ smoke are non-citable and outside every population.
 **Population rule, enforced in code (the Study 001/011 lesson).** The denominator of every
 per-arm rate is attempted runs whose **apparatus** succeeded. Apparatus failures — slot shape,
 call nonzero-exit, call timeout at the registered ceiling, pre-call refusal, post-call wrapper
-failure, golden-context mismatch, binary digest mismatch, registry mismatch, transcript refusal —
-are pipeline-invalid, excluded, and reported with their own rate and interval. Every failure
+failure, golden-context mismatch, binary digest mismatch, registry mismatch, transcript refusal,
+pinned-engine invocation produced no answer during scoring — are pipeline-invalid, excluded, and
+reported with their own rate and interval. Every failure
 attributable to what the author emitted is an **authoring outcome**: valid, counted, and scoring
 zero on every endpoint it reaches. The registered authoring-outcome codes are:
 
@@ -313,9 +317,23 @@ zero on every endpoint it reaches. The registered authoring-outcome codes are:
 | `schema-invalid-pack` | A | pack fails the pinned schema |
 | `opa-check-failed` | B, C | `opa check` refuses the authored policy |
 | `v0-syntax` | B, C | Rego v0 syntax under a v1-pinned invocation |
-| `unreadable-output-shape` | A, B, C | result shape outside the registered surface |
 | `author-protocol-violation` | A, B, C | transcript shows a tool use or a turn after the registered prompt |
 | **`presence-idiom-unsound`** | **B, C** | **new in 020 — §3.2's registered presence-idiom guard fires** |
+
+> **AMENDED, 2026-08-24 (round-1 finding R1-1, marked).** This table's first printing carried a
+> seventh admission code, `unreadable-output-shape` ("result shape outside the registered
+> surface", A/B/C). Every state that produced it — a validator timeout, a jpack exit the binary
+> itself declares an invocation failure (3/4/5), an `opa check` that rendered no readable error
+> document — is the pinned engine FAILING TO ANSWER, which is an apparatus event: the engine
+> said nothing about the author's artifact, so no authoring code may be read off it. The code is
+> RETIRED; those states raise `engines.EngineError` out of admission (and out of E1, where a
+> timed-out evaluation of the authored policy was likewise filed as an authored gold failure),
+> the scorer files the run under the new apparatus code `engine-invocation-refused`, the run
+> leaves every population, `scoringApparatus` publishes it per arm with its refusal class, and
+> §6's `engine-execution-clean` gate reads the exclusions — so an unanswered invocation can
+> gate the attempt but can never move a rate. An evaluator's OWN error document about the
+> authored artifact remains an authored gold failure, exactly as before: the line is drawn at
+> whether the engine answered, not at whether the answer was pleasant.
 
 The E4 population adds one further registered step: the identity control (`referenceIdentity`,
 §4), whose exclusions are reported, not silent. A harness test diffs this prose partition table
@@ -1071,7 +1089,7 @@ admission.
 - **E5: interpretive-spread census** — per-arm distinct structural encodings and pairwise-
   disagreement profiles over the frozen gold-row input set, the count freeze-pinned in `PINS.json`.
 - **E6 (new, reported): `ownPolicyIdentity`** — the per-run score of the authored suite against the
-  run's own authored policy (§1.2, M-13). One extra engine invocation per run. **Published per run
+  run's own authored policy (§1.2, M-13; exposure as measured there, R1-14). **Published per run
   and per arm; gates nothing; conditions R1's construct statement.** The conjunction
   `referenceIdentity ∧ ownPolicyIdentity` is published as a Tier D population disposition, so the
   population 020 did **not** register is visible beside the one it did.
@@ -1574,7 +1592,12 @@ the off-gold equivalence certificate is current at the freeze commit; the OPA ca
 refused; the golden-context gate holds with the isolation negative control on record; **every scored
 engine invocation of the attempt returned an answer** (`engine-execution-clean` — a pinned engine
 that timed out, failed to compile or refused on a *frozen* study artifact is an apparatus failure,
-and it is neither a kill nor an identity failure, and this now covers E6's extra invocation too —
+and it is neither a kill nor an identity failure; **AMENDED 2026-08-24, R1-1: the gate's scan also
+covers invocations on the AUTHOR'S artifact during admission and E1** — an engine that never
+answered there files the run under `engine-invocation-refused` (§1a's amended table), the run
+leaves every population, and the exclusion reaches this gate through `scoringApparatus`, so an
+unanswered invocation can gate the attempt but can never move a rate — and this covers E6's extra
+invocation too —
 **with ONE registered exemption, ruled 2026-08-24 on round-1 finding R1-15: the sealed reviewer
 holdout's invocations are EXEMPT from this gate and purely descriptive.** §4.3 registers that the
 holdout moves nothing, and a pinned-engine refusal inside reviewer-authored prospective content is
@@ -1617,10 +1640,24 @@ included.**
 
 1. **The scorer's survivor-vector schema — the token collision is fixed.** The scorer **emits an
    explicit per-mutant survivor vector for every admitted run** and **never encodes "nothing
-   evaluated" and "everything killed" with the same token**; `survivorsPaired: []` with
-   `killedPaired: 0` is refused at write time rather than read as 33/33 (§5.2). It also emits
-   `caseCount` for every admitted run with a suite. A harness test drives both refusals, and the
-   mutation check is required: break the refusal, confirm the test fails.
+   evaluated" and "everything killed" with the same token**. It also emits `caseCount` for every
+   admitted run with a suite. A harness test drives the refusals, and the mutation check is
+   required: break the refusal, confirm the test fails.
+
+   > **AMENDED, 2026-08-24 (round-1 finding R1-2, marked).** This delta's first wording kept
+   > 019's refusal condition — `survivorsPaired: []` with `killedPaired: 0` refuses at write
+   > time — which was right for 019's records (no vector, so that state IS the collision) and
+   > wrong once this delta's own vector exists: with a total, registered-vocabulary vector on
+   > every record, that aggregate state is exactly what the REGISTERED nothing-was-evaluated
+   > record looks like (`evaluatedPaired: 0`), it arises on the most common production paths
+   > (no suite, no cases, out-of-domain, identity failure), and refusing it hard-aborted the
+   > attempt one such admitted run in. The write gate now holds the VECTOR authoritative and
+   > refuses genuine inconsistency between vector and aggregates in any direction —
+   > `killedPaired` off the vector's count, `survivorsPaired` off its SURVIVED entries,
+   > `evaluatedPaired` off its evaluated count (the genuinely impossible state the old guard
+   > was reaching for). The total not-evaluated record is ACCEPTED as the registered ITT-zero
+   > state. The token collision stays fixed — by the vector, which is where this delta fixed
+   > it all along.
 2. **Per-language cuts machinery: retained, with no threshold on top of it.** The machinery that
    keeps each language's paired-adequate denominator and lattice separate is **kept** — it computes
    and publishes both denominators (69 JPS / 62 Rego included, 57 / 55 excluded), both lattices and
@@ -1632,9 +1669,13 @@ included.**
 3. **The new admission code.** `harness/e4lib/presence_idiom.py` and the `presence-idiom-unsound`
    code, wired into `admit()`, §1a's partition table, E2's ordered table and the partition-diff test
    (§3.2). Gated on §3.2's pre-freeze power analysis.
-4. **The `ownPolicyIdentity` invocation.** One extra engine invocation per admitted run, routed
-   through the same `engine-execution-clean` control (§6), emitting E6. `referenceIdentity` and
-   `ownPolicyIdentity` are two named relations in the scorer, never one field with two meanings.
+4. **The `ownPolicyIdentity` invocation.** One extra engine EXPOSURE per admitted run (invocation
+   count arm- and case-dependent as §1.2 measures it, R1-14), routed through the same
+   `engine-execution-clean` control (§6) via its own refusal member (`e6EngineRefused`), so an E6
+   refusal can neither overwrite a completed `referenceIdentity` result nor hide from the gate.
+   `referenceIdentity` and `ownPolicyIdentity` are two named relations in the scorer, never one
+   field with two meanings, and E6's published rate divides by the runs E6 actually answered for,
+   with the not-asked count printed beside it.
 5. **The family scorer.** New: the eighteen members, L2c's offset estimator, the two permutation
    schemes with their pinned B and seed, the IU verdict, the drop-a-pole table, the BCa intervals,
    and the **refusal** rather than fallback on the ITT × ANCOVA cell (§5.2).

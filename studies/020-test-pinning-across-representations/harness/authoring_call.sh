@@ -862,6 +862,32 @@ import json, sys
  timed_out, effort, effort_flag, effort_source, pin_label,
  citable, effort_key, effort_arg) = sys.argv[1:37]
 digits = "".join(ch for ch in slot_name if ch.isdigit())
+# ROUND-1 FINDING R1-12: `reasoningEffortWitnessed` is MEASURED from the
+# retained transcript, never stamped by fiat. The wrapper's measurement is a
+# convenience note; transcript_check.py's gate 5 is the authority and refuses
+# an unwitnessed call under a filled pin regardless of what this member says.
+witnessed = False
+try:
+    with open(out + "/session.jsonl", "rb") as session:
+        for line in session:
+            try:
+                record = json.loads(line.decode("utf-8", "replace"))
+            except ValueError:
+                continue
+            if record.get("type") != "turn_context":
+                continue
+            payload = record.get("payload") or {}
+            mode = payload.get("collaboration_mode")
+            nested = None
+            if isinstance(mode, dict):
+                settings = mode.get("settings")
+                if isinstance(settings, dict):
+                    nested = settings.get("reasoning_effort")
+            for value in (payload.get("effort"), nested):
+                if isinstance(value, str) and effort and value == effort:
+                    witnessed = True
+except OSError:
+    witnessed = False
 with open(out + "/CALL.json", "w") as handle:
     json.dump({
         "argv": (["codex", "exec", "--ignore-user-config", "-m", model]
@@ -895,12 +921,14 @@ with open(out + "/CALL.json", "w") as handle:
         "model": model,
         # M-24: the effort condition, stamped by the WRAPPER. The sweep's
         # witness-resolution step (2026-08-24) took the `gate-5-extension`
-        # branch: the transcript's own turn_context names the effort, and
-        # transcript_check.py's gate 5 binds it against the PIN at scoring
-        # time. `reasoningEffortWitnessed: true` records that regime — the
-        # stamp is checkable against the transcript, not the only record of
-        # the condition. `pinLabel` and `citable` are what separate a sweep
-        # call from a registered one.
+        # branch, and R1-12 made this member a MEASUREMENT: it is true iff
+        # this call's own retained transcript names the pinned tier non-null
+        # in a turn_context, scanned above. transcript_check.py's gate 5 is
+        # the authority (it refuses an unwitnessed call under a filled pin);
+        # this member is the wrapper's own reading of the same bytes, so the
+        # slot record and the gate can disagree only if the bytes changed
+        # between the stamp and the scoring. `pinLabel` and `citable` are
+        # what separate a sweep call from a registered one.
         #
         # FOUR members and not two, because the resolved spelling (2026-08-24)
         # is a config override and not a flag: `reasoningEffort` is the TIER
@@ -915,7 +943,7 @@ with open(out + "/CALL.json", "w") as handle:
         "reasoningEffortConfigKey": (effort_key or None) if effort_arg else None,
         "reasoningEffortArg": effort_arg or None,
         "reasoningEffortSource": effort_source,
-        "reasoningEffortWitnessed": True,
+        "reasoningEffortWitnessed": witnessed,
         "pinLabel": pin_label,
         "citable": citable == "true",
         "cli": version,

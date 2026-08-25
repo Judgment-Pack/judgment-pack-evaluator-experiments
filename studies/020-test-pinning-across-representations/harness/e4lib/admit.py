@@ -19,7 +19,11 @@ CHECK REFUSED, not by a judgement about the artifact:
 | `schema-invalid-pack` | `jpack spec validate` reports `status != "valid"` | — (arm-structural: a Rego file has no pack schema) |
 | `opa-check-failed` | — (arm-structural) | `opa check` fails with any non-parse error (type / compile / capability) |
 | `v0-syntax` | — (arm-structural) | `opa check` fails with only `rego_parse_error` AND the same bytes pass under `--v0-compatible` |
-| `unreadable-output-shape` | the validator emitted no JSON payload at all | `opa check` emitted no readable error document |
+
+(R1-1: `unreadable-output-shape` — the validator emitting no payload, `opa check` emitting no
+readable error document — is RETIRED from this table: every such state is the pinned engine
+failing to ANSWER, which is apparatus, raised from here as `engines.EngineError` and filed by
+the scorer under `engine-invocation-refused`.)
 
 The `v0-syntax` discriminator is the one piece with no prototype, and it is
 built to be MECHANICAL rather than prose-reading. Section 2 pins Rego v1 in both
@@ -62,7 +66,6 @@ DROP_ORDER = (
     "v0-syntax",
     "schema-invalid-pack",
     "opa-check-failed",
-    "unreadable-output-shape",
     # NEW IN 020 (§3.2, ruling M-14). It is LAST in the order for a reason that
     # is not cosmetic: the detector runs on a policy the pinned binary has
     # already accepted, so every earlier code describes an artifact that never
@@ -74,16 +77,15 @@ DROP_ORDER = (
 # Which of those an arm can structurally reach. Section 5: "arm-structural
 # categories within-arm-only, enforced in the scorer."
 ARM_REACHABLE_CODES = {
-    "A": ("no-marker-block", "unparseable-artifact", "schema-invalid-pack",
-          "unreadable-output-shape"),
+    "A": ("no-marker-block", "unparseable-artifact", "schema-invalid-pack"),
     # `presence-idiom-unsound` is B/C only, and §11.11 registers that asymmetry
     # as a CEILING rather than repairing it: arm A's format has no analogous
     # single-operator trap on this surface, so the code is structurally
     # unreachable there and `admit()` refuses it as an arm-structural leak.
     "B": ("no-marker-block", "unparseable-artifact", "v0-syntax",
-          "opa-check-failed", "unreadable-output-shape", presence_idiom.CODE),
+          "opa-check-failed", presence_idiom.CODE),
     "C": ("no-marker-block", "unparseable-artifact", "v0-syntax",
-          "opa-check-failed", "unreadable-output-shape", presence_idiom.CODE),
+          "opa-check-failed", presence_idiom.CODE),
 }
 
 PARSE_ERROR_CODE = "rego_parse_error"
@@ -111,11 +113,14 @@ def admit_arm_a(tools: engines.Toolchain, block: str, workdir: str) -> tuple:
     path = os.path.join(workdir, "pack.json")
     with open(path, "w", encoding="utf-8") as handle:
         handle.write(block)
-    payload, code, _out, _err = engines.jpack_json(
+    payload, code, _out, _err, refusal = engines.jpack_json(
         tools, ["spec", "validate", path, "--format", "json"], workdir)
-    if payload is None:
-        detail["validateExit"] = code
-        return None, "unreadable-output-shape", detail
+    if refusal is not None:
+        # R1-1: no answer at all — apparatus, never an authoring code.
+        raise engines.EngineError(
+            "ENGINE-INVOCATION-REFUSED jpack spec validate produced no answer "
+            "(%s, exit %s): §1a files an invocation the engine never answered "
+            "on the apparatus side" % (refusal, code))
     detail["validateStatus"] = payload.get("status")
     if payload.get("status") != "valid":
         detail["diagnostics"] = [
@@ -173,7 +178,13 @@ def admit_arm_rego(tools: engines.Toolchain, block: str, workdir: str,
             return None, presence_idiom.CODE, detail
         return path, None, detail
     if codes == [UNREADABLE_CHECK_OUTPUT]:
-        return None, "unreadable-output-shape", detail
+        # R1-1: a nonzero `opa check` whose streams carry no readable error
+        # document is the pinned binary failing to render its own verdict —
+        # apparatus, never an authoring code.
+        raise engines.EngineError(
+            "ENGINE-INVOCATION-REFUSED opa check exited %s with no readable "
+            "error document: the invocation rendered no verdict about the "
+            "artifact (R1-1)" % code)
     if codes and all(one == PARSE_ERROR_CODE for one in codes):
         v0_code, v0_codes = engines.opa_check(tools, path, workdir,
                                               v0_compatible=True)

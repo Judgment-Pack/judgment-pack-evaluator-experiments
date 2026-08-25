@@ -48,7 +48,7 @@ def arm(covered, denominator, name="A"):
         "language": "jps",
         "denominator": denominator,
         "perProtocolDenominator": denominator,
-        "identityPass": denominator,
+        "referenceIdentityPass": denominator,
         "ownPolicyIdentityPass": denominator,
         "bothIdentitiesPass": denominator,
         "coverageCounts": [covered] * denominator,
@@ -82,7 +82,8 @@ def family(claim=True, sign="+", arms=("A", "C")):
 def _runs():
     """One admitted run per arm, in the shape `family.unit_from_kill_record()`
     reads: a run id, an identity verdict, a `caseCount` and a `kill` block."""
-    return {name: [{"run": "run-001", "identityPass": True, "caseCount": 12,
+    return {name: [{"run": "run-001", "referenceIdentityPass": True,
+                    "caseCount": 12,
                     "kill": {"survivorsPaired": [], "killedPaired": 33}}]
             for name in ("A", "B", "C")}
 

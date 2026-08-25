@@ -376,21 +376,41 @@ def test_a_second_turn_context_naming_another_effort_is_apparatus(tmp_path):
                    "turn-context-mismatch", "apparatus")
 
 
-def test_a_null_effort_member_is_not_a_witness_and_admits(tmp_path):
-    """019's ACTUAL transcript shape under a FILLED pin: the nested member is
-    present and holds null, the top-level spelling is absent. Both are
-    non-witnesses, not mismatches — a membership idiom here would build
-    `{None}` and refuse every 019-shaped transcript, the failure M-24
-    predicted. The sweep's witness step rules the same fact the same way
-    (`test_sweep.py`'s null-member case), and two readings of one fact is the
-    defect this program keeps finding."""
+def test_a_null_effort_member_is_no_witness_and_a_filled_pin_refuses(
+        tmp_path):
+    """R1-12 flipped this test's earlier form, which asserted the 019-shaped
+    all-null transcript ADMITS under a filled pin — the fail-open the review
+    caught while the wrapper stamped `reasoningEffortWitnessed: true`
+    unconditionally. A null member is still not a WITNESS (the sweep step's
+    rule, kept), but under the gate-5-extension branch a filled pin with zero
+    non-null witnesses is an unwitnessed call and refuses as apparatus. An
+    UNFILLED pin still skips the clause, which is the state every 019-era
+    fixture runs under."""
     rows = rows_for()
     for row in rows:
         if row["type"] == "turn_context":
             row["payload"]["collaboration_mode"] = {
                 "settings": {"reasoning_effort": None}}
-    verdict = Slot(tmp_path / "effortnull", rows=rows).verdict(effort="low")
+    slot = Slot(tmp_path / "effortnull", rows=rows)
+    assert_refused(slot.verdict(effort="low"),
+                   "turn-context-mismatch", "apparatus")
+    verdict = slot.verdict(effort=None)
     assert verdict["admissible"] is True, verdict
+
+
+def test_a_non_string_effort_witness_is_malformed_not_a_crash(tmp_path):
+    """R1-12's other half, found by the fill's own verification pass: a list
+    or dict witness value raised TypeError out of `classify()`. It refuses
+    with the gate's reason now."""
+    for label, value in (("list", ["low"]), ("dict", {"tier": "low"}),
+                         ("int", 3)):
+        rows = rows_for()
+        for row in rows:
+            if row["type"] == "turn_context":
+                row["payload"]["effort"] = value
+        assert_refused(Slot(tmp_path / ("badtype-" + label),
+                            rows=rows).verdict(effort="low"),
+                       "turn-context-mismatch", "apparatus")
 
 
 def test_a_matching_effort_witness_admits(tmp_path):

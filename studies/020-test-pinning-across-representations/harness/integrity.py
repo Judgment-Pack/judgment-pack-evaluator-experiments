@@ -194,6 +194,7 @@ NEW_IN_020 = frozenset((
     "harness/tests/test_counterfactual_shift.py",
     "harness/tests/test_family.py",
     "harness/tests/test_score_presence_idiom.py",
+    "harness/tests/test_score_reviewer_integration.py",
     "harness/tests/test_sweep.py",
     "harness/tests/test_sweep_rates.py",
 ))

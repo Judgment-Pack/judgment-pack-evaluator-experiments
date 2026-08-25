@@ -574,8 +574,22 @@ APPARATUS_CODES = (
     # `golden-context-mismatch` above is apparatus.
     ("registry-mismatch", "registry mismatch"),
     ("transcript-refused", "transcript refusal"),
+    # ROUND-1 FINDING R1-1. A pinned-engine invocation during SCORING that
+    # produced no answer at all — a timeout, a self-declared invocation
+    # failure (jpack exits 3/4/5), an answering exit whose stream is not a
+    # document — is an apparatus event: the engine said nothing about the
+    # author's artifact, so no authoring code may be read off it. Assigned by
+    # the SCORER (admission and E1 route `engines.EngineError` here), unlike
+    # every wrapper-assigned code above it.
+    ("engine-invocation-refused", "pinned-engine invocation produced no "
+                                  "answer during scoring"),
 )
-# The SEVEN ADMISSION codes: what `admit()` reads off the retained artifact.
+# The SIX ADMISSION codes: what `admit()` reads off the retained artifact.
+# (R1-1 RETIRED the seventh, `unreadable-output-shape`: every state that
+# produced it was the pinned engine failing to answer — a timeout, an
+# invocation failure, an unreadable stream — which is apparatus, files under
+# `engine-invocation-refused` above, and was never anything the author
+# emitted. §1a's table carries the marked amendment.)
 # `e4lib/admit.py`'s DROP_ORDER is this list in the order that module decides in,
 # and a test diffs the two — so this tuple stays the admission surface and does
 # not grow a member no `admit()` branch can return.
@@ -592,7 +606,6 @@ AUTHORING_CODES = (
     ("schema-invalid-pack", "schema-invalid pack"),
     ("opa-check-failed", "opa check failure"),
     ("v0-syntax", "v0-syntax"),
-    ("unreadable-output-shape", "unreadable output shape"),
     # NEW IN 020 (§1a's table, §3.2, ruling M-14). Study 019 had six admission
     # codes; this is the seventh and it is an AUTHORING outcome like the other
     # six — valid, counted, and scoring zero on every endpoint it reaches. It is
@@ -619,7 +632,6 @@ AUTHORING_CODE_ARMS = {
     "schema-invalid-pack": ("A",),
     "opa-check-failed": ("B", "C"),
     "v0-syntax": ("B", "C"),
-    "unreadable-output-shape": ("A", "B", "C"),
     "presence-idiom-unsound": ("B", "C"),
 }
 # R1-5's authoring outcome, which is NOT an admission code: it is read off the

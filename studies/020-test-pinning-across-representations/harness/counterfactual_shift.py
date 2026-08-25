@@ -125,6 +125,12 @@ CERTIFIED_FLAGGED_SHA256 = "759b0ddcf8c5eb23b4bd3a8a98d927ca0b73f43873480fa5168a
 #: every id in this module is `ARM/run-NNN`.
 
 
+# VOCABULARY BOUNDARY (R1-13). This module READS Study 019's frozen
+# RESULTS.json, where `identityPass` is 019's own (and only) identity member;
+# 020's rename to `referenceIdentityPass` is 020's run-record vocabulary and
+# deliberately does not reach a frozen predecessor's bytes.
+
+
 class ShiftError(Exception):
     """A refusal. The message says which precondition failed and where."""
 

@@ -805,9 +805,13 @@ class TheSweepEndToEnd(StandInStudy):
             self.assertEqual(call["completionBytes"], len("an answer"))
 
     def test_step_zero_records_the_witness_branch_the_first_call_produced(self):
-        """The stand-in writes 019's own `turn_context` shape — `model`, `cwd`,
-        `current_date` and no effort member — so the branch that fires here is
-        the one M-24 predicts for this apparatus."""
+        """Driven on 019's own `turn_context` shape — no effort member in any
+        spelling (the `no_effort_witness` plan knob; R1-12 made the DEFAULT
+        stand-in witness like the real CLI, so the self-report branch is now
+        opted into rather than ambient) — so the branch that fires here is the
+        one M-24 predicts for that apparatus."""
+        write_plan(self.cli_dir,
+                   [{"completion": "an answer", "no_effort_witness": True}] * 30)
         self.assertEqual(self.sweep(), 0)
         witness = self.ledger()["witnessResolution"]
         self.assertEqual(witness["branch"], batch.WITNESS_BRANCH_SELF_REPORT)

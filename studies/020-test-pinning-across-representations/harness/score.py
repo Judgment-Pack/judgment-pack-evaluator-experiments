@@ -1160,7 +1160,7 @@ def e3_taxonomy(runs: list) -> dict:
         for failure in run.get("goldFailures") or []:
             key = failure.get("category", "uncategorised")
             gold_failures[key] = gold_failures.get(key, 0) + 1
-        for failure in run.get("identityFailures") or []:
+        for failure in run.get("referenceIdentityFailures") or []:
             key = failure.get("got", "uncategorised")
             identity_failures[key] = identity_failures.get(key, 0) + 1
     return {"goldFailureCategories": gold_failures,
@@ -1274,9 +1274,9 @@ def e4_endpoint(arm: str, runs: list, denominator: dict, engine_supplied=None,
     denominator the run is scored OVER (019's R1-1 defect, made structurally
     impossible rather than repaired)."""
     bind_study_modules()
-    identity_pass = [run for run in runs if run.get("identityPass")]
+    identity_pass = [run for run in runs if run.get("referenceIdentityPass")]
     identity_fail = [run for run in runs if run.get("admitted")
-                     and not run.get("identityPass")]
+                     and not run.get("referenceIdentityPass")]
     own_policy_pass = [run for run in runs
                        if (run.get("ownPolicyIdentity") or {}).get("pass")]
     # §5.2's coverage rule, per run, over the SHARED classes. A run that was
@@ -1303,7 +1303,7 @@ def e4_endpoint(arm: str, runs: list, denominator: dict, engine_supplied=None,
                            "referenceIdentity-passing runs. It is a family "
                            "member's population, not a filter applied before "
                            "the endpoint.",
-        "identityPass": len(identity_pass),
+        "referenceIdentityPass": len(identity_pass),
         "identityFail": len(identity_fail),
         "identityRate": stats.rate_block(len(identity_pass), len(runs),
                                          "admitted runs"),
@@ -1311,12 +1311,24 @@ def e4_endpoint(arm: str, runs: list, denominator: dict, engine_supplied=None,
         # E6 (§5.1, §7 delta 4). The SECOND named relation, published per arm
         # beside the first and gating nothing. The conjunction is §5.8's Tier D
         # population disposition: the population 020 did NOT register, made
-        # visible beside the one it did.
+        # visible beside the one it did. R1-14: the RATE's denominator is the
+        # runs E6 actually answered for — a domain-failing run returns before
+        # E6 and an E6 engine refusal is apparatus — and the not-asked count
+        # is printed beside it rather than diluted into the rate.
         "ownPolicyIdentityPass": len(own_policy_pass),
+        "ownPolicyIdentityAnswered": len(
+            [run for run in runs if run.get("ownPolicyIdentity") is not None]),
+        "ownPolicyIdentityNotAsked": len(
+            [run for run in runs if run.get("ownPolicyIdentity") is None]),
         "ownPolicyIdentityRate": stats.rate_block(
-            len(own_policy_pass), len(runs), "admitted runs"),
+            len(own_policy_pass),
+            len([run for run in runs
+                 if run.get("ownPolicyIdentity") is not None]),
+            "runs E6 answered for (R1-14: not-asked runs are counted beside "
+            "the rate, not inside it; rate_block publishes a null rate over "
+            "an empty denominator rather than inventing one)"),
         "bothIdentitiesPass": len([run for run in runs
-                                   if run.get("identityPass")
+                                   if run.get("referenceIdentityPass")
                                    and (run.get("ownPolicyIdentity")
                                         or {}).get("pass")]),
         "coverageCounts": coverage_counts,
@@ -1404,7 +1416,7 @@ def registered_family(e4_by_arm: dict, per_arm_runs: dict, context: dict,
         corpus = family_lib.build_corpus(context["pairing"],
                                          context["engineSupplied"])
         units = [family_lib.unit_from_kill_record(
-                     run["run"], arm, bool(run.get("identityPass")),
+                     run["run"], arm, bool(run.get("referenceIdentityPass")),
                      run.get("caseCount"), run.get("kill"), corpus)
                  for arm in batch.ARMS for run in per_arm_runs[arm]]
     except Exception as error:                       # noqa: BLE001 (named below)
@@ -1483,11 +1495,12 @@ def score_run(tools, arm: str, slot: dict, context: dict, workdir: str) -> dict:
     bind_study_modules()
     run = {"run": "run-%03d" % slot["slotIndex"], "arm": arm,
            "code": slot["code"], "admitted": False, "goldPerfect": False,
-           # §7 delta 4: TWO NAMED RELATIONS. `identityPass` is
+           # §7 delta 4: TWO NAMED RELATIONS, and ROUND-1 FINDING R1-13's rename
+           # actually landed: `referenceIdentityPass` is
            # `referenceIdentity` and nothing else; E6's answer lives under its
            # own name and is None until the extra invocation has been made, so
            # "not asked" and "asked and failed" are different bytes.
-           "identityPass": False, "identityRelation": e4lib.REFERENCE_IDENTITY,
+           "referenceIdentityPass": False, "identityRelation": e4lib.REFERENCE_IDENTITY,
            "ownPolicyIdentity": None,
            "durationSeconds": slot["durationSeconds"]}
     if slot["code"] is not None:
@@ -1503,9 +1516,19 @@ def score_run(tools, arm: str, slot: dict, context: dict, workdir: str) -> dict:
     # `None`, and `admit()` resolves the switch from `harness/PINS.json`'s
     # `presenceIdiomGuard.registered` — fail-shut toward NOT registered, so a
     # registry that never published the power analysis cannot emit the code.
-    artifact, code, detail = admit_lib.admit(
-        tools, arm, pair["policy"], workdir,
-        context.get("presenceIdiomGuard"))
+    try:
+        artifact, code, detail = admit_lib.admit(
+            tools, arm, pair["policy"], workdir,
+            context.get("presenceIdiomGuard"))
+    except engines.EngineError as error:
+        # R1-1: the pinned engine never answered about this artifact — an
+        # APPARATUS event assigned at scoring time. The run leaves every
+        # denominator (the caller partitions on this code) and §6's gate
+        # reads it; no authoring code is invented for an answer that does
+        # not exist.
+        run["code"] = "engine-invocation-refused"
+        run["invocationRefusal"] = str(error)
+        return run
     run["admissionDetail"] = detail
     if code is not None:
         run["code"] = code
@@ -1527,6 +1550,19 @@ def score_run(tools, arm: str, slot: dict, context: dict, workdir: str) -> dict:
             got = engines.eval_pack(tools, artifact, facts, evidence, workdir)
         else:
             got = engines.eval_rego(tools, artifact, row["inputs"], workdir)
+        # R1-1: a ROW-ERROR whose class says the engine NEVER ANSWERED (a
+        # timeout, an invocation failure, an unreadable stream) is apparatus —
+        # unlike an evaluator's own error document, which is an answer about
+        # the authored artifact and stays an authored gold failure.
+        if got[0] == "ROW-ERROR" and (
+                got[1] in (engines.INVOCATION_TIMEOUT,
+                           engines.UNREADABLE_INVOCATION,
+                           "non-json-payload")
+                or str(got[1]).startswith(engines.INVOCATION_FAILURE)):
+            run["code"] = "engine-invocation-refused"
+            run["invocationRefusal"] = ("E1 row %s: %s"
+                                        % (row.get("id"), got[1]))
+            return run
         vector.append(engines.scope_str(got))
         if got != want:
             failures.append({"id": row["id"], "cite": row.get("cite", []),
@@ -1622,9 +1658,9 @@ def score_run(tools, arm: str, slot: dict, context: dict, workdir: str) -> dict:
         # denominator, the identity control records why, and nothing is
         # executed against a point on which the two references are not known to
         # agree.
-        run["identityPass"] = False
-        run["identityFailures"] = domain_failures[:20]
-        run["identityFailureCount"] = len(domain_failures)
+        run["referenceIdentityPass"] = False
+        run["referenceIdentityFailures"] = domain_failures[:20]
+        run["referenceIdentityFailureCount"] = len(domain_failures)
         run["kill"] = e4lib.kill_rates({}, context["mutants"][language],
                                        context["pairedIds"][language],
                                        context["engineSupplied"][language])
@@ -1644,12 +1680,12 @@ def score_run(tools, arm: str, slot: dict, context: dict, workdir: str) -> dict:
         # control gate reads it, which adjudicates R1 in neither direction.
         run["engineRefused"] = True
         run["engineRefusal"] = str(error)
-        run["identityPass"] = False
-        run["identityFailures"] = [{"case": "<engine>",
+        run["referenceIdentityPass"] = False
+        run["referenceIdentityFailures"] = [{"case": "<engine>",
                                     "expected": "<an answer from the pinned "
                                                 "engine>",
                                     "got": "engine-refused"}]
-        run["identityFailureCount"] = 1
+        run["referenceIdentityFailureCount"] = 1
         run["kill"] = e4lib.kill_rates({}, context["mutants"][language],
                                        context["pairedIds"][language],
                                        context["engineSupplied"][language])
@@ -1674,9 +1710,9 @@ def _identity_and_kill(tools, arm: str, run: dict, artifact: str,
     if arm == "A":
         ok, identity_failures = e4lib.identity_arm_a(
             tools, context["referenceA"], cases, workdir)
-        run["identityPass"] = ok
-        run["identityFailures"] = identity_failures[:20]
-        run["identityFailureCount"] = len(identity_failures)
+        run["referenceIdentityPass"] = ok
+        run["referenceIdentityFailures"] = identity_failures[:20]
+        run["referenceIdentityFailureCount"] = len(identity_failures)
         kill_of = {}
         if ok:
             for mutant in context["mutants"]["jps"]:
@@ -1689,9 +1725,9 @@ def _identity_and_kill(tools, arm: str, run: dict, artifact: str,
     else:
         ok, detail = e4lib.identity_arm_rego(tools, context["referenceB"],
                                              suite_path, workdir)
-        run["identityPass"] = ok
-        run["identityFailures"] = [] if ok else [detail]
-        run["identityFailureCount"] = 0 if ok else 1
+        run["referenceIdentityPass"] = ok
+        run["referenceIdentityFailures"] = [] if ok else [detail]
+        run["referenceIdentityFailureCount"] = 0 if ok else 1
         kill_of = {}
         if ok:
             for mutant in context["mutants"]["rego"]:
@@ -1703,13 +1739,24 @@ def _identity_and_kill(tools, arm: str, run: dict, artifact: str,
                                    context["engineSupplied"][language])
     run["coverage"] = e4lib.coverage_classes(kill_of, context["classes"],
                                              language)
-    # E6, LAST and unconditional on the reference relation: one extra engine
-    # invocation per admitted run, through the same toolchain and therefore
-    # under the same `engine-execution-clean` gate (§6: "this now covers E6's
-    # extra invocation too"). It is written under its own name and never merged
-    # into `identityPass`.
-    run["ownPolicyIdentity"] = e4lib.own_policy_identity(
-        tools, arm, artifact, cases, suite_path, workdir)
+    # E6, LAST and unconditional on the reference relation, in ITS OWN refusal
+    # scope (ROUND-1 FINDING R1-14): an engine refusal inside E6 must not
+    # reach score_run()'s outer handler, which would overwrite the COMPLETED
+    # reference-identity result and kill vector above with a generic refusal
+    # record. E6's exposure is arm- and case-dependent — arm A evaluates the
+    # own pack once per readable case, arms B/C run one `opa test` plus one
+    # strict adjudication per reported failure — and §1.2 registers it as
+    # measured rather than as the "one extra invocation" this comment once
+    # claimed. Its refusal is still apparatus (`engine-execution-clean` reads
+    # `e6EngineRefused`), and it is written under its own name, never merged
+    # into `referenceIdentityPass`.
+    try:
+        run["ownPolicyIdentity"] = e4lib.own_policy_identity(
+            tools, arm, artifact, cases, suite_path, workdir)
+    except e4lib.ExecutionRefusal as error:
+        run["ownPolicyIdentity"] = None
+        run["e6EngineRefused"] = True
+        run["e6Refusal"] = str(error)
     return run
 
 
@@ -1781,7 +1828,7 @@ def results_markdown(results: dict) -> str:
             continue
         lines.append("| %s | %s | %d | %d | %d | %d | %d | %d |"
                      % (arm, entry.get("language"), entry["denominator"],
-                        entry["perProtocolDenominator"], entry["identityPass"],
+                        entry["perProtocolDenominator"], entry["referenceIdentityPass"],
                         entry.get("ownPolicyIdentityPass", 0),
                         entry.get("bothIdentitiesPass", 0),
                         entry.get("outOfDomainCases", 0)))
@@ -1905,7 +1952,8 @@ def _fmt_ci(bounds):
 # the attempt
 # --------------------------------------------------------------------------
 
-def _engine_execution_gate(per_arm_runs: dict) -> dict:
+def _engine_execution_gate(per_arm_runs: dict,
+                           scoring_apparatus: dict = None) -> dict:
     """Section 6's gate for round-1 R1-8: every scored invocation of this
     attempt returned an answer.
 
@@ -1916,19 +1964,36 @@ def _engine_execution_gate(per_arm_runs: dict) -> dict:
     `refusedAll`). A gate that tolerated either would be a gate that let an
     apparatus failure decide a rate."""
     bind_study_modules()
-    identity, mutant = [], []
+    identity, mutant, e6, invocation = [], [], [], []
+    # R1-1: the invocation-refused runs left `per_arm_runs` (they are in no
+    # population), so the gate reads them from their own ledger — an exclusion
+    # this gate did not see would be an apparatus event with no gate.
+    for arm in sorted(scoring_apparatus or {}):
+        for entry in scoring_apparatus[arm]:
+            invocation.append("%s/%s: %s" % (arm, entry["run"],
+                                             entry.get("refusal")))
     for arm in sorted(per_arm_runs):
         for run in per_arm_runs[arm]:
             if run.get("engineRefused"):
                 identity.append("%s/%s: %s" % (arm, run["run"],
                                                run.get("engineRefusal")))
+            # R1-14: E6's refusal has its own member so it cannot overwrite a
+            # completed reference result — and its own list here so §6's
+            # "covers E6's extra invocation too" is a scan, not a sentence.
+            if run.get("e6EngineRefused"):
+                e6.append("%s/%s: %s" % (arm, run["run"],
+                                         run.get("e6Refusal")))
             for mutant_id in (run.get("kill") or {}).get("refusedAll", ()):
                 mutant.append("%s/%s: %s" % (arm, run["run"], mutant_id))
-    return {"held": not identity and not mutant,
+    return {"held": not identity and not mutant and not e6 and not invocation,
+            "invocationRefusals": sorted(invocation)[:20],
+            "invocationRefusalCount": len(invocation),
             "identityRefusals": sorted(identity)[:20],
             "identityRefusalCount": len(identity),
             "mutantRefusals": sorted(mutant)[:20],
             "mutantRefusalCount": len(mutant),
+            "e6Refusals": sorted(e6)[:20],
+            "e6RefusalCount": len(e6),
             "gate": "every scored invocation of the pinned engines on a frozen "
                     "artifact returned an answer; a refusal is an apparatus "
                     "failure and is never a kill and never a suite scoring zero"}
@@ -2236,9 +2301,21 @@ def main(argv=None) -> int:
 
         counted = population(slots)
         per_arm_runs, e1, e2, e3, e4_by_arm = {}, {}, {}, {}, {}
+        scoring_apparatus = {}
         for arm in batch.ARMS:
-            runs = [score_run(tools, arm, slot, context, workspace)
-                    for slot in counted[arm]["slots"]]
+            scored = [score_run(tools, arm, slot, context, workspace)
+                      for slot in counted[arm]["slots"]]
+            # R1-1: a run the scorer coded `engine-invocation-refused` is
+            # pipeline-invalid — the engine never answered about it — and
+            # leaves every endpoint's population, published under its own
+            # member with its refusal class so an absence is never silent.
+            runs = [run for run in scored
+                    if run.get("code") != "engine-invocation-refused"]
+            scoring_apparatus[arm] = [
+                {"run": run["run"],
+                 "refusal": run.get("invocationRefusal")}
+                for run in scored
+                if run.get("code") == "engine-invocation-refused"]
             per_arm_runs[arm] = runs
             e1[arm] = e1_control(arm, runs)
             e2[arm] = e2_profile(arm, runs)
@@ -2282,7 +2359,8 @@ def main(argv=None) -> int:
             # mutant is an apparatus failure, and neither counting it as a kill
             # nor scoring the suite zero for it is honest — so it adjudicates R1
             # in neither direction, above every substantive row.
-            "engine-execution-clean": _engine_execution_gate(per_arm_runs),
+            "engine-execution-clean": _engine_execution_gate(
+                per_arm_runs, scoring_apparatus),
         }
 
         # ROUND-1 R1-14: NOTHING INFERENTIAL IS COMPUTED BELOW A FAILED GATE.
@@ -2348,6 +2426,10 @@ def main(argv=None) -> int:
                                  for key, value in counted[arm].items()
                                  if key != "slots"}
                            for arm in batch.ARMS},
+            # R1-1: scoring-time apparatus exclusions, published per arm with
+            # their refusal classes — a run the engines never answered about
+            # is in no population and in no silence either.
+            "scoringApparatus": scoring_apparatus,
             # ROUND-1 R1-19. `groups` is EVERY witness-key group, shared or not;
             # section 4 registers the SHARED, non-degenerate groups as the thing
             # the paired subset comes from, and one number published under one

@@ -9,7 +9,8 @@ registry pins for it) and binds this file's source cell to 019's line for it.
 This file carries ONE registered design change over 019's bytes — §2.1's
 `gate-5-extension` branch, taken 2026-08-24 by the sweep's witness-resolution
 step: gate 5 binds the pinned REASONING EFFORT beside the model and the cwd,
-by path, over both witnessed spellings, with null-and-absent both non-witnesses.
+by path, over both witnessed spellings; null-and-absent are non-witnesses, and
+under a FILLED pin at least one non-null witness is REQUIRED (R1-12).
 `harness/PORTS.md`'s row for this file records the change, and §7's
 ported-unchanged sentence had already carved the seat out by name — "the
 transcript binding and its gates other than gate 5".
@@ -96,8 +97,11 @@ Admissibility:
 5. `turn_context` (when the transcript carries it) names the locked model,
    the call's own working directory, and — when the effort pin is filled —
    the pinned reasoning effort, in either of its two witnessed spellings
-   (`effort`, `collaboration_mode.settings.reasoning_effort`), a member
-   holding null being neither a witness nor a mismatch.
+   (`effort`, `collaboration_mode.settings.reasoning_effort`). A member
+   holding null is not a witness; under a FILLED pin at least one non-null
+   matching witness must exist (R1-12 — the gate-5-extension branch means
+   the transcript witnesses the effort, so an unwitnessed call refuses),
+   and a non-string witness value refuses as malformed.
 6. `CALL.json` records integer exit status 0 (a JSON boolean is not an
    integer here).
 
@@ -653,12 +657,13 @@ def check(session_path: str, prompt_path: str, completion_path: str,
         #     format happens to call `effort` or `reasoning_effort` anywhere in
         #     the payload; the gate reads exactly the two registered paths the
         #     witness resolution certified and nothing else.
-        #   - a member PRESENT AND NULL is not a witness and not a mismatch:
-        #     019-format transcripts carry the nested member holding null in
-        #     every call, and the sweep's witness step already ruled a null
-        #     occurrence a non-witness; a membership test here would build
-        #     {None} and refuse every 019-shaped transcript, the exact failure
-        #     M-24 predicted of this module.
+        #   - a member PRESENT AND NULL is not a witness (the sweep's witness
+        #     step's own rule) — but R1-12 closed the fail-open this once
+        #     implied: under a FILLED pin at least one non-null witness is
+        #     REQUIRED, so a 019-shaped all-null transcript refuses as
+        #     unwitnessed rather than passing silently. (An UNFILLED pin still
+        #     skips the clause entirely, which is what keeps 019-era callers
+        #     and pre-fill states meaningful.)
         #   - EVERY turn_context, not merely one — the cwd clause's rule.
         #   - a nested level that is not an object is an absent path, never an
         #     exception: every other refusal in this module leaves through
@@ -677,9 +682,32 @@ def check(session_path: str, prompt_path: str, completion_path: str,
         named_efforts = set()
         for context in contexts:
             for value in (context.get("effort"), _nested(context)):
-                if value is not None:
-                    named_efforts.add(value)
-        if named_efforts and named_efforts != {effort}:
+                if value is None:
+                    continue
+                # R1-12: a witness that is not a string is a malformed record,
+                # refused with the gate's own reason — never a TypeError out
+                # of `classify()`.
+                if not isinstance(value, str):
+                    raise TranscriptError(
+                        "the transcript's turn context carries a non-string "
+                        "reasoning-effort value of type %s"
+                        % type(value).__name__,
+                        reason="turn-context-mismatch")
+                named_efforts.add(value)
+        # R1-12: the branch this study RUNS UNDER is `gate-5-extension` — the
+        # transcript witnesses the effort — so under a FILLED pin a transcript
+        # with no witness at all is not a pass, it is the anomaly the branch
+        # exists to catch (fail-open was the finding: no turn_context, an
+        # absent path, or all-null values sailed through while the wrapper
+        # stamped `reasoningEffortWitnessed: true`).
+        if not named_efforts:
+            raise TranscriptError(
+                "the effort pin is %r and the transcript carries no non-null "
+                "effort witness in any turn_context: under the registered "
+                "gate-5-extension branch an unwitnessed call is refused, not "
+                "presumed" % (effort,),
+                reason="turn-context-mismatch")
+        if named_efforts != {effort}:
             raise TranscriptError(
                 "the transcript's turn context names the reasoning effort %r, "
                 "not the pinned %r"

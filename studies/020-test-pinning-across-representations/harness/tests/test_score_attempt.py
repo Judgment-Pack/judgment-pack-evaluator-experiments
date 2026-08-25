@@ -1296,7 +1296,7 @@ def run(name, arm="A", admitted=True, identity=True, killed=38, paired=39,
                "engineSupplied": False}
               for index in range(paired)]
     return {"run": name, "arm": arm, "code": code, "admitted": admitted,
-            "goldPerfect": gold_perfect, "identityPass": identity,
+            "goldPerfect": gold_perfect, "referenceIdentityPass": identity,
             "identityRelation": "referenceIdentity",
             "ownPolicyIdentity": {"relation": "ownPolicyIdentity",
                                   "pass": own_policy, "failures": [],
@@ -1313,7 +1313,7 @@ def run(name, arm="A", admitted=True, identity=True, killed=38, paired=39,
                          covered, "coveredAny": [], "coveredAnyCount": covered,
                          "allEqualsAny": True, "unevaluatedClasses": [],
                          "classCount": 33},
-            "goldFailures": [], "identityFailures": []}
+            "goldFailures": [], "referenceIdentityFailures": []}
 
 
 DENOMINATOR = {"language": "jps", "pairedAdequateMutants": 69,
@@ -1359,12 +1359,12 @@ def test_e4_publishes_both_named_identity_relations_and_their_conjunction():
             run("run-002", identity=False),                # reference fails
             run("run-003", own_policy=False)]              # own policy fails
     endpoint = score.e4_endpoint("A", runs, DENOMINATOR)
-    assert endpoint["identityPass"] == 2
+    assert endpoint["referenceIdentityPass"] == 2
     assert endpoint["ownPolicyIdentityPass"] == 2
     assert endpoint["bothIdentitiesPass"] == 1
     # The two are DIFFERENT populations, which is the whole point of naming
     # them separately: neither count is a function of the other.
-    assert endpoint["identityPass"] != endpoint["bothIdentitiesPass"]
+    assert endpoint["referenceIdentityPass"] != endpoint["bothIdentitiesPass"]
 
 
 def test_the_identity_failure_denominator_is_the_registered_one(tmp_path):
@@ -1410,6 +1410,9 @@ def test_the_pilot_scorer_now_computes_the_same_denominator():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     doc = {"perArm": {
+        # The pilot scorer is 019-era design machinery and speaks 019's
+        # vocabulary (`identityPass`); R1-13's rename is 020's run-record
+        # vocabulary and deliberately does not reach into the design tree.
         "A": {"mutantsPairedAdequate": 75, "identityFailedRuns": ["run-002"],
               "perRun": [{"run": "run-001", "identityPass": True,
                           "killedPaired": 72},
@@ -1527,7 +1530,7 @@ def test_e2_refuses_an_apparatus_code_on_a_run_record():
 
 def test_e3_counts_within_arm_only():
     runs = [{"goldFailures": [{"category": "disagreement"}],
-             "identityFailures": [{"got": "outcome:reject"}]}]
+             "referenceIdentityFailures": [{"got": "outcome:reject"}]}]
     taxonomy = score.e3_taxonomy(runs)
     assert taxonomy["goldFailureCategories"] == {"disagreement": 1}
     assert taxonomy["identityFailureCategories"] == {"outcome:reject": 1}
