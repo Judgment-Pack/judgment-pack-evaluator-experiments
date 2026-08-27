@@ -68,6 +68,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
+import integrity                      # noqa: E402
 from e4lib import admit as admit_lib   # noqa: E402
 from e4lib import e4                   # noqa: E402
 from e4lib import engines              # noqa: E402
@@ -100,7 +101,8 @@ class RatesError(Exception):
 
 def load_pins() -> dict:
     with open(os.path.join(HARNESS, "PINS.json"), "rb") as handle:
-        return json.loads(handle.read().decode("utf-8"))
+        return json.loads(handle.read().decode("utf-8"),
+                          **integrity.LOAD_KWARGS)
 
 
 def toolchain(pins: dict) -> engines.Toolchain:
@@ -186,7 +188,14 @@ def reference_identity(tools, arm: str, suite_path: str,
             ok, _record = e4.identity_arm_rego(tools, REFERENCE_B, suite_path,
                                                workdir)
     except e4.ExecutionRefusal as refusal:
-        return {"pass": False, "why": "engine-refused",
+        # ROUND-2 FINDING R2-10: a pinned engine that refused on a FROZEN
+        # artifact produced no verdict about this run's suite. It used to
+        # return `pass: False`, which the caller wrote into `identityPass` and
+        # the aggregator counted as a failing suite inside a fixed denominator
+        # — §1a's population rule read backwards. It is APPARATUS, and it says
+        # so in the vocabulary `score.population()` already uses.
+        return {"pass": None, "why": "apparatus-refused",
+                "apparatusCode": "engine-invocation-refused",
                 "refusal": str(refusal)[:200]}
     return {"pass": bool(ok), "why": None if ok else "identity-failed"}
 
@@ -200,6 +209,10 @@ def score_slot(tools, arm: str, slot_dir: str, gold: list,
     record = {"slot": os.path.relpath(slot_dir, STUDY), "arm": arm,
               "code": None, "goldPerfect": False, "goldFailures": None,
               "identityPass": False, "identityWhy": "not-asked",
+              # R2-10: §1a's apparatus side, per slot. None means the apparatus
+              # succeeded and the slot is SCORED; a code means the slot leaves
+              # the denominator and is published under it.
+              "apparatusCode": None,
               "suitePresent": False}
     os.makedirs(workdir, exist_ok=True)
     completion_path = os.path.join(slot_dir, "completion.txt")
@@ -217,9 +230,11 @@ def score_slot(tools, arm: str, slot_dir: str, gold: list,
         artifact, code, _detail = admit_lib.admit(tools, arm, pair["policy"],
                                                   workdir, guard_registered)
     except engines.EngineError as error:
-        # R1-1: the engine never answered — an apparatus event, published as
-        # its own member and never as an authoring code or a rate input.
-        record["apparatusRefused"] = str(error)[:200]
+        # R1-1/R2-10: the engine never answered — an apparatus event, filed in
+        # §1a's own vocabulary, never as an authoring code or a rate input.
+        record["apparatusCode"] = "engine-invocation-refused"
+        record["apparatusDetail"] = str(error)[:200]
+        record["identityPass"] = None
         return record
     if code is not None:
         record["code"] = code
@@ -228,7 +243,9 @@ def score_slot(tools, arm: str, slot_dir: str, gold: list,
         record["goldPerfect"], record["goldFailures"] = gold_perfect(
             tools, arm, artifact, gold, workdir)
     except engines.EngineError as error:
-        record["apparatusRefused"] = str(error)[:200]
+        record["apparatusCode"] = "engine-invocation-refused"
+        record["apparatusDetail"] = str(error)[:200]
+        record["identityPass"] = None
         return record
     if pair["suite"] is None:
         record["identityWhy"] = "no-suite"
@@ -240,6 +257,9 @@ def score_slot(tools, arm: str, slot_dir: str, gold: list,
     identity = reference_identity(tools, arm, suite_path, workdir)
     record["identityPass"] = identity["pass"]
     record["identityWhy"] = identity["why"]
+    if identity.get("apparatusCode"):
+        record["apparatusCode"] = identity["apparatusCode"]
+        record["apparatusDetail"] = identity.get("refusal")
     if "code" in identity:
         record["code"] = identity["code"]
     if "outOfDomain" in identity:
@@ -247,6 +267,34 @@ def score_slot(tools, arm: str, slot_dir: str, gold: list,
     if "refusal" in identity:
         record["engineRefusal"] = identity["refusal"]
     return record
+
+
+def per_arm_cell(rows: list) -> dict:
+    """ROUND-2 FINDING R2-10: ONE per-arm population cell, in the member names
+    `score.population()` already uses, so a pilot record and the attempt's own
+    population are diffable rather than two dialects of one rule.
+
+    §1a: "The denominator of every per-arm rate is attempted runs whose
+    apparatus succeeded. Apparatus failures ... are pipeline-invalid, excluded,
+    and reported with their own rate and interval." `attempted` is every slot,
+    `calls` is the scored denominator, `apparatusExcluded` is the difference —
+    three numbers that are ONE partition, published together so a rate can
+    never quietly acquire a different denominator than its numerator."""
+    scored = [row for row in rows if not row.get("apparatusCode")]
+    apparatus = [row for row in rows if row.get("apparatusCode")]
+    counts = {}
+    for row in apparatus:
+        counts[row["apparatusCode"]] = counts.get(row["apparatusCode"], 0) + 1
+    return {
+        "attempted": len(rows),
+        "calls": len(scored),
+        "apparatusExcluded": len(apparatus),
+        "apparatusCodes": counts,
+        "perfect": sum(1 for row in scored if row["goldPerfect"]),
+        "identityPass": sum(1 for row in scored
+                            if row["identityPass"] is True),
+        "codes": sorted(row["code"] for row in scored if row["code"]),
+    }
 
 
 def sweep_rates(tools, label: str, gold: list, scratch: str) -> dict:
@@ -273,15 +321,7 @@ def sweep_rates(tools, label: str, gold: list, scratch: str) -> dict:
         per_arm = {}
         for arm in ARMS:
             mine = [row for row in rows if row["arm"] == arm]
-            per_arm[arm] = {
-                "calls": len(mine),
-                "perfect": sum(1 for row in mine if row["goldPerfect"]),
-                "identityPass": sum(1 for row in mine if row["identityPass"]),
-                "codes": sorted(row["code"] for row in mine if row["code"]),
-                # R1-1: unanswered invocations, counted apart from every code.
-                "apparatusRefused": sum(1 for row in mine
-                                        if row.get("apparatusRefused")),
-            }
+            per_arm[arm] = per_arm_cell(mine)
         settings.append({"setting": setting["setting"], "perArm": per_arm,
                          "slots": rows})
     return {

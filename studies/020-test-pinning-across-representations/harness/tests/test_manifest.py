@@ -435,8 +435,13 @@ def _fill_calibration(root, label="pilot-001"):
     (where / "PILOT.json").write_text(
         '{"callsMade": 36, "callsRegistered": 36, "citable": false}\n',
         encoding="utf-8")
+    # ROUND-2 FINDING R2-10: the 12 SCORED calls are drawn from up to 21
+    # attempts per arm and the excluded ones are published under their own §1a
+    # codes, so a record's three population numbers must reconcile.
     record = {"label": label, "citable": False,
-              "perArm": {arm: {"calls": 12, "perfect": 8, "identityPass": 10}
+              "perArm": {arm: {"calls": 12, "attempted": 12,
+                               "apparatusExcluded": 0, "apparatusCodes": [],
+                               "perfect": 8, "identityPass": 10}
                          for arm in ("A", "B", "C")}}
     (where / "PILOT-RATES.json").write_text(
         json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")

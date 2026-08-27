@@ -60,16 +60,18 @@
     "window": "three consecutive UTC calendar days"
   },
   "calibration": {
+    "attemptCapPerArm": 21,
     "derivedFloor": null,
     "label": null,
     "minimumViable": 0.2,
     "minimumViableBasis": "identityFloor",
     "minimumViableProvenance": "Maintainer's section 2a.4(2) declaration, 2026-08-25 (round 1, R1-17): declared AFTER the sweep fixed the compute condition (low) and BEFORE any pilot call, with batch.py pilot refusing while this member was null. Bound to the IDENTITY floor because section 5.7 registers arm A's imperfection as a reported result (019: A 0/38 perfect) — a perfect-rate minimum over all arms would abort by design. GO requires the derived one-sided 95% Clopper-Pearson lower bound of the identity-passing rate to reach 0.20 in EVERY arm, which at n=12 means at least 6/12 (floor 0.245; 5/12 floors at 0.181 and fails). Priced before the pilot: ~6% three-arm false-abort risk at 019's registered identity rates (0.895/0.703/0.718) versus ~19% at the next rung (>=7/12, min 0.30); a true rate of 1/3 (the C arm's swept n=3 point at low) is caught with probability 0.82. The abort is study-death under M-9 (no descope), so the gate catches COLLAPSE; thin-but-alive arms are section 2a.6's recomputed dispersion table's business. Full rationale in PREREGISTRATION.md section 2a.4's fill.",
-    "note": "PREREGISTRATION.md section 2a. The pre-freeze pilot runs through harness/authoring_call.sh and harness/batch.py under the calibration mode `batch.py pilot` (PIN_LABEL=PILOT; round-1 finding R1-17), with output under calibration/<label>/arm-<ARM>/run-NNN and citable: false. The registered differences between the pilot and the primary batch are exactly four (section 2a.2) and pilotPerArm is one of them; root is the subtree's registered name, read by the wrapper's slot-anchor gate. derivedFloor is emitted by calibration/derive_floor.py from the pilot's own per-arm counts by an exact Clopper-Pearson rule with no human number entering; minimumViable and minimumViableBasis are the maintainer's section 2a.4(2) declaration, made BEFORE the pilot runs and AFTER the sweep fixes the compute condition — batch.py pilot refuses while either is null, and derive_floor.py's go/no-go compares the DERIVED floors against the DECLARED minimum on the DECLARED basis (perfectFloor or identityFloor). The freeze gate PERMITS AND REQUIRES the calibration/ subtree (019 DEVIATIONS.md D-2), validates the pilot record's schema and counts through the sealed deriver, and still refuses any results/primary-attempt-*.",
+    "note": "PREREGISTRATION.md section 2a. The pre-freeze pilot runs through harness/authoring_call.sh and harness/batch.py under the calibration mode `batch.py pilot` (PIN_LABEL=PILOT; round-1 finding R1-17), with output under calibration/<label>/arm-<ARM>/run-NNN and citable: false. The registered differences between the pilot and the primary batch are exactly four (section 2a.2) and the pilot slot count is one of them: as amended by round-2 finding R2-10 it names TWO numbers — pilotPerArm / scoredPerArm = 12 apparatus-clean calls per arm, the denominator section 2a.1's table prices the floor at, drawn from at most attemptCapPerArm = 21 attempts per arm. Every attempt is retained, sealed and published with its section 1a code; an arm short of 12 clean at the cap publishes no rates and is a DEVIATIONS.md event. At Study 019's own apparatus rates the probability that all three arms reach 12 clean within 12 attempts is ~0.0001, which is why the fixed-12 denominator made the 0.20 gate fire on apparatus noise about half the time; root is the subtree's registered name, read by the wrapper's slot-anchor gate. derivedFloor is emitted by calibration/derive_floor.py from the pilot's own per-arm counts by an exact Clopper-Pearson rule with no human number entering; minimumViable and minimumViableBasis are the maintainer's section 2a.4(2) declaration, made BEFORE the pilot runs and AFTER the sweep fixes the compute condition — batch.py pilot refuses while either is null, and derive_floor.py's go/no-go compares the DERIVED floors against the DECLARED minimum on the DECLARED basis (perfectFloor or identityFloor). The freeze gate PERMITS AND REQUIRES the calibration/ subtree (019 DEVIATIONS.md D-2), validates the pilot record's schema and counts through the sealed deriver, and still refuses any results/primary-attempt-*.",
     "outputSha256": null,
     "pilotPerArm": 12,
     "pilotPerArmProvenance": "exact one-sided 95% Clopper-Pearson lower bound 0.779 on a clean sweep of 12, from section 2a.1's table; 019's 5/5 supported only 0.549",
-    "root": "calibration"
+    "root": "calibration",
+    "scoredPerArm": 12
   },
   "censusStimulus": {
     "count": null,
@@ -168,7 +170,7 @@
   },
   "ownPorts": {
     "path": "harness/PORTS.md",
-    "sha256": "sha256:bdd929c32650c75720bba7195281e87ddb2a06e668fd876414b6039c100c3158"
+    "sha256": "sha256:e42bf05089659bc4ffec18048a402b227baefd179a0c732aa967db6a67d92f4a"
   },
   "pinnedFrom": {
     "commit": "e87e1311da11c28e929edf1e7e39f048e4ec0e6a",

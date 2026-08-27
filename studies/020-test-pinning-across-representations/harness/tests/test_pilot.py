@@ -37,6 +37,7 @@ import unittest
 from unittest import mock
 
 import batch
+import integrity
 import make_manifest
 
 from test_batch import (HARNESS, REGISTRY, STUDY, StandInStudy)
@@ -64,8 +65,14 @@ def floor_module():
 
 
 def pilot_record(label="2026-08-24-pilot", **per_arm_edits) -> dict:
-    """A record of the registered shape; edits move one arm's counts."""
-    per_arm = {arm: {"calls": 12, "perfect": 8, "identityPass": 10}
+    """A record of the registered shape; edits move one arm's counts.
+
+    ROUND-2 FINDING R2-10 amended that shape: the 12 SCORED calls are the
+    apparatus-clean ones, drawn from up to 21 attempts per arm, and the three
+    population numbers (`attempted`, `calls`, `apparatusExcluded`) are one
+    partition that must reconcile."""
+    per_arm = {arm: {"calls": 12, "attempted": 12, "apparatusExcluded": 0,
+                     "apparatusCodes": [], "perfect": 8, "identityPass": 10}
                for arm in ("A", "B", "C")}
     for arm, edit in per_arm_edits.items():
         per_arm[arm].update(edit)
@@ -248,7 +255,7 @@ class ThePilotFixture(StandInStudy):
         shutil.copyfile(DERIVE_FLOOR, os.path.join(self.calibration_root,
                                                    "derive_floor.py"))
         pins = json.loads(json.dumps(self.pins))
-        pins["calibration"]["minimumViable"] = 0.3
+        pins["calibration"]["minimumViable"] = 0.20
         pins["calibration"]["minimumViableBasis"] = "identityFloor"
         self.write_pins(pins)
 
@@ -321,12 +328,93 @@ class ThePilotPreflight(ThePilotFixture):
         with self.assertRaisesRegex(batch.BatchError, "after a rate"):
             self.preflight()
 
-    def test_a_thirty_seventh_call_is_refused_by_arithmetic(self):
+    def test_the_sixty_fourth_attempt_is_refused_by_arithmetic(self):
+        """ROUND-2 FINDING R2-10 moved the cap from CALLS to ATTEMPTS: the 12
+        scored calls per arm are drawn from at most 21 attempts, so 63 is the
+        registered ceiling and 64 is refused by arithmetic rather than by
+        policy."""
         slots = [batch.pilot_slot_path(self.LABEL, "A", index)
-                 for index in range(1, 38)]
-        with self.assertRaisesRegex(batch.BatchError, "37 calls"):
+                 for index in range(1, 65)]
+        with self.assertRaisesRegex(batch.BatchError, "64 attempts"):
             batch.pilot_preflight(self.LABEL, slots, self.scratch,
                                   self.pins_path, self.cli)
+
+    def test_a_label_that_is_not_a_calendar_date_refuses(self):
+        """ROUND-2 FINDING R2-9: `--label` was checked for SHAPE and traversal
+        and never for being a date, so `0000-99-99-pilot` passed every guard —
+        and the wrapper's own anchor gate only checks the digit shape, so both
+        halves of the agreement would have agreed on a nonsense date.
+
+        MUTATION: delete `require_pilot_label()`'s `date.fromisoformat` block —
+        the first case passes and this test fails."""
+        for label in ("0000-99-99-pilot", "2026-02-30-pilot", "20260824-pilot",
+                      "2026-8-4-pilot", "not-a-date-pilot", "2026-08-24"):
+            with self.assertRaises(batch.BatchError, msg=label):
+                batch.require_pilot_label(label)
+        # …and a real past date in canonical spelling is accepted.
+        self.assertEqual(batch.require_pilot_label("2026-08-24-pilot"),
+                         "2026-08-24-pilot")
+
+    def test_a_future_dated_label_refuses(self):
+        import datetime as _dt
+        ahead = (_dt.datetime.now(_dt.timezone.utc).date()
+                 + _dt.timedelta(days=1)).isoformat()
+        with self.assertRaisesRegex(batch.BatchError, "dated after today"):
+            batch.require_pilot_label("%s-pilot" % ahead)
+
+    def test_a_non_finite_declaration_cannot_spend_a_call(self):
+        """ROUND-2 FINDING R2-9's lethal case, driven end to end. JSON has no
+        `NaN` literal and Python's decoder accepts one anyway; every
+        `floor < NaN` comparison is False, so a total collapse in all three
+        arms would have returned GO — the gate reporting a pass exactly when
+        the study died.
+
+        MUTATION 1: remove `parse_constant` from the registry readers — the
+        registry loads and the refusal moves to `validate_declaration()`,
+        which this test also accepts, so BOTH halves are asserted separately
+        below. MUTATION 2: delete `validate_declaration()`'s `isfinite` branch
+        — the second assertion fails."""
+        pins = json.loads(json.dumps(self.pins))
+        self.write_pins(pins)
+        with open(self.pins_path, encoding="utf-8") as handle:
+            raw = handle.read()
+        raw = raw.replace('"minimumViable": 0.2', '"minimumViable": NaN')
+        with open(self.pins_path, "w", encoding="utf-8") as handle:
+            handle.write(raw)
+        # The registry READER refuses it first (integrity's one seat), and
+        # `main()` routes both refusal types to the same message.
+        with self.assertRaises((batch.BatchError, integrity.IntegrityError)):
+            self.preflight()
+        # …and the sealed deriver refuses it directly, so the fence holds even
+        # for a caller that never went through a registry reader.
+        floor = floor_module()
+        with self.assertRaisesRegex(floor.FloorError, "non-finite"):
+            floor.validate_declaration(float("nan"), "identityFloor")
+        for bad in (0.0, -0.1, 1.5, True, "0.2", None):
+            with self.assertRaises(floor.FloorError, msg=repr(bad)):
+                floor.validate_declaration(bad, "identityFloor")
+        with self.assertRaises(floor.FloorError):
+            floor.validate_declaration(0.20, "banana")
+
+    def test_a_declaration_that_is_not_the_registered_one_refuses(self):
+        """R2-9: the ordering gate proved only that SOMETHING was declared.
+        §2a.4(2) registers 0.20 on the identity floor, and the driver refuses
+        a registry that says otherwise.
+
+        MUTATION: drop the two declaration rows from the registry-agreement
+        loop — a pilot spends 63 calls under an unregistered threshold and
+        this test fails."""
+        # From a pristine copy each time: `write_pins()` also updates
+        # `self.pins`, so a second edit layered on the first would name the
+        # first member's refusal and the loop would prove one case twice.
+        pristine = json.loads(json.dumps(self.pins))
+        for member, value in (("minimumViable", 0.35),
+                              ("minimumViableBasis", "perfectFloor")):
+            pins = json.loads(json.dumps(pristine))
+            pins["calibration"][member] = value
+            self.write_pins(pins)
+            with self.assertRaisesRegex(batch.BatchError, member):
+                self.preflight()
 
 
 class ThePilotEndToEnd(ThePilotFixture):
@@ -455,19 +543,25 @@ class TheRatesRecord(unittest.TestCase):
         for patched in patches:
             patched.start()
             self.addCleanup(patched.stop)
-        self.pins = {"calibration": {"minimumViable": 0.3,
+        self.pins = {"calibration": {"minimumViable": 0.20,
                                      "minimumViableBasis": "identityFloor"}}
         self.build_pilot_tree()
 
-    def build_pilot_tree(self, calls=36):
+    def build_pilot_tree(self, calls=36, per_arm=None):
+        """`per_arm` gives an arm more ATTEMPTS than the registered 12 — the
+        state R2-10's amended §2a.2 makes lawful, where the scored 12 are drawn
+        from up to 21 attempts and the excluded ones stay on disk."""
         here = os.path.join(self.calibration, self.label)
+        wanted = dict(per_arm or {"A": 12, "B": 12, "C": 12})
         rows = []
         index = 0
-        for run_index in range(1, 13):
+        made = {arm: 0 for arm in ("A", "B", "C")}
+        for run_index in range(1, max(wanted.values()) + 1):
             for arm in ("A", "B", "C"):
+                if made[arm] >= wanted[arm] or index >= calls:
+                    continue
                 index += 1
-                if index > calls:
-                    break
+                made[arm] += 1
                 slot = os.path.join(here, "arm-%s" % arm,
                                     "run-%03d" % run_index)
                 os.makedirs(slot)
@@ -479,6 +573,7 @@ class TheRatesRecord(unittest.TestCase):
                              "slot": os.path.relpath(slot, self.root)})
         with open(os.path.join(here, "PILOT.json"), "w") as handle:
             json.dump({"callsMade": len(rows), "callsRegistered": 36,
+                       "complete": True,
                        "citable": False, "calls": rows}, handle)
         with open(os.path.join(here, "PILOT.md"), "w") as handle:
             handle.write("# Pre-freeze calibration pilot\n")
@@ -509,8 +604,9 @@ class TheRatesRecord(unittest.TestCase):
         floor = self.pilot_rates.derive_floor_module()
         floor.validate_record(record)
         self.assertEqual(record["perArm"]["A"],
-                         {"calls": 12, "perfect": 0, "identityPass": 12,
-                          "codes": [], "apparatusRefused": 0})
+                         {"attempted": 12, "calls": 12, "apparatusExcluded": 0,
+                          "apparatusCodes": {}, "perfect": 0,
+                          "identityPass": 12, "codes": []})
         self.assertEqual(record["perArm"]["B"]["perfect"], 12)
         self.assertEqual(record["perArm"]["C"]["identityPass"], 0)
         self.assertIs(record["citable"], False)
@@ -528,15 +624,74 @@ class TheRatesRecord(unittest.TestCase):
         self.assertIn("ABORT", verdict["consequence"])
 
     def test_an_incomplete_pilot_publishes_no_rates(self):
-        """§2a.1's table prices n=12 exactly; a 35-call pilot is a
-        DEVIATIONS.md event, not a smaller denominator."""
+        """§2a.1's table prices n=12 apparatus-clean per arm exactly; an arm
+        that reached fewer is a DEVIATIONS.md event, not a smaller
+        denominator. ROUND-2 FINDING R2-10 moved the refusal from a call
+        COUNT to the SCORED count, because the two stopped being the same
+        number the moment attempts could be replaced.
+
+        MUTATION: delete the `calls != PILOT_CALLS_PER_ARM` raise in
+        `pilot_rates()` — an 11-call arm publishes a floor derived at the
+        wrong n and this test fails."""
         shutil.rmtree(self.calibration)
         self.build_pilot_tree(calls=35)
         self.stub_scoring()
         with self.assertRaisesRegex(self.pilot_rates.RatesError,
-                                    "PILOT-INCOMPLETE"):
+                                    "PILOT-SHORT"):
             self.pilot_rates.pilot_rates(None, self.label, [], os.path.join(
                 self.root, "scratch"), self.pins)
+
+    def test_an_apparatus_refusal_leaves_the_denominator_it_used_to_fail_in(
+            self):
+        """ROUND-2 FINDING R2-10, the arithmetic that made the gate a coin
+        flip. An engine that never answered used to be counted as an
+        identity FAILURE inside a denominator fixed at 12 — so six genuine
+        passes plus six engine no-answers scored 6/12 and the floor was
+        derived from a number the apparatus produced. §1a says the
+        denominator is "attempted runs whose apparatus succeeded".
+
+        Here arm A holds 12 clean calls and 3 apparatus-refused ones. The
+        cell must read attempted 15, calls 12, apparatusExcluded 3 — and the
+        identity count must be over the 12, not the 15.
+
+        MUTATION: revert `per_arm_cell()` to counting over every row — calls
+        becomes 15, the deriver refuses the record (calls != 12), and this
+        test fails at the first assertion."""
+        outcomes = {"A": (False, True), "B": (True, True), "C": (False, False)}
+        refused = {"A": 3}
+        seen = {"A": 0}
+        def score(tools, arm, slot_dir, gold, guard, workdir):
+            record = {"slot": os.path.relpath(slot_dir, self.root),
+                      "arm": arm, "code": None, "apparatusCode": None,
+                      "goldPerfect": False, "goldFailures": 3,
+                      "identityPass": False, "identityWhy": None,
+                      "suitePresent": True}
+            if arm in refused and seen[arm] < refused[arm]:
+                seen[arm] += 1
+                record["apparatusCode"] = "engine-invocation-refused"
+                record["identityPass"] = None
+                return record
+            perfect, identity = outcomes[arm]
+            record["goldPerfect"] = perfect
+            record["identityPass"] = identity
+            return record
+        patched = mock.patch.object(self.sweep_rates, "score_slot", score)
+        patched.start()
+        self.addCleanup(patched.stop)
+        shutil.rmtree(self.calibration)
+        self.build_pilot_tree(calls=39, per_arm={"A": 15, "B": 12, "C": 12})
+        record = self.pilot_rates.pilot_rates(None, self.label, [], os.path.join(
+            self.root, "scratch"), self.pins)
+        cell = record["perArm"]["A"]
+        self.assertEqual(cell["attempted"], 15)
+        self.assertEqual(cell["calls"], 12)
+        self.assertEqual(cell["apparatusExcluded"], 3)
+        self.assertEqual(cell["apparatusCodes"],
+                         {"engine-invocation-refused": 3})
+        self.assertEqual(cell["identityPass"], 12)
+        # …and the sealed deriver accepts it, which is the whole point: the
+        # record reconciles as one partition.
+        self.pilot_rates.derive_floor_module().validate_record(record)
 
     def test_publishing_over_an_existing_ledger_is_refused(self):
         with open(os.path.join(self.calibration, self.label,
@@ -599,7 +754,7 @@ class TheFreezeGateValidation(unittest.TestCase):
             "outputSha256": digest,
             "derivedFloor": json.loads(json.dumps(
                 self.floor.derive(self.record))),
-            "minimumViable": 0.3,
+            "minimumViable": 0.20,
             "minimumViableBasis": "identityFloor",
         }
         calibration.update(edits)

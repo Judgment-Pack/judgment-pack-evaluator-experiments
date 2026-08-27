@@ -322,7 +322,21 @@ CALIBRATION_LEDGER_NAME = "CALIBRATION.json"
 # `SWEEP_PER_ARM`, `SWEEP_CALL_CAP`) — a registered number carried under two
 # names in one file is the drift `sweep_preflight()` exists to refuse.
 CALIBRATION_MODES = ("sweep", "pilot")
-PILOT_RUNS_PER_ARM = 12           # §2a.2: "Pilot N: 12/arm"
+# §2a.2 as amended (round-2 finding R2-10): 12 is the SCORED, apparatus-clean
+# count per arm — the denominator §2a.1's table prices the derived floor at —
+# and it is drawn from up to `PILOT_ATTEMPT_CAP_PER_ARM` attempts. The two were
+# one number until R2-10 measured what that cost: at Study 019's own per-arm
+# apparatus rates the probability that all three arms reach 12 clean calls
+# within 12 attempts is ~0.0001, so a fixed-12 denominator made §2a.4(2)'s
+# 0.20 gate fire on apparatus noise about half the time — study death by
+# design rather than by bad luck.
+PILOT_RUNS_PER_ARM = 12           # §2a.2: the scored, apparatus-clean count
+PILOT_ATTEMPT_CAP_PER_ARM = 21    # §2a.2 as amended: P(all arms reach 12) 0.95
+#: §2a.4(2)'s registered declaration, carried here so the driver can refuse a
+#: registry that does not agree with the registration (R2-9). The VALUE is the
+#: maintainer's; this constant is the agreement check, not a second choice.
+PILOT_MINIMUM_VIABLE = 0.20
+PILOT_MINIMUM_BASIS = "identityFloor"
 # §2a.2's third registered difference, stamped into every calibration record.
 CALIBRATION_CITABLE = False
 # ROUND-1 FINDING R1-17: the pilot mode's own spellings, beside the sweep's.
@@ -417,11 +431,13 @@ ARMS = ("A", "B", "C")
 WILLIAMS_FIRST_ROW = ("A", "B", "C")
 POSITIONS = len(ARMS)
 SEQUENCES = 2 * POSITIONS  # six: the three cyclic rows and those three reversed
-# R1-17: the pilot's call cap, derived from §2a.2's 12/arm and the arms —
+# R1-17: the pilot's SCORED count, derived from §2a.2's 12/arm and the arms —
 # spelled here because `ARMS` is, and checked against the registry's
 # `calibration.pilotPerArm` in `pilot_preflight()` exactly as the sweep's cap
 # is checked against `sweep.callCap`.
 PILOT_CALL_CAP = POSITIONS * PILOT_RUNS_PER_ARM
+# R2-10: and the cap on ATTEMPTS those scored calls are drawn from — 63.
+PILOT_ATTEMPT_CAP = POSITIONS * PILOT_ATTEMPT_CAP_PER_ARM
 # §7 DELTA 7: THE SCHEDULE IS RE-DERIVED AT THE REGISTERED ROUND COUNT, AND
 # THIS FILE HOLDS NO ROUND COUNT OF ITS OWN.
 #
@@ -452,7 +468,8 @@ def _registered_batch_shape(path: str = None) -> dict:
     where = path or os.path.join(HERE, "PINS.json")
     try:
         with open(where, "rb") as handle:
-            registry = json.loads(handle.read().decode("utf-8"))
+            registry = json.loads(handle.read().decode("utf-8"),
+                                  **integrity.LOAD_KWARGS)
     except (IOError, OSError, ValueError) as error:
         raise BatchError(
             "harness/PINS.json could not be read (%s): §2 registers the call "
@@ -745,8 +762,10 @@ def _load_json(path: str):
     so every `except (ValueError, OSError)` below keeps the behaviour it was
     ported with."""
     with open(path, "rb") as handle:
-        return json.loads(handle.read().decode("utf-8"),
-                          object_pairs_hook=transcript_check._refuse_duplicate_keys)
+        return json.loads(
+            handle.read().decode("utf-8"),
+            object_pairs_hook=transcript_check._refuse_duplicate_keys,
+            parse_constant=integrity.refuse_json_constant)
 
 
 def _digest_text(text: str) -> str:
@@ -4498,6 +4517,54 @@ def pilot_label(when=None) -> str:
     return "%s%s" % (day, PILOT_LABEL_SUFFIX)
 
 
+def _derive_floor_module(path: str):
+    """§2a.4(1)'s sealed deriver, loaded from its committed seat so the driver
+    enforces the declaration through the SAME bytes the freeze gate runs. A
+    second copy of the rule here would be a second thing that can disagree."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("derive_floor", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def require_pilot_label(label: str) -> str:
+    """ROUND-2 FINDING R2-9: a caller-supplied `--label` was checked for shape
+    and traversal but never for being a DATE. `0000-99-99-pilot` passed every
+    guard and would have anchored a pilot at a label no calendar carries — and
+    the wrapper's own anchor gate only checks the digit SHAPE, so both halves
+    of the agreement would have agreed on a nonsense date.
+
+    §2a.2 registers the anchor as `calibration/<UTC date>-pilot/...`. This
+    enforces the three things that sentence means: the suffix, a real ISO
+    calendar date in its canonical spelling (which also refuses 3.12's accepted
+    basic form `20260824`), and a day no later than today UTC — a pilot dated
+    into the future is a record that claims evidence it cannot have."""
+    calibration_root(label)                     # traversal rule, unchanged
+    if not label.endswith(PILOT_LABEL_SUFFIX):
+        raise BatchError(
+            "%r is not a pilot label: §2a.2 registers the anchor as "
+            "calibration/<UTC date>%s/arm-<ARM>/run-NNN"
+            % (label, PILOT_LABEL_SUFFIX))
+    day = label[:-len(PILOT_LABEL_SUFFIX)]
+    try:
+        parsed = datetime.date.fromisoformat(day)
+    except ValueError:
+        raise BatchError(
+            "%r carries no calendar date: §2a.2's label is a UTC DATE and "
+            "%r is not one" % (label, day))
+    if parsed.isoformat() != day:
+        raise BatchError(
+            "%r is not the canonical ISO spelling of %s: one date has one "
+            "label, or two pilots can wear two names" % (day, parsed))
+    today = datetime.datetime.now(datetime.timezone.utc).date()
+    if parsed > today:
+        raise BatchError(
+            "%r is dated after today (%s UTC): a pilot labelled in the future "
+            "claims evidence it cannot have" % (label, today))
+    return label
+
+
 def pilot_slot_path(label: str, arm: str, run_index: int) -> str:
     """`calibration/<label>/arm-<ARM>/run-NNN`, absolute. The wrapper
     recomputes this shape from the registry's `calibration.root` and refuses a
@@ -4547,15 +4614,18 @@ def pilot_preflight(label: str, slots: list, scratch_parent: str,
       directory under `calibration/`, is a pilot that has already run — the
       re-pilot branch is a DEVIATIONS.md entry naming the reason, and this
       driver refuses rather than opening it."""
+    require_pilot_label(label)
     verify_ported_bytes()
     if not slots:
         raise BatchError("a pilot needs at least one call")
-    if len(slots) > PILOT_CALL_CAP:
+    if len(slots) > PILOT_ATTEMPT_CAP:
         raise BatchError(
-            "this pilot plans %d calls and §2a.2 registers %d/arm — %d in "
-            "all: the count is one of the four registered differences and is "
-            "not raised without a DEVIATIONS.md entry"
-            % (len(slots), PILOT_RUNS_PER_ARM, PILOT_CALL_CAP))
+            "this pilot plans %d attempts and §2a.2 as amended registers %d "
+            "scored per arm drawn from at most %d attempts — %d in all: both "
+            "counts are registered and neither is raised without a "
+            "DEVIATIONS.md entry"
+            % (len(slots), PILOT_RUNS_PER_ARM, PILOT_ATTEMPT_CAP_PER_ARM,
+               PILOT_ATTEMPT_CAP))
     if not os.path.isfile(SCRIPT):
         raise BatchError("no authoring wrapper at %s" % SCRIPT)
     if not os.path.isdir(scratch_parent):
@@ -4565,7 +4635,13 @@ def pilot_preflight(label: str, slots: list, scratch_parent: str,
     calibration = pins.get("calibration") or {}
     for member, expected, what in (
             ("pilotPerArm", PILOT_RUNS_PER_ARM,
-             "§2a.2's registered per-arm count"),
+             "§2a.2's registered per-arm SCORED count"),
+            ("attemptCapPerArm", PILOT_ATTEMPT_CAP_PER_ARM,
+             "§2a.2's registered per-arm attempt cap (R2-10)"),
+            ("minimumViable", PILOT_MINIMUM_VIABLE,
+             "§2a.4(2)'s registered declaration"),
+            ("minimumViableBasis", PILOT_MINIMUM_BASIS,
+             "§2a.4(2)'s registered basis"),
             ("root", os.path.basename(CALIBRATION_ROOT),
              "the calibration subtree's name")):
         if calibration.get(member) != expected:
@@ -4583,12 +4659,23 @@ def pilot_preflight(label: str, slots: list, scratch_parent: str,
                 "pilot's own counts is 019's calibration defect again, so no "
                 "pilot call is made until the declaration is in the registry"
                 % member)
+    # ROUND-2 FINDING R2-9: the ordering check above establishes only that a
+    # declaration EXISTS. The SEALED deriver's own `validate_declaration()` —
+    # the same bytes the freeze gate runs — decides whether it is one, before
+    # call 1. `NaN` is the case that made this mandatory: every `floor < NaN`
+    # is False, so a total collapse in all three arms would have returned GO.
     deriver = os.path.join(CALIBRATION_ROOT, "derive_floor.py")
     if not os.path.isfile(deriver):
         raise BatchError(
             "calibration/derive_floor.py is absent: §2a.4(1) seals the "
             "threshold deriver BEFORE the pilot runs, so its absence refuses "
             "the pilot exactly as it refuses the freeze")
+    floor = _derive_floor_module(deriver)
+    try:
+        floor.validate_declaration(calibration.get("minimumViable"),
+                                   calibration.get("minimumViableBasis"))
+    except floor.FloorError as refusal:
+        raise BatchError("%s" % refusal)
     if integrity.pin_is_filled(calibration.get("label")):
         raise BatchError(
             "harness/PINS.json's calibration.label is %r: a filled label is a "

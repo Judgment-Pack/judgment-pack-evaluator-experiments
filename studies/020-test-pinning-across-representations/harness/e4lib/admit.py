@@ -92,6 +92,17 @@ PARSE_ERROR_CODE = "rego_parse_error"
 UNREADABLE_CHECK_OUTPUT = "unparseable-check-output"
 
 
+def _refuse_json_constant(token: str):
+    """ROUND-2 FINDING R2-9: JSON has no `NaN`/`Infinity` literal and
+    Python's decoder accepts all three anyway. A non-finite value
+    silently defeats every comparison a gate makes against it, so no
+    reader of a registered document accepts one. `integrity.py` carries
+    the same rule for the modules that can import it."""
+    raise ValueError(
+        "JSON-NONFINITE a registered document carries the JSON-invalid "
+        "token %r" % (token,))
+
+
 class AdmissionError(Exception):
     """A refusal about the admission layer itself — never about an artifact."""
 
@@ -242,7 +253,8 @@ def _registry() -> dict:
     if _REGISTRY is None:
         here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         with open(os.path.join(here, "PINS.json"), "rb") as handle:
-            _REGISTRY = json.loads(handle.read().decode("utf-8"))
+            _REGISTRY = json.loads(handle.read().decode("utf-8"),
+                                   parse_constant=_refuse_json_constant)
     return _REGISTRY
 
 

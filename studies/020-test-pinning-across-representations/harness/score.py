@@ -284,7 +284,8 @@ def load_json(path: str):
     this scorer and another to a reader."""
     with open(path, "rb") as handle:
         return json.loads(handle.read().decode("utf-8"),
-                          object_pairs_hook=_refuse_duplicate_keys)
+                          object_pairs_hook=_refuse_duplicate_keys,
+                          parse_constant=integrity.refuse_json_constant)
 
 
 # The absolute roots this process knows about, longest first, with the token
@@ -2221,8 +2222,10 @@ def main(argv=None) -> int:
         if pins_raw is None:
             return terminal("the pin registry is unreadable")
         try:
-            pins = json.loads(pins_raw.decode("utf-8"),
-                              object_pairs_hook=_refuse_duplicate_keys)
+            pins = json.loads(
+                pins_raw.decode("utf-8"),
+                object_pairs_hook=_refuse_duplicate_keys,
+                parse_constant=integrity.refuse_json_constant)
         except ValueError as error:
             return terminal("the pin registry is not duplicate-free JSON: %s"
                             % error)

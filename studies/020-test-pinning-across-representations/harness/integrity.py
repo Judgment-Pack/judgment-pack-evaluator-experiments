@@ -376,12 +376,34 @@ def _refuse_duplicate_keys(pairs):
     return dict(pairs)
 
 
+def refuse_json_constant(token: str):
+    """ROUND-2 FINDING R2-9, at ONE seat so the fence has no holes.
+
+    JSON has no `NaN`, `Infinity` or `-Infinity` literal; Python's decoder
+    accepts all three anyway. A `NaN` reaching `derive_floor.go_no_go()` was
+    the lethal case — every `floor < NaN` comparison is False, so a total
+    collapse in all three arms returned GO — but the class is wider than one
+    function, and R2-9's first draft patched four load sites out of eleven.
+    This is the refusal every reader of a registered document passes as
+    `parse_constant`, and `LOAD_KWARGS` below is how a reader gets both this
+    and the duplicate-key rule without spelling either."""
+    raise IntegrityError(
+        "JSON-NONFINITE a registered document carries the JSON-invalid token "
+        "%r: JSON has no non-finite literal, and a non-finite value silently "
+        "defeats every comparison a gate makes against it (R2-9)" % (token,))
+
+
+#: The reader contract for every registered JSON document in this study.
+LOAD_KWARGS = {"object_pairs_hook": _refuse_duplicate_keys,
+               "parse_constant": refuse_json_constant}
+
+
 def load_json(path: str):
-    """Duplicate-key-rejecting JSON. A registry or a lock with a shadowed
-    member cannot mean one thing here and another to a reader."""
+    """Duplicate-key-rejecting, non-finite-rejecting JSON. A registry or a lock
+    with a shadowed member cannot mean one thing here and another to a reader,
+    and one carrying `NaN` cannot mean anything at all to a comparison."""
     with open(path, "rb") as handle:
-        return json.loads(handle.read().decode("utf-8"),
-                          object_pairs_hook=_refuse_duplicate_keys)
+        return json.loads(handle.read().decode("utf-8"), **LOAD_KWARGS)
 
 
 def bare(value) -> str:

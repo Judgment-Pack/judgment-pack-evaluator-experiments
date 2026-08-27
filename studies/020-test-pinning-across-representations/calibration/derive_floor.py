@@ -49,6 +49,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import sys
 from fractions import Fraction
@@ -61,8 +62,13 @@ if HARNESS not in sys.path:
 
 from e4lib import stats  # noqa: E402
 
-#: Section 2a.2's registered pilot size.
+#: Section 2a.2's registered pilot size — the APPARATUS-CLEAN calls that are
+#: scored, which is the denominator §2a.1's table prices the floor at.
 PILOT_CALLS_PER_ARM = 12
+#: Section 2a.2 as amended by R2-10: the attempts those 12 are drawn from. At
+#: 019's own apparatus rates the probability that all three arms reach 12 clean
+#: within 12 attempts is ~0.0001; at 21 it is 0.95, the study's own alpha.
+ATTEMPT_CAP_PER_ARM = 21
 ARMS = ("A", "B", "C")
 RECORD_NAME = "PILOT-RATES.json"
 
@@ -86,19 +92,53 @@ def one_sided_lower_bound(k: int, n: int) -> float:
         lambda p: stats._tail_ge(k, n, Fraction(p)) < ONE_SIDED_ALPHA)
 
 
+def _refuse_json_constant(token: str):
+    """ROUND-2 FINDING R2-9: JSON has no `NaN`/`Infinity` literal and
+    Python's decoder accepts all three anyway. A non-finite value
+    silently defeats every comparison a gate makes against it, so no
+    reader of a registered document accepts one. `integrity.py` carries
+    the same rule for the modules that can import it."""
+    raise ValueError(
+        "JSON-NONFINITE a registered document carries the JSON-invalid "
+        "token %r" % (token,))
+
+
 class FloorError(Exception):
     """A refusal. The message names the precondition that failed."""
 
 
 def validate_record(record: dict) -> dict:
     """The R1-17 schema gate: a pilot record is the registered shape or it is
-    not a pilot record, and the freeze gate reads this refusal."""
+    not a pilot record, and the freeze gate reads this refusal.
+
+    ROUND-2 FINDINGS R2-7 AND R2-10 widened it in one edit. R2-7: the gate
+    accepted a record whose numbers no ledger supported — a directory with two
+    counters and a hand-authored rates file passed, so an actual NO-GO could be
+    rewritten GO and re-pinned. R2-10: apparatus refusals were counted as
+    Bernoulli failures inside a denominator fixed at 12, and at Study 019's own
+    apparatus rates the probability that all three arms reach 12 clean calls in
+    12 attempts is ~0.0001 — so the 0.20 gate would have fired on apparatus
+    noise about half the time. The registered repair (§2a.2 as amended) draws
+    the 12 SCORED calls from up to 21 attempts per arm and publishes the
+    excluded ones under their own §1a codes.
+
+    The structural checks below carry no threshold and no human number: they
+    are shape, range and internal consistency, so §2a.4(1)'s "no human number
+    entering" holds. The AUTHENTICATION of those numbers against the sealed
+    ledger is `make_manifest.calibration_record_problems()`'s half — this
+    function is the contract, that one is the evidence."""
     if not isinstance(record, dict):
         raise FloorError("FLOOR-RECORD the pilot record is not an object")
     if record.get("citable") is not False:
         raise FloorError(
             "FLOOR-RECORD the pilot record must say citable: false in its own "
             "bytes (§2a.2's third registered difference)")
+    if "apparatusRefused" in json.dumps(record.get("perArm") or {}):
+        raise FloorError(
+            "FLOOR-RECORD this record carries the superseded `apparatusRefused` "
+            "member: R2-10 replaced it with the §1a vocabulary "
+            "(attempted/calls/apparatusExcluded/apparatusCodes), and an "
+            "old-shape record must not be re-pinned under the new rule")
     per_arm = record.get("perArm")
     if not isinstance(per_arm, dict) or sorted(per_arm) != sorted(ARMS):
         raise FloorError(
@@ -110,8 +150,28 @@ def validate_record(record: dict) -> dict:
         calls = cell.get("calls")
         if calls != PILOT_CALLS_PER_ARM:
             raise FloorError(
-                "FLOOR-RECORD arm %s records %r calls and §2a.2 registers the "
-                "pilot at %d/arm" % (arm, calls, PILOT_CALLS_PER_ARM))
+                "FLOOR-RECORD arm %s records %r SCORED calls and §2a.2 "
+                "registers the pilot at %d apparatus-clean per arm"
+                % (arm, calls, PILOT_CALLS_PER_ARM))
+        attempted = cell.get("attempted")
+        if not isinstance(attempted, int) or isinstance(attempted, bool) \
+                or attempted < calls:
+            raise FloorError(
+                "FLOOR-RECORD arm %s records %r attempted against %d scored: "
+                "§2a.2 as amended draws the scored calls FROM the attempts, so "
+                "attempted is an integer no smaller than calls"
+                % (arm, attempted, calls))
+        if attempted > ATTEMPT_CAP_PER_ARM:
+            raise FloorError(
+                "FLOOR-RECORD arm %s records %d attempts and §2a.2 registers "
+                "the cap at %d/arm" % (arm, attempted, ATTEMPT_CAP_PER_ARM))
+        excluded = cell.get("apparatusExcluded")
+        if excluded != attempted - calls:
+            raise FloorError(
+                "FLOOR-RECORD arm %s records %r apparatus-excluded against "
+                "%d attempted and %d scored: the three numbers are one "
+                "partition and must reconcile (§1a)"
+                % (arm, excluded, attempted, calls))
         for member in ("perfect", "identityPass"):
             count = cell.get(member)
             if not isinstance(count, int) or isinstance(count, bool) \
@@ -143,21 +203,51 @@ def derive(record: dict) -> dict:
             "perArm": floors}
 
 
-def go_no_go(derived: dict, minimum, basis: str) -> dict:
-    """DECLARED minimum against DERIVED floors. Aborts, never descopes (M-9).
+def validate_declaration(minimum, basis: str) -> float:
+    """ROUND-2 FINDING R2-9: the declaration is VALIDATED, not merely present.
 
-    `minimum` and `basis` come from the registry's maintainer declaration —
-    this file validates and applies them and chooses neither."""
-    if not isinstance(minimum, (int, float)) or isinstance(minimum, bool):
+    The ordering gate tested only non-nullness, so a changed number, a
+    `"banana"` basis, or a non-finite JSON token could spend calls. `NaN` is
+    the lethal one: every `floor < NaN` comparison is False, so a total
+    collapse in all three arms would have returned GO — the gate reporting a
+    pass precisely when the study died.
+
+    This function carries NO study-specific number. It checks TYPE, FINITENESS,
+    RANGE and VOCABULARY, so §2a.4(1)'s "no human number entering" still holds:
+    the threshold is the maintainer's registered declaration, read from the
+    registry, and the agreement between the registry's value and §2a.4(2)'s
+    registered one is `batch.pilot_preflight()`'s business, not this file's."""
+    if isinstance(minimum, bool) or not isinstance(minimum, (int, float)):
         raise FloorError(
             "FLOOR-DECLARATION calibration.minimumViable is %r; §2a.4(2)'s "
-            "declared value must exist before this gate can be evaluated"
-            % (minimum,))
+            "declared value must exist, and be a number, before this gate can "
+            "be evaluated" % (minimum,))
+    if not math.isfinite(minimum):
+        raise FloorError(
+            "FLOOR-DECLARATION calibration.minimumViable is %r: a non-finite "
+            "declaration makes every `floor < minimum` comparison False, so a "
+            "total collapse in every arm would be reported as GO — the gate "
+            "passing exactly when the study died (R2-9)" % (minimum,))
+    if not 0.0 < minimum <= 1.0:
+        raise FloorError(
+            "FLOOR-DECLARATION calibration.minimumViable is %r; a derived "
+            "Clopper-Pearson lower bound lies in [0, 1], and a declared 0.0 "
+            "is the null declaration by another spelling — every conceivable "
+            "pilot would pass it" % (minimum,))
     if basis not in ("perfectFloor", "identityFloor"):
         raise FloorError(
             "FLOOR-DECLARATION calibration.minimumViableBasis is %r; the "
             "declaration names which derived floor it binds "
             "(perfectFloor or identityFloor)" % (basis,))
+    return float(minimum)
+
+
+def go_no_go(derived: dict, minimum, basis: str) -> dict:
+    """DECLARED minimum against DERIVED floors. Aborts, never descopes (M-9).
+
+    `minimum` and `basis` come from the registry's maintainer declaration —
+    this file validates and applies them and chooses neither."""
+    minimum = validate_declaration(minimum, basis)
     failing = sorted(arm for arm in ARMS
                      if derived["perArm"][arm][basis] < minimum)
     return {"minimumViable": minimum, "basis": basis,
@@ -175,10 +265,12 @@ def main(argv=None) -> int:
                         help="path to the pilot's PILOT-RATES.json")
     args = parser.parse_args(argv)
     with open(args.record, "rb") as handle:
-        record = json.loads(handle.read().decode("utf-8"))
+        record = json.loads(handle.read().decode("utf-8"),
+                            parse_constant=_refuse_json_constant)
     derived = derive(record)
     with open(os.path.join(HARNESS, "PINS.json"), "rb") as handle:
-        pins = json.loads(handle.read().decode("utf-8"))
+        pins = json.loads(handle.read().decode("utf-8"),
+                          parse_constant=_refuse_json_constant)
     calibration = pins.get("calibration") or {}
     verdict = go_no_go(derived, calibration.get("minimumViable"),
                        calibration.get("minimumViableBasis"))

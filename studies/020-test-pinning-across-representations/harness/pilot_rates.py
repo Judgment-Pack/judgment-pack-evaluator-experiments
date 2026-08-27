@@ -49,6 +49,8 @@ DERIVE_FLOOR_PATH = os.path.join(CALIBRATION_ROOT, "derive_floor.py")
 RATES_LEDGER_NAME = "PILOT-RATES.json"
 RATES_HEADING = "## Per-arm perfect and identity counts, and the go/no-go"
 ARMS = ("A", "B", "C")
+#: §2a.2 as amended (R2-10): the SCORED, apparatus-clean count.
+PILOT_CALLS_PER_ARM = 12
 
 
 def derive_floor_module():
@@ -74,12 +76,14 @@ def pilot_rates(tools, label: str, gold: list, scratch: str,
                          % label)
     with open(ledger_path, "rb") as handle:
         ledger = json.loads(handle.read().decode("utf-8"))
-    if ledger["callsMade"] != ledger["callsRegistered"]:
+    if not ledger.get("complete", True):
         raise RatesError(
-            "PILOT-INCOMPLETE the ledger records %d of %d registered calls: "
-            "§2a.1's table prices the derived floor at n = 12/arm exactly, so "
-            "a partial pilot publishes no rates — it is a DEVIATIONS.md event"
-            % (ledger["callsMade"], ledger["callsRegistered"]))
+            "PILOT-INCOMPLETE the ledger records an unfinished pilot "
+            "(%d attempts made, %s): §2a.1's table prices the derived floor at "
+            "n = %d apparatus-clean per arm, so a partial pilot publishes no "
+            "rates — it is a DEVIATIONS.md event"
+            % (ledger.get("callsMade", 0), ledger.get("perArm"),
+               PILOT_CALLS_PER_ARM))
     guard_registered = admit_lib.guard_is_registered()
     rows = []
     for call in ledger["calls"]:
@@ -95,14 +99,22 @@ def pilot_rates(tools, label: str, gold: list, scratch: str,
     per_arm = {}
     for arm in ARMS:
         mine = [row for row in rows if row["arm"] == arm]
-        per_arm[arm] = {
-            "calls": len(mine),
-            "perfect": sum(1 for row in mine if row["goldPerfect"]),
-            "identityPass": sum(1 for row in mine if row["identityPass"]),
-            "codes": sorted(row["code"] for row in mine if row["code"]),
-            "apparatusRefused": sum(1 for row in mine
-                                    if row.get("apparatusRefused")),
-        }
+        # ROUND-2 FINDING R2-10: ONE reading of §1a's population rule, shared
+        # with the sweep's publisher. The scored denominator is the
+        # apparatus-clean calls; the excluded ones are published under their
+        # own codes rather than counted as failing suites.
+        per_arm[arm] = sweep_rates.per_arm_cell(mine)
+        if per_arm[arm]["calls"] != PILOT_CALLS_PER_ARM:
+            raise RatesError(
+                "PILOT-SHORT arm %s reached %d apparatus-clean calls of the "
+                "registered %d (attempted %d, apparatus-excluded %d: %s). "
+                "§2a.1's table prices the derived floor at n = %d exactly, so "
+                "a short arm publishes NO rates — it is a DEVIATIONS.md event "
+                "under §2a.2's amended attempt rule, never a smaller "
+                "denominator"
+                % (arm, per_arm[arm]["calls"], PILOT_CALLS_PER_ARM,
+                   per_arm[arm]["attempted"], per_arm[arm]["apparatusExcluded"],
+                   per_arm[arm]["apparatusCodes"], PILOT_CALLS_PER_ARM))
     record = {
         "label": label,
         "obligation": "PREREGISTRATION.md section 2a — the pilot's per-arm "

@@ -162,6 +162,15 @@ import subprocess
 import sys
 from pathlib import Path
 
+# ROUND-2 FINDING R2-9: every reader of a registered document refuses
+# JSON's non-literal `NaN`/`Infinity` tokens, and the rule lives at ONE
+# seat (`integrity.LOAD_KWARGS`) so the fence has no holes. This module
+# is imported by the freeze gate before `integrity` is on the path in
+# some callers, so the import is local to first use below.
+def _load_kwargs():
+    import integrity
+    return integrity.LOAD_KWARGS
+
 STUDY = Path(__file__).resolve().parent.parent
 MANIFEST_PATH = STUDY / "harness" / "STUDY-MANIFEST.sha256"
 
@@ -710,7 +719,8 @@ def reviewer_load_problems(study=None):
     registry = root / "harness" / "PINS.json"
     if registry.is_file():
         try:
-            pins = json.loads(registry.read_text(encoding="utf-8"))
+            pins = json.loads(registry.read_text(encoding="utf-8"),
+                              **_load_kwargs())
         except (ValueError, UnicodeDecodeError):
             pins = {}
         pinned = (pins.get("reviewerMutantSet") or {}).get("sha256") \
@@ -975,7 +985,8 @@ def calibration_record_problems(root, labels):
     if registry.is_file():
         try:
             calibration = json.loads(
-                registry.read_text(encoding="utf-8")).get("calibration") or {}
+                registry.read_text(encoding="utf-8"),
+                **_load_kwargs()).get("calibration") or {}
         except (ValueError, UnicodeDecodeError):
             problems.append(
                 "harness/PINS.json is not readable JSON, so the pilot record "
@@ -1168,7 +1179,8 @@ def pending_pins(study=None):
     if not registry.is_file():
         return []
     try:
-        pins = json.loads(registry.read_text(encoding="utf-8"))
+        pins = json.loads(registry.read_text(encoding="utf-8"),
+                          **_load_kwargs())
     except (ValueError, UnicodeDecodeError):
         return ["harness/PINS.json is not readable JSON"]
     out = []
