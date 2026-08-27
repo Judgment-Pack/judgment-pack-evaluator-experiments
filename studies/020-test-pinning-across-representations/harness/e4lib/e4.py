@@ -647,7 +647,15 @@ def rego_case_signatures(tools: engines.Toolchain, suite_path: str,
 
     A file the pinned parser refuses, or a suite with a `with input as` term that
     cannot be resolved either way, is a `MatrixError` — the registered authoring
-    outcome — and never a silent pass."""
+    outcome — and never a silent pass.
+
+    ROUND-2 FINDING R2-1: `MatrixError` now means ONLY what its docstring says,
+    "about what the author emitted". `opa_parse()` and `opa_eval_document()`
+    raise `engines.EngineError` on a no-answer, and that exception passes
+    THROUGH this function to `score_run()`'s apparatus handler. Before the
+    repair a `parse` timeout arrived here as `code == 124` and was filed as the
+    authoring code `unparseable-artifact` — a statement about the author made
+    out of an invocation that never happened."""
     code, raw = engines.opa_parse(tools, suite_path, workdir)
     if code != 0:
         raise MatrixError(

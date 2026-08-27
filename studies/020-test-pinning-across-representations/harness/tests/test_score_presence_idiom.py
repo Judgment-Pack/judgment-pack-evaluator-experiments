@@ -461,7 +461,15 @@ def test_the_ast_shape_is_the_pinned_binarys_own(tmp_path):
 def test_scan_refuses_a_policy_the_parser_rejects(tmp_path, monkeypatch):
     """The caller has already admitted the artifact through `opa check`, so a
     parse refusal AFTER a passing check is an apparatus fact — never a silent
-    "not flagged"."""
+    "not flagged".
+
+    ROUND-2 FINDING R2-1 split this into the two states it had merged. Exit 1
+    is the parser ANSWERING — a readable syntax refusal about the author's
+    bytes — and stays `PresenceIdiomError`, which `admit_arm_rego()` converts
+    into the typed apparatus refusal because two pinned invocations disagreeing
+    about one artifact yield no verdict about the author either. An unreadable
+    stream at an ANSWERING exit is the same class. Every NO-ANSWER exit is
+    caught one layer down and is the case below."""
     from e4lib import engines
     monkeypatch.setattr(engines, "opa_parse_tree",
                         lambda *a, **k: (1, "", "rego_parse_error"))
@@ -473,6 +481,63 @@ def test_scan_refuses_a_policy_the_parser_rejects(tmp_path, monkeypatch):
     with pytest.raises(presence_idiom.PresenceIdiomError) as caught:
         presence_idiom.scan(None, "policy.rego", str(tmp_path))
     assert "PRESENCE-IDIOM-PARSE-UNREADABLE" in str(caught.value)
+
+
+def test_a_parser_that_never_answered_is_typed_apparatus_not_a_detector_error(
+        tmp_path, monkeypatch):
+    """ROUND-2 FINDING R2-1, at the seat where the escape happened.
+
+    `opa_parse_tree()` returned `_run()`'s raw tuple, `parse_policy()` raised
+    `PresenceIdiomError` on any non-zero exit, and `PresenceIdiomError` is not
+    an `engines.EngineError` — so `score_run()`'s apparatus handler could not
+    see it and one transient OPA timeout on one arm-B run left the scorer
+    entirely and ended a 180-slot attempt through `main()`'s last-resort
+    handler.
+
+    MUTATION 1: delete the `_refuse_no_answer()` call in `opa_parse_tree()` —
+    the timeout case raises `PresenceIdiomError` again and this test fails.
+    MUTATION 2: add 124 to that call's `answer_exits` — same failure, which is
+    what proves the test reads the ANSWER/NO-ANSWER split and not merely the
+    exception type."""
+    from e4lib import engines
+
+    class Tools:
+        opa = "/nonexistent/opa"
+    monkeypatch.setattr(engines, "_run", lambda *a, **k: (124, "", ""))
+    with pytest.raises(engines.EngineError) as caught:
+        engines.opa_parse_tree(Tools(), "policy.rego", str(tmp_path))
+    assert "ENGINE-INVOCATION-REFUSED" in str(caught.value)
+    assert not isinstance(caught.value, presence_idiom.PresenceIdiomError)
+    # An invocation FAILURE exit (not a parse verdict) is the same class.
+    monkeypatch.setattr(engines, "_run", lambda *a, **k: (3, "", "boom"))
+    with pytest.raises(engines.EngineError):
+        engines.opa_parse_tree(Tools(), "policy.rego", str(tmp_path))
+    # …and exit 1 still ANSWERS, so it reaches the detector's own refusal.
+    monkeypatch.setattr(engines, "_run", lambda *a, **k: (1, "", "syntax"))
+    code, out, err = engines.opa_parse_tree(Tools(), "policy.rego",
+                                            str(tmp_path))
+    assert code == 1
+
+
+def test_the_two_engines_disagreeing_leaves_admission_as_apparatus(
+        tmp_path, monkeypatch):
+    """R2-1's residual state, and the one judgement call in the repair: `opa
+    check` accepted these bytes and `opa parse` refused them. No verdict about
+    the AUTHOR survives a disagreement between the study's own pinned
+    invocations, so admission raises the typed apparatus refusal rather than
+    letting an untyped detector error escape.
+
+    MUTATION: remove `admit_arm_rego()`'s `except PresenceIdiomError` wrap —
+    the raised exception is `PresenceIdiomError` and this test fails."""
+    from e4lib import admit as admit_lib
+    from e4lib import engines
+    monkeypatch.setattr(engines, "opa_check", lambda *a, **k: (0, []))
+    monkeypatch.setattr(engines, "opa_parse_tree",
+                        lambda *a, **k: (1, "", "rego_parse_error"))
+    with pytest.raises(engines.EngineError) as caught:
+        admit_lib.admit(None, "B", "package x\n", str(tmp_path), True)
+    assert "ENGINE-INVOCATION-REFUSED" in str(caught.value)
+    assert "disagree" in str(caught.value)
 
 
 # --------------------------------------------------------------------------

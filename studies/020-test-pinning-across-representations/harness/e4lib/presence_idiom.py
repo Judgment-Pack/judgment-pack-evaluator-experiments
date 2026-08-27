@@ -197,6 +197,15 @@ def parse_policy(tools: engines.Toolchain, policy_path: str,
     the reason §2 gives about reading verdicts from payloads rather than from
     exit codes, and for the stronger reason that a second grammar is a second
     thing that can disagree with the engine the study actually runs."""
+    # ROUND-2 FINDING R2-1: `opa_parse_tree()` now raises `engines.EngineError`
+    # itself on every NO-ANSWER exit (124 and the invocation failures), so this
+    # function is reached only when the parser ANSWERED. Exit 1 is such an
+    # answer — a readable syntax refusal — and it is the one residual state
+    # `PresenceIdiomError` still names: two pinned invocations disagreeing about
+    # the same bytes, `opa check` accepting the policy and `opa parse` refusing
+    # it. `admit_arm_rego()` converts that to the same apparatus refusal,
+    # because no verdict about the AUTHOR survives a disagreement between the
+    # study's own engines (§1a's amendment block carries the marked note).
     code, out, err = engines.opa_parse_tree(tools, policy_path, workdir)
     if code != 0:
         raise PresenceIdiomError(

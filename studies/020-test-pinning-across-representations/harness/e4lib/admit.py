@@ -163,7 +163,22 @@ def admit_arm_rego(tools: engines.Toolchain, block: str, workdir: str,
         # failure into a presence-idiom verdict. It is a detector and not a
         # repair — the artifact is not rewritten, the run is not excluded, and a
         # flagged run stays in every ITT denominator scoring zero.
-        report = presence_idiom.scan(tools, path, workdir)
+        # ROUND-2 FINDING R2-1: the detector's own refusal is APPARATUS. Every
+        # no-answer exit already raises `engines.EngineError` inside
+        # `opa_parse_tree()`; what reaches here as a `PresenceIdiomError` is the
+        # residual disagreement — `opa check` accepted these bytes and
+        # `opa parse` refused them — and a disagreement between the study's two
+        # pinned invocations about one artifact yields no verdict about the
+        # AUTHOR either. It leaves by the same typed door, so §1a's partition
+        # sees one apparatus state and not two.
+        try:
+            report = presence_idiom.scan(tools, path, workdir)
+        except presence_idiom.PresenceIdiomError as refusal:
+            raise engines.EngineError(
+                "ENGINE-INVOCATION-REFUSED the two pinned invocations disagree "
+                "about the same bytes: `opa check` accepted the policy and "
+                "`opa parse` refused it, so no verdict about the author's "
+                "artifact survives (%s)" % refusal)
         detail["presenceIdiom"] = {
             "flagged": report["flagged"],
             "memberships": report["memberships"],

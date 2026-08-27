@@ -332,21 +332,53 @@ def execute(tools, sealed: dict, per_arm_runs: dict, context: dict,
         # against actually happened: production wrote `identityPass` while
         # this filter read `referenceIdentityPass`, and every run in every arm
         # silently skipped.)
+        #
+        # ROUND-2 FINDING R2-5 separated two things this loop had merged:
+        # PRESENCE (a missing member is drift and stays fatal) from VALUE (a
+        # member whose value says "there is no suite here" is an ordinary
+        # outcome and is lawful ineligibility). `suitePath` was required to
+        # exist AND be truthy in one read, but `score_run()` set it only after
+        # a suite was written — so a wrapper apparatus code, any of the six
+        # authoring codes, or a completion with no suite at all made this
+        # mandatory execution FATAL. One such run in 180 ended the attempt.
+        # The scorer now emits a TOTAL record (`score._run_record()`), so
+        # presence is once again a real drift check rather than a branch test.
         for run in candidates:
-            for member in ("referenceIdentityPass", "suitePath", "run"):
+            for member in ("referenceIdentityPass", "suitePath", "scoredCases",
+                           "run"):
                 if member not in run:
                     raise ReviewerSetError(
                         "REVIEWER-RECORD-SCHEMA run record %r lacks %r: the "
                         "holdout reads the scorer's registered vocabulary and "
                         "a missing member is drift, not a run to skip"
                         % (run.get("run", "<unnamed>"), member))
-            if not isinstance(run["referenceIdentityPass"], bool):
+            # R2-1 made the relation TRI-STATE: True, False, or None for "a
+            # pinned engine never answered". Any OTHER type is still drift.
+            if run["referenceIdentityPass"] not in (True, False, None):
                 raise ReviewerSetError(
-                    "REVIEWER-RECORD-SCHEMA run %r carries a non-boolean "
-                    "referenceIdentityPass %r"
+                    "REVIEWER-RECORD-SCHEMA run %r carries a "
+                    "referenceIdentityPass %r that is neither True, False nor "
+                    "None (R2-1's registered tri-state)"
                     % (run.get("run"), run["referenceIdentityPass"]))
+            if not isinstance(run["suitePath"], (str, type(None))):
+                raise ReviewerSetError(
+                    "REVIEWER-RECORD-SCHEMA run %r carries a suitePath %r that "
+                    "is neither a path nor None: a nullable member is not an "
+                    "untyped one" % (run.get("run"), run["suitePath"]))
         eligible = [run for run in candidates
-                    if run["referenceIdentityPass"] and run["suitePath"]]
+                    if run["referenceIdentityPass"] is True
+                    and run["suitePath"] is not None]
+        if language == "jps":
+            # `kill_arm_a()` indexes `scoredCases` unguarded; an eligible run
+            # that does not carry a list is drift and refuses here rather than
+            # as a TypeError three frames down.
+            for run in eligible:
+                if not isinstance(run["scoredCases"], list):
+                    raise ReviewerSetError(
+                        "REVIEWER-RECORD-SCHEMA eligible run %r carries "
+                        "scoredCases %r: arm A's holdout execution reads the "
+                        "run's own scored cases and cannot run without them"
+                        % (run["run"], run["scoredCases"]))
         for run in eligible:
             outcomes = {}
             for record in members:
@@ -377,6 +409,15 @@ def execute(tools, sealed: dict, per_arm_runs: dict, context: dict,
             "reviewerMutants": len(members),
             "scoredRuns": len(rows),
             "eligibleRuns": len(eligible),
+            # R2-5: an eligibility of zero is a STATED number and never a
+            # silence — the exact shape of the R1-13 defect this module exists
+            # to prevent, one level up.
+            "ineligibleRuns": len(candidates) - len(eligible),
+            "noSuiteRuns": sum(1 for run in candidates
+                               if run["suitePath"] is None),
+            "identityNotAnsweredRuns": sum(
+                1 for run in candidates
+                if run["referenceIdentityPass"] is None),
             "perRun": rows,
         }
     sealed["executed"] = True

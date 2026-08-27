@@ -344,8 +344,45 @@ def opa_parse_tree(tools: Toolchain, path: str, workdir: str) -> tuple:
     — `parse` performs no evaluation and accepts no `--capabilities` at the
     pinned version — and it is never scored: `e4lib/presence_idiom.py` reads the
     syntax tree and the syntax tree only.
+
+    ROUND-2 FINDING R2-1 gave it `opa_check()`'s discipline. `opa parse` ANSWERS
+    on exits 0 (a tree) and 1 (a readable parse refusal); every other exit — 124
+    above all — is the invocation producing no answer at all, and returning that
+    raw let §3.2's detector raise an untyped `PresenceIdiomError` straight out of
+    `score_run()`. One transient timeout on one arm-B run then ended a 180-slot
+    attempt through `main()`'s last-resort handler. A no-answer is an APPARATUS
+    event and it says so here, at the one place the binary is invoked.
     """
-    return _run([tools.opa, "parse", "--format", "json", path], workdir)
+    code, out, err = _run([tools.opa, "parse", "--format", "json", path],
+                          workdir)
+    _refuse_no_answer("opa parse", code, out, path, answer_exits=(0, 1))
+    return code, out, err
+
+
+def _refuse_no_answer(what: str, code: int, out, path: str,
+                      answer_exits=(0,), require_readable: bool = False):
+    """ROUND-2 FINDING R2-1's shared refusal, so the rule is read once.
+
+    `answer_exits` are the exits at which the engine ANSWERED — for a parser,
+    both "here is the tree" and "these are the syntax errors" are answers about
+    the author's bytes. `require_readable` additionally demands that an
+    answering exit carried a parseable stream, for the callers that consume one.
+    Raises `EngineError`, which every scoring caller already routes to §1a's
+    `engine-invocation-refused`; returns None when the engine answered."""
+    readable = True
+    if require_readable:
+        try:
+            json.loads(out if isinstance(out, str) else out.decode("utf-8"))
+        except (ValueError, UnicodeDecodeError, AttributeError):
+            readable = False
+    refusal = invocation_refusal(code, readable, answer_exits=answer_exits)
+    if refusal is None:
+        return
+    raise EngineError(
+        "ENGINE-INVOCATION-REFUSED %s produced no answer about %s (%s): §1a "
+        "files a pinned-engine invocation that produced no answer during "
+        "scoring on the APPARATUS side, never as an authoring outcome (R2-1)"
+        % (what, path, refusal))
 
 
 def capabilities_canary(tools: Toolchain, workdir: str) -> dict:
@@ -731,7 +768,13 @@ def opa_eval_document(tools: Toolchain, data_paths, query: str,
     binary's own reading, under the pinned capabilities and the registered flags
     — the same invocation `eval_rego()` uses, at a different query.
 
-    Returns `(exit code, stdout bytes)`; the caller decodes."""
+    Returns `(exit code, stdout bytes)`; the caller decodes.
+
+    ROUND-2 FINDING R2-1: a TIMEOUT raises. A non-zero eval exit is a live
+    answer — the query did not resolve against these data files — and stays the
+    caller's to interpret; exit 124 is the invocation producing nothing, which
+    `e4.py`'s table-driven block used to let fall through to `unresolved` and
+    thence to the authoring code `unparseable-artifact`."""
     argv = [tools.opa, "eval", "--format", "json",
             "--strict-builtin-errors", "--capabilities", tools.caps,
             "--timeout", OPA_EVAL_TIMEOUT]
@@ -739,6 +782,12 @@ def opa_eval_document(tools: Toolchain, data_paths, query: str,
         argv += ["--data", path]
     argv.append(query)
     code, out, _err = _run(argv, workdir)
+    if code == 124:
+        raise EngineError(
+            "ENGINE-INVOCATION-REFUSED opa eval timed out at %ds resolving %s: "
+            "the invocation produced no document, and §1a files that on the "
+            "APPARATUS side rather than as an unparseable authored artifact "
+            "(R2-1)" % (ENGINE_TIMEOUT_S, query))
     return code, out.encode("utf-8")
 
 
@@ -748,9 +797,16 @@ def opa_parse(tools: Toolchain, path: str, workdir: str) -> tuple:
 
     Returns `(exit code, stdout bytes)`. Parsing is a SYNTAX operation and takes
     no capabilities file: the builtin set constrains evaluation, and a file that
-    parses under one capabilities set parses under any."""
+    parses under one capabilities set parses under any.
+
+    ROUND-2 FINDING R2-1: exits 0 and 1 are the parser's ANSWERS about the
+    author's bytes; anything else is a no-answer and raises, because
+    `e4.rego_case_signatures()` used to map EVERY non-zero exit — 124 included —
+    to the authoring code `unparseable-artifact`, which is a claim about the
+    author made out of an invocation that never happened."""
     code, out, _err = _run([tools.opa, "parse", "--format", "json", path],
                            workdir)
+    _refuse_no_answer("opa parse", code, out, path, answer_exits=(0, 1))
     return code, out.encode("utf-8")
 
 

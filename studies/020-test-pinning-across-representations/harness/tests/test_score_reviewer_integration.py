@@ -157,6 +157,98 @@ def test_a_record_missing_the_registered_member_is_fatal(tmp_path):
                          {"A": "jps"}, str(tmp_path))
 
 
+@pytest.mark.parametrize("case", ["wrapper-code", "authoring-code", "no-suite"])
+def test_an_ordinary_outcome_does_not_make_the_holdout_fatal(tmp_path, case):
+    """ROUND-2 FINDING R2-5, driven through the real `score_run()` for each of
+    the three ORDINARY outcomes that used to end the attempt.
+
+    `reviewer.execute()` required `suitePath` on every candidate; `score_run()`
+    set it only after a suite was written. So a wrapper apparatus code, any of
+    the six authoring codes, or a completion with no suite raised
+    `REVIEWER-RECORD-SCHEMA` out of the mandatory holdout — and `main()` turns
+    that into `pipelineInvalid: true`. One such run in 180 destroyed the
+    attempt; `presence-idiom-unsound` alone fired in 4 of the sweep's 27 fresh
+    calls.
+
+    MUTATION: delete `"suitePath": None` from `score._run_record()` — all three
+    cases fail with the schema refusal, which is exactly what they raised
+    before the repair. SECOND MUTATION: revert the eligibility filter to
+    truthiness-after-presence — these three still pass, which is why the
+    RETURN is the discriminating assertion and the eligibility change alone is
+    not."""
+    tools = engines.Toolchain(_pins()).require()
+    with open(GOLD, "rb") as handle:
+        gold = json.loads(handle.read().decode("utf-8"))["rows"]
+    context = {"gold": gold, "mutants": {"jps": [], "rego": []},
+               "pairedIds": {"jps": set(), "rego": set()}, "pairedCount": 0,
+               "engineSupplied": {"jps": (), "rego": ()}, "classes": [],
+               "referenceA": REF_A,
+               "referenceB": os.path.join(DESIGN, "reference", "refB",
+                                          "policy.rego")}
+    slot = {"arm": "A", "slotIndex": 1, "globalIndex": 1, "round": 1,
+            "position": 1, "present": True, "code": None,
+            "durationSeconds": 1.0, "completion": _arm_a_completion(gold)}
+    if case == "wrapper-code":
+        slot["code"] = "call-timeout"
+    elif case == "authoring-code":
+        slot["completion"] = "PACK:\n```json\nnothing here\n```\n"
+    else:
+        with open(REF_A, encoding="utf-8") as handle:
+            slot["completion"] = "PACK:\n```json\n%s\n```\n" % handle.read()
+    run = score.score_run(tools, "A", slot, context, str(tmp_path))
+    assert "suitePath" in run and run["suitePath"] is None
+    assert "scoredCases" in run
+    sealed = {"version": reviewer.SET_VERSION, "manifestSha256": "0" * 64,
+              "mutants": [], "count": 0, "executed": False}
+    out = reviewer.execute(tools, sealed, {"A": [run]}, context, ["A"],
+                           {"A": "jps"}, str(tmp_path))
+    block = out["perArm"]["A"]
+    assert block["scoredRuns"] == 0
+    assert block["eligibleRuns"] == 0
+    assert block["noSuiteRuns"] == 1
+    assert block["ineligibleRuns"] == 1
+
+
+def test_two_runs_do_not_share_one_suite_path(tmp_path):
+    """R2-5's measured second defect: `main()` created ONE workspace and passed
+    it to every `score_run()`, so `suite.<language>` was the same path for all
+    180 runs — and `reviewer.execute()` runs AFTER all scoring and reads that
+    path from disk. Measured before the repair: two arm-A runs shared a path
+    whose bytes held the LAST run's suite while the first run's `caseCount`
+    said 2.
+
+    MUTATION: pass one shared directory to both `score_run()` calls — the path
+    inequality AND the on-disk content assertion both fail. LABEL: asserting
+    path inequality alone CANNOT discriminate a fix that renames the file but
+    still shares a directory; the content assertion is the load-bearing half."""
+    tools = engines.Toolchain(_pins()).require()
+    with open(GOLD, "rb") as handle:
+        gold = json.loads(handle.read().decode("utf-8"))["rows"]
+    context = {"gold": gold, "mutants": {"jps": [], "rego": []},
+               "pairedIds": {"jps": set(), "rego": set()}, "pairedCount": 0,
+               "engineSupplied": {"jps": (), "rego": ()}, "classes": [],
+               "referenceA": REF_A,
+               "referenceB": os.path.join(DESIGN, "reference", "refB",
+                                          "policy.rego")}
+    runs = []
+    for index, rows in ((1, 2), (2, 5)):
+        slot = {"arm": "A", "slotIndex": index, "globalIndex": index,
+                "round": 1, "position": 1, "present": True, "code": None,
+                "durationSeconds": 1.0,
+                "completion": _arm_a_completion(gold, rows=rows)}
+        run_dir = os.path.join(str(tmp_path), "A", "run-%03d" % index)
+        os.makedirs(run_dir)
+        runs.append(score.score_run(tools, "A", slot, context, run_dir))
+    assert runs[0]["suitePath"] != runs[1]["suitePath"]
+    assert runs[0]["caseCount"] == 2 and runs[1]["caseCount"] == 5
+    for run, expected in zip(runs, (2, 5)):
+        with open(run["suitePath"], "rb") as handle:
+            document = json.loads(handle.read().decode("utf-8"))
+        assert len(document["cases"]) == expected, (
+            "the run's own suite bytes must survive until the holdout reads "
+            "them")
+
+
 def test_an_aborted_execution_cannot_run_again(tmp_path):
     """`attempted` marks the once-only promise at entry; `executed` only on
     completion. A crashed first execution must refuse a second, and must not

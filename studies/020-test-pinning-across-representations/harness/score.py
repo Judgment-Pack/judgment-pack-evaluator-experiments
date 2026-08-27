@@ -1274,9 +1274,19 @@ def e4_endpoint(arm: str, runs: list, denominator: dict, engine_supplied=None,
     denominator the run is scored OVER (019's R1-1 defect, made structurally
     impossible rather than repaired)."""
     bind_study_modules()
-    identity_pass = [run for run in runs if run.get("referenceIdentityPass")]
+    # ROUND-2 FINDING R2-1, the tri-state read explicitly at both poles. `is
+    # True` and `is False` mean the relation was EVALUATED; `is None` means a
+    # pinned engine never answered, which §6 registers as "neither a kill nor
+    # an identity failure". The truthiness reads these two lines used to carry
+    # put every engine-refused run in `identity_fail`, in `identityRate`'s
+    # complement and in `identityFailedRuns` — a suite blamed for the
+    # apparatus's silence.
+    identity_pass = [run for run in runs
+                     if run.get("referenceIdentityPass") is True]
     identity_fail = [run for run in runs if run.get("admitted")
-                     and not run.get("referenceIdentityPass")]
+                     and run.get("referenceIdentityPass") is False]
+    identity_not_answered = [run for run in runs if run.get("admitted")
+                             and run.get("referenceIdentityPass") is None]
     own_policy_pass = [run for run in runs
                        if (run.get("ownPolicyIdentity") or {}).get("pass")]
     # §5.2's coverage rule, per run, over the SHARED classes. A run that was
@@ -1305,8 +1315,18 @@ def e4_endpoint(arm: str, runs: list, denominator: dict, engine_supplied=None,
                            "the endpoint.",
         "referenceIdentityPass": len(identity_pass),
         "identityFail": len(identity_fail),
-        "identityRate": stats.rate_block(len(identity_pass), len(runs),
-                                         "admitted runs"),
+        # R2-1: the rate's denominator is the runs the relation was EVALUATED
+        # for. A run the engine never answered about is counted beside the
+        # rate under its own name, exactly as R1-14 did for E6's not-asked
+        # runs — never diluted into it, and never counted against the author.
+        "identityRate": stats.rate_block(
+            len(identity_pass), len(runs) - len(identity_not_answered),
+            "admitted runs the reference relation was evaluated for (R2-1: a "
+            "run whose pinned engine never answered leaves this denominator "
+            "and is published beside it as identityApparatusRefused)"),
+        "identityApparatusRefused": len(identity_not_answered),
+        "identityApparatusRefusedRuns": sorted(
+            run["run"] for run in identity_not_answered),
         "identityFailedRuns": sorted(run["run"] for run in identity_fail),
         # E6 (§5.1, §7 delta 4). The SECOND named relation, published per arm
         # beside the first and gating nothing. The conjunction is §5.8's Tier D
@@ -1328,7 +1348,7 @@ def e4_endpoint(arm: str, runs: list, denominator: dict, engine_supplied=None,
             "the rate, not inside it; rate_block publishes a null rate over "
             "an empty denominator rather than inventing one)"),
         "bothIdentitiesPass": len([run for run in runs
-                                   if run.get("referenceIdentityPass")
+                                   if run.get("referenceIdentityPass") is True
                                    and (run.get("ownPolicyIdentity")
                                         or {}).get("pass")]),
         "coverageCounts": coverage_counts,
@@ -1415,10 +1435,38 @@ def registered_family(e4_by_arm: dict, per_arm_runs: dict, context: dict,
     try:
         corpus = family_lib.build_corpus(context["pairing"],
                                          context["engineSupplied"])
+        # ROUND-2 FINDING R2-1, at the one call site where the tri-state
+        # decides the CLAIM. This read was `bool(run.get(...))`, and `bool(None)`
+        # is False — so after the apparatus repair an engine-refused run would
+        # still have entered all eighteen members as an identity-FAILING unit:
+        # out of the per-protocol pole for the wrong reason and inside the ITT
+        # pole scoring zero. §1a excludes apparatus failures from every
+        # population, and this is the line where "every population" means the
+        # family R1 is computed over. A run the relation was never evaluated
+        # for is not a unit; it is already outside `per_arm_runs` when the
+        # refusal was a scoring-time invocation, and this guard covers the
+        # remaining path — an `ExecutionRefusal` at the identity step, which
+        # keeps the run in the population for §6's gate to read.
         units = [family_lib.unit_from_kill_record(
-                     run["run"], arm, bool(run.get("referenceIdentityPass")),
+                     run["run"], arm, run.get("referenceIdentityPass") is True,
                      run.get("caseCount"), run.get("kill"), corpus)
-                 for arm in batch.ARMS for run in per_arm_runs[arm]]
+                 for arm in batch.ARMS for run in per_arm_runs[arm]
+                 if run.get("referenceIdentityPass") is not None]
+        not_answered = [run["run"] for arm in batch.ARMS
+                        for run in per_arm_runs[arm]
+                        if run.get("referenceIdentityPass") is None]
+        if not_answered:
+            # Stated, never silent: a family computed over fewer units than the
+            # arm holds is a fact the reader is owed beside the verdict.
+            outcome["familyUnitsExcluded"] = {
+                "runs": sorted(not_answered),
+                "why": "§1a/§6 (R2-1): the reference relation was never "
+                       "evaluated for these runs because a pinned engine "
+                       "produced no answer, so they are apparatus and enter "
+                       "no member's population. §6's own engine gate reads "
+                       "the same fact and adjudicates R1 in neither "
+                       "direction.",
+            }
     except Exception as error:                       # noqa: BLE001 (named below)
         refusals["family"] = "%s: %s" % (type(error).__name__, error)
         outcome["pipelineProblems"] = [
@@ -1486,23 +1534,58 @@ def _empty_kill(context: dict, language: str) -> dict:
                             context["engineSupplied"][language])
 
 
+def _run_record(arm: str, slot: dict) -> dict:
+    """ROUND-2 FINDING R2-5: the TOTAL record every one of `score_run()`'s exits
+    inherits, so the holdout's consumer can read a member without asking which
+    branch produced the run.
+
+    R2-5's mechanism: `reviewer.execute()` requires `suitePath` on every
+    candidate, `score_run()` set it only after a suite was written, and three
+    ORDINARY outcomes — a wrapper apparatus code, any of the six authoring
+    codes, and a completion with no suite — omitted it. One such run in 180
+    made the mandatory holdout execution fatal and ended the attempt.
+
+    The two members added here are exactly the two the holdout reads and the
+    two `main()` strips before publication, so no published byte moves.
+
+    WHAT IS DELIBERATELY *NOT* TOTALISED, and why the constructor stops at two:
+    `caseCount`'s ABSENCE is a registered state distinct from 0 (see the E4
+    block below and `e4.require_survivor_schema()`'s third condition) — a
+    `None` there would be a third spelling of a distinction §5.2 registers.
+    Same for `kill`, `coverage`, `goldVector` and `policyBytes`: each is absent
+    on some path because the state it describes did not happen."""
+    return {
+        "run": "run-%03d" % slot["slotIndex"], "arm": arm,
+        "code": slot["code"], "admitted": False, "goldPerfect": False,
+        # §7 delta 4: TWO NAMED RELATIONS, and ROUND-1 FINDING R1-13's rename
+        # actually landed: `referenceIdentityPass` is `referenceIdentity` and
+        # nothing else; E6's answer lives under its own name and is None until
+        # the extra invocation has been made, so "not asked" and "asked and
+        # failed" are different bytes.
+        #
+        # ROUND-2 FINDING R2-1 makes this member TRI-STATE: True, False, and
+        # None for "the pinned engine never answered, so the relation was not
+        # evaluated". False now means the relation was evaluated and did not
+        # hold — which is what every consumer already believed it meant.
+        "referenceIdentityPass": False,
+        "identityRelation": e4lib.REFERENCE_IDENTITY,
+        "ownPolicyIdentity": None,
+        "suitePath": None, "scoredCases": None,
+        "durationSeconds": slot["durationSeconds"],
+    }
+
+
 def score_run(tools, arm: str, slot: dict, context: dict, workdir: str) -> dict:
     """Extract, admit, evaluate — one slot, in the registered order.
 
     Never crashes the scoring: a row that makes an engine refuse is a ROW-ERROR
     with its class recorded, and an exception inside one run's evaluation is
-    that run's problem and not the population's."""
+    that run's problem and not the population's. ROUND-2 FINDING R2-1 made that
+    sentence true: a pinned-engine no-answer inside the DETECTOR or the matrix
+    parser used to leave this function as an untyped exception and end the
+    attempt through `main()`'s last-resort handler."""
     bind_study_modules()
-    run = {"run": "run-%03d" % slot["slotIndex"], "arm": arm,
-           "code": slot["code"], "admitted": False, "goldPerfect": False,
-           # §7 delta 4: TWO NAMED RELATIONS, and ROUND-1 FINDING R1-13's rename
-           # actually landed: `referenceIdentityPass` is
-           # `referenceIdentity` and nothing else; E6's answer lives under its
-           # own name and is None until the extra invocation has been made, so
-           # "not asked" and "asked and failed" are different bytes.
-           "referenceIdentityPass": False, "identityRelation": e4lib.REFERENCE_IDENTITY,
-           "ownPolicyIdentity": None,
-           "durationSeconds": slot["durationSeconds"]}
+    run = _run_record(arm, slot)
     if slot["code"] is not None:
         return run
     pair = extract.extract_pair(slot["completion"] or "", arm)
@@ -1619,6 +1702,15 @@ def score_run(tools, arm: str, slot: dict, context: dict, workdir: str) -> dict:
                                                context["referenceB"])
             run["caseCount"] = len(named)
             wire = "number"
+    except engines.EngineError as error:
+        # ROUND-2 FINDING R2-1, and the ORDER matters: this handler precedes
+        # `MatrixError` because a pinned-engine no-answer inside the matrix
+        # parser used to arrive as `opa parse` exit 124 and leave as the
+        # AUTHORING code `unparseable-artifact` — a statement about the author
+        # made out of an invocation that produced nothing.
+        run["code"] = "engine-invocation-refused"
+        run["invocationRefusal"] = str(error)
+        return run
     except e4lib.MatrixError as error:
         run["code"] = "unparseable-artifact"
         run["suiteRefusal"] = str(error)
@@ -1672,20 +1764,33 @@ def score_run(tools, arm: str, slot: dict, context: dict, workdir: str) -> dict:
         return e4lib.require_survivor_schema(
             _identity_and_kill(tools, arm, run, artifact, suite_path, context,
                                workdir))
+    except engines.EngineError as error:
+        # ROUND-2 FINDING R2-1, ordered before `ExecutionRefusal` for the same
+        # reason as above: an invocation that produced no answer is apparatus,
+        # and it leaves by the one typed door §1a names.
+        run["code"] = "engine-invocation-refused"
+        run["invocationRefusal"] = str(error)
+        return run
     except e4lib.ExecutionRefusal as error:
         # ROUND-1 R1-8. A pinned engine refused on a FROZEN artifact. That is
         # not a suite that failed to pin its reference down, so the run is not
         # scored zero and no number derived from it is published as if it were
         # valid: the refusal is recorded here and the `engine-execution-clean`
         # control gate reads it, which adjudicates R1 in neither direction.
+        #
+        # ROUND-2 FINDING R2-1 removed the last place this state still lied.
+        # The run used to carry `referenceIdentityPass: False` and a FABRICATED
+        # failure row reading `got: "engine-refused"`, so §6's own sentence —
+        # "it is neither a kill nor an identity failure" — was contradicted by
+        # the record it produced: the run entered `identityRate`'s complement,
+        # `identityFailedRuns` and E3's taxonomy as a failing suite. The member
+        # is now None, which is the third state the relation actually has: not
+        # evaluated. Consumers that mean "evaluated and did not hold" test
+        # `is False`.
         run["engineRefused"] = True
         run["engineRefusal"] = str(error)
-        run["referenceIdentityPass"] = False
-        run["referenceIdentityFailures"] = [{"case": "<engine>",
-                                    "expected": "<an answer from the pinned "
-                                                "engine>",
-                                    "got": "engine-refused"}]
-        run["referenceIdentityFailureCount"] = 1
+        run["referenceIdentityPass"] = None
+        run["referenceIdentityNotAnswered"] = True
         run["kill"] = e4lib.kill_rates({}, context["mutants"][language],
                                        context["pairedIds"][language],
                                        context["engineSupplied"][language])
@@ -2303,8 +2408,24 @@ def main(argv=None) -> int:
         per_arm_runs, e1, e2, e3, e4_by_arm = {}, {}, {}, {}, {}
         scoring_apparatus = {}
         for arm in batch.ARMS:
-            scored = [score_run(tools, arm, slot, context, workspace)
-                      for slot in counted[arm]["slots"]]
+            # ROUND-2 FINDING R2-5, the measured half. Every run used to be
+            # scored in ONE shared directory, so `suite.<language>`,
+            # `policy.rego` and `pack.json` were the same path for all 180
+            # runs — and `reviewer.execute()` runs AFTER all scoring and reads
+            # `run["suitePath"]` from disk. Two arm-A runs scored in one
+            # workspace were measured sharing a path whose bytes held the LAST
+            # run's suite: the holdout would have scored every eligible arm-B
+            # and arm-C run against the last arm-C suite written and published
+            # those outcomes under the wrong run ids. A per-run directory makes
+            # every path expression inside `score_run()` per-run without
+            # touching one of them; `reviewer.execute()` keeps the shared
+            # workspace as its own scratch, which it only writes to.
+            scored = []
+            for slot in counted[arm]["slots"]:
+                run_dir = os.path.join(workspace, arm,
+                                       "run-%03d" % slot["slotIndex"])
+                os.makedirs(run_dir, exist_ok=True)
+                scored.append(score_run(tools, arm, slot, context, run_dir))
             # R1-1: a run the scorer coded `engine-invocation-refused` is
             # pipeline-invalid — the engine never answered about it — and
             # leaves every endpoint's population, published under its own
