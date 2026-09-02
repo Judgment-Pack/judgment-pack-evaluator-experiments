@@ -1,13 +1,13 @@
 # Study 020 — test pinning across representations
 
-**Status: DRAFT preregistration, second revision (post-round-1), under review. Not frozen.
+**Status: DRAFT preregistration, third revision (post-round-2), under review. Not frozen.
 Nothing citable has run; the review record's state is the rendered sentence below and only
 there.** [`PREREGISTRATION.md`](PREREGISTRATION.md) is the protocol;
 [`PREREG-REVIEW.md`](PREREG-REVIEW.md) is the pre-freeze review record and its round-state block
 is the single machine-readable source for round counts, verdicts and open state (ADR 0005).
 
 <!-- round-status:begin -->
-ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 2 review rounds are on the record, 2 have returned a verdict — rounds 1-2 returned DO NOT FREEZE — and round 2 is open, awaiting the maintainer's written disposition per finding.
+ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 3 review rounds are on the record, 2 have returned a verdict — rounds 1-2 returned DO NOT FREEZE — and round 3 is open, awaiting the reviewer's answer.
 <!-- round-status:end -->
 
 > The sentence above is **rendered** from `PREREG-REVIEW.md`'s round-state block by

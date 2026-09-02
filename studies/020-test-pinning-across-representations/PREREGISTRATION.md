@@ -1,6 +1,6 @@
 # Preregistration — Study 020: test pinning across representations
 
-**Status: DRAFT, second revision (post-round-1), under review. Not frozen. Nothing citable
+**Status: DRAFT, third revision (post-round-2), under review. Not frozen. Nothing citable
 has run; the review record's state is the rendered sentence below and only there (R1-23 —
 this header once said "no review round is on the record" beside a sentence saying
 otherwise).** The cross-vendor review rounds will be recorded in
@@ -15,7 +15,7 @@ Study 019 and inherits its machinery by port** (§7); where 020 departs from 019
 is registered here rather than discovered in review.
 
 <!-- round-status:begin -->
-ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 2 review rounds are on the record, 2 have returned a verdict — rounds 1-2 returned DO NOT FREEZE — and round 2 is open, awaiting the maintainer's written disposition per finding.
+ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 3 review rounds are on the record, 2 have returned a verdict — rounds 1-2 returned DO NOT FREEZE — and round 3 is open, awaiting the reviewer's answer.
 <!-- round-status:end -->
 
 > **On the sentence above — the gate is CLOSED.** `harness/render_round_status.py` is 019
