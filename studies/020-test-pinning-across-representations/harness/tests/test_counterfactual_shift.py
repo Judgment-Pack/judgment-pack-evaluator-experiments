@@ -287,3 +287,39 @@ def test_publishing_over_the_existing_output_is_refused(published):
     published figures."""
     with pytest.raises(cs.ShiftError, match="SHIFT-EXISTS"):
         cs.main(["--write"])
+
+
+# --- ROUND-2 R2-19: two agreeing authorities for the certified set ------------
+
+def test_the_certified_set_identity_has_two_agreeing_authorities():
+    """R1-11's disposition said PINS.json pinned the set-identity digest; it did
+    not — the digest lived only in this module's covered constant. Round 2
+    adds the registry member and BINDS the two: (a) they agree today; (b) a
+    registry that disagrees refuses the real set; (c) a registry without the
+    member refuses (fail-shut), as does a non-string member.
+    MUTATION: delete the cross-check from `certify_identity()` — (b) passes
+    silently and this test fails."""
+    import copy
+    pins = cs.load_pins()
+    member = pins["presenceIdiomGuard"]["counterfactualPerMemberShift"]["flaggedSet"]
+    assert member["sha256"] == "sha256:" + cs.CERTIFIED_FLAGGED_SHA256
+    assert cs.registry_flagged_digest(pins) == cs.CERTIFIED_FLAGGED_SHA256
+    path = os.path.join(HARNESS, cs.OUTPUT_NAME)
+    if not os.path.isfile(path):
+        pytest.skip("harness/%s has not been published" % cs.OUTPUT_NAME)
+    with open(path, "rb") as handle:
+        real = tuple(sorted(json.loads(handle.read().decode("utf-8"))["recode"]["runs"]))
+    cs.certify_identity(real, pins=pins)                # the two agree
+    bad = copy.deepcopy(pins)
+    bad["presenceIdiomGuard"]["counterfactualPerMemberShift"]["flaggedSet"]["sha256"] = \
+        "sha256:" + "0" * 64
+    with pytest.raises(cs.ShiftError, match="SHIFT-NOT-CERTIFIED.*disagree"):
+        cs.certify_identity(real, pins=bad)
+    absent = copy.deepcopy(pins)
+    del absent["presenceIdiomGuard"]["counterfactualPerMemberShift"]["flaggedSet"]["sha256"]
+    with pytest.raises(cs.ShiftError, match="SHIFT-NOT-CERTIFIED.*no set-identity"):
+        cs.certify_identity(real, pins=absent)
+    typed = copy.deepcopy(pins)
+    typed["presenceIdiomGuard"]["counterfactualPerMemberShift"]["flaggedSet"]["sha256"] = 42
+    with pytest.raises(cs.ShiftError, match="SHIFT-NOT-CERTIFIED"):
+        cs.certify_identity(real, pins=typed)

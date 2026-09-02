@@ -228,10 +228,14 @@ GUARD_PIN_PATH = ("presenceIdiomGuard", "registered")
 def guard_is_registered(pins: dict = None) -> bool:
     """§3.2's kill switch, from `harness/PINS.json`.
 
-    The preregistration registers the guard CONDITIONALLY — "if the detector
-    cannot meet (i) and (ii) exactly, the guard is not registered at all" — and
+    The preregistration registers the guard CONDITIONALLY — under the R1-9
+    amendment (blessed by round 2): (i-a) the detector flags every in-class
+    policy in its registered operating set, the admitted policies, exactly n/n;
+    (i-b) every in-class retained run receives a registered authoring code from
+    the admission chain, 40/40; (ii) it flags none of the 22 perfect runs — and
     a conditional registration whose condition lives in prose is a condition
-    nothing enforces. `PINS.json`'s `presenceIdiomGuard.registered` carries the
+    nothing enforces. (This docstring quoted the superseded "40/40 by the
+    detector" condition until round-2 R2-4.) `PINS.json`'s `presenceIdiomGuard.registered` carries the
     power analysis's verdict as data, and this is the only place it is read.
 
     FAIL-SHUT toward NOT REGISTERED: a registry with no such member, or one

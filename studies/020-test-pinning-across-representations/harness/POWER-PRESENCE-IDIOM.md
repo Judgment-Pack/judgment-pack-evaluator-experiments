@@ -8,7 +8,17 @@ it as.** The guard is `harness/e4lib/presence_idiom.py` and the code it emits is
 > guard is not registered at all** and the mechanism is carried as a Tier D
 > descriptive finding only.
 
-**Verdict: the condition is met and the guard IS registered.**
+> **AMENDED 2026-08-24 (round-1 R1-9), BLESSED by round 2 (`reviews/round-2/REVIEW.md`);
+> this document quoted the original condition as live until round-2 R2-4.** The
+> condition is now **(i-a) / (i-b) / (ii)**: (i-a) the detector flags every in-class
+> policy in its registered operating set — the admitted policies — exactly, n/n;
+> (i-b) every in-class retained run receives a registered authoring code from the
+> admission chain, 40/40, the detector's code or an earlier one; (ii) 0/22 perfect
+> runs flagged, unchanged. The original 40/40-by-the-detector reading was ruled
+> literally unmeetable by an admission-level detector: a policy the parser refuses
+> never reaches it.
+
+**Verdict: the AMENDED condition is met and the guard IS registered.**
 `harness/PINS.json`'s `presenceIdiomGuard.registered` carries that as data, and
 `harness/e4lib/admit.py`'s `guard_is_registered()` is the only place it is read —
 fail-shut toward NOT registered, so a registry that lost the member would
@@ -70,7 +80,10 @@ method M-14 did not use. Per arm: **21 of 37 in arm B, 19 of 39 in arm C**.
 
 ---
 
-## (i) Sensitivity
+## (i-a) Detector coverage of the registered operating set, and (i-b) admission-chain code coverage
+
+*(Retitled round 2, R2-4; this section was "(i) Sensitivity" and its headline figure
+was the code-receipt count, which is (i-b), not the detector's coverage, which is (i-a).)*
 
 | population | in-class | flagged | sensitivity |
 |---|---|---|---|
@@ -78,8 +91,10 @@ method M-14 did not use. Per arm: **21 of 37 in arm B, 19 of 39 in arm C**.
 | parseable (73) | 39 | 39 | **39/39** |
 | admitted (60) | 32 | 32 | **32/32** |
 
-**40/40 of the in-class runs receive an authoring code.** The one in-class run
-the detector does not flag is `B run-040`, which the pinned parser refuses; it
+**(i-a) 32/32 admitted in-class policies flagged, 39/39 parseable — the operating
+set §3.2 registers the detector to run over, and every policy the pinned parser
+accepts. (i-b) 40/40 in-class retained runs receive a registered authoring code.**
+The one in-class run the detector does not flag is `B run-040`, which the pinned parser refuses; it
 receives the registered authoring code `unparseable-artifact` instead, from a
 check that runs strictly earlier. So the in-class set is fully covered by §1a's
 partition, and the detector is exact on every policy it is registered to see:
@@ -219,7 +234,8 @@ Every certified figure reproduces exactly: all three defects were LATENT on this
 census 351 `var` / 248 `string`, zero number or boolean), so the repairs move adversarial
 constructions only. The amended criterion is met by the re-run — (i-a) 32/32 admitted flagged
 with the pinned set-identity digest, (i-b) 40/40 in-class runs coded, (ii) 0/22 — and the
-switch's `registered: true` stands PENDING round 2's blessing of the amendment.
+switch's `registered: true` stands — round 2 BLESSED the amendment
+(`reviews/round-2/REVIEW.md`; recorded here by round-2 R2-4).
 
 **The third measured ceiling, named with the first two:** a non-string probe over an object is
 outside the guard's certified class, so the NUMERIC-KEY trap (`5 in {5: "x"}` — Rego object
@@ -366,10 +382,11 @@ trees.
 |---|---|
 | retained arm-B/C policies | 76 (B 37 / C 39) |
 | in-class by the independent source oracle | 40 (B 21 / C 19) |
-| (i) sensitivity | **40/40 in-class runs receive an authoring code** — 39/39 of those the detector reaches, 32/32 admitted; the fortieth is refused earlier by `opa check` and coded `unparseable-artifact` |
+| (i-a) detector coverage, registered operating set | **32/32 admitted in-class policies flagged, 39/39 parseable** — zero false negatives in either population |
+| (i-b) admission-chain code coverage | **40/40 in-class retained runs receive a registered authoring code** — 39 the detector's, and the fortieth refused earlier by `opa check` and coded `unparseable-artifact` |
 | (ii) specificity | **0/22 perfect runs flagged** |
 | (iii) false positives on lawful `in` | **0/392 lawful uses, 0/15 over sets and arrays** |
-| (iv) counterfactual per-member shift | **computed** by `harness/counterfactual_shift.py` over the derived-and-gated flagged set (32/60: B 19, C 13) — every ITT member amplified (A–C +0.168…+0.209), every A–C PP member attenuated (−0.031…−0.022), two decisions flip (M2, M5: reject → not-reject); full table in `harness/COUNTERFACTUAL-SHIFT.json` |
+| (iv) counterfactual per-member shift | **computed** by `harness/counterfactual_shift.py` over the derived-and-gated flagged set (32/60: B 19, C 13), regenerated once in round 2 under the registered estimand — every ITT member amplified (A–C +0.168…+0.210), every unadjusted A–C PP member attenuated (−0.031…−0.006), the adjusted members within ±0.015 (M18 positive), two decisions flip (M2, M5: reject → not-reject); full table in `harness/COUNTERFACTUAL-SHIFT.json` |
 | (v) mutation check | drop the object-type branch: 39/39 → **23/39**, and the certifying test fails |
 | unclassified uses | 29, none flagged |
 | measured false negatives beyond the class | 2 (presence tests over a function parameter) |

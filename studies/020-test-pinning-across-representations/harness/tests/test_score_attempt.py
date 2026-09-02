@@ -1670,7 +1670,8 @@ def test_the_calibration_record_carries_the_four_registered_differences():
     discovered later." They are enumerated in the RECORD, so a fifth cannot be
     discovered in a runbook either."""
     registry = {"codex": {"model": "m", "reasoningEffort": "high",
-                          "binarySha256": "sha256:x"},
+                          "binarySha256": "sha256:x",
+                          "reasoningEffortWitness": batch.WITNESS_BRANCH_GATE5},
                 "jpack": {"binarySha256": "sha256:y"},
                 "opa": {"assetSha256": "sha256:z"}}
     record = batch.calibration_record("pilot", "pilot-001", registry)
@@ -1684,8 +1685,52 @@ def test_the_calibration_record_carries_the_four_registered_differences():
     assert record["runsPerArm"] == batch.PILOT_RUNS_PER_ARM == 12
     assert record["designTimePinState"]["codex.reasoningEffort"] == "high"
     assert record["sweepExemption"] == []
-    # M-24's sentence travels with the record, not with a runbook.
-    assert "not independently witnessed" in record["note"]
+    # M-24's sentence travels with the record, not with a runbook — the
+    # sentence of the branch the registry RESOLVED (round-2 R2-18; the
+    # assertion this replaces pinned the retired branch's sentence and passed
+    # over the defect, so it was non-discriminating).
+    assert record["note"].endswith(batch.WITNESS_NOTES[batch.WITNESS_BRANCH_GATE5])
+    assert batch.WITNESS_NOTES[batch.WITNESS_BRANCH_SELF_REPORT] not in record["note"]
+
+
+def test_the_calibration_record_states_the_branch_the_registry_resolved():
+    """R2-18. M-24 registers TWO branches and one sentence each; the record
+    carries the resolved branch's sentence and never the other's, and a
+    registry naming neither cannot write a record at all. MUTATION: hard-code
+    either sentence back into `calibration_record()` — the self-report
+    registry below carries the wrong sentence and the `other` loop fails."""
+    def registry(branch):
+        return {"codex": {"model": "m", "reasoningEffort": "low",
+                          "binarySha256": "sha256:x",
+                          "reasoningEffortWitness": branch},
+                "jpack": {"binarySha256": "sha256:y"},
+                "opa": {"assetSha256": "sha256:z"}}
+    for branch in batch.WITNESS_NOTES:
+        record = batch.calibration_record("pilot", "pilot-001", registry(branch))
+        assert record["note"].endswith(batch.WITNESS_NOTES[branch]), branch
+        assert record["note"].startswith(batch.POPULATION_SENTENCE)
+        for other in batch.WITNESS_NOTES:
+            if other != branch:
+                assert batch.WITNESS_NOTES[other] not in record["note"]
+    with pytest.raises(batch.BatchError, match="exactly two witness branches"):
+        batch.calibration_record("pilot", "pilot-001", registry(None))
+    with pytest.raises(batch.BatchError):
+        batch.calibration_record("pilot", "pilot-001", registry("something-else"))
+    # the sweep precedes the resolution: a null pin there is "pending", stated
+    pending = batch.calibration_record("sweep", "sweep-001", registry(None),
+                                       setting="reasoningEffort=low")
+    assert pending["note"].endswith(batch.WITNESS_PENDING_NOTE)
+    for sentence in batch.WITNESS_NOTES.values():
+        assert sentence not in pending["note"]
+    with pytest.raises(batch.BatchError):
+        batch.calibration_record("sweep", "sweep-001", registry("something-else"),
+                                 setting="reasoningEffort=low")
+    # the committed registry resolved gate-5-extension (§2.1's M-24 fill)
+    import json
+    with open(os.path.join(score.STUDY, "harness", "PINS.json"), "rb") as handle:
+        pins = json.loads(handle.read().decode("utf-8"))
+    real = batch.calibration_record("pilot", "pilot-001", pins)
+    assert real["note"].endswith(batch.WITNESS_NOTES[batch.WITNESS_BRANCH_GATE5])
 
 
 def test_a_sweep_record_stamps_its_setting_and_names_the_exemption():

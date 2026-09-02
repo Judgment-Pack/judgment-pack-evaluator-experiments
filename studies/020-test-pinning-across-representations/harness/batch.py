@@ -54,23 +54,27 @@ The enumerated changes to what is carried (PREREGISTRATION.md §2 "Batch shape",
 
 1. **Three arms, not five.** `ARMS = ("A", "B", "C")` — Judgment Pack, raw
    Rego, Rego under the prescribed judgment convention (§3). Every derived
-   number moves with it and none is transcribed: `POSITIONS` is 3, `SEQUENCES`
-   is 6, `RUNS_PER_ARM` is 50 and `REGISTERED_SLOTS` is 150.
-2. **The schedule is re-derived for three arms over the same 150 slots.**
-   Study 012's 150 slots were 30 rounds of five; this study's are **50 rounds
-   of three**, and 50 is not a multiple of the 6 Williams sequences — so the
-   order cannot be whole blocks of the table, and exact balance is
-   arithmetically unavailable (50 slots over 3 positions, 149 transitions over
-   6 ordered pairs). What is registered instead is the **arithmetic floor of
-   both spreads**, attained by a search this file performs rather than
-   asserts: `derive_order()` enumerates every one of the 720 block
-   permutations against every one of the 30 ordered two-sequence tails, keeps
-   only orders in which no arm ever immediately follows itself, and returns
-   the lexicographically-least of those that minimize
-   (position spread, transition spread). `BLOCK_ORDER` and `TAIL` below are
-   that answer, restated as constants so the driver does not run a search at
-   import time, and `harness/tests/test_schedule.py` asserts the two are the
-   same order and re-derives the balance properties from the expansion.
+   number moves with it and none is transcribed: `POSITIONS` is 3 and
+   `SEQUENCES` is 6. `RUNS_PER_ARM` and `REGISTERED_SLOTS` are NOT literals
+   here — delta 7 derives them from the registry's round count, and at the
+   registered N = 60 they are 60 and 180. (This item said "50 and 150" until
+   round-2 R2-6: the 50-round figures were the port carry.)
+2. **The schedule is re-derived for three arms at the registry's round
+   count** (§7 delta 7). Study 012's 150 slots were 30 rounds of five; 019's
+   were 50 rounds of three, and 50 is not a multiple of the 6 Williams
+   sequences — so there the order could not be whole blocks of the table and
+   exact balance was arithmetically unavailable (50 slots over 3 positions,
+   149 transitions over 6 ordered pairs). That is why the search exists:
+   `derive_order(rounds)` enumerates every one of the 720 block permutations
+   against every ordered two-sequence tail the round count needs, keeps only
+   orders in which no arm ever immediately follows itself, and returns the
+   lexicographically-least of those that minimize (position spread,
+   transition spread). At 020's registered N = 60 the answer is ten whole
+   Williams blocks, no tail, attained spreads (0, 1). `_registered_batch_shape()`
+   reads `harness/PINS.json`'s `batch` block at import — `n`, `slots`, `order`
+   — so no round count lives in this file, `schedule()` asserts the expansion
+   attains the spreads the REGISTRY publishes, and `harness/tests/test_schedule.py`
+   re-runs the search at whatever round count the block names.
 3. **The per-call timeout ceiling is 2700 s and is an APPARATUS bound**
    (§2 "Batch shape", §1a). Study 012 registered no ceiling and its wrapper
    ran unbounded. Here the wrapper enforces it, exits **12** when it fires,
@@ -1846,6 +1850,32 @@ EFFORT_WITNESS_MEMBERS = ("reasoning_effort", "reasoningEffort",
 # and not a sentence somebody wrote at the keyboard.
 WITNESS_BRANCH_GATE5 = "gate-5-extension"
 WITNESS_BRANCH_SELF_REPORT = "call-json-self-report"
+#: ROUND-2 FINDING R2-18: §2.1/M-24 registers TWO witness branches and one
+#: sentence each; the calibration record used to transcribe the sentence of
+#: the branch NOT taken. The sentence is derived from the registry's resolved
+#: branch now, and a registry that names neither refuses to write a record.
+WITNESS_NOTES = {
+    WITNESS_BRANCH_GATE5: (
+        "§2.1/M-24: the effort condition IS independently witnessed — the "
+        "witness resolution took branch gate-5-extension, and "
+        "transcript_check.py's gate 5 binds codex.reasoningEffort against the "
+        "transcript's turn_context beside the model and the cwd."),
+    WITNESS_BRANCH_SELF_REPORT: (
+        "§2.1/M-24: the effort condition is asserted by the wrapper and not "
+        "independently witnessed, and that sentence travels with every "
+        "published record of the condition."),
+}
+POPULATION_SENTENCE = ("§1a: the calibration pilot, the pre-pilot effort sweep "
+                       "and the smoke are non-citable and outside every "
+                       "population.")
+#: The sweep PRECEDES the resolution (M-24's witness resolution is the sweep's
+#: own step zero), so a sweep record written while the pin is still null says
+#: so; every other mode follows the resolution and fails shut without it.
+WITNESS_PENDING_NOTE = ("§2.1/M-24: the witness branch is resolved by this "
+                        "sweep's own step zero over its first call's "
+                        "transcript (SWEEP.json's witness member); the "
+                        "registry's codex.reasoningEffortWitness is not yet "
+                        "filled, so this record asserts neither sentence.")
 
 
 def invoke(slot: str, scratch_parent: str, pins_path: str, cli_override: str,
@@ -5277,12 +5307,25 @@ def calibration_record(mode: str, label: str, pins: dict,
             "citable: false",
             "the pin state (§2.1's design-time-resolved rule)",
         ],
-        "note": "§1a: the calibration pilot, the pre-pilot effort sweep and the "
-                "smoke are non-citable and outside every population. §2.1: the "
-                "effort condition is asserted by the wrapper and not "
-                "independently witnessed, and that sentence travels with every "
-                "published record of the condition.",
+        "note": POPULATION_SENTENCE + " " + _witness_note(pins, mode),
     }
+
+
+def _witness_note(pins: dict, mode: str) -> str:
+    """R2-18: the M-24 sentence of the branch the registry RESOLVED. FAIL SHUT:
+    a record that cannot say what it proves must not be written — except a
+    SWEEP record while the pin is still null, because the sweep is the step
+    that fills it, and that record says the resolution is pending instead."""
+    branch = _pin_at(pins, ("codex", "reasoningEffortWitness"))
+    if branch is None and mode == "sweep":
+        return WITNESS_PENDING_NOTE
+    if branch not in WITNESS_NOTES:
+        raise BatchError(
+            "§2.1 registers exactly two witness branches (%s); a calibration "
+            "record cannot state which one holds without codex."
+            "reasoningEffortWitness naming one, and this registry names %r"
+            % (" / ".join(sorted(WITNESS_NOTES)), branch))
+    return WITNESS_NOTES[branch]
 
 
 def calibration_root(label: str) -> str:

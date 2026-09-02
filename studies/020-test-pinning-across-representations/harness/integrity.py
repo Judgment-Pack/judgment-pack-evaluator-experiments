@@ -101,6 +101,7 @@ import json
 import os
 import platform
 import re
+import stat
 import subprocess
 import sys
 
@@ -1233,6 +1234,54 @@ def verify_manifest(study: str = STUDY, pins: dict = None) -> str:
     return "sha256:" + actual
 
 
+def _evidence_lines(root: str) -> list:
+    """ROUND-2 FINDING R2-15: the walk `verify_sweep_evidence()` hashes,
+    with an `lstat` fence on every entry. `os.walk()` hashes FILENAMES only:
+    a symlink resolving to a directory contributed neither a path nor a type
+    record (its addition preserved the digest), a file swapped for a symlink
+    to identical bytes was read THROUGH the link and was invisible, a FIFO
+    would have blocked this reader rather than refused, and an empty
+    directory contributed no line and could be added or removed freely. Each
+    of those is refused by name now. The line format is unchanged, so the
+    three pinned digests do not move (asserted by test). Mode bits stay
+    uncovered by design: git's index (100644 for every tracked file) is the
+    fence for a mode mutation, and covering them here would re-pin all three
+    values for no coverage the index does not already give."""
+    lines = []
+    for dirpath, dirnames, filenames in os.walk(root, followlinks=False):
+        dirnames.sort()
+        for name in sorted(dirnames):
+            path = os.path.join(dirpath, name)
+            if not stat.S_ISDIR(os.lstat(path).st_mode):
+                raise IntegrityError(
+                    "sweep evidence tree entry %s is not a real directory: "
+                    "os.walk() hashes filenames only, so a symlink resolving "
+                    "to a directory contributes neither a path nor a type "
+                    "record and its addition preserves the digest (R2-15)"
+                    % os.path.relpath(path, root))
+        for name in sorted(filenames):
+            path = os.path.join(dirpath, name)
+            mode = os.lstat(path).st_mode
+            if not stat.S_ISREG(mode):
+                raise IntegrityError(
+                    "sweep evidence tree entry %s is not a regular file "
+                    "(symlink, fifo, socket or device): the pinned digest "
+                    "reads bytes THROUGH a link, so a file swapped for a link "
+                    "to identical bytes is invisible, and a fifo would block "
+                    "this reader rather than refuse it (R2-15)"
+                    % os.path.relpath(path, root))
+            with open(path, "rb") as handle:
+                lines.append("%s %s" % (
+                    os.path.relpath(path, root),
+                    hashlib.sha256(handle.read()).hexdigest()))
+        if not dirnames and not filenames:
+            raise IntegrityError(
+                "sweep evidence tree holds the empty directory %s, which "
+                "contributes no line and so can be added or removed without "
+                "moving the digest (R2-15)" % os.path.relpath(dirpath, root))
+    return lines
+
+
 def verify_sweep_evidence(study: str = STUDY, pins: dict = None) -> dict:
     """ROUND-1 FINDING R1-19: the §2.1 fill's evidence — the sweep's ledgers,
     rates, slot records and the two refused invocations — is PINNED per tree
@@ -1254,15 +1303,7 @@ def verify_sweep_evidence(study: str = STUDY, pins: dict = None) -> dict:
                 "sweep evidence tree sweeps/%s is pinned and absent: the "
                 "bytes the §2.1 fill was chosen from must stay on the record "
                 "(R1-19)" % name)
-        lines = []
-        for dirpath, dirnames, filenames in os.walk(root):
-            dirnames.sort()
-            for filename in sorted(filenames):
-                path = os.path.join(dirpath, filename)
-                with open(path, "rb") as handle:
-                    lines.append("%s %s" % (
-                        os.path.relpath(path, root),
-                        hashlib.sha256(handle.read()).hexdigest()))
+        lines = _evidence_lines(root)
         digest = hashlib.sha256("\n".join(lines).encode("utf-8")).hexdigest()
         pinned = str(trees[name]).replace("sha256:", "")
         if digest != pinned:

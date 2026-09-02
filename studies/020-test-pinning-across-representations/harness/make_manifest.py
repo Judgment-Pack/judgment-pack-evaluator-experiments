@@ -5,21 +5,20 @@ PORTED from Study 019's `harness/make_manifest.py`
 line Study 019's own frozen lock carries for it; `harness/PORTS.md` records the
 row and `harness/integrity.py` binds it against that lock).
 
-**§7 DELTA 11 / ADR 0004 — the scope, restated for this study.** 019 excluded
-four appendable documents and the registry. 020 excludes **five** appendable
-documents and the registry: `CORRECTION-TARGETS.md` joins them (R1-18 restored
-it to the COVERED set — the appendable half lives in
-`CORRECTION-TARGETS-LOG.md` now). It is the same
-shape of file as the other four — it is written and rewritten while the review
-runs and it carries no claim a published number rests on — and 019 covered it
-only because round-7 R7-9 needed something that would make `--freeze` refuse
-while it was absent. Those two jobs are separated here: the exclusion is by
-named constant in `EXCLUDED_DOCUMENTS`, and the pre-freeze OBLIGATION lives in
-`UNCOVERED_PRE_FREEZE_DOCUMENTS`, which `pending_documents()` reports and
-`--freeze` refuses on. A file can therefore be required before the freeze
-without being anchored by it. `harness/tests/test_manifest.py` asserts the
-exclusion **while the file is absent**, which is the state 020 is in today, and
-asserts the obligation separately.
+**§7 DELTA 11 / ADR 0004 — the scope, restated for this study (as R1-18 amended
+it; this paragraph kept the pre-amendment reading until round-2 R2-14).** 019
+excluded four appendable documents and the registry. 020 excludes **five**
+appendable documents and the registry — `CORRECTION-TARGETS-LOG.md`,
+`DEVIATIONS.md`, `README.md`, `PREREG-REVIEW.md` and `harness/ADVISORIES.md` —
+and `CORRECTION-TARGETS.md` is COVERED and freezes with the tree: a
+precommitment the maintainer may rewrite post-freeze precommits nothing, so the
+register is in `REGISTERED_DOCUMENTS` and post-freeze venue or status changes
+append to the LOG, which is the appendable half. The exclusion is by named
+constant in `EXCLUDED_DOCUMENTS`, each with its reason; the category of a
+pre-freeze OBLIGATION outside the manifest, `UNCOVERED_PRE_FREEZE_DOCUMENTS`,
+is retained and EMPTY (`pending_documents()` reports it and `--freeze` refuses
+on it), and `harness/tests/test_manifest.py` asserts both the coverage and the
+emptiness.
 
 One line per covered file, `sha256  <study-relative path>`, sorted by path. The
 covered set is exact and closed (`manifest_entries` below): the registered

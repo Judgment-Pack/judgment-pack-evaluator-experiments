@@ -335,6 +335,19 @@ zero on every endpoint it reaches. The registered authoring-outcome codes are:
 > gate the attempt but can never move a rate. An evaluator's OWN error document about the
 > authored artifact remains an authored gold failure, exactly as before: the line is drawn at
 > whether the engine answered, not at whether the answer was pleasant.
+>
+> **V8-19 CORRECTION, marked (round-2 finding R2-1, its STEP 8).** Study 019's verification
+> ledger — `verification/V8-ASYMMETRY-LEDGER.md`, ported into this study BY DIGEST and therefore
+> not editable here — states at V8-19 that arm A reaches four of six registered codes and arms
+> B/C five, listing `unreadable-output-shape` on both sides. Under this table as amended the
+> registered authoring codes are SEVEN, `unreadable-output-shape` is RETIRED (an unanswered
+> engine is the apparatus code `engine-invocation-refused`), and `harness/e4lib/admit.py`'s
+> `ARM_REACHABLE_CODES` gives arm A THREE (`no-marker-block`, `unparseable-artifact`,
+> `schema-invalid-pack`) and arms B/C FIVE (those two plus `v0-syntax`, `opa-check-failed`,
+> `presence-idiom-unsound`). V8-19's direction (`neutral`) and its "refused in code" claim are
+> UNCHANGED and still re-derive from `admit.py`; the ledger's `verified-against-bytes` label
+> stands for the finding, and this note is the correction of the enumeration it quoted,
+> recorded where the table it quotes lives.
 
 The E4 population adds one further registered step: the identity control (`referenceIdentity`,
 §4), whose exclusions are reported, not silent. A harness test diffs this prose partition table
@@ -454,7 +467,10 @@ i.e. **8.85×**. A swept setting at pilot-like durations therefore costs 8.85× 
 > condition row and 5× the erroneous one. The xhigh-exclusion paragraph below quoted the
 > erroneous 2.57 h and is corrected with the same note.
 
-The N = 60 rows are **priced illustrations of one branch, not a registered N.** M-13's
+~~The N = 60 rows are **priced illustrations of one branch, not a registered N.**~~ **[SUPERSEDED
+by §2.1's fill, 2026-08-24 — that branch is now the REGISTERED N; the sentence stands struck
+because it was true when the table was written and is the reason the fill had a branch to
+choose (marked round 2, R2-6).]** The N = 60 rows price the registered N. M-13's
 `ownPolicyIdentity` invocation adds one **engine** call per run — no authoring call, no line in
 this table, and its cost is bounded by the pinned engine's per-invocation ceiling.
 
@@ -1082,8 +1098,13 @@ so it was an obligation with a deadline rather than a hope; it has been executed
 at `harness/POWER-PRESENCE-IDIOM.md`, with the numbers reprinted in the filled entry below and
 `harness/PINS.json`'s `presenceIdiomGuard` block carrying the verdict as data. (iv) was the last
 to fill: it was blocked on the family scorer (§7 delta 5) and is now computed by the registered
-script `harness/counterfactual_shift.py`. It must report, at minimum: (i) **sensitivity** — the detector run over 019's 76 retained
-B+C policies must fire on the 40 that use bare-object `in`; (ii) **specificity** — it must fire on
+script `harness/counterfactual_shift.py`. It must report, at minimum: (i) **sensitivity** — ~~the detector run over 019's 76 retained
+B+C policies must fire on the 40 that use bare-object `in`~~ **[SUPERSEDED by the R1-9 amendment
+above (2026-08-24; blessed by round 2): (i-a) the detector flags every in-class policy in its
+registered operating set — the admitted policies — exactly, n/n; (i-b) every in-class retained run
+receives a registered authoring code from the admission chain, 40/40, the detector's code or an
+earlier one. Marked round 2, R2-4: this clause restated the retired condition sixteen lines below
+the amendment that retires it.]**; (ii) **specificity** — it must fire on
 **none** of the 22 perfect runs; (iii) the **false-positive rate on lawful `in` uses** (over sets
 and arrays) across the same 76 policies and across both reference implementations; (iv) the
 **counterfactual per-member shift** on 019's batch — every one of §5.2's eighteen members
@@ -1105,7 +1126,8 @@ test that certifies it fails, and label any assertion that cannot discriminate.
 >
 > | | result |
 > |---|---|
-> | **(i) sensitivity** | **40/40 in-class runs receive an authoring code.** The in-class set was re-derived from the policy SOURCE BYTES by an independent oracle sharing no code and no input representation with the detector, and it is 40 of the 76 — arm B 21, arm C 19 — reproducing M-14's discriminator by a method M-14 did not use. The detector flags **39/39** of the policies the pinned parser accepts and **32/32** of the admitted policies, the population §3.2 registers it to run over; the fortieth (`B run-040`) is refused by the parser and receives the earlier registered code `unparseable-artifact`. Agreement with the oracle is exact at the USE level too: 178 flagged uses against 178, with zero per-run count mismatches over all 73 parseable policies. |
+> | **(i-a) detector coverage of the registered operating set** | **32/32 admitted in-class policies flagged, 39/39 parseable** — zero false negatives on the admitted operating set, the population §3.2 registers the detector to run over, and on every policy the pinned parser accepts; the set-identity digest `759b0ddc…` is carried at `harness/PINS.json` `presenceIdiomGuard.counterfactualPerMemberShift.flaggedSet.sha256` AND in `harness/counterfactual_shift.py`'s covered constant, which `certify_identity()` requires to agree (round 2, R2-19: until then the "pinned" digest lived only in the covered constant). *(Row split from the single "(i) sensitivity" row, round 2, R2-4; the (i) label is kept as the parent so the review record's citations survive.)* |
+> | **(i-b) admission-chain code coverage** | **40/40 in-class retained runs receive a registered authoring code.** The in-class set was re-derived from the policy SOURCE BYTES by an independent oracle sharing no code and no input representation with the detector, and it is 40 of the 76 — arm B 21, arm C 19 — reproducing M-14's discriminator by a method M-14 did not use. The detector flags **39/39** of the policies the pinned parser accepts and **32/32** of the admitted policies, the population §3.2 registers it to run over; the fortieth (`B run-040`) is refused by the parser and receives the earlier registered code `unparseable-artifact`. Agreement with the oracle is exact at the USE level too: 178 flagged uses against 178, with zero per-run count mismatches over all 73 parseable policies. |
 > | **(ii) specificity** | **0/22 perfect runs flagged**, in every population; all 22 parse and all 22 are admitted. |
 > | **(iii) false positives on lawful `in`** | **0/392 lawful uses, 0/15 over sets and arrays** — the two forms this section names. 599 membership terms were read over the 73 parseable policies: 248 presence tests (178 flagged, 38 lawful over set-returning calls, 3 over non-object names, 29 unclassified — 178 + 38 + 3 + 29 = 248) and 351 iterations and bindings, none flagged. 29 uses are UNCLASSIFIED and none is flagged: an unresolvable name is reported, never guessed at. |
 > | **(iv) counterfactual per-member shift** | **COMPUTED** by the registered script `harness/counterfactual_shift.py` (reproduced by `harness/tests/test_counterfactual_shift.py`; full 36-row table in `harness/COUNTERFACTUAL-SHIFT.json`). The flagged set is **derived, then gated**: the script re-runs the certified detector over the 60 admitted 019 policies and refuses to publish off the certified counts — **32 of 60, arm B 19 of 30, arm C 13 of 30** (this document first printed the split as B 15 / C 17; that was unmeasured arithmetic, the gate refused it, and the correction note in `harness/POWER-PRESENCE-IDIOM.md` §(iv) records the reconciliation — every other certified figure stands). The recode is the registered one: identity false, no kill record, exactly as the other authoring codes present. **Measured effect (A–C), REGENERATED round 2 under the registered estimand (R2-2, native-for-both; the file names the estimand it was computed under):** every ITT member amplified (+0.168 … +0.210), every unadjusted PP member attenuated (−0.031 … −0.006), PP/ANCOVA within ±0.015 (−0.008 … +0.015 — M18, L2c/excl, is the one adjusted member whose shift is now POSITIVE; the first printing, under the superseded hybrid, had all six adjusted shifts in −0.008 … −0.002); exactly two α = 0.05 decisions flip, **M2 and M5** (L1/PP, both columns: p 0.0213 → 0.3483), from reject to not-reject — unchanged. A–B: ITT +0.246 … +0.303, PP \|shift\| ≤ 0.020. The unflagged column reproduces the REGISTERED reading — fifteen of Reprint 1's rows to the printed digit for every point estimate and unadjusted p-value, to the decision boundary for the six ANCOVA p-values per §5.5's marked R1-6 scope note, and the three excluded-column L2c rows at the figures §5.2's F-1 re-ruling states (M17 A–C +0.0839) — pinning the script's adapter to the fixture adapter. The effect is **direction-heterogeneous by population** — ITT away from the null, unadjusted PP toward it — so no single-direction story about the guard's effect is licensed. The JSON is manifest-covered since round 2 (R2-16). |
@@ -1487,18 +1509,25 @@ The family is the crossing **{L1, L3, L2c} × {engine-included, engine-excluded}
    published whether or not R1 fires.
 
    > **TODO(prereg) — each member's registered per-arm n.** A function of N (§2.1) and of the
-   > realised-n arithmetic below. **N resolved 2026-08-24 (§2.1's fill: 50/arm), so this TODO is
+   > realised-n arithmetic below. **N resolved 2026-08-24 (§2.1's fill: 60/arm), so this TODO is
    > UNBLOCKED**; the arithmetic is applied at the registered N = 60 in the §5 analysis-set pass and this entry
    > fills before the freeze — deliberately not in the same edit as the condition, so the §5
-   > numbers land in one reviewed pass rather than scattered.
+   > numbers land in one reviewed pass rather than scattered. **(MARKED CORRECTION, round-2
+   > finding R2-6: this cell transcribed the fill as "50/arm" — the count §2.1's first draft
+   > carried. The registered N is 60; `harness/PINS.json`'s `batch.n` is the one home of that
+   > number, and `harness/tests/test_prereg_currency.py` now reads this cell against it. The
+   > per-member table itself is STILL OWED — `harness/SCAFFOLD.md` S10 — and waits on the
+   > maintainer's ruling on which apparatus-repair branch the eighteen per-arm n are stated at.)**
 
-**Realised-n arithmetic, shown rather than asserted, at the illustrative N = 60 branch.** Derived
+**Realised-n arithmetic, shown rather than asserted, at the REGISTERED N = 60 (§2.1's fill; this
+sentence said "illustrative" until round-2 R2-6).** Derived
 from 019's `population.*.apparatusCodes` (A: `registry-mismatch` 9, `slot-shape` 2,
 `transcript-refused` 1; B: `slot-shape` 11, `post-call-failure` 1, `transcript-refused` 1; C:
 `slot-shape` 11) and the conditional artifact-plus-identity rates A 34/38 = 0.895, B 26/37 = 0.703,
 C 28/39 = 0.718: with `slot-shape` pre-paid, arm A is 1 − 10/50 = 0.80 → 48 admitted → ≈ **43**
 scoreable; arm B 0.96 → 57.6 → ≈ **40**; arm C 1.00 → 60 → ≈ **43**. With `registry-mismatch` also
-repaired, arm A is 0.98 → 58.8 → ≈ **53**. **Without that repair arm A projects to ~43, not 50.**
+repaired, arm A is 0.98 → 58.8 → ≈ **53**. **Without that repair arm A projects to ~43, not ~~50~~
+60** (R2-6: an N = 50 residue; the arithmetic above was already at 60).
 
 #### Membership is append-only after registration
 
@@ -1885,9 +1914,10 @@ glossed.** `integrity` is the only study-local module the scorer imports at modu
 no study-local module itself, and `integrity.verify()` is the first study-local call the scorer
 makes. What that cannot be is a proof that the checker is the checker the manifest describes. The
 exact-set manifest covers every byte the scorer executes and every payload it reads; the manifest is
-scoped per ADR 0004, with `DEVIATIONS.md`, `README.md`, `PREREG-REVIEW.md`, `CORRECTION-TARGETS.md`
-(named while absent, refusing `--freeze` on it) and `harness/ADVISORIES.md` excluded by named
-constant, each with an asserting test. **Anchor order is linear and one-directional (ADR 0005):
+scoped per ADR 0004, with `DEVIATIONS.md`, `README.md`, `PREREG-REVIEW.md`, `CORRECTION-TARGETS-LOG.md`
+and `harness/ADVISORIES.md` excluded by named constant, each with an asserting test (corrected
+round 2, R2-14: `CORRECTION-TARGETS.md` is COVERED and freezes with the tree — §10's R1-18
+amendment governs, and this sentence had kept the pre-amendment "named while absent" reading). **Anchor order is linear and one-directional (ADR 0005):
 covered files → manifest → the registry pins the manifest → the commit anchors the registry.** The
 manifest is regenerated **last** in every reconciliation. **Suite-of-record claims are
 archive-verified (ADR 0005, decision 1):** a "N passed" claim is made only of a commit, after

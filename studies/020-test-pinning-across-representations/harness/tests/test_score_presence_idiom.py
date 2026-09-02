@@ -617,16 +617,76 @@ def test_the_power_analysis_is_published_and_registered_beside_the_switch(pins):
         return
     with open(published, "rb") as handle:
         text = handle.read().decode("utf-8")
-    flat = " ".join(text.split())
+    flat = " ".join(text.replace("*", "").replace("`", "").split())
     assert block["sensitivity"] in flat
+    assert block["codeCoverage"] in flat
     assert block["specificity"] in flat
     assert block["falsePositivesOnLawfulIn"] in flat
-    # The kill switch's own condition, read off the published numbers rather
-    # than off the prose that describes them.
-    meets = block["sensitivity"].startswith("40/40") and \
-        block["specificity"].startswith("0/22")
-    assert block["registered"] is meets, (
-        "§3.2's kill switch: registered iff (i) 40/40 and (ii) 0/22 exactly")
+    # ROUND-2 R2-4: the kill switch's condition is decided from the MACHINE
+    # block — the R1-9-amended (i-a)/(i-b)/(ii), blessed by round 2 — cross-
+    # checked against a second in-tree authority, the certified constants of
+    # `counterfactual_shift.py`. The two `startswith("40/40")`/`("0/22")`
+    # reads this replaces were NON-DISCRIMINATING: they read prose prefixes
+    # and could not see an unflagged admitted policy, a flagged perfect run
+    # or a swapped set behind unchanged strings.
+    import counterfactual_shift as cs
+    criterion = block["criterion"]
+    flagged_set = block["counterfactualPerMemberShift"]["flaggedSet"]
+    assert criterion["iA"]["population"] == "admitted"
+    assert criterion["iA"]["inClass"] == sum(cs.CERTIFIED_FLAGGED.values()) == 32
+    assert flagged_set["admitted"] == sum(cs.CERTIFIED_ADMITTED.values()) == 60
+    assert flagged_set["sha256"] == "sha256:" + cs.CERTIFIED_FLAGGED_SHA256
+    assert block["registered"] is _meets(criterion, flagged_set, cs), (
+        "§3.2's AMENDED kill switch: registered iff (i-a) n/n admitted, "
+        "(i-b) 40/40 coded, (ii) 0/22, on the certified set")
+
+
+def _meets(criterion, flagged_set, cs):
+    return (criterion["iA"]["inClass"] > 0
+            and criterion["iA"]["flagged"] == criterion["iA"]["inClass"]
+            and criterion["iB"]["inClass"] > 0
+            and criterion["iB"]["coded"] == criterion["iB"]["inClass"]
+            and criterion["ii"]["perfect"] > 0
+            and criterion["ii"]["flagged"] == 0
+            and flagged_set["sha256"] == "sha256:" + cs.CERTIFIED_FLAGGED_SHA256)
+
+
+def test_the_amended_kill_switch_discriminates_what_the_prefix_rule_could_not(pins):
+    """R2-4's mutation checks, each against a deep-copied block, with the
+    control last: an unflagged admitted policy (M1), a flagged perfect run
+    (M2), an uncoded in-class run (M3) and a same-count set swap (M4) must
+    each flip the decision while the OLD prefix rule still passes — that
+    contrast is the proof the old test could not discriminate."""
+    import copy
+    import counterfactual_shift as cs
+    block = pins["presenceIdiomGuard"]
+    old_rule = (block["sensitivity"].startswith("32/32")
+                or block["sensitivity"].startswith("40/40")) \
+        and block["specificity"].startswith("0/22")
+    assert old_rule and _meets(block["criterion"],
+                               block["counterfactualPerMemberShift"]["flaggedSet"], cs)
+    mutations = {
+        "M1 admitted policy unflagged": (("criterion", "iA", "flagged"), 31),
+        "M2 perfect run flagged": (("criterion", "ii", "flagged"), 1),
+        "M3 in-class run uncoded": (("criterion", "iB", "coded"), 39),
+        "M4 same-count set swap": (("counterfactualPerMemberShift", "flaggedSet",
+                                    "sha256"), "sha256:" + "0" * 64),
+    }
+    for name, (path, value) in mutations.items():
+        mutated = copy.deepcopy(block)
+        node = mutated
+        for key in path[:-1]:
+            node = node[key]
+        node[path[-1]] = value
+        still_old = (mutated["sensitivity"].startswith("32/32")
+                     and mutated["specificity"].startswith("0/22"))
+        assert still_old, name                       # the prefix rule is blind
+        assert not _meets(mutated["criterion"],
+                          mutated["counterfactualPerMemberShift"]["flaggedSet"],
+                          cs), name                  # the machine rule sees it
+    # M5, the control: the unmutated block still meets.
+    assert _meets(block["criterion"],
+                  block["counterfactualPerMemberShift"]["flaggedSet"], cs)
 
 
 # --- the merge's own regression case ----------------------------------------

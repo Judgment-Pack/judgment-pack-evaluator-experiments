@@ -44,7 +44,11 @@ def test_the_vectors_are_port_controls_and_the_studys_n_is_the_registrys():
     with open(os.path.join(harness, "PINS.json"), "rb") as handle:
         pins = json.loads(handle.read().decode("utf-8"))
     assert pins["batch"]["n"] == 60
-    assert pins["batch"]["n"] not in (30, 25), (
+    # R2-6: the assertion this replaces (`not in (30, 25)`) could never fail
+    # for any plausible N and was NON-DISCRIMINATING; the property it reached
+    # for is that the registered N is not also a port-control vector.
+    # MUTATION: add a 60 row to REGISTERED_VECTORS -> fails.
+    assert pins["batch"]["n"] not in stats.REGISTERED_VECTORS, (
         "the registered N colliding with a port-control row would let the two "
         "meanings blur again")
 
@@ -179,13 +183,15 @@ def test_an_equal_pair_is_always_indeterminate():
         assert result["excludesZero"] is False
 
 
-def test_a_small_gap_at_the_registered_n_is_indeterminate():
+def test_a_small_gap_at_the_prototypes_n_is_indeterminate():
     """Section 5 states plainly that "a true 0.25 gap can still return
-    INDETERMINATE", so a one-run gap certainly must."""
+    INDETERMINATE", so a one-run gap certainly must. n = 50 here is Study
+    012's prototype row, not 020's registered N (R1-16, R2-6); the registered
+    N has exactly one home, `harness/PINS.json`'s `batch.n`."""
     assert stats.excludes_zero(26, 25, 50)["excludesZero"] is False
 
 
-def test_a_wide_gap_at_the_registered_n_decides():
+def test_a_wide_gap_at_the_prototypes_n_decides():
     """ROUND-4 FINDING R4-4. This case used to be called "the pilot anchor" and cited
     A 1/5, C 5/5 as the pilot's fractions. Those figures are three pilot issues out of
     date — the current issue is arm A 1/5 and arm C 0/5, the opposite sign — and a

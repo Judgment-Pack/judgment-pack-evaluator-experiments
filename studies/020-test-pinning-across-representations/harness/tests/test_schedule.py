@@ -329,6 +329,11 @@ def test_the_registry_says_its_round_count_is_registered_at_sixty(pins):
     flip from the PORT CARRY sentence this test asserted before the fill."""
     note = pins["batch"]["note"]
     assert "REGISTERED AT N = 60/ARM" in note
+    # R2-6: the phrase above passed over a note whose later sentence still
+    # called the numbers the 50-round carry; the order block's own round count
+    # is compared to `n`, and the carry sentence is refused by name.
+    assert pins["batch"]["order"]["rounds"] == pins["batch"]["n"] == batch.ROUNDS
+    assert "at 50 rounds and carried" not in note
     assert "operable-condition-match" in note
     assert "pre-pilot effort sweep" in note
     assert "derive-schedule" in note

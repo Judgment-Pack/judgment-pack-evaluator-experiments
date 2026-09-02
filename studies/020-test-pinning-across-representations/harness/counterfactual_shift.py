@@ -292,9 +292,43 @@ def derive_flagged(tools: engines.Toolchain, batch: dict, scratch: str) -> dict:
     return {"rows": rows, "counts": counts, "flagged": flagged}
 
 
-def certify_identity(flagged) -> None:
-    """R1-11's other half: the set itself, not its row sums."""
+REGISTRY_FLAGGED_SET_PATH = ("presenceIdiomGuard", "counterfactualPerMemberShift",
+                             "flaggedSet", "sha256")
+
+
+def registry_flagged_digest(pins: dict) -> str:
+    """ROUND-2 FINDING R2-19: the registry's copy of the certified set-identity
+    digest, read by path and FAIL-SHUT — an absent or non-string member is a
+    refusal, the posture `admit.guard_is_registered()` takes — so the sentence
+    round 1 wrote ("PINS.json pins the digest") is made true by a seat that
+    exists, rather than by prose."""
+    node = pins
+    for key in REGISTRY_FLAGGED_SET_PATH:
+        node = node.get(key) if isinstance(node, dict) else None
+    if not isinstance(node, str) or not node.startswith("sha256:"):
+        raise ShiftError(
+            "SHIFT-NOT-CERTIFIED harness/PINS.json carries no set-identity "
+            "digest at %s: two authorities are registered for the certified "
+            "flagged set and one of them is missing, which is refused rather "
+            "than read as agreement" % ".".join(REGISTRY_FLAGGED_SET_PATH))
+    return node[len("sha256:"):]
+
+
+def certify_identity(flagged, pins: dict = None) -> None:
+    """R1-11's other half: the set itself, not its row sums. R2-19: TWO
+    authorities — this module's manifest-covered constant and the registry's
+    member — must AGREE before the derived set is compared to either; a
+    disagreement is refused rather than resolved in either direction."""
     import hashlib
+    if pins is None:
+        pins = load_pins()
+    registered = registry_flagged_digest(pins)
+    if registered != CERTIFIED_FLAGGED_SHA256:
+        raise ShiftError(
+            "SHIFT-NOT-CERTIFIED the registry and the covered constant "
+            "disagree about the certified set identity: %s vs %s; two "
+            "authorities that disagree are refused rather than resolved"
+            % (registered, CERTIFIED_FLAGGED_SHA256))
     digest = hashlib.sha256("\n".join(flagged).encode("utf-8")).hexdigest()
     if digest != CERTIFIED_FLAGGED_SHA256:
         raise ShiftError(

@@ -224,7 +224,12 @@ def test_the_sweep_evidence_trees_verify_and_tampering_refuses(tmp_path):
     """The §2.1 fill's source bytes are pinned per tree and verified byte for
     byte; a mutated, added or deleted file under a named tree refuses, and an
     unnamed future tree is permitted. Driven on a COPY so the real evidence
-    never moves."""
+    never moves.
+
+    NON-DISCRIMINATING for round-2 R2-15: the "added file" branch below adds
+    an ORDINARY file, which the digest sees; it cannot see a symlink, a
+    special file or an empty directory, none of which contributes a line.
+    The six cases after this one are the discriminating ones."""
     import shutil
     import sys
     sys.path.insert(0, HARNESS)
@@ -365,3 +370,105 @@ def test_the_published_sweep_rates_still_recompute_row_for_row():
                     continue
                 assert recomputed["perArm"][arm][member] == value, (
                     setting["setting"], arm, member)
+
+
+# --- ROUND-2 R2-15: the lstat fence on the evidence walk ----------------------
+
+def _evidence_clone(tmp_path):
+    import shutil
+    import sys
+    sys.path.insert(0, HARNESS)
+    import integrity
+    if not os.path.isdir(os.path.join(STUDY, "sweeps")):
+        pytest.skip("no sweeps tree beside this suite")
+    clone = tmp_path / "study"
+    clone.mkdir()
+    shutil.copytree(os.path.join(STUDY, "sweeps"), clone / "sweeps")
+    (clone / "harness").mkdir()
+    shutil.copy(os.path.join(HARNESS, "PINS.json"),
+                clone / "harness" / "PINS.json")
+    return integrity, clone
+
+
+def test_the_type_fence_does_not_move_the_pinned_digests(tmp_path):
+    """R2-15 took the branch that moves NO pinned value: an unmodified clone
+    verifies to exactly the registry's three digests under the fence."""
+    integrity, clone = _evidence_clone(tmp_path)
+    import json
+    with open(os.path.join(HARNESS, "PINS.json"), "rb") as handle:
+        trees = json.loads(handle.read().decode("utf-8"))["sweep"]["evidenceTrees"]
+    verified = integrity.verify_sweep_evidence(str(clone))
+    for name, digest in trees.items():
+        if name != "rule":
+            assert verified[name] == digest, name
+
+
+def test_a_directory_symlink_addition_refuses(tmp_path):
+    """MUTATION: revert `_evidence_lines()` to the plain os.walk — the link
+    contributes no line, the digest is preserved, and this test fails."""
+    integrity, clone = _evidence_clone(tmp_path)
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "planted.txt").write_text("x", encoding="utf-8")
+    (clone / "sweeps" / "2026-08-24-effort-sweep" / "planted-dir").symlink_to(
+        outside, target_is_directory=True)
+    with pytest.raises(integrity.IntegrityError, match="R2-15"):
+        integrity.verify_sweep_evidence(str(clone))
+
+
+def test_a_file_replaced_by_a_symlink_refuses(tmp_path):
+    """The same bytes THROUGH a link used to hash identically."""
+    integrity, clone = _evidence_clone(tmp_path)
+    target = clone / "sweeps" / "2026-08-24-effort-sweep" / "SWEEP-RATES.json"
+    body = target.read_bytes()
+    copy = tmp_path / "copy.bin"
+    copy.write_bytes(body)
+    target.unlink()
+    target.symlink_to(copy)
+    with pytest.raises(integrity.IntegrityError, match="R2-15"):
+        integrity.verify_sweep_evidence(str(clone))
+
+
+def test_a_dangling_symlink_refuses_as_an_integrity_error(tmp_path):
+    """Refused by NAME, not by a FileNotFoundError escaping the reader."""
+    integrity, clone = _evidence_clone(tmp_path)
+    (clone / "sweeps" / "refused-attempt-01-leak-tokens" / "dangling").symlink_to(
+        tmp_path / "does-not-exist")
+    with pytest.raises(integrity.IntegrityError, match="R2-15"):
+        integrity.verify_sweep_evidence(str(clone))
+
+
+def test_a_fifo_refuses_instead_of_blocking(tmp_path):
+    """An `open()` on a FIFO with no writer blocks forever; the fence decides
+    by lstat and never opens it. Run under a thread so a regression hangs
+    as a failure rather than as a hung suite."""
+    import threading
+    integrity, clone = _evidence_clone(tmp_path)
+    fifo = clone / "sweeps" / "refused-attempt-02-unregistered-label" / "pipe"
+    os.mkfifo(str(fifo))
+    outcome = {}
+
+    def attempt():
+        try:
+            integrity.verify_sweep_evidence(str(clone))
+            outcome["result"] = "returned"
+        except integrity.IntegrityError as error:
+            outcome["result"] = str(error)
+        except Exception as error:                  # noqa: BLE001 (named)
+            outcome["result"] = "other: %r" % (error,)
+
+    worker = threading.Thread(target=attempt, daemon=True)
+    worker.start()
+    worker.join(timeout=15)
+    assert not worker.is_alive(), "the verifier blocked on the fifo"
+    assert "R2-15" in outcome.get("result", ""), outcome
+
+
+def test_an_empty_directory_refuses(tmp_path):
+    """An empty directory contributes no line and could be added or removed
+    without moving the digest. MUTATION: delete only the empty-directory
+    clause — this test alone fails."""
+    integrity, clone = _evidence_clone(tmp_path)
+    (clone / "sweeps" / "2026-08-24-effort-sweep" / "hollow").mkdir()
+    with pytest.raises(integrity.IntegrityError, match="empty directory"):
+        integrity.verify_sweep_evidence(str(clone))
