@@ -201,11 +201,26 @@ def reference_identity(tools, arm: str, suite_path: str,
 
 
 def score_slot(tools, arm: str, slot_dir: str, gold: list,
-               guard_registered, workdir: str) -> dict:
+               guard_registered, workdir: str, prior_code: str = None,
+               prior_side: str = None) -> dict:
     """One sweep slot -> the two registered quantities, `score_run()`'s order:
     extract, admit (a code ends the slot's scoring exactly as it does in the
     attempt path — counted, goldPerfect false, identity never asked), gold,
-    identity."""
+    identity.
+
+    ROUND-2 FINDING R2-8: `prior_code` is a code the slot ALREADY carries from
+    the pre-scoring reads the primary path makes (`score.read_slot()`'s order:
+    seal, wrapper outcome, registry stamp, golden stamp, transcript binding,
+    completion presence), and `prior_side` is which side of §1a's partition
+    it sits on. A slot with one is filed under it and returned before this
+    function touches `completion.txt` — a lawful wrapper refusal and an author
+    protocol violation both have NO completion by the wrapper's own design,
+    and refusing here on the missing file (as this function did) contradicted
+    the driver's promise that a refused attempt stays a recorded, scored slot.
+    An AUTHORING code is counted and scores zero (`goldPerfect` False,
+    identity never asked, apparatus clean); an APPARATUS code leaves the
+    denominator under `apparatusCode`. With no prior code the fence stands:
+    an exit-0 slot with no completion is still an unexplained slot."""
     record = {"slot": os.path.relpath(slot_dir, STUDY), "arm": arm,
               "code": None, "goldPerfect": False, "goldFailures": None,
               "identityPass": False, "identityWhy": "not-asked",
@@ -214,6 +229,19 @@ def score_slot(tools, arm: str, slot_dir: str, gold: list,
               # the denominator and is published under it.
               "apparatusCode": None,
               "suitePresent": False}
+    if prior_code is not None:
+        if prior_side == "authoring":
+            record["code"] = prior_code
+        elif prior_side == "apparatus":
+            record["apparatusCode"] = prior_code
+            record["identityPass"] = None
+        else:
+            raise RatesError(
+                "RATES-PRIOR-SIDE %s carries the prior code %r on the side %r, "
+                "and §1a's partition has exactly two sides"
+                % (record["slot"], prior_code, prior_side))
+        record["priorCode"] = prior_code
+        return record
     os.makedirs(workdir, exist_ok=True)
     completion_path = os.path.join(slot_dir, "completion.txt")
     if not os.path.isfile(completion_path):

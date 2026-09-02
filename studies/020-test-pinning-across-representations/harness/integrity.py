@@ -192,6 +192,7 @@ NEW_IN_020 = frozenset((
     "harness/e4lib/presence_idiom.py",
     "harness/pilot_rates.py",
     "harness/sweep_rates.py",
+    "harness/tests/pilot_fixture.py",
     "harness/tests/test_counterfactual_shift.py",
     "harness/tests/test_family.py",
     "harness/tests/test_pilot.py",

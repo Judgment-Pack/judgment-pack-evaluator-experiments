@@ -41,9 +41,20 @@ perfect-rate minimum over all arms would abort by design and the declaration
 must say so if it means to. Under M-9's ruling the below-minimum branch
 ABORTS: no freeze, no descope.
 
-Under C5's append-only re-pilot rule the derived threshold is the MAXIMUM
-over all pilots; this file derives one pilot's floors and the maximum is
-taken over its outputs, never inside them.
+ONE PILOT, TERMINAL (section 2a.6 as amended, round-2 finding R2-12). The
+first printing registered an append-only re-pilot rule aggregating the
+derived threshold across pilots; it named no reachable state — a
+calibration-invalid outcome is observable only at the primary attempt, and
+the freeze registers exactly one — so this file derives ONE pilot's floors
+and nothing aggregates them.
+
+THE LEDGER HALF (round-2 finding R2-7). A record's counts are RECONCILED here
+against the per-slot rows it carries (`slots`), and the embedded `derived` /
+`goNoGo`, when present, must equal their own recomputation — so a rewritten
+counter contradicts the rows beneath it and a stale verdict contradicts the
+rule. The authentication of those rows against the SEALED ledger on disk is
+`make_manifest.calibration_record_problems()`'s half; this file is a pure
+record function and stays one.
 """
 from __future__ import annotations
 
@@ -139,12 +150,55 @@ def validate_record(record: dict) -> dict:
             "member: R2-10 replaced it with the §1a vocabulary "
             "(attempted/calls/apparatusExcluded/apparatusCodes), and an "
             "old-shape record must not be re-pinned under the new rule")
+    label = record.get("label")
+    if not isinstance(label, str) or not label:
+        raise FloorError(
+            "FLOOR-RECORD the pilot record names no label; §2a.6 puts the "
+            "pilot's label into the registry and the record must say which "
+            "pilot it is")
     per_arm = record.get("perArm")
     if not isinstance(per_arm, dict) or sorted(per_arm) != sorted(ARMS):
         raise FloorError(
             "FLOOR-RECORD the pilot record's arms are %r and the registered "
             "arms are exactly A, B, C"
             % (sorted(per_arm) if isinstance(per_arm, dict) else per_arm))
+    # ROUND-2 FINDING R2-7: the per-slot rows, and the cells RECONCILED to
+    # them. A hand-authored counter with no rows, or one that disagrees with
+    # the rows beneath it, is not a pilot record.
+    slots = record.get("slots")
+    if not isinstance(slots, list) or not slots:
+        raise FloorError(
+            "FLOOR-RECORD the pilot record carries no per-slot rows: a counts "
+            "record with no rows beneath it is a number nobody can reconcile")
+    paths = []
+    for index, row in enumerate(slots):
+        if not isinstance(row, dict):
+            raise FloorError("FLOOR-RECORD slot row %d is not an object" % index)
+        if not isinstance(row.get("slot"), str) or not row["slot"]:
+            raise FloorError("FLOOR-RECORD slot row %d names no slot path"
+                             % index)
+        if row.get("arm") not in ARMS:
+            raise FloorError("FLOOR-RECORD slot row %d (%s) names the arm %r"
+                             % (index, row["slot"], row.get("arm")))
+        for member in ("goldPerfect",):
+            if not isinstance(row.get(member), bool):
+                raise FloorError(
+                    "FLOOR-RECORD slot row %s carries a non-boolean %s %r"
+                    % (row["slot"], member, row.get(member)))
+        if row.get("identityPass") not in (True, False, None):
+            raise FloorError(
+                "FLOOR-RECORD slot row %s carries identityPass %r; the "
+                "relation is True, False or None (not evaluated)"
+                % (row["slot"], row.get("identityPass")))
+        if row.get("apparatusCode") is not None \
+                and not isinstance(row.get("apparatusCode"), str):
+            raise FloorError("FLOOR-RECORD slot row %s carries a non-string "
+                             "apparatusCode" % row["slot"])
+        paths.append(row["slot"])
+    if len(set(paths)) != len(paths):
+        raise FloorError(
+            "FLOOR-RECORD the pilot record names a slot path twice: one "
+            "attempt is one row")
     for arm in ARMS:
         cell = per_arm[arm]
         calls = cell.get("calls")
@@ -179,12 +233,53 @@ def validate_record(record: dict) -> dict:
                 raise FloorError(
                     "FLOOR-RECORD arm %s's %s is %r; an integer in [0, %d] is "
                     "the registered shape" % (arm, member, count, calls))
+        # R2-7: the cell IS the rows recounted, member by member.
+        mine = [row for row in slots if row["arm"] == arm]
+        scored = [row for row in mine if not row.get("apparatusCode")]
+        excluded = [row for row in mine if row.get("apparatusCode")]
+        counts = {}
+        for row in excluded:
+            counts[row["apparatusCode"]] = counts.get(row["apparatusCode"], 0) + 1
+        recount = {
+            "attempted": len(mine),
+            "calls": len(scored),
+            "apparatusExcluded": len(excluded),
+            "apparatusCodes": counts,
+            "perfect": sum(1 for row in scored if row["goldPerfect"]),
+            "identityPass": sum(1 for row in scored
+                                if row["identityPass"] is True),
+            "codes": sorted(row["code"] for row in scored if row.get("code")),
+        }
+        for member, expected in recount.items():
+            actual = cell.get(member)
+            if isinstance(actual, list) and member == "apparatusCodes":
+                actual = {} if not actual else actual
+            if actual != expected:
+                raise FloorError(
+                    "FLOOR-RECORD arm %s's %s is %r and its own slot rows "
+                    "recount to %r: a counter that disagrees with the rows "
+                    "beneath it is a rewritten number (R2-7)"
+                    % (arm, member, actual, expected))
+    # R2-7: an embedded verdict is its own recomputation or it is stale.
+    if "derived" in record:
+        fresh = json.loads(json.dumps(derive(_strip(record))))
+        if json.loads(json.dumps(record["derived"])) != fresh:
+            raise FloorError(
+                "FLOOR-RECORD the record's embedded `derived` block does not "
+                "equal the floors recomputed from its own counts: a stale or "
+                "edited verdict (R2-7)")
     return record
+
+
+def _strip(record: dict) -> dict:
+    """The record without its embedded outputs, for recomputation."""
+    return {key: value for key, value in record.items()
+            if key not in ("derived", "goNoGo")}
 
 
 def derive(record: dict) -> dict:
     """Both per-arm floors, by the exact rule, plus the go/no-go inputs."""
-    validate_record(record)
+    validate_record(_strip(record))
     floors = {}
     for arm in ARMS:
         cell = record["perArm"][arm]

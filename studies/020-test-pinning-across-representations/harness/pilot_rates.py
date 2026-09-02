@@ -38,6 +38,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
+import batch                           # noqa: E402
+import integrity                       # noqa: E402
 import sweep_rates                     # noqa: E402
 from sweep_rates import RatesError     # noqa: E402
 from e4lib import admit as admit_lib   # noqa: E402
@@ -68,6 +70,83 @@ def derive_floor_module():
     return module
 
 
+def _bare(digest) -> str:
+    return digest.split(":")[-1] if isinstance(digest, str) else digest
+
+
+def slot_pre_step(record: dict, ledger: dict, pins: dict, label: str) -> tuple:
+    """ROUND-2 FINDING R2-8: `score.read_slot()`'s pre-scoring ORDER, applied
+    to one sealed pilot slot — `(slot_dir, prior_code, prior_side,
+    transcript)`. The primary path's reads, not a new reading of them.
+
+    1. The SEAL recomputes and equals the ledger's `manifestSha256` — a slot
+       whose bytes moved after sealing refuses the whole publication.
+    2. The WRAPPER outcome (`REFUSAL.json` / `CALL.json`): a refusal code is
+       the slot's code, apparatus side.
+    3. `CALL.json.pinsSha256` equals the LEDGER HEADER's `pinsSha256` — the
+       registry every call ran under. Not the current registry: §2a.6's own
+       ceremony edits it after the pilot (label, N, output digest go in), so
+       the reconciliation is to what the ledger names, exactly as the batch
+       reconciles to ATTEMPT.json. A mismatch is `registry-mismatch`.
+    4. `CALL.json.goldenSha256` equals the header's — `golden-context-mismatch`.
+    5. The TRANSCRIPT BINDING, RECOMPUTED from the sealed bytes through
+       `batch.transcript_verdict()` (one binding, two callers): an AUTHORING
+       side outranks a missing completion, because the wrapper writes no
+       completion for a tool-using author by design and the missing file must
+       not turn that authoring outcome into `slot-shape` apparatus.
+    6. Only then: no completion is `slot-shape`."""
+    slot_dir = os.path.join(STUDY, record["path"])
+    if os.path.islink(slot_dir) or not os.path.isdir(slot_dir):
+        raise RatesError("RATES-NO-SLOT the ledger names %s and it is not a "
+                         "directory on disk" % record["path"])
+    entry = {key: record[key] for key in batch.SCHEDULE_KEYS}
+    try:
+        sealed = batch.verify_seal_of(slot_dir, entry)
+    except batch.BatchError as error:
+        raise RatesError("RATES-SEAL %s" % error)
+    if sealed != record.get("manifestSha256"):
+        raise RatesError(
+            "RATES-SEAL %s: the slot's recomputed seal %s is not the ledger's "
+            "%s — the tree on disk is not the one the chain sealed"
+            % (record["path"], sealed, record.get("manifestSha256")))
+    try:
+        status, code = batch.slot_outcome(slot_dir)
+    except batch.BatchError as error:
+        raise RatesError("RATES-OUTCOME %s" % error)
+    if code != record.get("code") or status != record.get("wrapperExit"):
+        raise RatesError(
+            "RATES-OUTCOME %s: the slot's own bytes say exit %r / %r and the "
+            "ledger records %r / %r" % (record["path"], status, code,
+                                        record.get("wrapperExit"),
+                                        record.get("code")))
+    if code is not None:
+        return slot_dir, code, "apparatus", None
+    call = batch._load_json(os.path.join(slot_dir, "CALL.json"))
+    stamped = call.get("pinsSha256")
+    if not isinstance(stamped, str) or \
+            _bare(stamped) != _bare(ledger.get("pinsSha256")):
+        return slot_dir, "registry-mismatch", "apparatus", None
+    if _bare(call.get("goldenSha256")) != _bare(ledger.get("goldenSha256")):
+        return slot_dir, "golden-context-mismatch", "apparatus", None
+    try:
+        verdict = batch.transcript_verdict(slot_dir, record["arm"], pins,
+                                           batch.golden_path_for(pins))
+    except batch.transcript_check.UnclassifiedRefusal as error:
+        raise RatesError(
+            "RATES-TRANSCRIPT %s: the binding refused with a cause §1a does "
+            "not name (%s)" % (record["path"], error))
+    transcript = {"admissible": verdict["admissible"],
+                  "reason": verdict["reason"], "side": verdict["side"],
+                  "code": verdict["code"]}
+    if verdict["side"] == "authoring":
+        return slot_dir, verdict["code"], "authoring", transcript
+    if not os.path.isfile(os.path.join(slot_dir, "completion.txt")):
+        return slot_dir, "slot-shape", "apparatus", transcript
+    if verdict["code"] is not None:
+        return slot_dir, verdict["code"], verdict["side"], transcript
+    return slot_dir, None, None, transcript
+
+
 def pilot_rates(tools, label: str, gold: list, scratch: str,
                 pins: dict) -> dict:
     ledger_path = os.path.join(CALIBRATION_ROOT, label, "PILOT.json")
@@ -75,27 +154,44 @@ def pilot_rates(tools, label: str, gold: list, scratch: str,
         raise RatesError("RATES-NO-PILOT no ledger at calibration/%s/PILOT.json"
                          % label)
     with open(ledger_path, "rb") as handle:
-        ledger = json.loads(handle.read().decode("utf-8"))
-    if not ledger.get("complete", True):
+        ledger = json.loads(handle.read().decode("utf-8"),
+                            **integrity.LOAD_KWARGS)
+    records = ledger.get("records")
+    if not isinstance(records, list) or not records:
         raise RatesError(
-            "PILOT-INCOMPLETE the ledger records an unfinished pilot "
-            "(%d attempts made, %s): §2a.1's table prices the derived floor at "
-            "n = %d apparatus-clean per arm, so a partial pilot publishes no "
-            "rates — it is a DEVIATIONS.md event"
-            % (ledger.get("callsMade", 0), ledger.get("perArm"),
+            "RATES-NO-LEDGER calibration/%s/PILOT.json carries no chained "
+            "records: a pilot the driver did not seal and chain (R2-8) is not "
+            "a pilot this module scores" % label)
+    if ledger.get("label") != label:
+        raise RatesError("RATES-LABEL the ledger names %r and this run asked "
+                         "for %r" % (ledger.get("label"), label))
+    try:
+        batch.pilot_replay(records, label)
+    except batch.BatchError as error:
+        raise RatesError("RATES-REPLAY %s" % error)
+    if not ledger.get("complete") or ledger.get("short"):
+        raise RatesError(
+            "PILOT-INCOMPLETE the ledger records an unfinished or short pilot "
+            "(%d attempts made, per arm %s, short %s): §2a.1's table prices "
+            "the derived floor at n = %d apparatus-clean per arm, so a partial "
+            "pilot publishes no rates — it is a DEVIATIONS.md event"
+            % (len(records), ledger.get("perArm"), ledger.get("short"),
                PILOT_CALLS_PER_ARM))
     guard_registered = admit_lib.guard_is_registered()
     rows = []
-    for call in ledger["calls"]:
-        slot_dir = os.path.join(STUDY, call["slot"])
-        if not os.path.isdir(slot_dir):
-            raise RatesError("RATES-NO-SLOT the ledger names %s and it is "
-                             "not on disk" % call["slot"])
-        workdir = os.path.join(scratch, call["arm"],
-                               "run-%03d" % call["runIndex"])
+    for record in records:
+        slot_dir, prior_code, prior_side, transcript = slot_pre_step(
+            record, ledger, pins, label)
+        workdir = os.path.join(scratch, record["arm"],
+                               "run-%03d" % record["slotIndex"])
         os.makedirs(workdir, exist_ok=True)
-        rows.append(sweep_rates.score_slot(tools, call["arm"], slot_dir, gold,
-                                           guard_registered, workdir))
+        row = sweep_rates.score_slot(tools, record["arm"], slot_dir, gold,
+                                     guard_registered, workdir,
+                                     prior_code=prior_code,
+                                     prior_side=prior_side)
+        row["globalIndex"] = record["globalIndex"]
+        row["transcript"] = transcript
+        rows.append(row)
     per_arm = {}
     for arm in ARMS:
         mine = [row for row in rows if row["arm"] == arm]
@@ -120,10 +216,14 @@ def pilot_rates(tools, label: str, gold: list, scratch: str,
         "obligation": "PREREGISTRATION.md section 2a — the pilot's per-arm "
                       "perfect and identity counts, computed by "
                       "harness/pilot_rates.py through the registered scoring "
-                      "components, no kill quantity computed by construction",
+                      "components over the SEALED slots the chained ledger "
+                      "names (R2-8), no kill quantity computed by construction",
         "citable": False,
         "goldRows": len(gold),
         "guardRegistered": guard_registered,
+        "ledgerPinsSha256": ledger.get("pinsSha256"),
+        "ledgerGoldenSha256": ledger.get("goldenSha256"),
+        "attemptsRecorded": len(records),
         "perArm": per_arm,
         "slots": rows,
     }
@@ -155,15 +255,20 @@ def render_rates(body: dict) -> str:
         "is computed**, by registered scope. `citable: false`, like "
         "everything in this file." % body["goldRows"],
         "",
-        "| arm | perfect | identity | perfect floor | identity floor | codes |",
-        "|---|---|---|---|---|---|",
+        "| arm | attempted | apparatus-excluded | perfect | identity | "
+        "perfect floor | identity floor | codes |",
+        "|---|---|---|---|---|---|---|---|",
     ]
     for arm in ARMS:
         cell = body["perArm"][arm]
         floors = body["derived"]["perArm"][arm]
         codes = ", ".join("`%s`" % code for code in cell["codes"]) or "—"
-        lines.append("| %s | %d/%d | %d/%d | %.3f | %.3f | %s |" % (
-            arm, cell["perfect"], cell["calls"], cell["identityPass"],
+        excluded = ", ".join("`%s`×%d" % pair
+                             for pair in sorted(cell["apparatusCodes"].items()))
+        lines.append("| %s | %d | %d%s | %d/%d | %d/%d | %.3f | %.3f | %s |" % (
+            arm, cell["attempted"], cell["apparatusExcluded"],
+            " (%s)" % excluded if excluded else "",
+            cell["perfect"], cell["calls"], cell["identityPass"],
             cell["calls"], floors["perfectFloor"], floors["identityFloor"],
             codes))
     lines.append("")

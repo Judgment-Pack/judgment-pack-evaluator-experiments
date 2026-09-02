@@ -761,6 +761,59 @@ promised — and refuses a second pilot under §2a.6's one-pilot rule. The wrapp
 under a registry whose freeze pins are null, and a state where the two spellings disagreed would
 be a pilot running after the freeze, which this section's ceremony order forbids.
 
+**AMENDED (round 2, R2-10) — the pilot slot count names two numbers.** "Pilot N: 12/arm" above
+is read as **12 apparatus-clean calls per arm, drawn under a registered attempt cap of
+21/arm (63 attempts)** — at most 21 attempts per arm. The 12 is the denominator §2a.1's table
+prices the derived floor at, and it was never a different number; what the first printing left
+implicit was that an apparatus refusal inside those 12 was counted as a Bernoulli failure. At
+Study 019's own per-arm apparatus rates the probability that all three arms reach 12 clean calls
+within 12 attempts is ≈ 0.0001, so a fixed-12 denominator made §2a.4(2)'s 0.20 gate fire on
+apparatus noise about half the time (the reviewer's ≈ 52 % figure) — study death by design.
+Under the amended rule every attempt is retained, sealed and published with its §1a code; the
+scored 12 are the apparatus-clean ones (§1a's population rule, "attempted runs whose apparatus
+succeeded", applied to the pilot exactly as to the batch); and an arm still short of 12 clean at
+the cap **publishes no rates and is a `DEVIATIONS.md` event** — under M-9 the study ABORTS
+rather than descopes. The cap is 21 because P(all three arms reach 12 clean) is 0.95 there —
+the study's own α — at 019's rates (0.68 at 18, 0.90 at 20, 0.995 at 24); its cost at `low`'s
+observed means is ≈ 2.35 h against the 1.34 h the §2.1 budget rows carry, and §2.1's budget note
+records the difference. Nothing about the declaration moves: 0.20, `identityFloor`, ≥ 6/12, the
+≈ 6 % pricing and the 0.82 catch probability all stand, because they were always correct for the
+population §1a registers and 019 published (34/38, 26/37, 28/39). The driver's order is an
+A-first round robin over the arms that still need a clean call (`batch.pilot_next_entry()`),
+derived from the ledger's own codes so the freeze gate can RECONSTRUCT it rather than compare
+it to a constant.
+
+**AMENDED (round 2, R2-8) — the pilot runs the batch's per-slot finalization, and the golden
+capture precedes it.** The driver's duties enumerated above stopped at "publishes
+`PILOT.json`/`PILOT.md` after every call"; the wrapper delegates the refusal record, the
+schedule stamps, the transcript binding and the seal to its driver, and a pilot that skipped
+them was a FIFTH difference from the batch. So `batch.py pilot` runs, for every attempt and in
+the batch's order, `refuse_slot` → `stamp_slot` → `bind_transcript` (completed calls only) →
+`seal_slot` → a chained `ledger_record`, and `PILOT.json` is written atomically as a hash chain
+in schedule order with a header mirroring `arms/BATCH.json`'s. Two consequences are registered
+with it. (i) **The golden-context capture is a precondition of the pilot**, not only of the
+batch: the binding's gate 4 (the golden pre-prompt context) runs unconditionally, so a pilot
+bound with no capture would file every slot as unreadable apparatus, and "binds gates 1, 2, 3
+and 5 but not 4" would be the fifth difference this section forbids by name. The isolation
+negative control remains a precondition of the batch alone. (ii) **Every call's `pinsSha256`
+reconciles to the ledger header's**, which records the digest of the registry the pilot ran
+under — not to the registry at freeze time, because this section's own ceremony edits the
+registry after the pilot (label, N and output digest go in). `harness/pilot_rates.py` reads the
+sealed slots through the primary path's pre-scoring order (seal, wrapper outcome, registry
+stamp, golden stamp, recomputed transcript binding, completion presence) before it scores; an
+author protocol violation — for which the wrapper writes no completion by design — is COUNTED
+under its authoring code and scores zero, never filed as the apparatus code `slot-shape`. What
+"validating a registered pilot output" means at the freeze gate (R2-7) is therefore: the ledger
+is the driver's; its records are the round robin replayed from their own codes and its chain
+verifies; every slot's seal recomputes to the record's digest; no slot exists that the ledger
+does not name; every completed slot's sealed `CALL.json` carries the scheduled arm, slot index,
+`PILOT` label, `citable: false`, the header's registry and golden digests, the pinned arm prompt
+and the pinned reasoning effort; and the counts record's rows are exactly the ledger's slots,
+with each per-arm cell reconciled to its rows and any embedded verdict equal to its own
+recomputation. `calibration/derive_floor.py` was edited before the pilot ran to carry the
+row-reconciliation half of that contract; the pre-pilot edit is lawful under §2a.4(1) ("sealed
+before the pilot runs") and is recorded in `DEVIATIONS.md`'s operational record.
+
 ### 2a.3 C2 — pin the compute condition, bind it, register what the binding proves
 
 Registered in §2.1: the pin, the wrapper flag, the `CALL.json` stamp, the witness-resolution step,
@@ -832,16 +885,37 @@ pilot from this dispersion.
 | per-arm median `reasoning_output_tokens` | `session.jsonl` | [0.65×, 1.55×] | cannot be evaluated against 019 (no pilot `session.jsonl`); registered for 020 |
 
 **C4 is two-sided.** *If every exact-equality row holds and only band rows differ, the pilot is
-suspect and the outcome is `calibration-invalid`, requiring a re-pilot under C5; if any
+suspect and the outcome is `calibration-invalid`, ~~requiring a re-pilot under C5~~; if any
 exact-equality row differs, the batch is suspect and the outcome is `pipeline-invalid`.* Both
-outcomes are recorded with the rows that produced them.
+outcomes are recorded with the rows that produced them. **AMENDED (round 2, R2-12):** the
+struck clause named no reachable state — `calibration-invalid` is observable only during the
+primary attempt, of which there is exactly one — so the outcome is recorded with the rows that
+produced it and reaches §5.9 row 3, which is terminal. The two-sided ROUTING is untouched.
 
-### 2a.6 C5 — one pilot, sealed, append-only re-pilot rule
+### 2a.6 C5 — one pilot, sealed, terminal
 
-The pilot runs once; label, N and output digest go into `PINS.json` before the primary attempt. A
-second pilot requires a `DEVIATIONS.md` entry naming the reason, and then **the derived threshold
-is the maximum over all pilots** and **the transfer bands are the tightest over all pilots**, with
-every pilot's rates published side by side. Re-piloting is monotone in strictness.
+The pilot runs once; label, N and output digest go into `PINS.json` before the primary attempt.
+**There is no second pilot.** A `calibration-invalid` outcome at C4 is terminal under §5.9 row 3,
+exactly as any control-gate failure is.
+
+> **AMENDED (round 2, R2-12) — the first printing's rule, struck and kept for the record.** It
+> read: *~~A second pilot requires a `DEVIATIONS.md` entry naming the reason, and then the
+> derived threshold is the maximum over all pilots and the transfer bands are the tightest over
+> all pilots, with every pilot's rates published side by side. Re-piloting is monotone in
+> strictness.~~* It named no reachable state: `calibration-invalid` is observable only at score
+> time; §"The freeze and the primary attempt" registers exactly one primary attempt; and
+> `make_manifest.prior_attempt_problems()` refuses re-freezing any tree carrying an entry under
+> `results/`. A promise with no reachable state is worse than no promise — it made C4's
+> two-sidedness read as a recoverable branch when it is terminal on both sides — so the promise
+> is removed rather than the machinery built.
+>
+> **And one sentence added, for the state that was unrecoverable by typo.** A pilot label under
+> which **no call completed** — every attempt wrapper-refused, or no ledger at all — spent nothing
+> and is not the one pilot: it is ABANDONED by `batch.py abandon --label <label>` after a
+> `DEVIATIONS.md` entry names it, and the tree is retained under `calibration/abandoned-<label>/`,
+> never deleted. The driver refuses to abandon a label holding even one completed call; the
+> freeze gate skips abandoned trees in the one-pilot count and refuses one that hides a
+> completed call.
 
 **Pinning effort undermines the dispersion calibration, and the adjudication is registered.** If
 020 pins a higher reasoning effort, 019's batch is no longer condition-matched and §5.6's

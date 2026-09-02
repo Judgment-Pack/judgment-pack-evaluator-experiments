@@ -423,26 +423,47 @@ def _scratch_study(root):
 
 
 def _fill_calibration(root, label="pilot-001"):
-    """A REGISTERED pilot output, not a directory that merely exists: round-1
-    finding R1-17 made the freeze gate validate the record through the sealed
-    deriver's own `validate_record()`, so the fixture carries the registered
-    shape — the driver's ledger and a counts record with arms exactly A/B/C at
-    12 calls each, `citable: false` in its own bytes. The scratch study has no
-    `harness/PINS.json`, so the §2a.6 pin comparisons are out of scope here by
-    the gate's own rule and `tests/test_pilot.py` drives them instead."""
+    """A REGISTERED pilot output, not a directory that merely exists.
+
+    Round-1 finding R1-17 made the freeze gate validate the record through
+    the sealed deriver's own `validate_record()`; ROUND-2 FINDING R2-7 made it
+    AUTHENTICATE the pilot from a sealed, chained ledger through `batch.py`'s
+    own readers. So the fixture is a real one: every slot stamped and sealed
+    by `batch.seal_slot()`, every record chained by `batch.ledger_record()`,
+    the round robin replayable from the records' own codes, and the counts
+    record published by the real `pilot_rates.py` over it (with the scorer and
+    the transcript binding stubbed — the engines are not under test here).
+    The scratch study has no `harness/PINS.json`, so the §2a.6 pin comparisons
+    are out of scope by the gate's own rule and `tests/test_pilot.py` drives
+    them instead."""
+    import shutil
+    from unittest import mock
+    import pilot_fixture
+    import pilot_rates
+    import sweep_rates
     where = root / make_manifest.CALIBRATION_ROOT / label
-    where.mkdir(parents=True, exist_ok=True)
-    (where / "PILOT.json").write_text(
-        '{"callsMade": 36, "callsRegistered": 36, "citable": false}\n',
-        encoding="utf-8")
-    # ROUND-2 FINDING R2-10: the 12 SCORED calls are drawn from up to 21
-    # attempts per arm and the excluded ones are published under their own §1a
-    # codes, so a record's three population numbers must reconcile.
-    record = {"label": label, "citable": False,
-              "perArm": {arm: {"calls": 12, "attempted": 12,
-                               "apparatusExcluded": 0, "apparatusCodes": [],
-                               "perfect": 8, "identityPass": 10}
-                         for arm in ("A", "B", "C")}}
+    if where.exists():
+        shutil.rmtree(where)
+    pins = {"codex": {"reasoningEffort": "s020-stand-in-effort"},
+            "golden": {"sha256": "sha256:" + "3" * 64}}
+    pilot_fixture.build(str(root), label, pins)
+
+    def score(tools, arm, slot_dir, gold, guard, workdir, **kwargs):
+        return {"slot": os.path.relpath(slot_dir, str(root)), "arm": arm,
+                "code": None, "apparatusCode": None, "goldPerfect": True,
+                "goldFailures": 0, "identityPass": True, "identityWhy": None,
+                "suitePresent": True}
+    with mock.patch.object(pilot_rates, "STUDY", str(root)), \
+            mock.patch.object(pilot_rates, "CALIBRATION_ROOT",
+                              str(root / make_manifest.CALIBRATION_ROOT)), \
+            mock.patch.object(sweep_rates, "STUDY", str(root)), \
+            mock.patch.object(sweep_rates, "score_slot", score), \
+            pilot_fixture.stub_transcript():
+        record = pilot_rates.pilot_rates(
+            None, label, [], str(root / "rates-scratch"),
+            {"calibration": {"minimumViable": 0.20,
+                             "minimumViableBasis": "identityFloor"},
+             "codex": pins["codex"], "golden": pins["golden"]})
     (where / "PILOT-RATES.json").write_text(
         json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return where

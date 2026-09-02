@@ -260,3 +260,108 @@ def test_the_sweep_evidence_trees_verify_and_tampering_refuses(tmp_path):
     victim.unlink()
     with pytest.raises(integrity.IntegrityError, match="R1-19"):
         integrity.verify_sweep_evidence(str(clone))
+
+
+# ---------------------------------------------------------------------------
+# R2-8: a prior code is a scored slot, and the fence stands without one
+# ---------------------------------------------------------------------------
+
+def test_a_prior_authoring_code_is_counted_and_scores_zero(tmp_path):
+    """ROUND-2 FINDING R2-8: the wrapper writes NO completion for a tool-using
+    author by design, and this function used to refuse the whole publication
+    on the missing file. With the pre-step's prior code the slot is COUNTED
+    under it — apparatus clean, goldPerfect False, identity never asked — and
+    `completion.txt` is never opened.
+
+    MUTATION: remove the `prior_code` early return — the slot below has no
+    completion and the call raises RATES-NO-COMPLETION."""
+    slot = tmp_path / "slot"
+    slot.mkdir()
+    record = sweep_rates.score_slot(None, "B", str(slot), [], True,
+                                    str(tmp_path / "w"),
+                                    prior_code="author-protocol-violation",
+                                    prior_side="authoring")
+    assert record["code"] == "author-protocol-violation"
+    assert record["apparatusCode"] is None
+    assert record["goldPerfect"] is False
+    assert record["identityWhy"] == "not-asked"
+    assert record["priorCode"] == "author-protocol-violation"
+
+
+def test_a_prior_apparatus_code_leaves_the_denominator(tmp_path):
+    slot = tmp_path / "slot"
+    slot.mkdir()
+    record = sweep_rates.score_slot(None, "B", str(slot), [], True,
+                                    str(tmp_path / "w"),
+                                    prior_code="call-timeout",
+                                    prior_side="apparatus")
+    assert record["apparatusCode"] == "call-timeout"
+    assert record["code"] is None
+    assert record["identityPass"] is None
+    cell = sweep_rates.per_arm_cell([record])
+    assert (cell["attempted"], cell["calls"], cell["apparatusExcluded"]) == \
+        (1, 0, 1)
+
+
+def test_a_prior_code_on_no_registered_side_refuses(tmp_path):
+    slot = tmp_path / "slot"
+    slot.mkdir()
+    with pytest.raises(sweep_rates.RatesError, match="RATES-PRIOR-SIDE"):
+        sweep_rates.score_slot(None, "B", str(slot), [], True,
+                               str(tmp_path / "w"), prior_code="x",
+                               prior_side="neither")
+
+
+def test_the_fence_stands_without_a_prior_code(tmp_path):
+    """An exit-0 slot with no completion and no prior code is still an
+    unexplained slot; the pre-step, not this function, is what turns that
+    absence into `slot-shape`."""
+    slot = tmp_path / "slot"
+    slot.mkdir()
+    with pytest.raises(sweep_rates.RatesError, match="RATES-NO-COMPLETION"):
+        sweep_rates.score_slot(None, "B", str(slot), [], True,
+                               str(tmp_path / "w"))
+
+
+def test_the_published_sweep_rates_still_recompute_row_for_row():
+    """R2-8's regression fence for the PINNED evidence tree: the sweep's
+    published `SWEEP-RATES.json` sits inside the digest pinned at
+    `sweep.evidenceTrees` and its 27 calls all answered, so R2-1's and
+    R2-10's vocabulary changes must reproduce every published row and every
+    per-arm member that the ledger carries. The superseded `apparatusRefused`
+    member is the one exclusion, marked here: it was 0 on every cell, is not
+    republished, and the ledger stays as pinned.
+
+    MUTATION: make `score_slot()`'s prior-code branch fire unconditionally —
+    every row collapses to a coded record and the row comparison fails.
+    LABEL: comparing only the perfect/identity totals could not discriminate a
+    changed ROW shape; the assertion compares full rows."""
+    if not os.environ.get("JPACK_BIN") or not os.environ.get("OPA_BIN"):
+        pytest.skip("the pinned binaries are not present")
+    path = os.path.join(sweep_rates.SWEEP_ROOT, LABEL,
+                        sweep_rates.RATES_LEDGER_NAME)
+    if not os.path.exists(path):
+        pytest.skip("the sweep's rates ledger has not been published")
+    import tempfile
+    with open(path, "rb") as handle:
+        published = json.loads(handle.read().decode("utf-8"))
+    pins = sweep_rates.load_pins()
+    tools = sweep_rates.toolchain(pins)
+    gold = sweep_rates.load_gold()
+    with tempfile.TemporaryDirectory(prefix="s020-recompute-") as scratch:
+        fresh = sweep_rates.sweep_rates(tools, LABEL, gold, scratch)
+    by_setting = {row["setting"]: row for row in fresh["settings"]}
+    for setting in published["settings"]:
+        recomputed = by_setting[setting["setting"]]
+        for old, new in zip(setting["slots"], recomputed["slots"]):
+            for member, value in old.items():
+                if member == "apparatusRefused":
+                    continue
+                assert new.get(member) == value, (setting["setting"], member,
+                                                  old["slot"])
+        for arm in ("A", "B", "C"):
+            for member, value in setting["perArm"][arm].items():
+                if member == "apparatusRefused":
+                    continue
+                assert recomputed["perArm"][arm][member] == value, (
+                    setting["setting"], arm, member)

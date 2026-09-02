@@ -506,7 +506,10 @@ Bands are ~2.5× the measured within-condition span for the two rows with demons
 
 **C4 is two-sided** (panel #21). v1 registered the pilot as the reference and could only invalidate the batch — which, at the recommended N, discards 180 isolated calls on the authority of a 36-call reference whose own condition §6.1 shows was the corrupted side. **Registered adjudication: if every exact-equality row holds and only band rows differ, the pilot is suspect and the outcome is `calibration-invalid`, requiring a re-pilot under C5; if any exact-equality row differs, the batch is suspect and the outcome is `pipeline-invalid`.** Both outcomes are recorded with the rows that produced them.
 
-**C5 — one pilot, sealed, append-only re-pilot rule.** The pilot runs once; label, N and output digest go into `PINS.json` before the primary attempt. A second pilot requires a `DEVIATIONS.md` entry naming the reason, and then **the derived threshold is the maximum over all pilots** and **the transfer bands are the tightest over all pilots**, with every pilot's rates published side by side. Re-piloting is monotone in strictness.
+**C5 — one pilot, sealed, append-only re-pilot rule.** *[HISTORICAL — this is the design
+brief as disclosed under §0; PREREGISTRATION.md §2a.6 as amended in round 2 (R2-12) struck the
+re-pilot rule as naming no reachable state and registers one terminal pilot. The brief's text
+is retained unchanged below.]* The pilot runs once; label, N and output digest go into `PINS.json` before the primary attempt. A second pilot requires a `DEVIATIONS.md` entry naming the reason, and then **the derived threshold is the maximum over all pilots** and **the transfer bands are the tightest over all pilots**, with every pilot's rates published side by side. Re-piloting is monotone in strictness.
 
 ### 6.4 Pinning effort undermines the dispersion calibration
 

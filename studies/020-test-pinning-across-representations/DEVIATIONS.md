@@ -21,7 +21,9 @@ Named in advance so a reader knows what a silent absence would mean. Each is reg
 | Trigger | Registered at | What the entry must carry |
 |---|---|---|
 | Adding a member to the eighteen-member sensitivity family after registration (removal is forbidden) | §5.2 | the member, the arm-blind reason, and **the pre-addition verdict published beside the post-addition one** |
-| A second calibration pilot | §2a.6 | the reason; thereafter the derived threshold is the **maximum** over all pilots and the transfer bands the **tightest**, with every pilot's rates side by side |
+| ~~A second calibration pilot~~ — struck (round 2, R2-12): there is no second pilot | §2a.6 | — |
+| An arm short of 12 apparatus-clean calls at the 21/arm attempt cap | §2a.2 (as amended, R2-10) | the reason and the per-arm attempted / clean counts; no rates are published and under M-9 the study aborts |
+| Abandoning a pilot label under which no call completed | §2a.6 (as amended, R2-12) | the label, the cause of the refusals, and the `batch.py abandon` invocation; the tree is retained under `calibration/abandoned-<label>/` |
 | Raising the pre-pilot sweep's 27-call cap | §2.1 | the reason and the republished price |
 | A post-freeze registry re-pin | §1a | the halt-and-restart record and the abandoned slots with their codes |
 | Moving the identity gate from `referenceIdentity` to the conjunction with `ownPolicyIdentity` | §1.2, §11.10 | the obligation to re-derive every per-protocol member's population and §5.6's dispersion |
@@ -79,3 +81,20 @@ made or token spent in either refused attempt.
   stand as published; the living carriers of the citation (`PREREGISTRATION.md`,
   `harness/batch.py`, `harness/tests/test_sweep.py`) now name the clause instead of a line
   span.
+- **2026-08-26, the pilot instrument rebuilt under round 2 (R2-7, R2-8, R2-10, R2-12), before
+  any pilot call**: `calibration/derive_floor.py` — registered "sealed before the pilot runs"
+  (§2a.4(1)) — was edited pre-pilot to carry the row-reconciliation half of the record contract
+  (each per-arm cell equals its own slot rows recounted; an embedded verdict equals its own
+  recomputation), the amended population shape (12 apparatus-clean scored calls drawn from at
+  most 21 attempts, `attempted`/`calls`/`apparatusExcluded` one partition), the declaration's
+  validation (type, finiteness, range, vocabulary — `NaN` had made every `floor < minimum`
+  comparison False), and the terminal-pilot rule replacing the struck maximum-over-pilots
+  paragraph. The edit is lawful because the pilot has not run, and it is recorded here so the
+  sealed file's history is visible. Landed with it: `batch.py pilot` now runs the batch's own
+  per-slot finalization (refusal record → schedule stamps → transcript binding → seal → chained
+  `PILOT.json`, written atomically) under an A-first round robin that replaces wrapper-refused
+  attempts; the golden capture is a pilot precondition; `harness/pilot_rates.py` reads the sealed
+  slots through the primary path's pre-scoring order; the freeze gate authenticates the ledger
+  (replay, chain, per-slot seals, `CALL.json` pin state, no unnamed slot, rates/ledger
+  agreement); and `batch.py abandon --label` retains a label under which no call completed. No
+  pilot call has been made; `calibration/` still holds only `derive_floor.py`.
