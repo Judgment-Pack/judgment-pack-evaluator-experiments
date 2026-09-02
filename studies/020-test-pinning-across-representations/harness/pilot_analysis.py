@@ -252,8 +252,12 @@ def score_pilot_runs(tools, pins: dict, walked: list, scratch: str) -> dict:
 def dispersion_table(label: str, pins: dict, scored: dict) -> dict:
     """Eighteen rows, arm-blind, no contrast."""
     family_pins = pins.get("family") or {}
+    # ROUND-2 R2-2: ONE universe. Both weightings are the registry's
+    # `family` pair (native-for-both under the maintainer's ruling); a registry
+    # without the members falls to the family's own defaults, which are the
+    # same pair — never to a mixed seat, which `member_outcomes()` refuses.
     weighting = family_pins.get("outcomeWeighting", "native")
-    offset_weighting = family_pins.get("offsetWeighting", "shared")
+    offset_weighting = family_pins.get("offsetWeighting", "native")
     context = scored["context"]
     corpus = family.build_corpus(context["pairing"], context["engineSupplied"])
     units = []

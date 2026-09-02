@@ -256,35 +256,51 @@ on the certified counts exactly — **32 of the 60 admitted runs, arm B 19 of
 30, arm C 13 of 30** (the corrected split; the note below records how the gate
 caught this document's own first printing).
 
-**The measured effect on the family, A–C (the primary contrast):**
+**The measured effect on the family, A–C (the primary contrast) — REGENERATED
+once in round 2 under the registered estimand (PREREGISTRATION.md §5.2, F-1
+re-ruled: native-for-both; the JSON names the estimand it was computed under
+and is manifest-covered since R2-16). The first printing's table is kept
+beneath, marked, because two of its cells no longer hold:**
 
 | members | unflagged | counterfactual | shift |
 |---|---|---|---|
-| all six ITT members (M1/M4/M7/M10/M13/M16) | +0.138 … +0.232 | +0.306 … +0.426 | **+0.168 … +0.209, all positive** |
-| all six PP members (M2/M5/M8/M11/M14/M17) | +0.031 … +0.128 | +0.006 … +0.104 | **−0.022 … −0.031, all negative** |
-| all six PP/ANCOVA members (M3/M6/M9/M12/M15/M18) | −0.004 … +0.091 | −0.008 … +0.088 | −0.008 … −0.002, all negative |
+| all six ITT members (M1/M4/M7/M10/M13/M16) | +0.138 … +0.192 | +0.306 … +0.402 | **+0.168 … +0.210, all positive** |
+| all six unadjusted PP members (M2/M5/M8/M11/M14/M17) | +0.031 … +0.084 | +0.006 … +0.078 | **−0.031 … −0.006, all negative** |
+| all six PP/ANCOVA members (M3/M6/M9/M12/M15/M18) | −0.004 … +0.048 | −0.008 … +0.062 | −0.008 … +0.015; five negative, **M18 positive** |
+
+> **First printing (under the superseded hybrid reading), retained:** ITT
+> +0.138 … +0.232 / +0.306 … +0.426 / +0.168 … +0.209; PP +0.031 … +0.128 /
+> +0.006 … +0.104 / −0.022 … −0.031 all negative; PP/ANCOVA −0.004 … +0.091 /
+> −0.008 … +0.088 / −0.008 … −0.002 all negative. Only the excluded-column
+> L2c members (M16/M17/M18) moved between the two printings; under the native
+> offset M18's unflagged side falls further than its counterfactual side, so
+> its shift changes sign (+0.015) and the "all negative" cell for the adjusted
+> row is no longer true. The unadjusted PP row's lower bound moved from −0.022
+> to −0.006 for the same reason (M17).
 
 The code **amplifies every ITT member** (32 B/C runs move from "scored" to
 "scoring zero", widening arm A's intention-to-treat lead) and **attenuates
-every A–C per-protocol member** (the flagged runs leave the PP denominator, and
-the runs that remain are the better ones). Two α = 0.05 decisions flip, both
-from reject to not-reject: **M2 and M5**, the L1 per-protocol members
-(p 0.0213 → 0.3483 in both columns). No other member's decision moves in
-either contrast. In A–B the ITT amplification is larger (+0.246 … +0.303) and
-the PP members barely move (|shift| ≤ 0.011, mixed sign). The full 36-row
-table with p-values under both codings is in `COUNTERFACTUAL-SHIFT.json`; the
-unflagged column reproduces Reprint 1's certified figures — to the printed digit for
-point estimates and unadjusted p-values, to the decision boundary for the six ANCOVA
-p-values (PREREGISTRATION.md §5.5's marked R1-6 scope note prints both streams)
-(M17 A–C +0.1275; F-2's anchor p-values exactly), which is the evidence the
-script's adapter is the fixture adapter and not a second reading of 019's
-batch.
+every unadjusted A–C per-protocol member** (the flagged runs leave the PP
+denominator, and the runs that remain are the better ones); the adjusted
+members sit within ±0.015 of zero. Two α = 0.05 decisions flip, both from
+reject to not-reject: **M2 and M5**, the L1 per-protocol members (p 0.0213 →
+0.3483 in both columns). No other member's decision moves in either contrast.
+In A–B the ITT amplification is larger (+0.246 … +0.303) and the PP members
+barely move (|shift| ≤ 0.020, mixed sign). The full 36-row table with
+p-values under both codings is in `COUNTERFACTUAL-SHIFT.json`; the unflagged
+column reproduces the REGISTERED reading — fifteen of Reprint 1's rows to the
+printed digit for point estimates and unadjusted p-values, to the decision
+boundary for the six ANCOVA p-values (PREREGISTRATION.md §5.5's marked R1-6
+scope note prints both streams), and the three excluded-column L2c rows at
+§5.5's Reprint 1b (M17 A–C +0.0839; F-2's anchor p-values exactly) — which
+is the evidence the script's adapter is the fixture adapter and not a second
+reading of 019's batch.
 
 What (iv) was registered to settle is therefore settled by measurement: the
 code's effect on the family is **direction-heterogeneous by population** —
-it moves ITT members away from the null and PP members toward it — so no
-single-direction story about "the guard's effect" is licensed, and any §5
-verdict sensitive to those two L1/PP rejections now has the counterfactual
+it moves ITT members away from the null and unadjusted PP members toward it —
+so no single-direction story about "the guard's effect" is licensed, and any
+§5 verdict sensitive to those two L1/PP rejections now has the counterfactual
 figure to cite instead of an assumption.
 
 > **CORRECTION (pre-freeze, found by the (iv) computation).** This document

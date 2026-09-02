@@ -320,17 +320,39 @@ def certify_counts(counts: dict) -> None:
                    CERTIFIED_FLAGGED[arm], CERTIFIED_ADMITTED[arm]))
 
 
-def shift_block(corpus, batch: dict, flagged: dict) -> dict:
+def family_kwargs(pins: dict) -> dict:
+    """ROUND-2 FINDING R2-2 / R2-3: the four reports are computed under the
+    REGISTERED estimand — `family.outcomeWeighting` / `family.offsetWeighting`
+    from `harness/PINS.json`, the same members `harness/score.py` reads — and
+    the same registered seed and BCa pair, so the shift is a shift in the
+    quantity the decision reads rather than in a default that happened to
+    agree with it. A registry without the members falls through to
+    `e4lib/family.py`'s own defaults, and the block PUBLISHES the pair it
+    used (`estimand`), so the reading is legible from the file alone."""
+    fam = (pins or {}).get("family") or {}
+    kwargs = {}
+    for member, name in (("outcomeWeighting", "weighting"),
+                         ("offsetWeighting", "offset_weighting"),
+                         ("bcaResamples", "bca_resamples"),
+                         ("bcaSeed", "bca_seed"),
+                         ("permutationSeed", "seed")):
+        if fam.get(member) is not None:
+            kwargs[name] = fam[member]
+    return kwargs
+
+
+def shift_block(corpus, batch: dict, flagged: dict, pins: dict = None) -> dict:
     """The published block: four reports and the per-member distillation."""
     as_scored = build_units(batch, corpus)
     recoded = build_units(batch, corpus,
                           recode_flagged=frozenset(flagged["flagged"]))
+    kwargs = family_kwargs(pins)
     reports = {}
     for coding, adapter in (("unflagged", as_scored),
                             ("counterfactual", recoded)):
         for left, right in (("A", "C"), ("A", "B")):
             reports["%s/%s-%s" % (coding, left, right)] = family.family_report(
-                adapter["units"], corpus, left, right)
+                adapter["units"], corpus, left, right, **kwargs)
     members = []
     for contrast in ("A-C", "A-B"):
         before = dict((row["id"], row)
@@ -351,6 +373,10 @@ def shift_block(corpus, batch: dict, flagged: dict) -> dict:
             })
     return {
         "obligation": "PREREGISTRATION.md section 3.2 (iv)",
+        # R2-2 / R2-3: the estimand the four reports were computed under —
+        # one block, taken from the reports themselves so it cannot disagree
+        # with the rows it labels.
+        "estimand": dict(reports["unflagged/A-C"]["estimand"]),
         "recode": {
             "code": presence_idiom.CODE,
             "semantics": "identityPass false, no kill record — 'valid, "
@@ -420,7 +446,7 @@ def main(argv=None) -> int:
     else:
         with tempfile.TemporaryDirectory() as scratch:
             flagged = derive_flagged(tools, batch, scratch)
-    block = shift_block(corpus, batch, flagged)
+    block = shift_block(corpus, batch, flagged, pins)
     sys.stdout.write(render_table(block))
     if args.write:
         with open(output, "w", encoding="utf-8") as handle:

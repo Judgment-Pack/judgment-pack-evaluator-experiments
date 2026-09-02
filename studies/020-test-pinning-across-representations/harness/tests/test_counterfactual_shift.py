@@ -189,31 +189,96 @@ def test_the_published_members_are_internally_consistent(published):
     assert flips == [("A-C", "M2"), ("A-C", "M5")]
 
 
-def test_the_published_unflagged_column_is_reprint_one(published):
+def test_the_published_unflagged_column_is_the_registered_reading(published):
     """The unflagged side must be the certified reproduction, to the printed
-    digit: M17 A-C is Reprint 1's +0.1275 and the F-2 anchor p-values are
-    `family.py`'s own. If these move, the script's adapter has drifted from
-    the fixture the family scorer was certified against."""
+    digit — of the REGISTERED reading since round 2 (R2-2, native-for-both):
+    fifteen of Reprint 1's rows unchanged (M1 +0.1385; the F-2 anchor
+    p-values are `family.py`'s own) and the three excluded-column L2c rows
+    at the run's figures (M17 A-C +0.0839, not 019's hybrid +0.1275). If
+    these move, the script's adapter has drifted from the fixture the family
+    scorer was certified against, or the file was regenerated under a
+    weighting the registry does not pin."""
     rows = dict(((row["contrast"], row["id"]), row)
                 for row in published["members"])
-    assert round(rows[("A-C", "M17")]["unflagged"], 4) == 0.1275
+    assert round(rows[("A-C", "M17")]["unflagged"], 4) == 0.0839
+    assert round(rows[("A-C", "M16")]["unflagged"], 4) == 0.1920
+    assert round(rows[("A-C", "M18")]["unflagged"], 4) == 0.0476
+    assert round(rows[("A-C", "M13")]["unflagged"], 4) == 0.1463
     assert round(rows[("A-C", "M1")]["unflagged"], 4) == 0.1385
     assert round(rows[("A-C", "M3")]["pUnflagged"], 4) == 0.2462
     assert round(rows[("A-C", "M9")]["pUnflagged"], 4) == 0.8883
 
 
+def test_the_published_block_names_the_estimand_it_was_computed_under(
+        published):
+    """R2-2 / R2-3: the block carries the estimand its four reports used, and
+    it is the registry's — so a regeneration under a default that drifted
+    from `harness/PINS.json` is visible in the file itself."""
+    pins = cs.load_pins()["family"]
+    assert published["estimand"]["outcomeWeighting"] == pins["outcomeWeighting"]
+    assert published["estimand"]["offsetWeighting"] == pins["offsetWeighting"]
+    assert published["estimand"]["universe"] == "single"
+    assert cs.family_kwargs(cs.load_pins()) == {
+        "weighting": "native", "offset_weighting": "native",
+        "bca_resamples": pins["bcaResamples"], "bca_seed": pins["bcaSeed"],
+        "seed": pins["permutationSeed"]}
+
+
+def test_the_block_builder_computes_under_the_pins_it_is_handed(
+        batch, corpus, published):
+    """R2-2 threading, asserted on the BUILDER rather than on the file: handed
+    a registry that pins shared-for-both (and a small BCa so the four
+    reports are quick), `shift_block()` reports that estimand and M17's
+    unflagged side is the shared-for-both figure, not the native one.
+    MUTATION: make `shift_block()` ignore its pins — the estimand reads
+    native and M17 reads +0.0839."""
+    pins = {"family": {"outcomeWeighting": "shared", "offsetWeighting": "shared",
+                       "bcaResamples": 40, "bcaSeed": 1}}
+    flagged = {"flagged": list(published["recode"]["runs"]),
+               "counts": published["recode"]["counts"],
+               "rows": published["detectorCensus"]}
+    block = cs.shift_block(corpus, batch, flagged, pins)
+    assert block["estimand"]["outcomeWeighting"] == "shared"
+    assert block["estimand"]["offsetWeighting"] == "shared"
+    rows = dict(((row["contrast"], row["id"]), row) for row in block["members"])
+    assert round(rows[("A-C", "M17")]["unflagged"], 4) == 0.0435
+    assert round(rows[("A-C", "M1")]["unflagged"], 4) == 0.1385
+
+
+def test_the_published_figures_are_manifest_covered():
+    """ROUND-2 FINDING R2-16: the JSON's figures are what §3.2(iv) and
+    correction target T5 publish, and they were covered by nothing. The
+    registered-document list names the file now, so a post-freeze change
+    to an unasserted value is an integrity failure rather than a silence."""
+    import make_manifest
+    assert "harness/" + cs.OUTPUT_NAME in make_manifest.REGISTERED_DOCUMENTS
+
+
 def test_the_itt_amplification_and_pp_attenuation_are_the_published_story(
         published):
     """The measured effect the preregistration's (iv) row now states: every
-    ITT member's shift is positive in both contrasts, and every A-C
-    per-protocol member's shift is negative. Descriptive, direction-free
-    publication — but the SIGNS are what the (iv) row says, so they are pinned
-    against a silent recomputation landing elsewhere."""
+    ITT member's shift is positive in both contrasts, every A-C UNADJUSTED
+    per-protocol member's shift is negative, and the A-C PP/ANCOVA members
+    sit within ±0.015 of zero — with M18 (L2c/excl) the one POSITIVE
+    adjusted shift under the registered reading (round 2, R2-2: the file's
+    first printing, under the hybrid, had all six A-C PP members negative;
+    the native offset moves M18's unflagged side down by more than its
+    counterfactual side). Descriptive, direction-free publication — but the
+    SIGNS are what the (iv) row says, so they are pinned against a silent
+    recomputation landing elsewhere."""
+    adjusted_ac = {}
     for row in published["members"]:
         if row["population"] == "ITT":
             assert row["shift"] > 0, row
-        elif row["contrast"] == "A-C":
+        elif row["contrast"] == "A-C" and row["adjustment"] is None:
             assert row["shift"] < 0, row
+        elif row["contrast"] == "A-C":
+            assert abs(row["shift"]) < 0.015, row
+            adjusted_ac[row["id"]] = row["shift"]
+    assert sorted(adjusted_ac) == ["M12", "M15", "M18", "M3", "M6", "M9"]
+    assert adjusted_ac["M18"] > 0
+    assert all(shift < 0 for member, shift in adjusted_ac.items()
+               if member != "M18")
 
 
 def test_publishing_over_the_existing_output_is_refused(published):

@@ -1901,13 +1901,23 @@ def test_the_family_size_is_one_number_everywhere_it_is_stated():
     text = _read("PREREGISTRATION.md")
     flat_text = flatten(text)
     rows = re.findall(r"^\| M(\d+) \| L", text, re.MULTILINE)
-    assert [int(number) for number in rows] == list(range(1, 19)), rows
     from e4lib import family
-    assert decision.REGISTERED_FAMILY_SIZE == len(rows)
+    # Reprint 1 is the eighteen, in order. Round 2 (R2-2) added Reprint 1b —
+    # the three excluded-column L2c rows re-stated under the registered
+    # estimand — which is a RE-STATEMENT of members, not new members, and is
+    # asserted as exactly that subset rather than counted as a nineteenth.
+    reprint_one = [int(number) for number in rows[:18]]
+    assert reprint_one == list(range(1, 19)), rows
+    reprint_one_b = [int(number) for number in rows[18:]]
+    assert reprint_one_b == [int(member.id[1:]) for member in family.MEMBERS
+                             if member.level == "L2c"
+                             and member.column == "excluded"], reprint_one_b
+    members = sorted(set(int(number) for number in rows))
+    assert decision.REGISTERED_FAMILY_SIZE == len(members) == 18
     # …and the members EXIST, which is the half that could not be
     # asserted while §7 delta 5 was open: the prose, the decision
     # rule's constant and the scorer's own table are one number.
-    assert len(family.MEMBERS) == len(rows)
+    assert len(family.MEMBERS) == len(members)
     for phrase in ("all eighteen registered family members (§5.2) agree",
                    "The registered sensitivity family — eighteen members",
                    "an intersection–union test",

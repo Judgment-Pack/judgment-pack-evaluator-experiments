@@ -1600,6 +1600,15 @@ def registered_family(e4_by_arm: dict, per_arm_runs: dict, context: dict,
                       "bca_seed": family_pins.get("bcaSeed")}
             if family_pins.get("permutationSeed") is not None:
                 kwargs["seed"] = family_pins["permutationSeed"]
+            # ROUND-2 FINDING R2-2: the ESTIMAND is registered, not
+            # defaulted. Both weightings come from the registry's `family`
+            # block (native-for-both under the maintainer's ruling), the
+            # family refuses a seat whose two differ, and the report
+            # publishes the pair it used beside the alternatives it did not.
+            for member, name in (("outcomeWeighting", "weighting"),
+                                 ("offsetWeighting", "offset_weighting")):
+                if family_pins.get(member) is not None:
+                    kwargs[name] = family_pins[member]
             report = family_lib.family_report(units, corpus, left, right,
                                               **kwargs)
         except Exception as error:                   # noqa: BLE001 (named below)
@@ -2099,21 +2108,40 @@ def results_markdown(results: dict) -> str:
             entry = (results.get("family") or {}).get(name)
             if entry is None:
                 continue
+            report = (results.get("familyReports") or {}).get(name) or {}
+            estimand = report.get("estimand") or {}
+            if estimand:
+                # R2-2: the estimand, stated where the rows are.
+                lines += ["", "Estimand (%s): outcome weighting **%s**, offset "
+                          "weighting **%s** — %s universe; %s."
+                          % (name, estimand.get("outcomeWeighting"),
+                             estimand.get("offsetWeighting"),
+                             estimand.get("universe"),
+                             estimand.get("ruledBy"))]
+            # R2-3 (a): every registered quantity a member row carries — the
+            # permutation σ, the MDE at the realised n and the BCa interval
+            # — beside the difference and the p-value, not in a JSON member
+            # the reprint omitted.
             lines += ["", "### %s — the eighteen members (§5.5's mandatory "
                       "reprint)" % name, "",
                       "| id | level | engine | population | adj | n (A/B/C) | "
-                      "difference | p | rejects |",
-                      "|---|---|---|---|---|---|---|---|---|"]
+                      "difference | p | rejects | σ | MDE | 95% BCa |",
+                      "|---|---|---|---|---|---|---|---|---|---|---|---|"]
             for member in entry.get("members") or []:
                 lines.append(
-                    "| %s | %s | %s | %s | %s | %s | %s | %s | %s |"
+                    "| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s "
+                    "| %s |"
                     % (member.get("id"), member.get("level"),
                        member.get("engine"), member.get("population"),
                        member.get("adjustment") or "—",
                        member.get("n") or "—",
                        _fmt(member.get("difference")),
                        _fmt(member.get("p")),
-                       "yes" if member.get("rejects") else "no"))
+                       "yes" if member.get("rejects") else "no",
+                       _fmt(member.get("sigma")),
+                       _fmt(member.get("mde")),
+                       _fmt_ci(member.get("interval"))))
+            lines += _family_report_markdown(name, report)
     c4 = results.get("transferGate")
     lines += ["", "## C4 — the transfer gate (§2a.5, two-sided)", ""]
     if not c4:
@@ -2186,6 +2214,107 @@ def results_markdown(results: dict) -> str:
     for name, refusal in sorted((results.get("refusals") or {}).items()):
         lines.append("- **%s** — %s" % (name, refusal))
     return "\n".join(lines) + "\n"
+
+
+def _family_report_markdown(name: str, report: dict) -> list:
+    """ROUND-2 FINDING R2-3 (b): the rest of the family's complete report, in
+    the Markdown, under the same gating guard as the reprint — the drop-a-pole
+    table, the offsets under every reading with the registered one marked,
+    the Tier D alternatives (the two single-universe readings the ruling
+    chose against, and the superseded hybrid), the refused cell with its Tier
+    D disclosure, and the corpus denominators. Empty when the document
+    carries no report (a fixture, or a shape from before this finding)."""
+    if not report:
+        return []
+    lines = []
+    # (b) drop-a-pole — §5.5's Reprint 2, computed.
+    lines += ["", "#### %s — Reprint 2, drop-a-pole (diagnostic; no decision "
+              "reads it)" % name, "",
+              "| pole dropped | members left | positive | rejecting | verdict |",
+              "|---|---|---|---|---|"]
+    for row in report.get("dropAPole") or []:
+        lines.append("| %s | %d | %d | %d | %s |"
+                     % (row.get("poleDropped"), row.get("membersLeft", 0),
+                        row.get("positive", 0), row.get("rejecting", 0),
+                        row.get("verdict")))
+    # (c) offsets — every reading, the registered one marked.
+    lines += ["", "#### %s — L2c null offsets under every reading" % name, "",
+              "| key | column | population | weighting | predicate | value | "
+              "registered |", "|---|---|---|---|---|---|---|"]
+    for key, block in sorted((report.get("offsets") or {}).items()):
+        if not isinstance(block, dict):
+            block = {"value": block}
+        lines.append("| %s | %s | %s | %s | %s | %s | %s |"
+                     % (key, block.get("column", "—"),
+                        block.get("population", "—"),
+                        block.get("weighting", "—"),
+                        block.get("predicate", "—"), _fmt(block.get("value")),
+                        "**yes**" if block.get("registered") else "no"))
+    # (d) the Tier D alternatives — complete, and labelled as no seat.
+    for alt in report.get("alternatives") or []:
+        verdict = alt.get("verdict") or {}
+        lines += ["", "#### %s — Tier D alternative: %s (%s)"
+                  % (name, alt.get("label"), alt.get("status")), "",
+                  "*%s* Outcome weighting %s, offset weighting %s; over all "
+                  "eighteen: positive %d, rejecting %d, verdict %s. Only the "
+                  "L2c rows differ from the registered reading; the twelve "
+                  "weighting-invariant members are the same rows."
+                  % (alt.get("reason"), alt.get("outcomeWeighting"),
+                     alt.get("offsetWeighting"), verdict.get("positive", 0),
+                     verdict.get("rejecting", 0), verdict.get("verdict")), "",
+                  "| id | population | difference | p | rejects | σ |",
+                  "|---|---|---|---|---|---|"]
+        for member in alt.get("members") or []:
+            if member.get("level") != "L2c":
+                continue
+            lines.append("| %s | %s | %s | %s | %s | %s |"
+                         % (member.get("id"), member.get("population"),
+                            _fmt(member.get("difference")),
+                            _fmt(member.get("p")),
+                            "yes" if member.get("rejects") else "no",
+                            _fmt(member.get("sigma"))))
+    # (e) the refused cell and its Tier D disclosure (R1-7).
+    refused = report.get("refusedCells") or []
+    if refused:
+        lines += ["", "#### %s — refused cells (§5.2; the scorer refuses "
+                  "rather than falls back)" % name, ""]
+        for cell in refused:
+            lines.append("- %s × %s: %s" % (cell.get("population"),
+                                            cell.get("adjustment") or "—",
+                                            cell.get("reason")))
+        tier_d = report.get("refusedCellTierD") or {}
+        composition = tier_d.get("composition") or {}
+        if composition:
+            # R1-7: the complete-case composition and the six argued-out
+            # quantities, DISCLOSED beside the refusal, Tier D.
+            lines += ["", "Tier D disclosure beside the refusal (R1-7; no "
+                      "decision reads it) — population: %s; per arm %s; "
+                      "dropped per arm %s."
+                      % (composition.get("population"),
+                         ", ".join("%s %s" % item for item in sorted(
+                             (composition.get("perArm") or {}).items())),
+                         ", ".join("%s %s" % item for item in sorted(
+                             (composition.get("droppedPerArm") or {}).items()))),
+                      "", "| level | engine | adjusted difference |",
+                      "|---|---|---|"]
+            for row in tier_d.get("quantities") or []:
+                lines.append("| %s | %s | %s |"
+                             % (row.get("level"), row.get("engine"),
+                                _fmt(row.get("adjustedDifference"))))
+    # (f) the corpus denominators the weightings divide by.
+    corpus = report.get("corpus") or {}
+    if corpus:
+        lines += ["", "#### %s — corpus denominators" % name, "",
+                  "| column | shared classes | native (jps / rego) | "
+                  "shared (jps / rego) |", "|---|---|---|---|"]
+        for column in sorted(corpus.get("sharedClasses") or {}):
+            native = (corpus.get("nativeDenominators") or {}).get(column) or {}
+            shared = (corpus.get("sharedDenominators") or {}).get(column) or {}
+            lines.append("| %s | %s | %s / %s | %s / %s |"
+                         % (column, corpus["sharedClasses"][column],
+                            native.get("jps", "—"), native.get("rego", "—"),
+                            shared.get("jps", "—"), shared.get("rego", "—")))
+    return lines
 
 
 def _fmt(value):
@@ -2286,6 +2415,141 @@ def _declare_unresolved(attempt_root: str, label: str, unfilled: list,
                results_markdown(results))
     print("%s (%s)" % (verdict["verdict"], label))
     return 0
+
+
+def reconciled_population(counted: dict, scoring_apparatus: dict,
+                          per_arm_runs: dict, e2: dict, e4_by_arm: dict) -> dict:
+    """ROUND-2 FINDING R2-1, STEP 7: the canonical population, built ONCE.
+
+    `population()` partitions the SLOT records — the batch-time codes — and
+    used to be published verbatim, while every endpoint's `runs` list strips
+    the runs the scorer coded `engine-invocation-refused` (the scoring-time
+    apparatus refusals, §1a's amended table). So the published
+    `population[arm]["denominator"]` and `e2`/`e4`'s disagreed by exactly
+    `len(scoringApparatus[arm])`, and `apparatusExcluded`/`apparatusRate`
+    omitted the scoring-time half. This block carries both readings by name
+    and the invariant below refuses to publish a document whose denominators
+    do not agree — a population that does not add up is a pipeline defect,
+    not a number."""
+    bind_study_modules()
+    reconciled = {}
+    for arm in batch.ARMS:
+        cell = counted[arm]
+        scoring_excluded = len(scoring_apparatus.get(arm) or ())
+        apparatus_excluded = cell["apparatusExcluded"] + scoring_excluded
+        denominator = len(per_arm_runs.get(arm) or ())
+        expected = cell["denominator"] - scoring_excluded
+        witnesses = {
+            "reconciled": denominator,
+            "e2": (e2.get(arm) or {}).get("denominator"),
+            "e4": (e4_by_arm.get(arm) or {}).get("denominator"),
+            "population minus scoring-time refusals": expected,
+        }
+        if len(set(witnesses.values())) != 1:
+            raise ScoreError(
+                "POPULATION-UNRECONCILED arm %s: the denominators disagree (%s); "
+                "section 1a has one population and this document publishes "
+                "nothing until every endpoint counts it the same way"
+                % (arm, ", ".join("%s=%r" % item
+                                  for item in sorted(witnesses.items()))))
+        reconciled[arm] = {
+            "registered": cell["registered"],
+            "absent": cell["absent"],
+            "attempted": cell["attempted"],
+            "batchApparatusExcluded": cell["apparatusExcluded"],
+            "batchApparatusCodes": dict(cell["apparatusCodes"]),
+            "scoringApparatusExcluded": scoring_excluded,
+            "scoringApparatusRefusals": [
+                dict(entry) for entry in (scoring_apparatus.get(arm) or ())],
+            "apparatusExcluded": apparatus_excluded,
+            "apparatusRate": stats.rate_block(
+                apparatus_excluded, cell["attempted"], "attempted runs"),
+            "preScoringDenominator": cell["denominator"],
+            "denominator": denominator,
+            "timeouts": cell["timeouts"],
+            "timeoutRate": cell["timeoutRate"],
+        }
+    return reconciled
+
+
+def results_document(*, attempt_root, label, unfilled, outcome, pins_raw_sha256,
+                     tools, c4, shape, counted, scoring_apparatus, pairing,
+                     paired_ids, mutants, denominators, shared, e1, e2, e3,
+                     e4_by_arm, e5, family, gate_causes, gates, refusals,
+                     per_arm_runs, reviewer_set, verdict, interval_licence,
+                     suppression) -> dict:
+    """ROUND-2 FINDING R2-3 (a): the whole published document, assembled in
+    ONE place from named parts, so the family's complete report — every
+    registered quantity a member row carries, the offsets under every
+    reading, the Tier D alternatives and the refused cell — reaches
+    `RESULTS.json` through the same object the decision read
+    (`familyReports`), rather than through a verdict block that carried the
+    member rows and nothing else. `main()` scores; this function publishes;
+    nothing here computes a number the decision did not already read."""
+    bind_study_modules()
+    results = {
+        "study": STUDY_NAME,
+        "attemptRoot": os.path.basename(os.path.normpath(attempt_root)),
+        "label": label,
+        "unfilledPins": unfilled,
+        # R2-11: derived, never hard-coded — a row-1 problem found after
+        # the terminal paths were passed is still a row-1 problem.
+        "pipelineInvalid": bool(outcome["pipelineProblems"]),
+        "pinsRawSha256": pins_raw_sha256,
+        "toolchain": tools.record(),
+        # R2-11: published in EVERY outcome, whatever the gate said.
+        "transferGate": c4,
+        "batchShape": shape,
+        # R2-1 STEP 7: the reconciled population, both readings by name, in
+        # place of the raw slot-side projection.
+        "population": reconciled_population(counted, scoring_apparatus,
+                                            per_arm_runs, e2, e4_by_arm),
+        # R1-1: scoring-time apparatus exclusions, published per arm with
+        # their refusal classes — a run the engines never answered about
+        # is in no population and in no silence either.
+        "scoringApparatus": scoring_apparatus,
+        # ROUND-1 R1-19. `groups` is EVERY witness-key group, shared or not;
+        # section 4 registers the SHARED, non-degenerate groups as the thing
+        # the paired subset comes from, and one number published under one
+        # name was read as either. Both are published, with the degenerate
+        # group counted out loud rather than subtracted silently.
+        "pairing": {"groups": len(pairing),
+                    "sharedGroups": sum(1 for row in pairing
+                                        if row["countedInPairedSubset"]),
+                    "degenerateGroups": sum(1 for row in pairing
+                                            if row["degenerate"]),
+                    "pairedAdequateJps": len(paired_ids["jps"]),
+                    "pairedAdequateRego": len(paired_ids["rego"]),
+                    "unpairable": e4lib.unpairable(mutants, paired_ids)},
+        "pairedDenominators": denominators,
+        "sharedClasses": shared,
+        "e1": e1, "e2": e2, "e3": e3, "e4": e4_by_arm, "e5": e5,
+        "family": family,
+        # R2-3: the complete family reports, keyed by contrast — the SAME
+        # objects `registered_family()` built the verdict blocks from, so the
+        # rows the decision read and the rows a reader sees are one evaluation.
+        # Empty above a gating row, because no family was computed there.
+        "familyReports": outcome.get("familyReports") or {},
+        "familyGatedBy": gate_causes,
+        "controlGates": gates,
+        "refusals": refusals,
+        "perArmRuns": [
+            {key: value for key, value in run.items()
+             # Two members are working state, not published bytes: a
+             # workspace path is an absolute path and a scored case list is
+             # the author's own input document repeated per mutant.
+             if key not in ("suitePath", "scoredCases")}
+            for arm in batch.ARMS for run in per_arm_runs[arm]],
+        "reviewerSet": reviewer_set,
+        "decision": verdict,
+    }
+    results["intervalsPublished"] = {
+        "licensed": interval_licence,
+        "settled": stats.fill_intervals(results, interval_licence,
+                                        suppression),
+        "reason": suppression,
+    }
+    return results
 
 
 def main(argv=None) -> int:
@@ -2516,7 +2780,6 @@ def main(argv=None) -> int:
             for arm in batch.ARMS})
         c4, c4_problems = transfer_gate(pins, batch_observables)
         problems.extend(c4_problems)
-        counted = population(slots)
         per_arm_runs, e1, e2, e3, e4_by_arm = {}, {}, {}, {}, {}
         scoring_apparatus = {}
         for arm in batch.ARMS:
@@ -2662,63 +2925,18 @@ def main(argv=None) -> int:
                 # without it is an attempt that did not keep it.
                 return terminal("the sealed reviewer mutant set did not execute "
                                 "at this attempt: %s" % error)
-        results = {
-            "study": STUDY_NAME,
-            "attemptRoot": os.path.basename(os.path.normpath(attempt_root)),
-            "label": label,
-            "unfilledPins": unfilled,
-            # R2-11: derived, never hard-coded — a row-1 problem found after
-            # the terminal paths were passed is still a row-1 problem.
-            "pipelineInvalid": bool(outcome["pipelineProblems"]),
-            "pinsRawSha256": pins_raw_sha256,
-            "toolchain": tools.record(),
-            # R2-11: published in EVERY outcome, whatever the gate said.
-            "transferGate": c4,
-            "batchShape": shape,
-            "population": {arm: {key: value
-                                 for key, value in counted[arm].items()
-                                 if key != "slots"}
-                           for arm in batch.ARMS},
-            # R1-1: scoring-time apparatus exclusions, published per arm with
-            # their refusal classes — a run the engines never answered about
-            # is in no population and in no silence either.
-            "scoringApparatus": scoring_apparatus,
-            # ROUND-1 R1-19. `groups` is EVERY witness-key group, shared or not;
-            # section 4 registers the SHARED, non-degenerate groups as the thing
-            # the paired subset comes from, and one number published under one
-            # name was read as either. Both are published, with the degenerate
-            # group counted out loud rather than subtracted silently.
-            "pairing": {"groups": len(pairing),
-                        "sharedGroups": sum(1 for row in pairing
-                                            if row["countedInPairedSubset"]),
-                        "degenerateGroups": sum(1 for row in pairing
-                                                if row["degenerate"]),
-                        "pairedAdequateJps": len(paired_ids["jps"]),
-                        "pairedAdequateRego": len(paired_ids["rego"]),
-                        "unpairable": e4lib.unpairable(mutants, paired_ids)},
-            "pairedDenominators": denominators,
-            "sharedClasses": shared,
-            "e1": e1, "e2": e2, "e3": e3, "e4": e4_by_arm, "e5": e5,
-            "family": family,
-            "familyGatedBy": gate_causes,
-            "controlGates": gates,
-            "refusals": refusals,
-            "perArmRuns": [
-                {key: value for key, value in run.items()
-                 # Two members are working state, not published bytes: a
-                 # workspace path is an absolute path and a scored case list is
-                 # the author's own input document repeated per mutant.
-                 if key not in ("suitePath", "scoredCases")}
-                for arm in batch.ARMS for run in per_arm_runs[arm]],
-            "reviewerSet": reviewer_set,
-            "decision": verdict,
-        }
-        results["intervalsPublished"] = {
-            "licensed": interval_licence,
-            "settled": stats.fill_intervals(results, interval_licence,
-                                            suppression),
-            "reason": suppression,
-        }
+        # R2-3 (a): main() scores; results_document() publishes.
+        results = results_document(
+            attempt_root=attempt_root, label=label, unfilled=unfilled,
+            outcome=outcome, pins_raw_sha256=pins_raw_sha256, tools=tools,
+            c4=c4, shape=shape, counted=counted,
+            scoring_apparatus=scoring_apparatus, pairing=pairing,
+            paired_ids=paired_ids, mutants=mutants, denominators=denominators,
+            shared=shared, e1=e1, e2=e2, e3=e3, e4_by_arm=e4_by_arm, e5=e5,
+            family=family, gate_causes=gate_causes, gates=gates,
+            refusals=refusals, per_arm_runs=per_arm_runs,
+            reviewer_set=reviewer_set, verdict=verdict,
+            interval_licence=interval_licence, suppression=suppression)
         write_json(os.path.join(attempt_root, "RESULTS.json"), results)
         write_text(os.path.join(attempt_root, "RESULTS.md"),
                    results_markdown(results))

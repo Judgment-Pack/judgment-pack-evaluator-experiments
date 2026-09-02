@@ -1108,7 +1108,7 @@ test that certifies it fails, and label any assertion that cannot discriminate.
 > | **(i) sensitivity** | **40/40 in-class runs receive an authoring code.** The in-class set was re-derived from the policy SOURCE BYTES by an independent oracle sharing no code and no input representation with the detector, and it is 40 of the 76 — arm B 21, arm C 19 — reproducing M-14's discriminator by a method M-14 did not use. The detector flags **39/39** of the policies the pinned parser accepts and **32/32** of the admitted policies, the population §3.2 registers it to run over; the fortieth (`B run-040`) is refused by the parser and receives the earlier registered code `unparseable-artifact`. Agreement with the oracle is exact at the USE level too: 178 flagged uses against 178, with zero per-run count mismatches over all 73 parseable policies. |
 > | **(ii) specificity** | **0/22 perfect runs flagged**, in every population; all 22 parse and all 22 are admitted. |
 > | **(iii) false positives on lawful `in`** | **0/392 lawful uses, 0/15 over sets and arrays** — the two forms this section names. 599 membership terms were read over the 73 parseable policies: 248 presence tests (178 flagged, 38 lawful over set-returning calls, 3 over non-object names, 29 unclassified — 178 + 38 + 3 + 29 = 248) and 351 iterations and bindings, none flagged. 29 uses are UNCLASSIFIED and none is flagged: an unresolvable name is reported, never guessed at. |
-> | **(iv) counterfactual per-member shift** | **COMPUTED** by the registered script `harness/counterfactual_shift.py` (reproduced by `harness/tests/test_counterfactual_shift.py`; full 36-row table in `harness/COUNTERFACTUAL-SHIFT.json`). The flagged set is **derived, then gated**: the script re-runs the certified detector over the 60 admitted 019 policies and refuses to publish off the certified counts — **32 of 60, arm B 19 of 30, arm C 13 of 30** (this document first printed the split as B 15 / C 17; that was unmeasured arithmetic, the gate refused it, and the correction note in `harness/POWER-PRESENCE-IDIOM.md` §(iv) records the reconciliation — every other certified figure stands). The recode is the registered one: identity false, no kill record, exactly as the other authoring codes present. **Measured effect (A–C):** every ITT member amplified (+0.168 … +0.209), every PP member attenuated (−0.031 … −0.022), PP/ANCOVA essentially unmoved (−0.008 … −0.002); exactly two α = 0.05 decisions flip, **M2 and M5** (L1/PP, both columns: p 0.0213 → 0.3483), from reject to not-reject. A–B: ITT +0.246 … +0.303, PP \|shift\| ≤ 0.011. The unflagged column reproduces Reprint 1's certified figures — to the printed digit for every point estimate and unadjusted p-value, and to the decision boundary for the six ANCOVA p-values, per §5.5's marked R1-6 scope note — pinning the script's adapter to the fixture adapter. The effect is **direction-heterogeneous by population** — ITT away from the null, PP toward it — so no single-direction story about the guard's effect is licensed. |
+> | **(iv) counterfactual per-member shift** | **COMPUTED** by the registered script `harness/counterfactual_shift.py` (reproduced by `harness/tests/test_counterfactual_shift.py`; full 36-row table in `harness/COUNTERFACTUAL-SHIFT.json`). The flagged set is **derived, then gated**: the script re-runs the certified detector over the 60 admitted 019 policies and refuses to publish off the certified counts — **32 of 60, arm B 19 of 30, arm C 13 of 30** (this document first printed the split as B 15 / C 17; that was unmeasured arithmetic, the gate refused it, and the correction note in `harness/POWER-PRESENCE-IDIOM.md` §(iv) records the reconciliation — every other certified figure stands). The recode is the registered one: identity false, no kill record, exactly as the other authoring codes present. **Measured effect (A–C), REGENERATED round 2 under the registered estimand (R2-2, native-for-both; the file names the estimand it was computed under):** every ITT member amplified (+0.168 … +0.210), every unadjusted PP member attenuated (−0.031 … −0.006), PP/ANCOVA within ±0.015 (−0.008 … +0.015 — M18, L2c/excl, is the one adjusted member whose shift is now POSITIVE; the first printing, under the superseded hybrid, had all six adjusted shifts in −0.008 … −0.002); exactly two α = 0.05 decisions flip, **M2 and M5** (L1/PP, both columns: p 0.0213 → 0.3483), from reject to not-reject — unchanged. A–B: ITT +0.246 … +0.303, PP \|shift\| ≤ 0.020. The unflagged column reproduces the REGISTERED reading — fifteen of Reprint 1's rows to the printed digit for every point estimate and unadjusted p-value, to the decision boundary for the six ANCOVA p-values per §5.5's marked R1-6 scope note, and the three excluded-column L2c rows at the figures §5.2's F-1 re-ruling states (M17 A–C +0.0839) — pinning the script's adapter to the fixture adapter. The effect is **direction-heterogeneous by population** — ITT away from the null, unadjusted PP toward it — so no single-direction story about the guard's effect is licensed. The JSON is manifest-covered since round 2 (R2-16). |
 > | **(v) mutation check** | Break the detector by dropping the object-type branch: flagged runs fall **39/39 → 23/39** and flagged uses 178 → 83, so condition (i) fails and the certifying measurement discriminates. Driven in CI as `harness/tests/test_score_presence_idiom.py::test_breaking_the_object_branch_makes_the_sensitivity_case_fail`. **One assertion was found not to discriminate and was rebuilt** — its first version patched a function the scan does not call — and the finding is recorded in the published analysis. |
 >
 > **Three measured ceilings are published with it**, rather than discovered later (the third
@@ -1309,6 +1309,7 @@ coverage marginal of class g:
 |---|---|---|---|
 | **L2 — native mutant** (019's registered quantity) | \|J_g\|/69 vs \|R_g\|/62 | **−0.0496** (per-protocol) / −0.0485 (ITT) | 0.5400 |
 | **L2, engine-excluded** | \|J^ex_g\|/57 vs \|R_g\|/55 | −0.0492 / −0.0481 | 0.5046 |
+| **L2, engine-excluded — REGISTERED weights, AMENDED round 2 (R2-2)** | \|J^ex_g\|/57 vs \|R_g\|/62 (native: an exclusion that removes no Rego mutant leaves Rego's own denominator unmoved) | **−0.00567** (per-protocol) / **−0.00554** (ITT) | — |
 | **L1 — group**, weight 1/33 each | 1/33 vs 1/33 | **0 by construction** | 0 |
 | **L3 — symmetrised mutant**, w_g = (\|J_g\|+\|R_g\|)/131 | identical in both arms | **0 by construction** | 0 |
 
@@ -1321,6 +1322,13 @@ coverage marginal of class g:
 > kill-record-carrying runs of that member's own analysis population. Runs with no kill record
 > score 0 in both arms and take no offset. On 019: off̂ = −0.04956 (per-protocol,
 > engine-included), −0.04846 (ITT), −0.04922 / −0.04813 excluded-column.
+>
+> **AMENDED (round 2, R2-2; the F-1 re-ruling below).** The weights w^A_g, w^C_g in off̂ are the
+> SAME native denominators the outcome uses — one universe. On 019 that leaves the
+> engine-included figures exactly as printed (all 33 included classes are shared, so the native
+> and shared denominators coincide there) and moves the excluded column to **−0.00567**
+> (per-protocol) / **−0.00554** (ITT); the −0.04922 / −0.04813 above are the shared-denominator
+> reading, published beside the registered one as Tier D by `family_report()`'s offsets block.
 >
 > **PREDICATE CORRECTION — of Study 019, marked, 2026-08-24 (round-1 finding R1-3; no verdict
 > and no α = 0.05 decision moves).** This definition's first printing said "scoreable" and
@@ -1342,6 +1350,26 @@ coverage marginal of class g:
 > | M16, A−C | +0.2323 (p 0.0008) | +0.2308 (p 0.0010) |
 > | M13, A−B | +0.1416 | +0.1401 |
 > | M16, A−B | +0.2276 | +0.2261 |
+>
+> **RECOMPUTED (round 2; the R2-2 re-ruling, and a repair).** The table above was TRANSCRIBED:
+> `member_outcomes()` hard-coded the subtraction set to the kill-record predicate while only the
+> marginal took the argument, so the evaluation-corrected column could not be produced by the
+> registered scorer. The predicate is threaded through both now (`e4lib/family.py`,
+> `test_family.py::test_the_predicate_threads_through_the_subtraction_set_too`), and the table
+> under the REGISTERED estimand, computed rather than asserted, is:
+>
+> | member | registered (kill-record) | evaluation-corrected |
+> |---|---|---|
+> | M13, A−C | +0.1463 (p 0.0210) | +0.1448 (p 0.0239) |
+> | M16, A−C | +0.1920 (p 0.0044) | +0.1918 (p 0.0044) |
+> | M13, A−B | +0.1416 (p 0.0296) | +0.1401 (p 0.0331) |
+> | M16, A−B | +0.1873 (p 0.0060) | +0.1871 (p 0.0060) |
+>
+> M13 is unchanged from the first printing because the included column is one universe already;
+> M16's two readings now differ by 0.0002 rather than 0.0015 because the native excluded-column
+> marginal is an order of magnitude smaller than the shared one. Neither reading crosses a
+> decision boundary. The M13 A−C evaluation-corrected p prints 0.0239 here and 0.0240 above:
+> the same stream, the first printing rounded from a transcription.
 >
 > `e4lib/family.py`'s `Unit` now carries the two predicates separately (`carries_kill_record`,
 > `evaluated`), `offset()` takes the predicate as an argument, and the fixture adapter builds
@@ -1375,6 +1403,33 @@ mitigation**: L3 needs no estimated offset and is unbiased for *any* π (§11.9)
 > marginal-over-29) — by `family_report()`'s offsets block, so a reader can see what the ruling
 > chose against. `harness/e4lib/family.py`'s F-1 note records the ruling at the code; round 2
 > verifies it.
+
+> **F-1, RE-RULED (round-2 finding R2-2, REFUSING the round-1 ruling; maintainer decision
+> 2026-08-26: NATIVE-FOR-BOTH).** Round 2 verified the hybrid and refused it: de-biasing a
+> native-weighted outcome with a shared-weighted offset leaves a residual that is computable
+> from the frozen corpus alone under a true null — **+0.043552 (per-protocol) / +0.042584
+> (ITT) per subtracted unit in the excluded column, 7.7× the raw native bias of −0.00567** —
+> which is precisely what criterion (iii) forbids a member to carry. The registered estimand is
+> therefore ONE universe: each L2c member's outcome and its offset are both weighted by the
+> language-native denominators (Rego `/62` in the excluded column, JPS `/57`), and the reading is
+> registered in `harness/PINS.json` (`family.outcomeWeighting` / `family.offsetWeighting`, both
+> `native`), read from there by `harness/score.py` and `harness/counterfactual_shift.py`, and
+> enforced at the member seat: `e4lib/family.py` refuses a seat whose two weightings differ
+> (`MixedUniverseRefused`, beside the ITT × ANCOVA refusal). What moves on 019, all excluded
+> column, none across a decision boundary: **M16 +0.2323 → +0.1920 (p 0.0008 → 0.0044),
+> M17 +0.1275 → +0.0839 (p < 0.0001 → 0.0018), M18 +0.0911 → +0.0476 (p 0.0002 → 0.0125)**;
+> A−B M16 +0.2276 → +0.1873 (p 0.0014 → 0.0060), M17 +0.1065 → +0.0629 (p < 0.0001 → 0.0102),
+> M18 +0.1105 → +0.0669 (p 0.0002 → 0.0005). The included column is unchanged (all 33 of its
+> classes are shared, so its native and shared denominators coincide and M13–M15 reproduce to
+> the digit). **The verdict does not move: A−C 16 positive / 2 negative, 10 of 18 reject —
+> INDETERMINATE-BY-DISAGREEMENT; A−B 18 positive, 8 of 18 reject; Reprint 2's nine rows are
+> identical.** M16's dispersion tightens (σ 0.29826 → 0.29649; MDE at 019's n 0.1905 → 0.1893);
+> the per-protocol members' σ is offset-invariant. The two readings the ruling chose against are
+> PUBLISHED, complete — every row, the verdict, the drop-a-pole table — as Tier D by
+> `family_report()`'s `alternatives` block: the hybrid (native outcome / shared offset, 019's
+> reading, **SUPERSEDED**; it remains the reading under which every §5.5 reprint reproduces, and
+> is retained for exactly that reason) and shared-for-both (**ALTERNATIVE**; 8 of 18 reject on
+> A−C, 6 on A−B). Round 1's ruling above is retained as written and superseded by this block.
 
 #### The eighteen members
 
@@ -1538,6 +1593,26 @@ throughout.
 > figure "reproduces to the printed digit" is scoped by this note: it holds for the point
 > estimates and the unadjusted scheme, and for the six ANCOVA p-values it means
 > decision-boundary agreement with the scorer's own stream printed beside 019's.
+>
+> **SCOPE EXTENDED (round 2, R2-2).** Reprint 1 is 019's reading — the hybrid estimand of
+> round 1's F-1 ruling — and since the re-ruling the registered scorer reproduces it through
+> the SUPERSEDED Tier D `alternatives` block of `family_report()`, not through the member rows.
+> The member rows under the registered estimand reproduce fifteen of the eighteen to the digit
+> and move the three excluded-column L2c members to the figures below.
+
+**Reprint 1b — the three rows that move under the registered estimand (round 2, R2-2;
+native-for-both). Reprint 1 above is retained as 019's own reading, SUPERSEDED as estimand.**
+
+| id | level | engine | population | adj | n (A/B/C) | **A−C** | p | **A−B** | p |
+|---|---|---|---|---|---|---|---|---|---|
+| M16 | L2c | excl | ITT | — | 38/37/39 | **+0.1920** | **0.0044** | +0.1873 | **0.0060** |
+| M17 | L2c | excl | PP | — | 34/26/28 | **+0.0839** | **0.0018** | +0.0629 | **0.0102** |
+| M18 | L2c | excl | PP | ANCOVA | 34/26/28 | **+0.0476** | **0.0125** | +0.0669 | **0.0005** |
+
+> **The verdict line is unchanged**: A−C 16 positive / 2 negative, 10 of 18 reject —
+> INDETERMINATE-BY-DISAGREEMENT; A−B 18 positive, 8 of 18 reject, unreachable behind A−C.
+> Reprint 2 below is identical row for row under either reading. The three rows here and the
+> fifteen above are what `harness/COUNTERFACTUAL-SHIFT.json`'s unflagged column reproduces.
 
 **Reprint 2 — the drop-a-pole table, and the one exception.** Dropping every member carrying a
 given pole and re-evaluating:
@@ -1661,6 +1736,16 @@ retained as published; no figure in it moves.
 | M12 L3/excl/PP/anc | 0.06849 | 0.0490 | 0.0414 | 0.0394 | 0.0305 |
 | M15 L2c/incl/PP/anc | 0.06049 | 0.0432 | 0.0365 | 0.0348 | 0.0269 |
 | M18 L2c/excl/PP/anc | 0.06420 | 0.0459 | 0.0388 | 0.0369 | 0.0286 |
+
+> **M16 under the registered estimand (round 2, R2-2; this table stays as published).** The
+> row above is 019's hybrid reading. Under native-for-both M16's σ is **0.29649** and its MDE at
+> 019's n **0.1893** (the three N-columns scale by the same ratio: 0.1608 / 0.1523 / 0.1181);
+> M13's and every per-protocol member's σ are unchanged, the per-protocol members' because the
+> offset is subtracted from every arm-A unit of that population and a constant shift leaves a
+> within-arm variance alone. The size-and-power simulation above (`oc18.py`) recomputed L2c's
+> offset from each replicate's own pooled marginal under the SHARED weights of the reading then
+> registered; it is not re-run here, it stays a labelled prior, and §2a.6's pilot dispersion
+> pass (R2-13) is the registered re-derivation at the pinned effort.
 
 σ across the family spans **0.0507 to 0.3216 — a factor of 6.3**. **Tier C's precision is the ITT
 members' precision**: at N = 60/arm with every apparatus repair the binding MDE is **≈ 0.165** — for

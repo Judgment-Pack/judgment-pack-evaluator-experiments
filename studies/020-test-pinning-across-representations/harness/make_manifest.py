@@ -239,6 +239,11 @@ REGISTERED_DOCUMENTS = (
     #                                    Clopper-Pearson rule with no human
     #                                    number entering
     "harness/POWER-PRESENCE-IDIOM.md",
+    # ROUND-2 FINDING R2-16: the counterfactual per-member shift's published
+    # figures (§3.2(iv), correction target T5) were manifest-covered by
+    # nothing — unasserted values could have changed after the freeze
+    # without an integrity failure. Covered now, and T5 names the file.
+    "harness/COUNTERFACTUAL-SHIFT.json",
     "calibration/derive_floor.py",
     # NEW IN 020: the design record §0.1 makes an AUTHORITY rather than a
     # background note — "where this document and the brief disagree, the rulings

@@ -239,6 +239,12 @@ Arm-labelled **by design**, under Tier D. Unadjusted members: label permutation,
 > **Tier C verdict on 019's batch: INDETERMINATE-BY-DISAGREEMENT.**
 > A−B is unanimous in direction (18 positive) but only 8 of 18 reject — and it is unreachable anyway, gated behind A−C.
 
+*[HISTORICAL — the table above is the design-phase reading (native outcome, shared-denominator
+offset). The registered estimand is native-for-both since round-2 finding R2-2, under which the
+three excluded-column L2c rows read M16 +0.1920 (p 0.0044), M17 +0.0839 (p 0.0018), M18 +0.0476
+(p 0.0125) on A−C and the verdict line is unchanged; `PREREGISTRATION.md` §5.2 (F-1, re-ruled)
+and §5.5 (Reprint 1b) are normative.]*
+
 **Robustness of that verdict to the choice of family** (the objection Tier C must answer). Dropping every member carrying a given pole and re-evaluating:
 
 | pole dropped | members left | positive | reject | verdict |

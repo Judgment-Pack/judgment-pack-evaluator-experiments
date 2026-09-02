@@ -210,6 +210,17 @@ class EmptySurvivorAmbiguity(FamilyError):
     box reproduced as a refusal."""
 
 
+class MixedUniverseRefused(FamilyError):
+    """ROUND-2 FINDING R2-2 (maintainer ruling: NATIVE-FOR-BOTH). A member
+    seat whose outcome is weighted in one universe and whose offset in another
+    is refused BEFORE any number exists: de-biasing an estimand with another
+    universe's null offset leaves a residual computable from the frozen corpus
+    alone (+0.043552 PP / +0.042584 ITT on 019), which is exactly what §5.2
+    criterion (iii) forbids a member to carry. The two single-universe
+    readings and the superseded hybrid are Tier D, computed by
+    `alternative_outcomes()`, never by a member seat."""
+
+
 class IttAncovaRefused(FamilyError):
     """Section 5.2: the scorer must REFUSE rather than fall back.
 
@@ -569,6 +580,10 @@ REFUSED_CELLS = (("ITT", True),)
 # Outcomes, the offset, and the two contrasts
 # ---------------------------------------------------------------------------
 
+def level_is_l2c(member) -> bool:
+    return member.level == "L2c"
+
+
 def population_units(units, population):
     """Section 5.2's two population poles.
 
@@ -594,7 +609,7 @@ def raw_outcome(unit, corpus, level, column, weighting="native"):
     return math.fsum(table[i][index] for i in covered if i in table)
 
 
-def offset(units, corpus, column, population, weighting="shared",
+def offset(units, corpus, column, population, weighting="native",
            predicate="kill-record"):
     """L2c's registered de-biasing estimator.
 
@@ -604,10 +619,15 @@ def offset(units, corpus, column, population, weighting="shared",
     marginal pools every selected unit of the population regardless of arm, and
     the weights come from the manifests.
 
-    `weighting` was finding F-1's open question, RULED 2026-08-24 (R1-4):
-    `"shared"` is the registered reading — it reproduces section 5.2's
-    published -0.04956 / -0.04846 / -0.04922 / -0.04813 and Reprint 1's
-    M13..M18 — and `"native"` stays computable and Tier D beside it.
+    `weighting` was finding F-1's open question. Round 1 (R1-4) ruled the
+    HYBRID — `"shared"` offsets under native outcomes, the reading that
+    reproduces section 5.2's published -0.04956 / -0.04846 / -0.04922 /
+    -0.04813 and Reprint 1's M13..M18. ROUND 2 (R2-2) REFUSED that ruling and
+    the maintainer re-ruled NATIVE-FOR-BOTH: the offset is taken in the SAME
+    universe as the outcome it de-biases, so the default is `"native"` and the
+    registered value is `harness/PINS.json`'s `family.offsetWeighting`. The
+    shared reading stays computable and is published as Tier D beside it
+    (the superseded hybrid, and shared-for-both).
 
     `predicate` is ROUND-1 FINDING R1-3's split: `"kill-record"` selects the
     units that carry a kill record — F-3's predicate, the only one that
@@ -643,12 +663,35 @@ def offset(units, corpus, column, population, weighting="shared",
 
 
 def member_outcomes(member, units, corpus, weighting="native",
-                    offset_weighting="shared"):
+                    offset_weighting="native", predicate="kill-record",
+                    _allow_mixed=False):
     """`[(arm, outcome, caseCount), ...]` for one member, in unit order.
 
     The ITT x ANCOVA cell is refused HERE, before any number exists, because a
     refusal that arrives after the covariate-less runs have been dropped is the
-    fallback section 5.2 forbids."""
+    fallback section 5.2 forbids. ROUND-2 FINDING R2-2: so is a MIXED
+    UNIVERSE — an L2c outcome weighted in one universe with an offset from the
+    other — for the same reason and at the same seat; `alternative_outcomes()`
+    is the one caller allowed past it, and it labels what it returns Tier D.
+
+    `predicate` is round-1 R1-3's split threaded through to the SUBTRACTION
+    set as well as the marginal (round 2): under `"kill-record"` the offset is
+    subtracted from every arm-A run carrying a kill record (36 on 019 — the
+    reading that reproduces Reprint 1); under `"evaluated"` from the 34 that
+    evaluated a mutant. §5.2's R1-3 correction table is computed through this
+    path now rather than transcribed."""
+    if level_is_l2c(member) and weighting != offset_weighting \
+            and not _allow_mixed:
+        raise MixedUniverseRefused(
+            "FAMILY-MIXED-UNIVERSE %s: the outcome is weighted %r and the "
+            "offset %r; section 5.2 criterion (iii) requires the de-biased "
+            "form, and de-biasing an estimand with another universe's null "
+            "offset leaves a computable residual (+0.043552 PP / +0.042584 ITT "
+            "on 019). The two single-universe readings and the superseded "
+            "hybrid are Tier D, computed by alternative_outcomes(), not by a "
+            "member seat." % (member.id, weighting, offset_weighting))
+    if predicate not in ("kill-record", "evaluated"):
+        raise FamilyError("FAMILY-UNKNOWN-PREDICATE %r" % (predicate,))
     if (member.population, member.adjusted) in REFUSED_CELLS:
         raise IttAncovaRefused(
             "FAMILY-ITT-ANCOVA-REFUSED %s: caseCount is undefined for a run "
@@ -662,14 +705,17 @@ def member_outcomes(member, units, corpus, weighting="native",
     shift = 0.0
     if level == "L2c":
         shift = offset(units, corpus, member.column, member.population,
-                       offset_weighting)
+                       offset_weighting, predicate)
     rows = []
     for unit in selected:
         value = raw_outcome(unit, corpus, level, member.column, weighting)
-        if level == "L2c" and unit.carries_kill_record and unit.arm == "A":
+        takes = (unit.carries_kill_record if predicate == "kill-record"
+                 else unit.evaluated)
+        if level == "L2c" and takes and unit.arm == "A":
             # F-3's registered subtraction population — the arm-A runs that
             # carry a kill record (36 on 019), which with the kill-record
-            # marginal above is the reading that reproduces Reprint 1.
+            # marginal above is the reading that reproduces Reprint 1; under
+            # the `evaluated` predicate the 34 that evaluated a mutant.
             value -= shift
         if member.adjusted and unit.case_count is None:
             raise FamilyError(
@@ -1004,10 +1050,12 @@ def _normal_quantile(probability):
 # ---------------------------------------------------------------------------
 
 def score_member(member, units, corpus, left, right, seed=PERMUTATION_SEED,
-                 weighting="native", offset_weighting="shared",
-                 bca_resamples=None, bca_seed=None):
+                 weighting="native", offset_weighting="native",
+                 bca_resamples=None, bca_seed=None, predicate="kill-record",
+                 _allow_mixed=False):
     """One member's whole published row. Identical shape for every member."""
-    rows = member_outcomes(member, units, corpus, weighting, offset_weighting)
+    rows = member_outcomes(member, units, corpus, weighting, offset_weighting,
+                           predicate, _allow_mixed=_allow_mixed)
     table = _by_arm(rows)
     counts = dict((arm, len(table.get(arm, ()))) for arm in sorted(ARM_LANGUAGE))
     for arm in (left, right):
@@ -1186,7 +1234,7 @@ def drop_a_pole(rows):
 
 
 def refused_cell_tier_d(units, corpus, left="A", right="C",
-                        offset_weighting="shared"):
+                        offset_weighting="native"):
     """ROUND-1 FINDING R1-7: section 5.2's six argued-out ITT x ANCOVA
     quantities, published as TIER D — non-member, non-decision — beside the
     family's hard refusal of the cell.
@@ -1233,9 +1281,69 @@ def refused_cell_tier_d(units, corpus, left="A", right="C",
     return {"composition": composition, "quantities": quantities}
 
 
+#: The members whose rows do not read a weighting at all: `Corpus.weights()`
+#: ignores the argument for L1 and L3, so the twelve non-L2c members are
+#: identical under every reading (asserted by test, not assumed).
+WEIGHTING_INVARIANT_MEMBERS = tuple(m.id for m in MEMBERS if m.level != "L2c")
+
+
+def alternative_outcomes(units, corpus, left, right, weighting,
+                         offset_weighting, label, status,
+                         seed=PERMUTATION_SEED, bca_resamples=None,
+                         bca_seed=None, base_rows=None):
+    """ROUND-2 FINDING R2-3: one Tier D alternative reading of the family,
+    COMPLETE — every registered quantity a member row carries, the verdict
+    and the drop-a-pole table over all eighteen — under a weighting pair the
+    registered estimand did not choose. `member` is False in every row and the
+    block says so: nothing here is a member seat and no decision reads it.
+
+    Only the six L2c members read a weighting, so `base_rows` (the registered
+    reading's rows) supplies the twelve invariant ones and the six are
+    recomputed under (weighting, offset_weighting) with the mixed-universe
+    guard lifted — the block is where the superseded hybrid lives, labelled."""
+    base = dict((row["id"], row) for row in (base_rows or ()))
+    rows = []
+    for member in MEMBERS:
+        if member.id in base and member.level != "L2c":
+            row = dict(base[member.id])
+        else:
+            row = score_member(member, units, corpus, left, right, seed,
+                               weighting, offset_weighting, bca_resamples,
+                               bca_seed, _allow_mixed=True)
+        row["tier"] = "D"
+        row["member"] = False
+        rows.append(row)
+    offsets = {}
+    for column in COLUMNS:
+        for population in ("ITT", "PP"):
+            offsets["%s/%s" % (column, population)] = offset(
+                units, corpus, column, population, offset_weighting)
+    return {
+        "label": label,
+        "status": status,
+        "tier": "D",
+        "member": False,
+        "reason": ("a single-universe alternative to the registered estimand, "
+                   "published under section 10's 'full estimand grid' so a "
+                   "reader can see what the ruling chose against; read by no "
+                   "decision" if status == "ALTERNATIVE" else
+                   "the reading published through round 1 (native outcome, "
+                   "shared offset), SUPERSEDED by the round-2 R2-2 ruling; "
+                   "retained for continuity with Study 019's reprint, read by "
+                   "no decision"),
+        "outcomeWeighting": weighting,
+        "offsetWeighting": offset_weighting,
+        "offsets": offsets,
+        "members": rows,
+        "verdict": verdict(rows, (left, right)),
+        "dropAPole": drop_a_pole(rows),
+        "weightingInvariantMembers": list(WEIGHTING_INVARIANT_MEMBERS),
+    }
+
+
 def family_report(units, corpus, left="A", right="C",
                   seed=PERMUTATION_SEED, weighting="native",
-                  offset_weighting="shared", bca_resamples=None,
+                  offset_weighting="native", bca_resamples=None,
                   bca_seed=None):
     """Every registered quantity, in one block, with one shape.
 
@@ -1256,18 +1364,42 @@ def family_report(units, corpus, left="A", right="C",
     for column in COLUMNS:
         for population in ("ITT", "PP"):
             for reading in ("shared", "native"):
-                offsets["%s/%s/%s" % (column, population, reading)] = offset(
-                    units, corpus, column, population, reading)
-                # R1-3: the evaluation-corrected marginal, published beside
-                # 019's own kill-record reading. The two differ only on ITT
-                # (the two runs the predicates split on fail identity, so the
-                # PP marginals are one set), and publishing the PP pair too
-                # would print one number under two names.
-                if population == "ITT":
-                    offsets["%s/%s/%s/evaluated"
-                            % (column, population, reading)] = offset(
-                        units, corpus, column, population, reading,
-                        predicate="evaluated")
+                for predicate in (("kill-record", "evaluated")
+                                  if population == "ITT" else ("kill-record",)):
+                    # R1-3: the evaluation-corrected marginal, published
+                    # beside 019's own kill-record reading. The two differ
+                    # only on ITT (the two runs the predicates split on fail
+                    # identity, so the PP marginals are one set), and
+                    # publishing the PP pair too would print one number
+                    # under two names. R2-3: every entry is a DICT naming
+                    # its column, population, weighting and predicate, and
+                    # whether it is the reading the estimand used — so the
+                    # reading in use is machine-identifiable rather than
+                    # inferred from a sibling member.
+                    key = "%s/%s/%s%s" % (column, population, reading,
+                                          "/evaluated" if predicate == "evaluated"
+                                          else "")
+                    offsets[key] = {
+                        "value": offset(units, corpus, column, population,
+                                        reading, predicate),
+                        "column": column, "population": population,
+                        "weighting": reading, "predicate": predicate,
+                        "registered": (reading == offset_weighting
+                                       and predicate == "kill-record"),
+                        "tier": ("registered"
+                                 if reading == offset_weighting
+                                 and predicate == "kill-record" else "D"),
+                    }
+    alternatives = []
+    for alt_weighting, alt_offset, label, status in (
+            ("native", "shared",
+             "hybrid (outcome native / offset shared)", "SUPERSEDED"),
+            ("shared", "shared", "shared-for-both", "ALTERNATIVE")):
+        if (alt_weighting, alt_offset) == (weighting, offset_weighting):
+            continue
+        alternatives.append(alternative_outcomes(
+            units, corpus, left, right, alt_weighting, alt_offset, label,
+            status, seed, bca_resamples, bca_seed, base_rows=rows))
     return {
         "contrast": "%s-%s" % (left, right),
         "alpha": ALPHA,
@@ -1278,6 +1410,17 @@ def family_report(units, corpus, left="A", right="C",
         "offsets": offsets,
         "offsetReadingUsed": offset_weighting,
         "outcomeWeightingUsed": weighting,
+        # R2-2 / R2-3: the estimand, stated; the alternatives, complete.
+        "estimand": {"outcomeWeighting": weighting,
+                     "offsetWeighting": offset_weighting,
+                     "universe": ("single" if weighting == offset_weighting
+                                  else "mixed"),
+                     "ruledBy": "round-2 R2-2 (maintainer ruling 2026-08-26: "
+                                "native-for-both)",
+                     "pinnedIn": "harness/PINS.json family.outcomeWeighting / "
+                                 "family.offsetWeighting"},
+        "alternatives": alternatives,
+        "weightingInvariantMembers": list(WEIGHTING_INVARIANT_MEMBERS),
         "refusedCells": [{"population": population,
                           "adjustment": "ANCOVA" if adjusted else None,
                           "reason": "section 5.2: covert change of population; "

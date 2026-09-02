@@ -376,3 +376,224 @@ def test_an_empty_denominator_settles_as_empty_rather_than_as_an_interval():
     node = {"e4": {"B": {"identityRate": block}}}
     stats.fill_intervals(node, True)
     assert block["ci95State"] == stats.CI_EMPTY
+
+
+# --- ROUND-2 R2-1 STEP 7: one population, reconciled --------------------------
+
+def _counted(arm_cells):
+    counted = {}
+    for name, (attempted, batch_apparatus) in arm_cells.items():
+        counted[name] = {
+            "registered": attempted, "absent": 0, "attempted": attempted,
+            "apparatusExcluded": batch_apparatus,
+            "denominator": attempted - batch_apparatus,
+            "apparatusCodes": ({"call-timeout": batch_apparatus}
+                               if batch_apparatus else {}),
+            "timeouts": batch_apparatus,
+            "timeoutRate": stats.rate_block(batch_apparatus, attempted,
+                                            "attempted runs"),
+            "apparatusRate": stats.rate_block(batch_apparatus, attempted,
+                                              "attempted runs"),
+            "slots": [],
+        }
+    return counted
+
+
+def test_the_published_population_counts_the_scoring_time_refusals_too():
+    """R2-1's fourth mechanism: `population()` partitions the SLOT records,
+    every endpoint strips the runs the scorer coded `engine-invocation-
+    refused`, and the published `population[arm]["denominator"]` disagreed
+    with `e2`/`e4`'s by exactly the number of scoring-time refusals — which
+    §1a's amended table names as apparatus. Arm B: five attempted, no batch-
+    time apparatus, ONE scoring-time refusal.
+
+    MUTATION: publish the raw `counted` projection again — every assertion
+    but `preScoringDenominator` fails."""
+    counted = _counted({"A": (5, 0), "B": (5, 0), "C": (5, 1)})
+    scoring = {"A": [], "B": [{"run": "run-003", "refusal": "opa-refused"}],
+               "C": []}
+    runs = {"A": [{}] * 5, "B": [{}] * 4, "C": [{}] * 4}
+    e2 = {arm: {"denominator": len(runs[arm])} for arm in runs}
+    e4 = {arm: {"denominator": len(runs[arm])} for arm in runs}
+    population = score.reconciled_population(counted, scoring, runs, e2, e4)
+    b = population["B"]
+    assert b["denominator"] == 4
+    assert b["scoringApparatusExcluded"] == 1
+    assert b["batchApparatusExcluded"] == 0
+    assert b["apparatusExcluded"] == 1
+    assert b["apparatusRate"] == stats.rate_block(1, 5, "attempted runs")
+    assert b["apparatusRate"] != counted["B"]["apparatusRate"]
+    assert b["preScoringDenominator"] == 5
+    assert b["scoringApparatusRefusals"] == scoring["B"]
+    # arm C: the batch-time half and the scoring-time half add.
+    assert population["C"]["apparatusExcluded"] == 1
+    assert population["C"]["denominator"] == 4
+    for arm in runs:
+        assert population[arm]["denominator"] == e2[arm]["denominator"] \
+            == e4[arm]["denominator"]
+
+
+def test_a_population_whose_endpoints_disagree_is_not_published():
+    """The invariant is a refusal, not a warning: an endpoint that counted the
+    population differently from the reconciled block aborts the attempt
+    before a document exists.
+
+    MUTATION: downgrade the `ScoreError` to a warning — this test fails
+    because the call returns."""
+    counted = _counted({"A": (5, 0), "B": (5, 0), "C": (5, 0)})
+    scoring = {"A": [], "B": [{"run": "run-003", "refusal": "x"}], "C": []}
+    runs = {"A": [{}] * 5, "B": [{}] * 4, "C": [{}] * 5}
+    e2 = {arm: {"denominator": len(runs[arm])} for arm in runs}
+    e4 = dict(e2)
+    e4["B"] = {"denominator": 5}                  # counted the refusal in
+    with pytest.raises(score.ScoreError, match="POPULATION-UNRECONCILED arm B"):
+        score.reconciled_population(counted, scoring, runs, e2, e4)
+
+
+# --- ROUND-2 R2-3: the family's complete report reaches the document ----------
+
+def _report(name="A-C"):
+    """A family report in `family_report()`'s published shape, small."""
+    member = {"id": "M16", "level": "L2c", "engine": "excluded",
+              "population": "ITT", "adjustment": None, "n": "38/37/39",
+              "difference": 0.19197, "p": 0.0044, "rejects": True,
+              "sigma": 0.29649, "mde": 0.1893, "interval": [0.05, 0.33]}
+    return {
+        "contrast": name,
+        "estimand": {"outcomeWeighting": "native", "offsetWeighting": "native",
+                     "universe": "single", "ruledBy": "round-2 R2-2"},
+        "members": [member],
+        "verdict": {"positive": 1, "rejecting": 1, "verdict": "CLAIM"},
+        "dropAPole": [{"poleDropped": "L1", "membersLeft": 1, "positive": 1,
+                       "rejecting": 1, "verdict": "CLAIM", "members": ["M16"]}],
+        "offsets": {"excluded/ITT/native": {
+            "value": -0.00554, "column": "excluded", "population": "ITT",
+            "weighting": "native", "predicate": "kill-record",
+            "registered": True, "tier": "registered"}},
+        "alternatives": [{"label": "hybrid (outcome native / offset shared)",
+                          "status": "SUPERSEDED", "tier": "D", "member": False,
+                          "reason": "superseded", "outcomeWeighting": "native",
+                          "offsetWeighting": "shared",
+                          "verdict": {"positive": 1, "rejecting": 1,
+                                      "verdict": "CLAIM"},
+                          "members": [dict(member, difference=0.2323)]}],
+        "refusedCells": [{"population": "ITT", "adjustment": "ANCOVA",
+                          "reason": "covert change of population"}],
+        "refusedCellTierD": {
+            "composition": {"population": "complete-case",
+                            "perArm": {"A": 30, "B": 31, "C": 32},
+                            "droppedPerArm": {"A": 8, "B": 6, "C": 7}},
+            "quantities": [{"level": "L2c", "engine": "excluded",
+                            "adjustedDifference": 0.04}]},
+        "corpus": {"sharedClasses": {"excluded": 29, "included": 33},
+                   "nativeDenominators": {"excluded": {"jps": 60, "rego": 55},
+                                          "included": {"jps": 69, "rego": 64}},
+                   "sharedDenominators": {"excluded": {"jps": 29, "rego": 29},
+                                          "included": {"jps": 33, "rego": 33}}},
+    }
+
+
+SECTION_MARKS = ("Reprint 2, drop-a-pole", "null offsets under every reading",
+                 "Tier D alternative: hybrid", "refused cells",
+                 "Tier D disclosure beside the refusal", "corpus denominators",
+                 "Estimand (A-C): outcome weighting **native**")
+
+
+def test_the_report_prints_the_complete_family_report_below_the_guard():
+    """R2-3 (b): σ, MDE and the BCa interval on every reprint row, then the
+    drop-a-pole table, the offsets with the registered one marked, the Tier D
+    alternatives, the refused cell with its disclosure, and the corpus
+    denominators — all of it, when no gate matched."""
+    verdict = decision.decide({"pipelineProblems": [], "shortfallDeclared": [],
+                               "controlGates": gates(),
+                               "family": {"A-C": family(),
+                                          "A-B": family(arms=("A", "B"))}})
+    results = results_for(verdict, [], {"A-C": family()})
+    results["familyReports"] = {"A-C": _report()}
+    results["family"]["A-C"]["members"] = _report()["members"]
+    body = score.results_markdown(results)
+    for mark in SECTION_MARKS:
+        assert mark in body, mark
+    assert "| 0.2965 | 0.1893 | [0.0500, 0.3300] |" in body
+    assert "| excluded/ITT/native | excluded | ITT | native | kill-record | " \
+           "-0.0055 | **yes** |" in body
+    assert "| 0.2323 |" in body                     # the superseded hybrid row
+
+
+def test_nothing_of_the_family_report_prints_above_a_gating_row():
+    """R2-3 (b) under R1-14: the sections are under the SAME guard as the
+    reprint. A document that carries a report AND a gating cause prints the
+    causes and none of the report.
+
+    MUTATION: move `_family_report_markdown()` out of the `else:` — the
+    marks appear."""
+    outcome = {"pipelineProblems": [], "shortfallDeclared": [],
+               "controlGates": gates(references_reproduce_gold=False),
+               "family": {"A-C": family()}}
+    causes = decision.gate_causes(outcome)
+    assert causes
+    results = results_for(decision.decide(outcome), causes, outcome["family"])
+    results["familyReports"] = {"A-C": _report()}
+    body = score.results_markdown(results)
+    assert "Not computed and not published" in body
+    for mark in SECTION_MARKS:
+        assert mark not in body, mark
+    assert "0.19197" not in body and "0.1920" not in body
+
+
+def test_the_document_publishes_the_same_report_objects_the_decision_read():
+    """R2-3 (a): `familyReports` in the document is the object
+    `registered_family()` stored on the outcome — not a copy, not a
+    recomputation — so the rows a reader sees and the rows the verdict was
+    computed from are one evaluation."""
+    report = _report()
+    outcome = {"pipelineProblems": [], "familyReports": {"A-C": report}}
+    # arm B: two attempted, one refused at scoring time — the document's
+    # population must be the RECONCILED block (R2-1 STEP 7), not the raw
+    # slot-side projection, which would print 2.
+    document = score.results_document(
+        attempt_root="/x/attempt-1", label="PILOT", unfilled=[],
+        outcome=outcome, pins_raw_sha256="0" * 64,
+        tools=type("T", (), {"record": staticmethod(lambda: {})})(),
+        c4=None, shape={}, counted=_counted({"A": (1, 0), "B": (2, 0),
+                                             "C": (1, 0)}),
+        scoring_apparatus={"A": [], "B": [{"run": "run-002", "refusal": "x"}],
+                           "C": []}, pairing=[],
+        paired_ids={"jps": [], "rego": []}, mutants={"jps": [], "rego": []},
+        denominators={},
+        shared={}, e1={}, e2={a: {"denominator": 1} for a in "ABC"}, e3={},
+        e4_by_arm={a: {"denominator": 1} for a in "ABC"}, e5=None,
+        family={}, gate_causes=[], gates=gates(), refusals={},
+        per_arm_runs={a: [{}] for a in "ABC"}, reviewer_set=None,
+        verdict={"verdict": "x", "causes": [], "rowIndex": 6},
+        interval_licence=False, suppression="fixture")
+    assert document["familyReports"]["A-C"] is report
+    assert document["population"]["A"]["denominator"] == 1
+    assert document["population"]["B"]["denominator"] == 1
+    assert document["population"]["B"]["scoringApparatusExcluded"] == 1
+    assert document["population"]["B"]["preScoringDenominator"] == 2
+    assert document["pipelineInvalid"] is False
+
+
+def test_an_outcome_above_a_gating_row_carries_no_family_report():
+    """The other side: `registered_family()` is never called above a gating
+    row (R1-14), so `familyReports` is EMPTY there rather than absent or
+    stale — `results_document()` reads it with a default."""
+    outcome = {"pipelineProblems": ["row-1"]}
+    document = score.results_document(
+        attempt_root="/x/attempt-1", label="PILOT", unfilled=[],
+        outcome=outcome, pins_raw_sha256="0" * 64,
+        tools=type("T", (), {"record": staticmethod(lambda: {})})(),
+        c4=None, shape={}, counted=_counted({"A": (1, 0), "B": (1, 0),
+                                             "C": (1, 0)}),
+        scoring_apparatus={"A": [], "B": [], "C": []}, pairing=[],
+        paired_ids={"jps": [], "rego": []}, mutants={"jps": [], "rego": []},
+        denominators={},
+        shared={}, e1={}, e2={a: {"denominator": 1} for a in "ABC"}, e3={},
+        e4_by_arm={a: {"denominator": 1} for a in "ABC"}, e5=None,
+        family={}, gate_causes=["row-1"], gates=gates(), refusals={},
+        per_arm_runs={a: [{}] for a in "ABC"}, reviewer_set=None,
+        verdict={"verdict": "x", "causes": ["row-1"], "rowIndex": 1},
+        interval_licence=False, suppression="row-1")
+    assert document["familyReports"] == {}
+    assert document["pipelineInvalid"] is True
