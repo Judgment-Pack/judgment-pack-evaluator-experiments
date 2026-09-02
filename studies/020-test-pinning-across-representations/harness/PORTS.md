@@ -69,6 +69,23 @@ port of the study is everything 019 EARNED rather than built: its arms, its
 results, its review record and its spent reviewer set, which do not carry and
 are listed under **What does NOT carry** below.
 
+**ONE INHERITED RESIDUE IN THE PORTED BYTES, recorded rather than repaired.**
+019's frozen `design/mutants/refB/MANIFEST.json` embeds its generating
+environment's ABSOLUTE toolchain paths — the OPA binary and the
+`caps-filtered.json` capabilities file under an operator scratch directory,
+`gen_mutants.py`'s own defaults, at a root its diagnostic scrubber does not
+know. The bytes are the lock's bytes (the combined manifest digest reproduces
+`mutantManifests.sha256AtSource` exactly), so §4.1's port-by-digest carries
+them unchanged — but `design/mutants/regenerate.py --check` reproduces them
+ONLY when invoked with the manifest's own recorded toolchain paths: from any
+other seat the byte-comparison lands 375/376 with exactly this manifest
+differing, every payload identical. That is what "reproduction" means for a
+record that names its inputs, and it was measured, not reasoned: a run from a
+different operating seat produced the 375/376, and the committed
+`REGENERATION-CHECK.json` (376/376, both arms) is a run under the recorded
+paths. The same class of leak 019's G10 scrubbed from the golden capture; a
+repair belongs upstream in 019, not in a port that promises the lock's bytes.
+
 **The commit is provenance, not authority.** Study 019 had one row —
 `harness/make_manifest.py`, from Study 014 — bound to a recorded commit and to
 nothing older, because Study 014 pinned none of its own harness sources. That
