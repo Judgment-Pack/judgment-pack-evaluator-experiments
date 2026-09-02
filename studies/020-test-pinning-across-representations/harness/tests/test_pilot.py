@@ -480,6 +480,11 @@ class ThePilotFixture(StandInStudy):
         pins = json.loads(json.dumps(self.pins))
         pins["calibration"]["minimumViable"] = 0.20
         pins["calibration"]["minimumViableBasis"] = "identityFloor"
+        # The stand-in registry fills EVERY freeze pin with a digest string,
+        # and since round 2 the five calibration members are freeze pins — a
+        # filled label is "a pilot that has run". This fixture is the pilot
+        # that has NOT run yet, so its own lifecycle pins are null.
+        pilot_fixture.reset_calibration_pins(pins)
         self.write_pins(pins)
         self.golden_from_a_real_call()
 
@@ -495,10 +500,12 @@ class ThePilotFixture(StandInStudy):
         self.assertEqual((status, code), (0, None), stderr)
         with open(os.path.join(slot, "context.json")) as handle:
             self.write_golden(json.load(handle)["entries"])
-        # `write_golden()` rewrote the registry; the declaration must survive.
+        # `write_golden()` rewrote the registry; the declaration and the
+        # pre-pilot lifecycle state must survive.
         pins = json.loads(json.dumps(self.pins))
         pins["calibration"]["minimumViable"] = 0.20
         pins["calibration"]["minimumViableBasis"] = "identityFloor"
+        pilot_fixture.reset_calibration_pins(pins)
         self.write_pins(pins)
 
     def plan(self, *steps):
@@ -1244,6 +1251,8 @@ class TheFreezeGateValidation(unittest.TestCase):
         self.addCleanup(patched.stop)
         self.tree = pilot_fixture.build(self.root, self.label, self.pins)
         self.publish()
+        self.artifacts = pilot_fixture.write_analysis_artifacts(self.root,
+                                                                self.label)
         self.write_pins()
 
     def publish(self):
@@ -1280,6 +1289,10 @@ class TheFreezeGateValidation(unittest.TestCase):
             "derivedFloor": json.loads(json.dumps(derived)),
             "minimumViable": 0.20,
             "minimumViableBasis": "identityFloor",
+            # ROUND 2 (R2-11, R2-13): the two analysis artifacts are pinned
+            # too, and the gate requires them.
+            "c4ReferenceSha256": self.artifacts["C4-REFERENCE.json"],
+            "dispersionSha256": self.artifacts["PILOT-DISPERSION.json"],
         }
         calibration.update(edits)
         with open(os.path.join(self.root, "harness", "PINS.json"),
@@ -1312,6 +1325,8 @@ class TheFreezeGateValidation(unittest.TestCase):
             json.dump({"callsMade": 36, "callsRegistered": 36}, handle)
         self.write_record(pilot_record(self.label))
         self.write_pins()
+        # (the analysis artifacts are gone with the tree; the ledger refusal
+        # is named FIRST, which is the point)
         self.assert_problem("no chained records")
 
     def test_a_deleted_slot_is_refused(self):
@@ -1391,6 +1406,8 @@ class TheFreezeGateValidation(unittest.TestCase):
                     "identityWhy": None, "suitePresent": True}
         with mock.patch.object(sweep_rates, "score_slot", score):
             self.publish()
+        self.artifacts = pilot_fixture.write_analysis_artifacts(self.root,
+                                                                self.label)
         self.assertFalse(self.record["goNoGo"]["go"])
         self.write_pins()
         self.assert_problem("NO-GO")

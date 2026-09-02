@@ -188,16 +188,21 @@ REQUIRED_PORTS = frozenset(
 # study owes a row for, and calling it new does not make it new.
 NEW_IN_020 = frozenset((
     "harness/counterfactual_shift.py",
+    "harness/e4lib/dispersion.py",
     "harness/e4lib/family.py",
     "harness/e4lib/presence_idiom.py",
+    "harness/e4lib/transfer.py",
+    "harness/pilot_analysis.py",
     "harness/pilot_rates.py",
     "harness/sweep_rates.py",
     "harness/tests/pilot_fixture.py",
     "harness/tests/test_counterfactual_shift.py",
     "harness/tests/test_family.py",
     "harness/tests/test_pilot.py",
+    "harness/tests/test_pilot_analysis.py",
     "harness/tests/test_score_presence_idiom.py",
     "harness/tests/test_score_reviewer_integration.py",
+    "harness/tests/test_score_transfer.py",
     "harness/tests/test_sweep.py",
     "harness/tests/test_sweep_rates.py",
 ))
@@ -257,15 +262,24 @@ PROMPT_PATHS = {arm: "arms/%s/PROMPT.txt" % arm for arm in ARMS}
 # null anywhere here makes the run a PILOT (`study_label()`); REGISTERED
 # requires every one of them.
 #
-# Study 019 carried EIGHTEEN and Study 020 carries EIGHTEEN — but not the same
-# eighteen, and the arithmetic is two moves, not zero (R1-23: this comment once
-# said seventeen, counting the departure and not the arrival). `codex.model`
-# LEFT for `DESIGN_TIME_PINS` below under ruling M-25 — not a relaxation: its
-# null still labels the run PILOT — because the compute condition is an OUTPUT
-# of the pre-pilot sweep (§2.1) and the sweep runs BEFORE the freeze, so a
-# value the freeze ceremony fills cannot be one the sweep is required to have
+# Study 019 carried EIGHTEEN; Study 020 carries TWENTY-THREE. The arithmetic
+# from 019 is two moves and one arrival of five (R1-23: this comment once said
+# seventeen, counting the departure and not the arrival). `codex.model` LEFT
+# for `DESIGN_TIME_PINS` below under ruling M-25 — not a relaxation: its null
+# still labels the run PILOT — because the compute condition is an OUTPUT of
+# the pre-pilot sweep (§2.1) and the sweep runs BEFORE the freeze, so a value
+# the freeze ceremony fills cannot be one the sweep is required to have
 # already filled. `censusStimulusCount` ARRIVED (R7-9's lesson wearing a new
-# number: a count the freeze claims must be a pin the gate reads).
+# number: a count the freeze claims must be a pin the gate reads). And the
+# FIVE CALIBRATION PINS arrived in round 2: §2a.6 registers "label, N and
+# output digest go into PINS.json before the primary attempt", and until this
+# round NO label rule read them — `study_label()` returned REGISTERED with
+# every calibration member null (the completeness review's finding beside
+# R2-11). The pilot's label, its rates record's digest, the derived floor,
+# and the two post-pilot analysis artifacts (R2-11's C4 reference, R2-13's
+# dispersion table) are freeze pins now: a REGISTERED attempt is unreachable
+# while the pilot is unpinned. They need no CEREMONY_LIFECYCLE exemption —
+# the pilot precedes the freeze, which precedes the batch's own gate.
 FREEZE_PINS = (
     ("preregistration", ("preregistration", "sha256")),
     ("policyProse", ("policyProse", "sha256")),
@@ -291,6 +305,14 @@ FREEZE_PINS = (
     # says "freeze-pinned" and is enforced nowhere is R7-9's defect wearing a
     # different number.
     ("censusStimulusCount", ("censusStimulus", "count")),
+    # NEW IN 020, ROUND 2. §2a.6's "label, N and output digest go into
+    # PINS.json before the primary attempt", made a label-rule fact rather
+    # than a sentence; plus the two post-pilot analysis artifacts.
+    ("calibrationLabel", ("calibration", "label")),
+    ("calibrationOutput", ("calibration", "outputSha256")),
+    ("calibrationDerivedFloor", ("calibration", "derivedFloor")),
+    ("c4Reference", ("calibration", "c4ReferenceSha256")),
+    ("pilotDispersion", ("calibration", "dispersionSha256")),
 )
 
 # M-25, ruled 2026-08-23. The two DESIGN-TIME-RESOLVED pins — both resolved as
@@ -346,6 +368,21 @@ PIN_SOURCES = {
     "reviewerMutantSet": "sha256 of controls/reviewer-mutants/MANIFEST.json — "
                          "the FRESH set §4.3 registers, authored during review "
                          "rounds; Study 019's set is spent and does not carry",
+    "calibrationLabel": "the one pilot's dated label under calibration/, "
+                        "written into the registry by the ceremony after "
+                        "batch.py pilot (§2a.6)",
+    "calibrationOutput": "sha256 of calibration/<label>/PILOT-RATES.json, "
+                         "published by harness/pilot_rates.py (§2a.6)",
+    "calibrationDerivedFloor": "calibration/derive_floor.py's own output over "
+                               "the rates record — the derived floors, never a "
+                               "chosen number (§2a.4, §2a.6)",
+    "c4Reference": "sha256 of calibration/<label>/C4-REFERENCE.json, published "
+                   "by harness/pilot_analysis.py — the pilot side of §2a.5's "
+                   "transfer gate (round-2 R2-11)",
+    "pilotDispersion": "sha256 of calibration/<label>/PILOT-DISPERSION.json, "
+                       "published by harness/pilot_analysis.py — §2a.6's "
+                       "dispersion re-derived at the pinned effort (round-2 "
+                       "R2-13)",
     "model": "the model id the authoring wrapper is invoked with, by explicit "
              "flag; chosen with the reasoning effort by the pre-pilot sweep "
              "(§2.1, M-8/M-20) and resolved at design time, not at the freeze",

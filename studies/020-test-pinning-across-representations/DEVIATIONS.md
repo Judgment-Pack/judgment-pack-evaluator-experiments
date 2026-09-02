@@ -98,3 +98,19 @@ made or token spent in either refused attempt.
   (replay, chain, per-slot seals, `CALL.json` pin state, no unnamed slot, rates/ledger
   agreement); and `batch.py abandon --label` retains a label under which no call completed. No
   pilot call has been made; `calibration/` still holds only `derive_floor.py`.
+- **2026-08-26, the two post-pilot instruments and the calibration freeze pins (round 2,
+  R2-11, R2-13, and the completeness review's finding beside them)**: the transfer gate C4 —
+  registered in §2a.5 and required by `decision.CONTROL_GATES` — had no producer, so every
+  attempt would have failed as "not evaluated"; and §2a.6's dispersion re-derivation had no
+  producer, schema, pin or gate. Both landed in one shared pass, `harness/pilot_analysis.py`,
+  which walks the sealed pilot slots once and publishes `C4-REFERENCE.json` and
+  `PILOT-DISPERSION.json` under `calibration/<label>/`, each a freeze pin. Two maintainer
+  rulings are recorded here because they moved registered quantities: (a) C4 has TWO band rows
+  (duration, completion bytes), the reasoning-token band struck as a gating row because §2a.5
+  and §2.1's M-24 fill contradicted each other about it — the token median stays published,
+  descriptive only; (b) the dispersion table is BUILT (not withdrawn) and its σ stands BESIDE
+  §5.6's 019 prior rather than replacing it. And one finding of the response's own review: §2a.6
+  said "label, N and output digest go into `PINS.json` before the primary attempt" and NO label
+  rule read those members — `integrity.study_label()` returned REGISTERED with every calibration
+  pin null. The five calibration members are freeze pins now (eighteen → twenty-three). No
+  pilot call has been made; neither artifact exists yet, and `--freeze` names both pins.

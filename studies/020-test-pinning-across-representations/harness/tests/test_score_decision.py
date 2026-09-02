@@ -253,8 +253,9 @@ def test_the_engine_execution_gate_is_a_registered_control_row():
 
 def test_c4s_calibration_invalid_outcome_is_a_control_gate_row():
     """§2a.5's other side: every exact-equality row holds and only band rows
-    differ, so the PILOT is suspect and a re-pilot under C5 is required. That
-    adjudicates R1 in neither direction and is row 3, not row 1."""
+    differ, so the PILOT is suspect. That adjudicates R1 in neither direction
+    and is row 3, not row 1 — and under §2a.6 as amended (round 2, R2-12) the
+    outcome is TERMINAL: there is no second pilot."""
     assert "c4-transfer-calibration" in decision.CONTROL_GATES
     verdict = decision.decide({
         "pipelineProblems": [],

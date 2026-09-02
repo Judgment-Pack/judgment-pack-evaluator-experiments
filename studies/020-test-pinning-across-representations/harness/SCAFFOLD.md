@@ -48,6 +48,8 @@ that has to be written, a mode that has to be built — never the delta itself.
 | **S8** | §10 | ~~`CORRECTION-TARGETS.md`~~ **LANDED, 2026-08-24**: T1–T7 in Study 019's pattern, including the guard's power analysis (T5, already carrying its first recorded correction) and the pre-pilot sweep's table with its chosen condition (T6). Uncovered by design; `make_manifest.py` names it only while absent, which it no longer is. |
 | **S9** | §2.1, M-24 | ~~The witness-resolution step at pin time.~~ **CLOSED, 2026-08-24.** The sweep's step zero took branch `gate-5-extension` over the first sweep call's own transcript (two non-null `turn_context` spellings, zero nulls); `codex.reasoningEffortWitness` records it, `transcript_check.py`'s gate 5 now binds the effort pin beside the model and the cwd (by path, both spellings, present-and-null a non-witness), and its ports cell records the one registered design change. The self-report branch was NOT taken and stands in the registration as the branch that would have fired. |
 | **S10** | §5.2 | **The per-member analysis-set arithmetic**, and each member's registered per-arm n. A function of N (S3) and of the realised-n arithmetic. |
+| **S11** | §2a.5 | **The transfer gate C4 — LANDED (round 2, R2-11).** `harness/e4lib/transfer.py` (eight exact rows, two band rows under the R2-11(A) ruling, the token median descriptive only; executed-call cohort; `statistics.median`; ratio pilot ÷ batch, closed band; two-sided routing), the pilot side published by `harness/pilot_analysis.py` as `calibration/<label>/C4-REFERENCE.json` and pinned at `calibration.c4ReferenceSha256` (a freeze pin), the batch side read by `harness/score.py` at attempt time from every present executed slot, `transferGate` published in every outcome, `pipelineInvalid` derived from the outcome's problems. The pilot has NOT run, so the reference does not exist yet; `--freeze` names its pin. |
+| **S12** | §2a.6 | **The dispersion re-derived at the pinned effort — LANDED (round 2, R2-13; σ stands beside the prior).** `harness/pilot_analysis.py` scores the apparatus-clean pilot slots through `score.score_run()`, builds units as `registered_family()` does, and publishes `calibration/<label>/PILOT-DISPERSION.json` — eighteen rows of σ / df / exact χ² interval (`e4lib/dispersion.py`) / MDE at the pilot's n and at the registered N — under a closed schema with a no-peek gate (no difference, sign, p, rejection, interval, mean, contrast, verdict or claim at any depth; re-run at the freeze). Pinned at `calibration.dispersionSha256` (a freeze pin). Owed once the pilot runs: the ceremony appends the eighteen rows to §5.6 beside the retained 019 table. |
 
 ---
 
@@ -79,8 +81,18 @@ the code without a step here fails the suite rather than the ceremony.
   the driver's own constants so it cannot go on checking a spelling the driver
   has stopped writing.
 * **NEW IN 020 — the calibration subtree is PERMITTED and REQUIRED.**
-  `calibration/` must exist and hold a pilot label; `calibration_problems()` is
-  the gate, and 019's `DEVIATIONS.md` D-2 is why both halves are named.
+  `calibration/` must exist and hold ONE pilot label (an `abandoned-<label>/`
+  tree is skipped by the count and checked for hidden completed calls);
+  `calibration_problems()` is the gate, and 019's `DEVIATIONS.md` D-2 is why
+  both halves are named. **Round 2 (R2-7, R2-11, R2-13):** the pilot is
+  AUTHENTICATED from its sealed, chained ledger (`pilot_ledger_problems()`),
+  and the three post-pilot artifacts — `PILOT-RATES.json`, `C4-REFERENCE.json`,
+  `PILOT-DISPERSION.json` — must be present, of the registered shape, and
+  pinned at `calibration.outputSha256` / `c4ReferenceSha256` /
+  `dispersionSha256`; `pending_pins()` names each while unpinned. The
+  ceremony order between the pilot and the freeze is therefore: `batch.py
+  pilot` → `pilot_rates.py --write` → `pilot_analysis.py --write` → pin the
+  label, the derived floor and the three digests → freeze.
 | **R2** | **The review record.** `PREREG-REVIEW.md` is open with **zero** rounds — a registered shape in 020, which is §7's delta 10 and the reason `render_round_status.py`'s `parse_block()` permits an empty-of-rounds block. The status sentence in both front doors is RENDERED, not hand-written, from the first act of this port onward. |
 | **R3** | **Archive-verified suite claims** (ADR 0005, decision 1). A "N passed" claim is made only of a commit, after `git archive <commit> \| tar -x` into a fresh directory, `git init && git add -A` inside it, then the full suite under the registered interpreter — before push, ceremony and prompt-only commits included. |
 

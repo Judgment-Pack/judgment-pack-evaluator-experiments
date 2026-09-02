@@ -99,7 +99,12 @@ def test_the_freeze_pin_set_is_the_registered_one():
         "offGoldCertificate", "studyManifest",
         "opaCapabilities", "jpackBuildAttestation",
         "probePrompt", "goldenContext", "isolationAssent",
-        "reviewerMutantSet", "censusStimulusCount"]
+        "reviewerMutantSet", "censusStimulusCount",
+        # ROUND 2: §2a.6's "label, N and output digest go into PINS.json
+        # before the primary attempt" enforced by the label rule at last, plus
+        # the two post-pilot analysis artifacts (R2-11, R2-13).
+        "calibrationLabel", "calibrationOutput", "calibrationDerivedFloor",
+        "c4Reference", "pilotDispersion"]
     # M-25: the two that left the freeze set are HERE, not gone. A pin deleted
     # from one tuple and added to neither is exactly the re-shrinking R1-9's
     # test exists to prevent, so the second list is asserted as tightly.

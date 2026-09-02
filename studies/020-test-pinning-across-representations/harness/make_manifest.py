@@ -1128,6 +1128,79 @@ def calibration_record_problems(root, labels):
             "the pin is derive_floor.py's OUTPUT (§2a.4), and a pin the rule "
             "does not reproduce is a chosen number wearing a derived one's "
             "name")
+    problems.extend(analysis_artifact_problems(root, label, calibration))
+    return problems
+
+
+def analysis_artifact_problems(root, label: str, calibration: dict) -> list:
+    """ROUND-2 FINDINGS R2-11 AND R2-13: the two post-pilot analysis
+    artifacts are present, pinned at their digests, and of the registered
+    shape — the C4 reference validated through `e4lib/transfer.py`'s own
+    `validate_reference()`, the dispersion table checked for exactly the
+    eighteen registered members, a GO verdict, and NO forbidden member (the
+    no-peek gate, re-run at the freeze so a table edited after publication
+    cannot smuggle a direction in)."""
+    import sys
+    harness = str(Path(__file__).resolve().parent)
+    if harness not in sys.path:
+        sys.path.insert(0, harness)
+    from e4lib import family, transfer
+    import pilot_analysis
+    problems = []
+    here = root / "calibration" / label
+    for name, pin, kind in (("C4-REFERENCE.json", "c4ReferenceSha256",
+                             "reference"),
+                            ("PILOT-DISPERSION.json", "dispersionSha256",
+                             "dispersion")):
+        path = here / name
+        if not path.is_file():
+            problems.append(
+                "calibration/%s/%s is absent: §2a.5/§2a.6 register the "
+                "post-pilot analysis pass (harness/pilot_analysis.py) as a "
+                "precondition of the freeze (round 2, R2-11/R2-13)"
+                % (label, name))
+            continue
+        raw = path.read_bytes()
+        digest = "sha256:%s" % hashlib.sha256(raw).hexdigest()
+        pinned = calibration.get(pin)
+        if pinned not in (digest, digest.split(":", 1)[1]):
+            problems.append(
+                "PINS.json's calibration.%s is %r and calibration/%s/%s is %s: "
+                "§2a.6 pins the artifact before the primary attempt"
+                % (pin, pinned, label, name, digest))
+        try:
+            document = json.loads(raw.decode("utf-8"), **_load_kwargs())
+        except (ValueError, UnicodeDecodeError):
+            problems.append("calibration/%s/%s is not readable JSON"
+                            % (label, name))
+            continue
+        if kind == "reference":
+            try:
+                transfer.validate_reference(document)
+            except transfer.TransferError as refusal:
+                problems.append("calibration/%s/%s: %s" % (label, name, refusal))
+            if document.get("label") != label:
+                problems.append("calibration/%s/%s names the label %r"
+                                % (label, name, document.get("label")))
+            continue
+        ids = [row.get("id") for row in (document.get("perMember") or [])]
+        if ids != list(family.MEMBER_IDS):
+            problems.append(
+                "calibration/%s/%s carries %d member row(s) and §5.2 registers "
+                "exactly the eighteen in registered order (R2-13)"
+                % (label, name, len(ids)))
+        if document.get("goNoGo") != "GO":
+            problems.append("calibration/%s/%s was published over a pilot that "
+                            "is not GO (M-9)" % (label, name))
+        if document.get("citable") is not False or document.get("label") != label:
+            problems.append("calibration/%s/%s must say citable: false and "
+                            "name its own label" % (label, name))
+        leaked = pilot_analysis.forbidden_members(document)
+        if leaked:
+            problems.append(
+                "calibration/%s/%s carries a forbidden member (%s): the "
+                "dispersion table publishes no direction, test or contrast "
+                "(§2a, R2-13's no-peek gate)" % (label, name, leaked[0]))
     return problems
 
 
@@ -1450,9 +1523,45 @@ def pending_documents(study=None):
 # SOURCE nobody names is a pin nobody fills, so the source is named here — the
 # digest of the sealed manifest — and the gate reports it beside the pending
 # documents. The ceremony cannot complete without it.
+def _pilot_label(study=None):
+    """The one non-abandoned pilot label under calibration/, or None."""
+    root = Path(study) if study is not None else STUDY
+    here = root / CALIBRATION_ROOT
+    if not here.is_dir():
+        return None
+    labels = sorted(entry.name for entry in here.iterdir()
+                    if entry.is_dir() and not entry.name.startswith(ABANDONED_PREFIX))
+    return labels[0] if len(labels) == 1 else None
+
+
+def _calibration_artifact_digest(name):
+    """A `compute` for PENDING_PIN_SOURCES: the sha256 of
+    calibration/<label>/<name>, or None while it is not there."""
+    def compute(study=None):
+        label = _pilot_label(study)
+        if label is None:
+            return None
+        root = Path(study) if study is not None else STUDY
+        path = root / CALIBRATION_ROOT / label / name
+        if not path.is_file():
+            return None
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+    return compute
+
+
 PENDING_PIN_SOURCES = (
     ("reviewerMutantSet.sha256", REVIEWER_SET_DIR + "/" + REVIEWER_SET_MANIFEST,
      reviewer_set_digest),
+    # ROUND 2 (R2-7, R2-11, R2-13): the pilot's three pinned artifacts, so a
+    # freeze cannot complete with the pilot published and unpinned.
+    ("calibration.outputSha256", CALIBRATION_ROOT + "/<label>/PILOT-RATES.json",
+     _calibration_artifact_digest("PILOT-RATES.json")),
+    ("calibration.c4ReferenceSha256",
+     CALIBRATION_ROOT + "/<label>/C4-REFERENCE.json",
+     _calibration_artifact_digest("C4-REFERENCE.json")),
+    ("calibration.dispersionSha256",
+     CALIBRATION_ROOT + "/<label>/PILOT-DISPERSION.json",
+     _calibration_artifact_digest("PILOT-DISPERSION.json")),
 )
 
 

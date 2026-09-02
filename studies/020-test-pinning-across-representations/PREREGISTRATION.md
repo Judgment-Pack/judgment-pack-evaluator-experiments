@@ -750,7 +750,9 @@ difference is the design-time pin-state rule *applying*, not relaxing) while anc
 `calibration/<UTC date>-pilot/arm-<ARM>/run-NNN` and stamping `citable: false`. The driver
 publishes `PILOT.json`/`PILOT.md` after every call and computes no rate; the per-arm counts are
 computed post-hoc by `harness/pilot_rates.py` through the registered scoring components (the
-§2.1 rates scope: **no kill quantity**, by construction) and published as
+§2.1 rates scope: **no kill quantity**, by construction — a scope that binds `pilot_rates.py`,
+the go/no-go's publisher; §2a.6's post-pilot analysis pass computes per-run kill records under a
+closed no-peek schema, round 2) and published as
 `calibration/<label>/PILOT-RATES.json` — the record validated by the sealed
 `calibration/derive_floor.py`'s own `validate_record()` at publication AND at the freeze gate
 (`make_manifest.calibration_record_problems()`), so the producer and the go/no-go's consumer
@@ -892,9 +894,40 @@ struck clause named no reachable state — `calibration-invalid` is observable o
 primary attempt, of which there is exactly one — so the outcome is recorded with the rows that
 produced it and reaches §5.9 row 3, which is terminal. The two-sided ROUTING is untouched.
 
+**AMENDED (round 2, R2-11) — the gate now exists, and four things the table left implicit are
+registered.** The gate was in `decision.CONTROL_GATES` and produced by nothing, so every attempt
+would have failed as "not evaluated" and neither branch above could occur. It is produced now:
+`harness/e4lib/transfer.py` reads both sides through ONE reader, `harness/pilot_analysis.py`
+publishes the pilot side as **`calibration/<label>/C4-REFERENCE.json`** after the pilot and
+before the freeze (pinned at **`calibration.c4ReferenceSha256`**, a freeze pin), and
+`harness/score.py` reads the batch side from every present executed slot at attempt time,
+compares, publishes `transferGate` in every outcome, and routes: an unequal exact row (or a side
+that disagrees with itself) is `pipeline-invalid` at row 1, with the band rows still computed
+and published; otherwise an out-of-band or unevaluable band cell is `calibration-invalid` at
+row 3; otherwise the gate holds. An absent, unpinned or non-validating reference is itself a
+row-1 problem — §6: a gate the scorer did not evaluate fails. The four registrations: **(i) two
+band rows, not three** (maintainer ruling on R2-11(A)): the `reasoning_output_tokens` row above
+is ~~[0.65×, 1.55×]~~ struck as a gating row, because §2.1's M-24 fill registered the
+self-report band as NOT taken once the witness resolution landed on the gate-5-extension branch
+and the two sentences contradicted each other; the per-arm token median is still published on
+both sides as a descriptive quantity that no gate reads. **(ii) The cohort** is executed calls
+only — a slot whose wrapper wrote a `CALL.json` with a resolvable duration — which is
+`design/BRIEF.md`'s own cohort (the exit-126 records carried `durationSeconds: null` and were
+outside the 199 / 75 / 75 s triple). **(iii) The median** at even n is the mean of the two
+middles, stated because the pilot's n is 12. **(iv) The ratio** is pilot ÷ batch and the band is
+closed at both ends, so 019's mismatch reads 1660.184 / 199 = 8.34× exactly as the power column
+prints it. The eight exact rows are `model`, CLI version, binary sha256, reasoning effort (each
+from `CALL.json`; the transcript witness is gate 5's business per slot), sandbox policy (the
+`--sandbox` argv token), `codexHomeIsolated`, `environmentScrubbed`, and the sorted isolation
+inventory.
+
 ### 2a.6 C5 — one pilot, sealed, terminal
 
-The pilot runs once; label, N and output digest go into `PINS.json` before the primary attempt.
+The pilot runs once; label, N and output digest go into `PINS.json` before the primary attempt
+— and, **AMENDED (round 2)**, so do the two post-pilot analysis artifacts' digests
+(`calibration.c4ReferenceSha256`, `calibration.dispersionSha256`), and **all five calibration
+members are FREEZE PINS** read by `integrity.study_label()`: this sentence was enforced by no
+label rule before round 2, and a REGISTERED attempt was reachable with every one of them null.
 **There is no second pilot.** A `calibration-invalid` outcome at C4 is terminal under §5.9 row 3,
 exactly as any control-gate failure is.
 
@@ -923,9 +956,30 @@ dispersion figures become a **prior, not a calibration**. Registered: pin the ef
 and **re-derive the dispersion from the pilot at the pinned effort**; 019's SDs are a fallback
 prior and are labelled as one wherever they appear.
 
-> **TODO(prereg) — the dispersion re-derived from the pilot at the pinned effort.** §5.6's σ table
-> stands as a labelled fallback prior until the pilot at the registered condition reports; the
-> per-member MDE table is then recomputed at the registered N and republished before the freeze.
+> **LANDED (round 2, R2-13; maintainer ruling: implement, shared pass, σ stands beside the
+> prior).** `harness/pilot_analysis.py` — the same post-pilot pass that publishes the C4
+> reference — scores the apparatus-clean pilot slots through `score.score_run()`, the ONE scoring
+> path, builds units exactly as `score.registered_family()` does, and publishes
+> **`calibration/<label>/PILOT-DISPERSION.json`** (pinned at `calibration.dispersionSha256`, a
+> freeze pin): for each of the eighteen registered members, σ on its registered basis (pooled
+> within-arm, N − k; residual, N − 4, for the adjusted members), the degrees of freedom, the exact
+> two-sided 95 % χ² interval for σ (`e4lib/dispersion.py`), and the MDE at the pilot's own n and
+> at the registered N (each arm's realised n derived from the pilot's own membership fraction for
+> that member's population — a size, not a direction). **It computes no contrast, no test and no
+> direction**: it never calls `family.score_member()` or `family.family_report()`, its schema is
+> closed, and a no-peek gate refuses publication — and the freeze — if any member at any depth is
+> a difference, sign, p-value, rejection, interval, mean, contrast, verdict or claim. §2a.2's
+> "no kill quantity, by construction" is scoped to `pilot_rates.py`, the go/no-go's publisher;
+> this pass necessarily computes per-run kill records, and the closed no-peek schema is what
+> makes that not a peek. **§5.6's 019 table stays as published, labelled the fallback prior; the
+> recomputed table is appended to §5.6 from this file's bytes by the ceremony, with df and
+> interval per row, and stands BESIDE the prior rather than replacing it** — the pilot estimate is
+> materially less precise (χ² factors [0.739, 1.548] at the per-protocol floor against
+> [0.876, 1.171] on 019's 88 runs), and "recomputed" is not "better". The registered planning
+> statements of §5.6 (the binding MDE ≈ 0.165; 80 %-powered against ≈ 2 / ≈ 9 classes) therefore
+> stand on the prior and are reprinted beside the pilot's figures, not replaced by them. The
+> ceremony step is: pilot → `pilot_rates.py --write` → `pilot_analysis.py --write` → pin the
+> three digests → freeze.
 
 ## 3. Arms and prompt materials
 
@@ -1581,7 +1635,11 @@ C 0.718): θ = 1 → 0.127 (N=40) / 0.246 (60) / 0.356 (80); θ = 2 → 0.581 / 
 **Dispersion and minimum detectable effect, per member** — pooled within-arm SD, unbiased (N − k;
 residual N − 4 for the adjusted members), all arm-blind; MDE = 2.8016 · σ · √(1/n_A + 1/n_C) at
 two-sided α = 0.05, 80 % power. **These are 019 figures and are a labelled fallback prior until the
-pilot re-derives them at the pinned effort (§2a.6).**
+pilot re-derives them at the pinned effort (§2a.6).** **AMENDED (round 2, R2-13):** the
+re-derivation is `harness/pilot_analysis.py`'s `PILOT-DISPERSION.json`, and its eighteen rows —
+σ, df, the exact χ² 95 % interval, MDE at the pilot's n and at the registered N — are APPENDED
+below this table by the ceremony once the pilot has run, and stand beside it. This table is
+retained as published; no figure in it moves.
 
 | id | σ | MDE @ 019 n | MDE @ N=60, slot-shape cured | MDE @ N=60, + registry cure | MDE @ N=100 |
 |---|---|---|---|---|---|

@@ -145,10 +145,25 @@ class PilotTree:
             with open(os.path.join(slot, "completion.txt"), "w",
                       encoding="utf-8") as handle:
                 handle.write(self.completion)
+        # The C4 members the real wrapper writes (R2-11): the transfer gate's
+        # eight exact rows and the duration the executed-call cohort keys on.
+        seconds = 90 + 7 * entry["globalIndex"]
         call = {
             "slot": os.path.basename(slot),
             "slotIndex": entry["slotIndex"],
             "arm": entry["arm"],
+            "argv": ["codex", "exec", "--ignore-user-config", "-m",
+                     STAND_IN_MODEL, "--sandbox", "workspace-write", "-c",
+                     "mcp_servers={}"],
+            "model": STAND_IN_MODEL,
+            "cli": "codex-cli 0.145.0-fake",
+            "binarySha256": "sha256:" + "2" * 64,
+            "codexHomeIsolated": True,
+            "environmentScrubbed": True,
+            "isolatedHomeInventory": [".codex/auth.json", ".codex/config.toml"],
+            "startedAt": "2026-08-24T10:00:00Z",
+            "endedAt": "2026-08-24T10:%02d:%02dZ" % divmod(seconds, 60),
+            "durationSeconds": float(seconds),
             "armPromptSha256": ((self.pins.get("arms") or {}).get(entry["arm"])
                                 or {}).get("promptSha256"),
             "promptKind": "registered",
@@ -264,3 +279,70 @@ def stub_transcript():
 
 def build(study: str, label: str, pins: dict, **kwargs) -> PilotTree:
     return PilotTree(study, label, pins, **kwargs).build()
+
+
+#: The five calibration members the PILOT CEREMONY fills (freeze pins since
+#: round 2). A stand-in registry that fills every freeze pin with a digest
+#: string would otherwise read as "a pilot that has run"; a pilot fixture
+#: resets them to the pre-pilot state it is about to leave.
+CEREMONY_MEMBERS = ("label", "outputSha256", "derivedFloor",
+                    "c4ReferenceSha256", "dispersionSha256")
+
+
+def reset_calibration_pins(pins: dict) -> dict:
+    calibration = pins.setdefault("calibration", {})
+    for member in CEREMONY_MEMBERS:
+        calibration[member] = None
+    return pins
+
+
+def write_analysis_artifacts(study: str, label: str) -> dict:
+    """The two post-pilot artifacts a freeze-gate fixture needs, built the
+    way `harness/pilot_analysis.py` builds them where that is cheap (the C4
+    reference from the sealed slots' own CALL.json bytes) and MINIMALLY where
+    it is not (an eighteen-row dispersion table with no forbidden member, no
+    scoring). Returns {name: sha256:...}."""
+    import hashlib
+    from e4lib import family, transfer
+    root = os.path.join(study, "calibration", label)
+    by_arm = {arm: [] for arm in ARMS}
+    for arm in ARMS:
+        arm_dir = os.path.join(root, "arm-%s" % arm)
+        if not os.path.isdir(arm_dir):
+            continue
+        for name in sorted(os.listdir(arm_dir)):
+            slot = os.path.join(arm_dir, name)
+            call_path = os.path.join(slot, "CALL.json")
+            if not os.path.isfile(call_path):
+                continue
+            with open(call_path, encoding="utf-8") as handle:
+                call = json.load(handle)
+            completion = os.path.join(slot, "completion.txt")
+            by_arm[arm].append({
+                "call": transfer.call_members(call),
+                "completionBytes": (os.path.getsize(completion)
+                                    if os.path.isfile(completion) else None),
+                "reasoningOutputTokens": 400 + len(name)})
+    reference = transfer.reference_document(label, transfer.observables(by_arm))
+    table = {"label": label, "citable": False, "goNoGo": "GO",
+             "registeredN": 60,
+             "perMember": [{"id": member.id, "level": member.level,
+                            "engine": member.column,
+                            "population": member.population,
+                            "adjustment": "ANCOVA" if member.adjusted else None,
+                            "sigmaBasis": ("residual" if member.adjusted
+                                           else "pooledWithinArm"),
+                            "sigma": 0.1, "n": {"A": 12, "B": 12, "C": 12},
+                            "df": 33, "sigmaCI95": [0.08, 0.13],
+                            "mdeAtPilotN": 0.11, "mdeAtRegisteredN": 0.05}
+                           for member in family.MEMBERS]}
+    digests = {}
+    for name, body in (("C4-REFERENCE.json", reference),
+                       ("PILOT-DISPERSION.json", table)):
+        target = os.path.join(root, name)
+        with open(target, "w", encoding="utf-8") as handle:
+            json.dump(body, handle, indent=2, sort_keys=True)
+            handle.write("\n")
+        with open(target, "rb") as handle:
+            digests[name] = "sha256:" + hashlib.sha256(handle.read()).hexdigest()
+    return digests
