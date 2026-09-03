@@ -332,14 +332,13 @@ def _defective_set(tmp_path, monkeypatch):
     """A copy of the committed sealed set with ONE payload byte changed, pointed
     at by the scorer.
 
-    ROUND 3 REPAIRED THE REAL SET. Both tests below used to rely on the
-    committed set being digest-invalid — the round-2 reviewer emitted a
-    pre-final `rm-jps-03` — and the reviewer re-issued that payload this round,
-    so all six digests verify and the two tests stopped exercising the refusal
-    they are named for. A test whose power came from a defect someone was
-    always going to fix is a test that quietly stops discriminating, so the
-    defect is CONSTRUCTED here instead, in a scratch copy: the committed set is
-    read and never written (§1a: the maintainer touches nothing in it)."""
+    THE DEFECT IS CONSTRUCTED, NEVER RELIED ON. In Study 019 both tests below
+    once drew their power from the committed set being digest-invalid (a
+    pre-final payload the reviewer later re-issued), and stopped discriminating
+    the day it was fixed. 020's set — authored by the round-3 reviewer, six
+    payloads, every digest verifying on arrival — is read here and never
+    written (§1a: the maintainer touches nothing in it); the one-byte defect
+    lives in a scratch copy."""
     import shutil
     source = os.path.join(score.STUDY, score.REVIEWER_SET_RELATIVE)
     copy = tmp_path / "sealed-set"
@@ -375,20 +374,29 @@ def _requires_sealed_set():
 def test_the_committed_sealed_set_loads_as_the_reviewer_re_issued_it(
         tmp_path, monkeypatch):
     """The positive control the two tests below need in order to mean anything:
-    the set as committed LOADS. Round 2 recorded two defects in it as authored
-    and refused to repair them from this side; round 3's reviewer re-issued
-    `rm-jps-03` and re-attested `rm-rego-01`, and this is that repair, executed
-    rather than described."""
+    the set as committed LOADS. 020's set was authored by the round-3 reviewer
+    (2026-09-03) — six payloads, one JPS and five Rego, each a single semantic
+    edit to the frozen reference, validated by the pinned binaries and never
+    executed — and committed verbatim by the round's return commit. (This test
+    was ported from Study 019, where it narrated 019's set: three per language
+    and a payload re-issued in 019's round 3. It skipped while 020 had no set
+    and asserted 019's shape the day 020's arrived; it now asserts what §4.3
+    and the loader register — 6–10 payloads, both languages — and pins the
+    round-3 manifest digest as the tripwire for a maintainer edit.)"""
     _requires_sealed_set()
     _reachable(monkeypatch)
     loaded = score.reviewer_lib.load(
         os.path.join(score.STUDY, score.REVIEWER_SET_RELATIVE), None)
     assert loaded["count"] == 6
+    assert score.reviewer_lib.SET_MINIMUM <= loaded["count"] \
+        <= score.reviewer_lib.SET_MAXIMUM
     assert loaded["executed"] is False, "the load invokes no engine (§1a)"
-    assert sorted(entry["language"] for entry in loaded["mutants"]) == \
-        ["jps"] * 3 + ["rego"] * 3
+    languages = [entry["language"] for entry in loaded["mutants"]]
+    assert set(languages) == {"jps", "rego"}, "both languages represented (§4.3)"
+    assert sorted(languages) == ["jps"] + ["rego"] * 5, (
+        "the round-3 reviewer authored one JPS and five Rego payloads")
     assert loaded["manifestSha256"] == \
-        "6bff7f950b132505d1034fe7d993a8920f028647b35dc1f48d9072884fedaa0e", (
+        "f445442ac547f63a390441c2c230e96ce453c4cb856e3507109a454624a8ce7a", (
             "the reviewer's round-3 MANIFEST.json is what is committed; a "
             "maintainer edit to the sealed set would show up here")
 

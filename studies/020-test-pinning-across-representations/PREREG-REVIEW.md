@@ -75,10 +75,17 @@ they described).**
   },
   {
    "number": 3,
-   "state": "awaiting-review",
-   "verdict": null,
-   "severities": null,
-   "findings": null
+   "state": "awaiting-response",
+   "verdict": "DO NOT FREEZE",
+   "severities": {
+    "BLOCKER": 8,
+    "MAJOR": 6,
+    "MINOR": 1
+   },
+   "findings": {
+    "first": 1,
+    "last": 15
+   }
   }
  ]
 }
@@ -90,7 +97,7 @@ ROUND-STATE-BLOCK -->
 |---|---|---|---|---|---|---|
 | 1 | complete | DO NOT FREEZE | 13 | 9 | 1 | R1-1 … R1-23 |
 | 2 | complete | DO NOT FREEZE | 11 | 7 | 1 | R2-1 … R2-19 |
-| 3 | awaiting-review | — | — | — | — | — |
+| 3 | awaiting-response | DO NOT FREEZE | 8 | 6 | 1 | R3-1 … R3-15 |
 
 **Round 1 opened 2026-08-24** on the filled draft (the sweep run, §2.1 filled at `low` /
 N = 60, the gate-5 extension landed, the rates published): `reviews/round-1/PROMPT.md`
@@ -242,3 +249,29 @@ prompt as committed at `4e1a073f`) was refused by the provider's content classif
 thirteen minutes of reading and returned no review; the prompt was reworded to plainer
 verification language with its substance unchanged, recommitted verbatim, and the round
 relaunched — the record keeps the refused prompt in history at that commit.**
+
+**Round 3 returned 2026-09-03: `DO NOT FREEZE`, 8 BLOCKER / 6 MAJOR / 1 MINOR (R3-1 … R3-15)**, committed verbatim at `reviews/round-3/REVIEW.md`. Dispositions follow below as the maintainer's written response; the round closes when every finding carries one.
+
+
+## Round 3 — 2026-09-03
+
+**`DO NOT FREEZE`, 8 BLOCKER / 6 MAJOR / 1 MINOR (R3-1 … R3-15).** The verbatim review is
+`reviews/round-3/REVIEW.md`. The five prospective rulings are adjudicated in the review's own second section, all five in the maintainer's favour on substance: **R2-2's native-for-both estimand is coherent** (the reviewer reconstructed all six L2c members under all three readings to six digits and reproduced Reprint 1b, the hybrid alternative reproducing Reprint 1, with no decision reading an alternative); **R2-10's denominator ruling stands** (the 0.20 declaration was not the defect; the amended vocabulary is one partition); **R2-12's terminal first pilot is sound as a lifecycle ruling**; **R2-13's dispersion producer holds** (the χ² multipliers reproduce independently, the producer never reaches a member or a contrast); **R2-11(A)'s two-band routing holds**. What the round returns are the RESIDUALS beside each: the no-answer boundary stops at `opa check` (R3-1); the pilot scheduler counts wrapper-clean rather than §1a-clean calls and aborts before the cap (R3-2); abandonment can rename away invoked attempts (R3-3); the three derived pilot documents are digest-checked but never regenerated from the sealed slots at the gate (R3-4); the S10 realised-n derivation conditions away the attrition it is meant to measure (R3-5); §5.6's operating characteristics were not rerun under native weights and their producer is untracked (R3-6); E1's S2 predicate is still an owed registration event (R3-7); the freeze runbook the scaffold itself says does not exist is owed (R3-8); the pricing tables, §3.2's "pending" language, `family.py`'s F-1 record, T5's venue, the evidence ROOT's type, the completion-byte cohort and the strict-decoder claim each carry a currency or completeness residual (R3-9 … R3-15). Seven round-2 dispositions HOLD outright (R2-3, R2-5, R2-8, R2-14, R2-17, R2-18, R2-19) and the rest spawn the findings above; every static count re-derived reconciles (gold 117, mutants 183/185, off-gold 236,196 cells, 46 ports / 382 artifacts, 18 new files, 23 freeze pins, R2-17's six line counts). The full suite could not be executed in the read-only review checkout (temporary-directory creation failed there); the family and counterfactual tests and the pinned-binary validation of the authored payloads were. **The reviewer AUTHORED the sealed set**: six mutants (one JPS, five Rego), each a single semantic edit to the frozen reference, validated by the pinned binaries and NOT executed, with a dated prediction of which suites miss which mutant. It is committed verbatim under `controls/reviewer-mutants/` by this round's return commit, loader-validated without execution; its manifest digest (`f445442a…`) becomes the `reviewerMutantSet` freeze pin at the freeze and is null until then. Dispositions land row by row below; a placeholder cell is a finding the maintainer has not yet answered, and the round stays open until none remains.
+
+| Finding | Severity | Disposition |
+|---|---|---|
+| R3-1 | BLOCKER | — |
+| R3-2 | BLOCKER | — |
+| R3-3 | BLOCKER | — |
+| R3-4 | BLOCKER | — |
+| R3-5 | BLOCKER | — |
+| R3-6 | BLOCKER | — |
+| R3-7 | BLOCKER | — |
+| R3-8 | BLOCKER | — |
+| R3-9 | MAJOR | — |
+| R3-10 | MAJOR | — |
+| R3-11 | MAJOR | — |
+| R3-12 | MAJOR | — |
+| R3-13 | MAJOR | — |
+| R3-14 | MAJOR | — |
+| R3-15 | MINOR | — |
