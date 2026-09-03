@@ -9,7 +9,7 @@ The study is `studies/020-test-pinning-across-representations/` in this reposito
 instrument repair on Study 019, reviewed by you in round 1 (2026-08-24, `DO NOT FREEZE`,
 R1-1 … R1-23) and round 2 (2026-08-25, `DO NOT FREEZE`, 11 BLOCKER / 7 MAJOR / 1 MINOR,
 R2-1 … R2-19). **The maintainer has written a disposition on every round-2 finding and
-closed the round; this round reviews the RESPONDED tree.** Your job is threefold: verify
+closed the round; this round reviews the RESPONDED tree.** (A first launch of this round on 2026-09-02 at 20:26 UTC, with the prompt committed at `4e1a073f`, was refused by the provider's content classifier after reading and returned no review; this prompt is that one with its verification wording made plainer, substance unchanged.) Your job is threefold: verify
 each of the nineteen dispositions against the bytes it claims, adjudicate the five
 maintainer rulings registered FOR this round, and — because the holdout-input and
 pilot/attempt blockers you named are repaired — author the fresh sealed reviewer mutant
@@ -75,13 +75,10 @@ set.
 
 - **Every disposition row** against the tree: does the claimed fix exist, does the named
   test exist AND discriminate — the response claims a mutation check for every safeguard
-  and records the mutation in the test's docstring; spot-check by breaking the mechanism
-  yourself — and does anything in the row overstate what landed? Two items are declared
-  STILL OWED rather than closed (§5.2's per-member analysis-set table, SCAFFOLD S10; the
-  sealed set); a third owed item you find is a finding.
-- **The pilot ledger authentication** (`make_manifest.pilot_ledger_problems()`): build a
-  forged pilot the freeze gate wrongly accepts, or a lawful one it wrongly refuses.
-  `harness/tests/pilot_fixture.py` builds sealed pilots; use it against the gate.
+  and records the mutation in the test's docstring; spot-check by reading the test against the mechanism it guards — and does anything in the row overstate what landed? Two items are declared
+  STILL OWED rather than closed (§5.2's per-member analysis-set table, SCAFFOLD S10 — ruled 2026-09-02 to fill from the terminal pilot's measured apparatus-clean rates, so it stays owed until the pilot; and the sealed set); a third owed item you find is a finding.
+- **The pilot ledger authentication** (`make_manifest.pilot_ledger_problems()`): check that a pilot record the gate must refuse is refused, and that a lawful one is accepted.
+  `harness/tests/pilot_fixture.py` builds sealed pilots; read its cases against the gate.
 - **The C4 gate end to end**: the eight exact rows, the two bands, the cohort, the
   reference document's validation, the two-sided routing into `decision.py`'s table.
 - **The one-universe family**: recompute the six L2c members under all three readings
@@ -94,8 +91,7 @@ set.
   R2-19) against its machine source; the tests that now bind them.
 - **The regenerated counterfactual**: the file names the estimand it was computed under;
   one descriptive cell changed sign (M18's adjusted shift, +0.015) and §3.2(iv) says so.
-- **The lstat fence** (`integrity._evidence_lines()`): the three pinned digests do not
-  move; a symlink, a fifo, a dangling link and an empty directory refuse.
+- **The evidence-walk entry check** (`integrity._evidence_lines()`): the three pinned digests do not move, and every non-regular or empty entry is refused by name.
 - Every count and figure the amended registration asserts, against the artifact that
   carries it.
 
@@ -104,7 +100,7 @@ set.
 The standing lenses still apply (the population rule, the eighteen-member family, the
 fill as a registration event, gate 5, the guard, the two identities, cross-arm fairness,
 the corrections regime, the frozen-reader standard). Apply them to the AMENDED tree — in
-particular: can the pilot machinery be made to spend a call the registration forbids,
+particular: is every call the pilot machinery can spend one the registration permits,
 can a NO-GO or calibration-invalid state reach the freeze or the primary attempt's
 substantive rows, and does any disposition quietly change a registered quantity without
 a marked amendment?

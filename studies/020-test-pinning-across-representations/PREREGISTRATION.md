@@ -1516,8 +1516,11 @@ The family is the crossing **{L1, L3, L2c} × {engine-included, engine-excluded}
    > finding R2-6: this cell transcribed the fill as "50/arm" — the count §2.1's first draft
    > carried. The registered N is 60; `harness/PINS.json`'s `batch.n` is the one home of that
    > number, and `harness/tests/test_prereg_currency.py` now reads this cell against it. The
-   > per-member table itself is STILL OWED — `harness/SCAFFOLD.md` S10 — and waits on the
-   > maintainer's ruling on which apparatus-repair branch the eighteen per-arm n are stated at.)**
+   > per-member table itself is STILL OWED — `harness/SCAFFOLD.md` S10. RULED 2026-09-02: it is
+   > filled from the TERMINAL PILOT's measured apparatus-clean membership fractions — the
+   > realised-n arithmetic `harness/pilot_analysis.py` already derives (R2-13) — not from either
+   > apparatus-repair branch assumed here, so it stays owed until the pilot has run and fills
+   > before the freeze from measured rates.)**
 
 **Realised-n arithmetic, shown rather than asserted, at the REGISTERED N = 60 (§2.1's fill; this
 sentence said "illustrative" until round-2 R2-6).** Derived

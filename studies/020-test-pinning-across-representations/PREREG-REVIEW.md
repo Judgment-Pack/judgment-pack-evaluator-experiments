@@ -237,4 +237,8 @@ effort ultra, read-only sandbox, invoked over this repository checkout with the 
 bytes on stdin. The round's charge: verify every disposition against the bytes it claims,
 adjudicate the five prospective rulings (R2-2, R2-10, R2-11(A), R2-12, R2-13), and — the
 holdout-input and pilot/attempt blockers being repaired — author the fresh sealed reviewer
-mutant set (§4.3), to be committed verbatim and sealed by digest.
+mutant set (§4.3), to be committed verbatim and sealed by digest. **The first launch (20:26 UTC,
+prompt as committed at `4e1a073f`) was refused by the provider's content classifier after
+thirteen minutes of reading and returned no review; the prompt was reworded to plainer
+verification language with its substance unchanged, recommitted verbatim, and the round
+relaunched — the record keeps the refused prompt in history at that commit.**
