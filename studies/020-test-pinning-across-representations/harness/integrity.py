@@ -84,11 +84,14 @@ whose every freeze pin is non-null labels it REGISTERED. The toolchain blocks
 (`jpack`, `opa`, `python`) are resolved at design time and carry Study 019's
 digests already; they are marked `resolvedAtDesignTime` and are enforced under
 both labels. `codex.model` and `codex.reasoningEffort` are the two DESIGN-TIME
-pins that are still unresolved (§2.1, M-24/M-25): they are not freeze pins,
-they are null, and a null in either one labels the run PILOT exactly as a null
-freeze pin does — with one registered exemption, the `--sweep` label, which
-exempts `codex.reasoningEffort` ALONE because the sweep is the procedure that
-resolves it.
+pins (§2.1, M-24/M-25), BOTH NOW RESOLVED — the model before the sweep, the
+effort by §2.1's fill from the sweep's output. They are not freeze pins, and
+the label rule they carried is unchanged: a null in either one labels the run
+PILOT exactly as a null freeze pin does, with one registered exemption, the
+`--sweep` label, which exempts `codex.reasoningEffort` ALONE because the sweep
+is the procedure that resolves it. The exemption is kept in the gate although
+its operative moment has passed: it is the registered record of how the sweep
+was able to run, and removing it would falsify the procedure's own history.
 """
 
 
@@ -98,6 +101,7 @@ import json
 import os
 import platform
 import re
+import stat
 import subprocess
 import sys
 
@@ -184,11 +188,24 @@ REQUIRED_PORTS = frozenset(
 # Study 019's lock must not name the path. A file 019 does have is a file this
 # study owes a row for, and calling it new does not make it new.
 NEW_IN_020 = frozenset((
+    "harness/counterfactual_shift.py",
+    "harness/e4lib/dispersion.py",
     "harness/e4lib/family.py",
     "harness/e4lib/presence_idiom.py",
+    "harness/e4lib/transfer.py",
+    "harness/pilot_analysis.py",
+    "harness/pilot_rates.py",
+    "harness/sweep_rates.py",
+    "harness/tests/pilot_fixture.py",
+    "harness/tests/test_counterfactual_shift.py",
     "harness/tests/test_family.py",
+    "harness/tests/test_pilot.py",
+    "harness/tests/test_pilot_analysis.py",
     "harness/tests/test_score_presence_idiom.py",
+    "harness/tests/test_score_reviewer_integration.py",
+    "harness/tests/test_score_transfer.py",
     "harness/tests/test_sweep.py",
+    "harness/tests/test_sweep_rates.py",
 ))
 
 # TIER PORTS (the second source-side authority, for the seven rows that have
@@ -246,13 +263,24 @@ PROMPT_PATHS = {arm: "arms/%s/PROMPT.txt" % arm for arm in ARMS}
 # null anywhere here makes the run a PILOT (`study_label()`); REGISTERED
 # requires every one of them.
 #
-# Study 019 carried EIGHTEEN. Study 020 carries SEVENTEEN, and the one that
-# left is not a relaxation: `codex.model` moves to `DESIGN_TIME_PINS` below
-# under ruling M-25, where its null still labels the run PILOT. It moved
-# because the compute condition (the model AND the reasoning effort) is an
-# OUTPUT of the pre-pilot sweep (§2.1), and the sweep runs BEFORE the freeze —
-# a value the freeze ceremony fills cannot be a value the pre-freeze sweep is
-# required to have already filled.
+# Study 019 carried EIGHTEEN; Study 020 carries TWENTY-THREE. The arithmetic
+# from 019 is two moves and one arrival of five (R1-23: this comment once said
+# seventeen, counting the departure and not the arrival). `codex.model` LEFT
+# for `DESIGN_TIME_PINS` below under ruling M-25 — not a relaxation: its null
+# still labels the run PILOT — because the compute condition is an OUTPUT of
+# the pre-pilot sweep (§2.1) and the sweep runs BEFORE the freeze, so a value
+# the freeze ceremony fills cannot be one the sweep is required to have
+# already filled. `censusStimulusCount` ARRIVED (R7-9's lesson wearing a new
+# number: a count the freeze claims must be a pin the gate reads). And the
+# FIVE CALIBRATION PINS arrived in round 2: §2a.6 registers "label, N and
+# output digest go into PINS.json before the primary attempt", and until this
+# round NO label rule read them — `study_label()` returned REGISTERED with
+# every calibration member null (the completeness review's finding beside
+# R2-11). The pilot's label, its rates record's digest, the derived floor,
+# and the two post-pilot analysis artifacts (R2-11's C4 reference, R2-13's
+# dispersion table) are freeze pins now: a REGISTERED attempt is unreachable
+# while the pilot is unpinned. They need no CEREMONY_LIFECYCLE exemption —
+# the pilot precedes the freeze, which precedes the batch's own gate.
 FREEZE_PINS = (
     ("preregistration", ("preregistration", "sha256")),
     ("policyProse", ("policyProse", "sha256")),
@@ -278,10 +306,19 @@ FREEZE_PINS = (
     # says "freeze-pinned" and is enforced nowhere is R7-9's defect wearing a
     # different number.
     ("censusStimulusCount", ("censusStimulus", "count")),
+    # NEW IN 020, ROUND 2. §2a.6's "label, N and output digest go into
+    # PINS.json before the primary attempt", made a label-rule fact rather
+    # than a sentence; plus the two post-pilot analysis artifacts.
+    ("calibrationLabel", ("calibration", "label")),
+    ("calibrationOutput", ("calibration", "outputSha256")),
+    ("calibrationDerivedFloor", ("calibration", "derivedFloor")),
+    ("c4Reference", ("calibration", "c4ReferenceSha256")),
+    ("pilotDispersion", ("calibration", "dispersionSha256")),
 )
 
-# M-25, ruled 2026-08-23. The two DESIGN-TIME-RESOLVED pins that are not yet
-# resolved. `registeredLabelRule` names design-time-resolved pins as checked
+# M-25, ruled 2026-08-23. The two DESIGN-TIME-RESOLVED pins — both resolved as
+# of 2026-08-24 (the model before the sweep, the effort by §2.1's fill from the
+# sweep's output). `registeredLabelRule` names design-time-resolved pins as checked
 # "whether or not the freeze has happened", so a null in either one labels the
 # run PILOT exactly as a null freeze pin does — and `study_label()` reads BOTH
 # tuples, which is the whole of the restatement §7's delta 6 owes.
@@ -332,6 +369,21 @@ PIN_SOURCES = {
     "reviewerMutantSet": "sha256 of controls/reviewer-mutants/MANIFEST.json — "
                          "the FRESH set §4.3 registers, authored during review "
                          "rounds; Study 019's set is spent and does not carry",
+    "calibrationLabel": "the one pilot's dated label under calibration/, "
+                        "written into the registry by the ceremony after "
+                        "batch.py pilot (§2a.6)",
+    "calibrationOutput": "sha256 of calibration/<label>/PILOT-RATES.json, "
+                         "published by harness/pilot_rates.py (§2a.6)",
+    "calibrationDerivedFloor": "calibration/derive_floor.py's own output over "
+                               "the rates record — the derived floors, never a "
+                               "chosen number (§2a.4, §2a.6)",
+    "c4Reference": "sha256 of calibration/<label>/C4-REFERENCE.json, published "
+                   "by harness/pilot_analysis.py — the pilot side of §2a.5's "
+                   "transfer gate (round-2 R2-11)",
+    "pilotDispersion": "sha256 of calibration/<label>/PILOT-DISPERSION.json, "
+                       "published by harness/pilot_analysis.py — §2a.6's "
+                       "dispersion re-derived at the pinned effort (round-2 "
+                       "R2-13)",
     "model": "the model id the authoring wrapper is invoked with, by explicit "
              "flag; chosen with the reasoning effort by the pre-pilot sweep "
              "(§2.1, M-8/M-20) and resolved at design time, not at the freeze",
@@ -363,12 +415,34 @@ def _refuse_duplicate_keys(pairs):
     return dict(pairs)
 
 
+def refuse_json_constant(token: str):
+    """ROUND-2 FINDING R2-9, at ONE seat so the fence has no holes.
+
+    JSON has no `NaN`, `Infinity` or `-Infinity` literal; Python's decoder
+    accepts all three anyway. A `NaN` reaching `derive_floor.go_no_go()` was
+    the lethal case — every `floor < NaN` comparison is False, so a total
+    collapse in all three arms returned GO — but the class is wider than one
+    function, and R2-9's first draft patched four load sites out of eleven.
+    This is the refusal every reader of a registered document passes as
+    `parse_constant`, and `LOAD_KWARGS` below is how a reader gets both this
+    and the duplicate-key rule without spelling either."""
+    raise IntegrityError(
+        "JSON-NONFINITE a registered document carries the JSON-invalid token "
+        "%r: JSON has no non-finite literal, and a non-finite value silently "
+        "defeats every comparison a gate makes against it (R2-9)" % (token,))
+
+
+#: The reader contract for every registered JSON document in this study.
+LOAD_KWARGS = {"object_pairs_hook": _refuse_duplicate_keys,
+               "parse_constant": refuse_json_constant}
+
+
 def load_json(path: str):
-    """Duplicate-key-rejecting JSON. A registry or a lock with a shadowed
-    member cannot mean one thing here and another to a reader."""
+    """Duplicate-key-rejecting, non-finite-rejecting JSON. A registry or a lock
+    with a shadowed member cannot mean one thing here and another to a reader,
+    and one carrying `NaN` cannot mean anything at all to a comparison."""
     with open(path, "rb") as handle:
-        return json.loads(handle.read().decode("utf-8"),
-                          object_pairs_hook=_refuse_duplicate_keys)
+        return json.loads(handle.read().decode("utf-8"), **LOAD_KWARGS)
 
 
 def bare(value) -> str:
@@ -1160,6 +1234,87 @@ def verify_manifest(study: str = STUDY, pins: dict = None) -> str:
     return "sha256:" + actual
 
 
+def _evidence_lines(root: str) -> list:
+    """ROUND-2 FINDING R2-15: the walk `verify_sweep_evidence()` hashes,
+    with an `lstat` fence on every entry. `os.walk()` hashes FILENAMES only:
+    a symlink resolving to a directory contributed neither a path nor a type
+    record (its addition preserved the digest), a file swapped for a symlink
+    to identical bytes was read THROUGH the link and was invisible, a FIFO
+    would have blocked this reader rather than refused, and an empty
+    directory contributed no line and could be added or removed freely. Each
+    of those is refused by name now. The line format is unchanged, so the
+    three pinned digests do not move (asserted by test). Mode bits stay
+    uncovered by design: git's index (100644 for every tracked file) is the
+    fence for a mode mutation, and covering them here would re-pin all three
+    values for no coverage the index does not already give."""
+    lines = []
+    for dirpath, dirnames, filenames in os.walk(root, followlinks=False):
+        dirnames.sort()
+        for name in sorted(dirnames):
+            path = os.path.join(dirpath, name)
+            if not stat.S_ISDIR(os.lstat(path).st_mode):
+                raise IntegrityError(
+                    "sweep evidence tree entry %s is not a real directory: "
+                    "os.walk() hashes filenames only, so a symlink resolving "
+                    "to a directory contributes neither a path nor a type "
+                    "record and its addition preserves the digest (R2-15)"
+                    % os.path.relpath(path, root))
+        for name in sorted(filenames):
+            path = os.path.join(dirpath, name)
+            mode = os.lstat(path).st_mode
+            if not stat.S_ISREG(mode):
+                raise IntegrityError(
+                    "sweep evidence tree entry %s is not a regular file "
+                    "(symlink, fifo, socket or device): the pinned digest "
+                    "reads bytes THROUGH a link, so a file swapped for a link "
+                    "to identical bytes is invisible, and a fifo would block "
+                    "this reader rather than refuse it (R2-15)"
+                    % os.path.relpath(path, root))
+            with open(path, "rb") as handle:
+                lines.append("%s %s" % (
+                    os.path.relpath(path, root),
+                    hashlib.sha256(handle.read()).hexdigest()))
+        if not dirnames and not filenames:
+            raise IntegrityError(
+                "sweep evidence tree holds the empty directory %s, which "
+                "contributes no line and so can be added or removed without "
+                "moving the digest (R2-15)" % os.path.relpath(dirpath, root))
+    return lines
+
+
+def verify_sweep_evidence(study: str = STUDY, pins: dict = None) -> dict:
+    """ROUND-1 FINDING R1-19: the §2.1 fill's evidence — the sweep's ledgers,
+    rates, slot records and the two refused invocations — is PINNED per tree
+    in `sweep.evidenceTrees` and verified here byte for byte. `sweeps/` stays
+    outside the exact-set manifest (a future sweep must be writable), so the
+    pinned trees are what makes the registration event's source bytes
+    tamper-evident: a mutated, added or deleted file under a NAMED tree
+    refuses, and a future unnamed tree is permitted by not being named."""
+    if pins is None:
+        with open(os.path.join(study, "harness", "PINS.json"), "rb") as handle:
+            pins = json.loads(handle.read().decode("utf-8"))
+    trees = dict((pins.get("sweep") or {}).get("evidenceTrees") or {})
+    trees.pop("rule", None)
+    verified = {}
+    for name in sorted(trees):
+        root = os.path.join(study, "sweeps", name)
+        if not os.path.isdir(root):
+            raise IntegrityError(
+                "sweep evidence tree sweeps/%s is pinned and absent: the "
+                "bytes the §2.1 fill was chosen from must stay on the record "
+                "(R1-19)" % name)
+        lines = _evidence_lines(root)
+        digest = hashlib.sha256("\n".join(lines).encode("utf-8")).hexdigest()
+        pinned = str(trees[name]).replace("sha256:", "")
+        if digest != pinned:
+            raise IntegrityError(
+                "sweep evidence tree sweeps/%s hashes to sha256:%s, not the "
+                "pinned sha256:%s: a byte of the §2.1 fill's evidence moved "
+                "(R1-19)" % (name, digest, pinned))
+        verified[name] = "sha256:" + digest
+    return verified
+
+
 def verify(study: str = STUDY, nineteen: str = NINETEEN,
            label_context: str = None) -> dict:
     """Everything this port can establish, in the registered order: no
@@ -1176,12 +1331,14 @@ def verify(study: str = STUDY, nineteen: str = NINETEEN,
                                         chain["study019Pins"])
     interpreter = verify_interpreter(chain["pins"])
     manifest = verify_manifest(study, chain["pins"])
+    sweep_evidence = verify_sweep_evidence(study, chain["pins"])
     label = study_label(chain["pins"], label_context)
     return {"portedFiles": sorted(row[2] for row in chain["rows"]),
             "portedArtifacts": artifacts["portedArtifacts"],
             "study019LockSha256": "sha256:" + chain["study019LockSha256"],
             "study019PortsSha256": "sha256:" + chain["study019PortsSha256"],
             "studyManifest": manifest,
+            "sweepEvidence": sweep_evidence,
             "label": label,
             "labelContext": label_context,
             "unfilledPins": unfilled_pins(chain["pins"], label_context),

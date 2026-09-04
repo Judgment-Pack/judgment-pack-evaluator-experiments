@@ -54,7 +54,7 @@ def test_arm_a_invalid_pack_is_schema_invalid(tools, tmp_path, monkeypatch):
          "diagnostics": [{"code": "JPS-E-001", "layer": "schema",
                           "instancePath": "/rules/0", "severity": "error",
                           "message": "upstream prose that must not be recorded"}],
-         "layers": [{"name": "schema", "status": "failed"}]}, 1, "", ""))
+         "layers": [{"name": "schema", "status": "failed"}]}, 1, "", "", None))
     artifact, code, detail = admit_lib.admit(tools, "A", "{}", str(tmp_path))
     assert artifact is None and code == "schema-invalid-pack"
     assert detail["diagnostics"] == [{"code": "JPS-E-001", "layer": "schema",
@@ -64,20 +64,33 @@ def test_arm_a_invalid_pack_is_schema_invalid(tools, tmp_path, monkeypatch):
     assert detail["failedLayers"] == ["schema"]
 
 
-def test_arm_a_non_json_payload_is_unreadable_output_shape(tools, tmp_path,
-                                                           monkeypatch):
-    """Section 2: verdicts are read from the JSON payload only. A validator that
-    emitted no payload told us nothing about the artifact — that is a shape
-    problem, not a schema verdict."""
-    monkeypatch.setattr(engines, "jpack_json", lambda *a, **k: (None, 3, "", ""))
-    artifact, code, detail = admit_lib.admit(tools, "A", "{}", str(tmp_path))
-    assert artifact is None and code == "unreadable-output-shape"
-    assert detail["validateExit"] == 3
+def test_arm_a_unanswered_validation_is_an_apparatus_refusal(tools, tmp_path,
+                                                             monkeypatch):
+    """ROUND-1 FINDING R1-1, this test's earlier form inverted: it stubbed a
+    SELF-DECLARED invocation failure (jpack exit 3, no payload — the binary's
+    own taxonomy says nothing was validated) and asserted an AUTHORING code.
+    An engine that never answered told us nothing about the artifact, so
+    admission raises the apparatus refusal and no §1a code exists for it. Both
+    no-answer classes are driven; the mutation check is restoring the old
+    `return None, "unreadable-output-shape"` and watching both fail."""
+    monkeypatch.setattr(engines, "jpack_json",
+                        lambda *a, **k: (None, 3, "", "",
+                                         engines.invocation_refusal(3, False)))
+    with pytest.raises(engines.EngineError,
+                       match="ENGINE-INVOCATION-REFUSED"):
+        admit_lib.admit(tools, "A", "{}", str(tmp_path))
+    monkeypatch.setattr(engines, "jpack_json",
+                        lambda *a, **k: (None, 124, "", "",
+                                         engines.invocation_refusal(124,
+                                                                    False)))
+    with pytest.raises(engines.EngineError,
+                       match="ENGINE-INVOCATION-REFUSED"):
+        admit_lib.admit(tools, "A", "{}", str(tmp_path))
 
 
 def test_arm_a_valid_pack_is_admitted(tools, tmp_path, monkeypatch):
     monkeypatch.setattr(engines, "jpack_json",
-                        lambda *a, **k: ({"status": "valid"}, 0, "", ""))
+                        lambda *a, **k: ({"status": "valid"}, 0, "", "", None))
     artifact, code, _detail = admit_lib.admit(tools, "A", "{}", str(tmp_path))
     assert code is None and artifact.endswith("pack.json")
     assert os.path.isfile(artifact)
@@ -116,13 +129,16 @@ def test_v1_parse_failure_that_also_fails_under_v0_is_unparseable(tools, tmp_pat
     assert artifact is None and code == "unparseable-artifact"
 
 
-def test_an_unreadable_check_document_is_unreadable_output_shape(tools, tmp_path,
-                                                                 monkeypatch):
+def test_an_unreadable_check_document_is_an_apparatus_refusal(tools, tmp_path,
+                                                              monkeypatch):
+    """R1-1's B/C half: a nonzero `opa check` whose streams render no error
+    document is the pinned binary failing to state its own verdict —
+    apparatus, raised, never an authoring code."""
     monkeypatch.setattr(engines, "opa_check",
                         lambda *a, **k: (1, [admit_lib.UNREADABLE_CHECK_OUTPUT]))
-    artifact, code, _detail = admit_lib.admit(tools, "B", "package study\n",
-                                              str(tmp_path))
-    assert artifact is None and code == "unreadable-output-shape"
+    with pytest.raises(engines.EngineError,
+                       match="ENGINE-INVOCATION-REFUSED"):
+        admit_lib.admit(tools, "B", "package study\n", str(tmp_path))
 
 
 def test_an_empty_rego_block_is_unparseable(tools, tmp_path):

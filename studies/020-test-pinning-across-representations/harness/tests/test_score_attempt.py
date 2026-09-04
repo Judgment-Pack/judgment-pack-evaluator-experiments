@@ -332,14 +332,13 @@ def _defective_set(tmp_path, monkeypatch):
     """A copy of the committed sealed set with ONE payload byte changed, pointed
     at by the scorer.
 
-    ROUND 3 REPAIRED THE REAL SET. Both tests below used to rely on the
-    committed set being digest-invalid — the round-2 reviewer emitted a
-    pre-final `rm-jps-03` — and the reviewer re-issued that payload this round,
-    so all six digests verify and the two tests stopped exercising the refusal
-    they are named for. A test whose power came from a defect someone was
-    always going to fix is a test that quietly stops discriminating, so the
-    defect is CONSTRUCTED here instead, in a scratch copy: the committed set is
-    read and never written (§1a: the maintainer touches nothing in it)."""
+    THE DEFECT IS CONSTRUCTED, NEVER RELIED ON. In Study 019 both tests below
+    once drew their power from the committed set being digest-invalid (a
+    pre-final payload the reviewer later re-issued), and stopped discriminating
+    the day it was fixed. 020's set — authored by the round-3 reviewer, six
+    payloads, every digest verifying on arrival — is read here and never
+    written (§1a: the maintainer touches nothing in it); the one-byte defect
+    lives in a scratch copy."""
     import shutil
     source = os.path.join(score.STUDY, score.REVIEWER_SET_RELATIVE)
     copy = tmp_path / "sealed-set"
@@ -375,20 +374,29 @@ def _requires_sealed_set():
 def test_the_committed_sealed_set_loads_as_the_reviewer_re_issued_it(
         tmp_path, monkeypatch):
     """The positive control the two tests below need in order to mean anything:
-    the set as committed LOADS. Round 2 recorded two defects in it as authored
-    and refused to repair them from this side; round 3's reviewer re-issued
-    `rm-jps-03` and re-attested `rm-rego-01`, and this is that repair, executed
-    rather than described."""
+    the set as committed LOADS. 020's set was authored by the round-3 reviewer
+    (2026-09-03) — six payloads, one JPS and five Rego, each a single semantic
+    edit to the frozen reference, validated by the pinned binaries and never
+    executed — and committed verbatim by the round's return commit. (This test
+    was ported from Study 019, where it narrated 019's set: three per language
+    and a payload re-issued in 019's round 3. It skipped while 020 had no set
+    and asserted 019's shape the day 020's arrived; it now asserts what §4.3
+    and the loader register — 6–10 payloads, both languages — and pins the
+    round-3 manifest digest as the tripwire for a maintainer edit.)"""
     _requires_sealed_set()
     _reachable(monkeypatch)
     loaded = score.reviewer_lib.load(
         os.path.join(score.STUDY, score.REVIEWER_SET_RELATIVE), None)
     assert loaded["count"] == 6
+    assert score.reviewer_lib.SET_MINIMUM <= loaded["count"] \
+        <= score.reviewer_lib.SET_MAXIMUM
     assert loaded["executed"] is False, "the load invokes no engine (§1a)"
-    assert sorted(entry["language"] for entry in loaded["mutants"]) == \
-        ["jps"] * 3 + ["rego"] * 3
+    languages = [entry["language"] for entry in loaded["mutants"]]
+    assert set(languages) == {"jps", "rego"}, "both languages represented (§4.3)"
+    assert sorted(languages) == ["jps"] + ["rego"] * 5, (
+        "the round-3 reviewer authored one JPS and five Rego payloads")
     assert loaded["manifestSha256"] == \
-        "6bff7f950b132505d1034fe7d993a8920f028647b35dc1f48d9072884fedaa0e", (
+        "f445442ac547f63a390441c2c230e96ce453c4cb856e3507109a454624a8ce7a", (
             "the reviewer's round-3 MANIFEST.json is what is committed; a "
             "maintainer edit to the sealed set would show up here")
 
@@ -1296,7 +1304,7 @@ def run(name, arm="A", admitted=True, identity=True, killed=38, paired=39,
                "engineSupplied": False}
               for index in range(paired)]
     return {"run": name, "arm": arm, "code": code, "admitted": admitted,
-            "goldPerfect": gold_perfect, "identityPass": identity,
+            "goldPerfect": gold_perfect, "referenceIdentityPass": identity,
             "identityRelation": "referenceIdentity",
             "ownPolicyIdentity": {"relation": "ownPolicyIdentity",
                                   "pass": own_policy, "failures": [],
@@ -1313,7 +1321,7 @@ def run(name, arm="A", admitted=True, identity=True, killed=38, paired=39,
                          covered, "coveredAny": [], "coveredAnyCount": covered,
                          "allEqualsAny": True, "unevaluatedClasses": [],
                          "classCount": 33},
-            "goldFailures": [], "identityFailures": []}
+            "goldFailures": [], "referenceIdentityFailures": []}
 
 
 DENOMINATOR = {"language": "jps", "pairedAdequateMutants": 69,
@@ -1359,12 +1367,12 @@ def test_e4_publishes_both_named_identity_relations_and_their_conjunction():
             run("run-002", identity=False),                # reference fails
             run("run-003", own_policy=False)]              # own policy fails
     endpoint = score.e4_endpoint("A", runs, DENOMINATOR)
-    assert endpoint["identityPass"] == 2
+    assert endpoint["referenceIdentityPass"] == 2
     assert endpoint["ownPolicyIdentityPass"] == 2
     assert endpoint["bothIdentitiesPass"] == 1
     # The two are DIFFERENT populations, which is the whole point of naming
     # them separately: neither count is a function of the other.
-    assert endpoint["identityPass"] != endpoint["bothIdentitiesPass"]
+    assert endpoint["referenceIdentityPass"] != endpoint["bothIdentitiesPass"]
 
 
 def test_the_identity_failure_denominator_is_the_registered_one(tmp_path):
@@ -1410,6 +1418,9 @@ def test_the_pilot_scorer_now_computes_the_same_denominator():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     doc = {"perArm": {
+        # The pilot scorer is 019-era design machinery and speaks 019's
+        # vocabulary (`identityPass`); R1-13's rename is 020's run-record
+        # vocabulary and deliberately does not reach into the design tree.
         "A": {"mutantsPairedAdequate": 75, "identityFailedRuns": ["run-002"],
               "perRun": [{"run": "run-001", "identityPass": True,
                           "killedPaired": 72},
@@ -1527,7 +1538,7 @@ def test_e2_refuses_an_apparatus_code_on_a_run_record():
 
 def test_e3_counts_within_arm_only():
     runs = [{"goldFailures": [{"category": "disagreement"}],
-             "identityFailures": [{"got": "outcome:reject"}]}]
+             "referenceIdentityFailures": [{"got": "outcome:reject"}]}]
     taxonomy = score.e3_taxonomy(runs)
     assert taxonomy["goldFailureCategories"] == {"disagreement": 1}
     assert taxonomy["identityFailureCategories"] == {"outcome:reject": 1}
@@ -1667,7 +1678,8 @@ def test_the_calibration_record_carries_the_four_registered_differences():
     discovered later." They are enumerated in the RECORD, so a fifth cannot be
     discovered in a runbook either."""
     registry = {"codex": {"model": "m", "reasoningEffort": "high",
-                          "binarySha256": "sha256:x"},
+                          "binarySha256": "sha256:x",
+                          "reasoningEffortWitness": batch.WITNESS_BRANCH_GATE5},
                 "jpack": {"binarySha256": "sha256:y"},
                 "opa": {"assetSha256": "sha256:z"}}
     record = batch.calibration_record("pilot", "pilot-001", registry)
@@ -1681,8 +1693,52 @@ def test_the_calibration_record_carries_the_four_registered_differences():
     assert record["runsPerArm"] == batch.PILOT_RUNS_PER_ARM == 12
     assert record["designTimePinState"]["codex.reasoningEffort"] == "high"
     assert record["sweepExemption"] == []
-    # M-24's sentence travels with the record, not with a runbook.
-    assert "not independently witnessed" in record["note"]
+    # M-24's sentence travels with the record, not with a runbook — the
+    # sentence of the branch the registry RESOLVED (round-2 R2-18; the
+    # assertion this replaces pinned the retired branch's sentence and passed
+    # over the defect, so it was non-discriminating).
+    assert record["note"].endswith(batch.WITNESS_NOTES[batch.WITNESS_BRANCH_GATE5])
+    assert batch.WITNESS_NOTES[batch.WITNESS_BRANCH_SELF_REPORT] not in record["note"]
+
+
+def test_the_calibration_record_states_the_branch_the_registry_resolved():
+    """R2-18. M-24 registers TWO branches and one sentence each; the record
+    carries the resolved branch's sentence and never the other's, and a
+    registry naming neither cannot write a record at all. MUTATION: hard-code
+    either sentence back into `calibration_record()` — the self-report
+    registry below carries the wrong sentence and the `other` loop fails."""
+    def registry(branch):
+        return {"codex": {"model": "m", "reasoningEffort": "low",
+                          "binarySha256": "sha256:x",
+                          "reasoningEffortWitness": branch},
+                "jpack": {"binarySha256": "sha256:y"},
+                "opa": {"assetSha256": "sha256:z"}}
+    for branch in batch.WITNESS_NOTES:
+        record = batch.calibration_record("pilot", "pilot-001", registry(branch))
+        assert record["note"].endswith(batch.WITNESS_NOTES[branch]), branch
+        assert record["note"].startswith(batch.POPULATION_SENTENCE)
+        for other in batch.WITNESS_NOTES:
+            if other != branch:
+                assert batch.WITNESS_NOTES[other] not in record["note"]
+    with pytest.raises(batch.BatchError, match="exactly two witness branches"):
+        batch.calibration_record("pilot", "pilot-001", registry(None))
+    with pytest.raises(batch.BatchError):
+        batch.calibration_record("pilot", "pilot-001", registry("something-else"))
+    # the sweep precedes the resolution: a null pin there is "pending", stated
+    pending = batch.calibration_record("sweep", "sweep-001", registry(None),
+                                       setting="reasoningEffort=low")
+    assert pending["note"].endswith(batch.WITNESS_PENDING_NOTE)
+    for sentence in batch.WITNESS_NOTES.values():
+        assert sentence not in pending["note"]
+    with pytest.raises(batch.BatchError):
+        batch.calibration_record("sweep", "sweep-001", registry("something-else"),
+                                 setting="reasoningEffort=low")
+    # the committed registry resolved gate-5-extension (§2.1's M-24 fill)
+    import json
+    with open(os.path.join(score.STUDY, "harness", "PINS.json"), "rb") as handle:
+        pins = json.loads(handle.read().decode("utf-8"))
+    real = batch.calibration_record("pilot", "pilot-001", pins)
+    assert real["note"].endswith(batch.WITNESS_NOTES[batch.WITNESS_BRANCH_GATE5])
 
 
 def test_a_sweep_record_stamps_its_setting_and_names_the_exemption():

@@ -647,7 +647,15 @@ def rego_case_signatures(tools: engines.Toolchain, suite_path: str,
 
     A file the pinned parser refuses, or a suite with a `with input as` term that
     cannot be resolved either way, is a `MatrixError` — the registered authoring
-    outcome — and never a silent pass."""
+    outcome — and never a silent pass.
+
+    ROUND-2 FINDING R2-1: `MatrixError` now means ONLY what its docstring says,
+    "about what the author emitted". `opa_parse()` and `opa_eval_document()`
+    raise `engines.EngineError` on a no-answer, and that exception passes
+    THROUGH this function to `score_run()`'s apparatus handler. Before the
+    repair a `parse` timeout arrived here as `code == 124` and was filed as the
+    authoring code `unparseable-artifact` — a statement about the author made
+    out of an invocation that never happened."""
     code, raw = engines.opa_parse(tools, suite_path, workdir)
     if code != 0:
         raise MatrixError(
@@ -1008,18 +1016,43 @@ def require_survivor_schema(run: dict) -> dict:
             "registered vocabulary is %s"
             % (run.get("run"), ", ".join(map(repr, unregistered)),
                ", ".join(MUTANT_OUTCOMES)))
-    if paired and not kill.get("survivorsPaired") \
-            and not kill.get("killedPaired"):
-        evaluated = kill.get("evaluatedPaired")
+    # ROUND-1 FINDING R1-2. The old guard here refused on the two OBSOLETE
+    # aggregates alone (`survivorsPaired` and `killedPaired` both empty), which
+    # is exactly the state `kill_rates({})` emits for the REGISTERED
+    # nothing-was-evaluated record — the most common production state (no
+    # suite, no cases, out-of-domain, identity failure) — so one such admitted
+    # run hard-aborted the whole attempt. By this point conditions above have
+    # established the vector is present, total and registered, so the state is
+    # not ambiguous: the VECTOR is authoritative. What refuses now is genuine
+    # inconsistency between the vector and the aggregates, in either direction.
+    derived_killed = sum(1 for entry in vector
+                         if entry.get("outcome") == KILLED)
+    derived_survivors = [entry.get("id") for entry in vector
+                         if entry.get("outcome") == SURVIVED]
+    derived_evaluated = sum(1 for entry in vector
+                            if entry.get("outcome") != NOT_EVALUATED)
+    if kill.get("killedPaired") != derived_killed:
         raise SurvivorSchemaError(
-            "E4-SURVIVOR-EMPTY run %s would be written with survivorsPaired [] "
-            "and killedPaired 0 over %d paired adequate mutants (%s evaluated): "
-            "that record encodes \"nothing was evaluated\" and \"everything was "
-            "killed\" with the same token, which on Study 019 read two "
-            "identity-failing runs as a perfect %d/%d and moved the group-level "
-            "ITT A−C contrast by 0.0526. The scorer emits the vector instead "
-            "(§5.1, §5.2 Fact 1)"
-            % (run.get("run"), paired, evaluated, paired, paired))
+            "E4-SURVIVOR-EMPTY run %s records killedPaired %s and its own "
+            "vector derives %d: the aggregates are summaries of the vector and "
+            "may not disagree with it (§5.1; R1-2)"
+            % (run.get("run"), kill.get("killedPaired"), derived_killed))
+    if sorted(kill.get("survivorsPaired") or []) != sorted(
+            name for name in derived_survivors if name is not None):
+        raise SurvivorSchemaError(
+            "E4-SURVIVOR-EMPTY run %s records a survivorsPaired list that is "
+            "not the vector's SURVIVED entries: the aggregates are summaries "
+            "of the vector and may not disagree with it (§5.1; R1-2)"
+            % (run.get("run"),))
+    if kill.get("evaluatedPaired") != derived_evaluated:
+        raise SurvivorSchemaError(
+            "E4-SURVIVOR-EMPTY run %s records evaluatedPaired %s and its own "
+            "vector derives %d — the genuinely impossible state the old "
+            "aggregate guard was reaching for: something claims to have been "
+            "evaluated and the vector records no outcome for it, or the "
+            "reverse (R1-2)"
+            % (run.get("run"), kill.get("evaluatedPaired"),
+               derived_evaluated))
     if run.get("admitted") and run.get("suitePresent") \
             and not isinstance(run.get("caseCount"), int):
         raise SurvivorSchemaError(

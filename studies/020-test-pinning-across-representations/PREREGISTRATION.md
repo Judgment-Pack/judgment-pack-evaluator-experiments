@@ -1,7 +1,9 @@
 # Preregistration — Study 020: test pinning across representations
 
-**Status: DRAFT, first revision. Not frozen. Nothing citable has run, and no review round is
-on the record.** The cross-vendor review rounds will be recorded in
+**Status: DRAFT, third revision (post-round-2), under review. Not frozen. Nothing citable
+has run; the review record's state is the rendered sentence below and only there (R1-23 —
+this header once said "no review round is on the record" beside a sentence saying
+otherwise).** The cross-vendor review rounds will be recorded in
 [`PREREG-REVIEW.md`](PREREG-REVIEW.md), each verbatim under `reviews/`, and that record's
 round-state block is the single machine-readable source for round counts, verdicts and open
 state (ADR 0005). The rendered sentence below is this header's ONLY statement of them. Every
@@ -13,7 +15,7 @@ Study 019 and inherits its machinery by port** (§7); where 020 departs from 019
 is registered here rather than discovered in review.
 
 <!-- round-status:begin -->
-ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 0 review rounds are on the record, 0 have returned a verdict — none has returned a verdict — and no round is open.
+ROUND STATUS (rendered from PREREG-REVIEW.md's round-state block by harness/render_round_status.py; edit the block, never this sentence): 3 review rounds are on the record, 3 have returned a verdict — rounds 1-3 returned DO NOT FREEZE — and round 3 is open, awaiting the maintainer's written disposition per finding.
 <!-- round-status:end -->
 
 > **On the sentence above — the gate is CLOSED.** `harness/render_round_status.py` is 019
@@ -227,7 +229,10 @@ separately, and says which one gates:**
   registered domain agrees with the arm's **unmutated reference** on the scored surface. This is
   the relation that defines the per-protocol population pole (§5.2) and the condition of Fact 1.
 - **`ownPolicyIdentity`** — new, and the substance of M-13: the same suite evaluated against the
-  run's **own authored policy**, one extra engine invocation per run. Its per-run score is a
+  run's **own authored policy** — one extra engine EXPOSURE per run, whose invocation count is
+  arm- and case-dependent (measured, R1-14: arm A evaluates the own pack once per readable case;
+  arms B/C run one `opa test` plus one strict adjudication per reported failure). Its per-run
+  score is a
   **reported quantity** (E6, §5.1) that **gates nothing**.
 
 **R1's construct statement is conditioned on it.** The endpoint measures pinning **against the
@@ -300,8 +305,9 @@ smoke are non-citable and outside every population.
 **Population rule, enforced in code (the Study 001/011 lesson).** The denominator of every
 per-arm rate is attempted runs whose **apparatus** succeeded. Apparatus failures — slot shape,
 call nonzero-exit, call timeout at the registered ceiling, pre-call refusal, post-call wrapper
-failure, golden-context mismatch, binary digest mismatch, registry mismatch, transcript refusal —
-are pipeline-invalid, excluded, and reported with their own rate and interval. Every failure
+failure, golden-context mismatch, binary digest mismatch, registry mismatch, transcript refusal,
+pinned-engine invocation produced no answer during scoring — are pipeline-invalid, excluded, and
+reported with their own rate and interval. Every failure
 attributable to what the author emitted is an **authoring outcome**: valid, counted, and scoring
 zero on every endpoint it reaches. The registered authoring-outcome codes are:
 
@@ -312,9 +318,36 @@ zero on every endpoint it reaches. The registered authoring-outcome codes are:
 | `schema-invalid-pack` | A | pack fails the pinned schema |
 | `opa-check-failed` | B, C | `opa check` refuses the authored policy |
 | `v0-syntax` | B, C | Rego v0 syntax under a v1-pinned invocation |
-| `unreadable-output-shape` | A, B, C | result shape outside the registered surface |
 | `author-protocol-violation` | A, B, C | transcript shows a tool use or a turn after the registered prompt |
 | **`presence-idiom-unsound`** | **B, C** | **new in 020 — §3.2's registered presence-idiom guard fires** |
+
+> **AMENDED, 2026-08-24 (round-1 finding R1-1, marked).** This table's first printing carried a
+> seventh admission code, `unreadable-output-shape` ("result shape outside the registered
+> surface", A/B/C). Every state that produced it — a validator timeout, a jpack exit the binary
+> itself declares an invocation failure (3/4/5), an `opa check` that rendered no readable error
+> document — is the pinned engine FAILING TO ANSWER, which is an apparatus event: the engine
+> said nothing about the author's artifact, so no authoring code may be read off it. The code is
+> RETIRED; those states raise `engines.EngineError` out of admission (and out of E1, where a
+> timed-out evaluation of the authored policy was likewise filed as an authored gold failure),
+> the scorer files the run under the new apparatus code `engine-invocation-refused`, the run
+> leaves every population, `scoringApparatus` publishes it per arm with its refusal class, and
+> §6's `engine-execution-clean` gate reads the exclusions — so an unanswered invocation can
+> gate the attempt but can never move a rate. An evaluator's OWN error document about the
+> authored artifact remains an authored gold failure, exactly as before: the line is drawn at
+> whether the engine answered, not at whether the answer was pleasant.
+>
+> **V8-19 CORRECTION, marked (round-2 finding R2-1, its STEP 8).** Study 019's verification
+> ledger — `verification/V8-ASYMMETRY-LEDGER.md`, ported into this study BY DIGEST and therefore
+> not editable here — states at V8-19 that arm A reaches four of six registered codes and arms
+> B/C five, listing `unreadable-output-shape` on both sides. Under this table as amended the
+> registered authoring codes are SEVEN, `unreadable-output-shape` is RETIRED (an unanswered
+> engine is the apparatus code `engine-invocation-refused`), and `harness/e4lib/admit.py`'s
+> `ARM_REACHABLE_CODES` gives arm A THREE (`no-marker-block`, `unparseable-artifact`,
+> `schema-invalid-pack`) and arms B/C FIVE (those two plus `v0-syntax`, `opa-check-failed`,
+> `presence-idiom-unsound`). V8-19's direction (`neutral`) and its "refused in code" claim are
+> UNCHANGED and still re-derive from `admit.py`; the ledger's `verified-against-bytes` label
+> stands for the finding, and this note is the correction of the enumeration it quoted,
+> recorded where the table it quotes lives.
 
 The E4 population adds one further registered step: the identity control (`referenceIdentity`,
 §4), whose exclusions are reported, not silent. A harness test diffs this prose partition table
@@ -378,9 +411,15 @@ pins carry 019's resolved values and are re-verified fail-closed at run time.
   test**. 019's `batch.py` hard-codes `SEQUENCES = 6`, `ROUNDS = 50`, `RUNS_PER_ARM = 50`,
   `REGISTERED_SLOTS = 150` and a two-element `TAIL`, and `derive_order()`'s docstring records the
   registered floor (1, 1) as the cached answer to a search **at 50 rounds**; at any other round
-  count that assertion is wrong by construction. **TODO(prereg): the re-derived call order, the
-  attained position spread, and the re-pinned `batch.order` / `batch.n` / `batch.slots`** — they
-  are functions of N, which §2.1 registers as an output of the pre-pilot sweep.
+  count that assertion is wrong by construction. **FILLED, 2026-08-24 — the schedule at the
+  registered N = 60/arm** (§2.1's fill: the sweep supplied the operability evidence and the
+  prices, and the named rule chose the condition): `batch.order` / `batch.n` = 60 /
+  `batch.slots` = 180, re-derived at 60 rounds by `derive_order()`'s exhaustive search — ten
+  whole Williams blocks, NO tail (60 divides by 6), attained position spread 0 and
+  directed-transition spread 1, no self-successions — asserted by `harness/tests/
+  test_schedule.py` against the REGISTRY's published spreads. The 50-round port carry it
+  replaces (8 blocks + a two-sequence tail, spreads (1, 1)) is recorded in the registry's own
+  order note as history.
 - **Registered batch window**: stated **once**, here, as three consecutive UTC calendar days, with
   a test that no other document in this tree states a different one (019's D-4 filed a deviation
   against a rule 019 did have; the defect was duplicated constants, not the rule).
@@ -412,22 +451,128 @@ i.e. **8.85×**. A swept setting at pilot-like durations therefore costs 8.85× 
 
 | line | calls | wall clock, registered condition | wall clock, pilot-like durations |
 |---|---|---|---|
-| pre-pilot effort sweep, 3 settings × 3/arm | 27 | 0.29 h | 2.57 h |
+| pre-pilot effort sweep, 3 settings × 3/arm | 27 | 0.87 h | 7.72 h |
 | pilot, 12/arm (C1–C5) | 36 | 1.16 h | 10.29 h |
-| D-1/D-2 smoke (real exec, stand-in binary permitted) | ~6 | ~0.06 h | ~0.51 h |
+| D-1/D-2 smoke (real exec, stand-in binary permitted) | ~6 | ~0.19 h | ~1.72 h |
 | primary batch, N = 60/arm | 180 | 5.82 h | 51.46 h (2.14 d) |
-| **total at N = 60, no author-side gate (M-23 = a)** | **~249** | **~7.3 h** | **~64.8 h** |
+| **total at N = 60, no author-side gate (M-23 = a)** | **~249** | **~8.05 h** | **~71.2 h** |
 
-The N = 60 rows are **priced illustrations of one branch, not a registered N.** M-13's
+> **CORRECTION (pre-freeze, found by the fill's verification pass, 2026-08-24).** This table
+> first printed the sweep row as 0.29 h / 2.57 h and the smoke row as 0.06 h / 0.51 h — each a
+> threefold understatement: both rows divided calls by nine instead of by three (27 calls are
+> NINE round-triples, not three), while the pilot and batch rows used the correct basis. The
+> corrected totals are ~8.05 h and **~71.2 h** — the pilot-like branch leaves roughly 1 %
+> headroom against the 72 h budget, not the ~10 % the first printing implied. The observed
+> sweep corroborates the corrected basis: it cost 1.44 h, 1.65× the corrected registered-
+> condition row and 5× the erroneous one. The xhigh-exclusion paragraph below quoted the
+> erroneous 2.57 h and is corrected with the same note.
+
+~~The N = 60 rows are **priced illustrations of one branch, not a registered N.**~~ **[SUPERSEDED
+by §2.1's fill, 2026-08-24 — that branch is now the REGISTERED N; the sentence stands struck
+because it was true when the table was written and is the reason the fill had a branch to
+choose (marked round 2, R2-6).]** The N = 60 rows price the registered N. M-13's
 `ownPolicyIdentity` invocation adds one **engine** call per run — no authoring call, no line in
 this table, and its cost is bounded by the pinned engine's per-invocation ceiling.
 
-> **TODO(prereg) — the registered compute condition: the `codex.reasoningEffort` value and the
-> per-arm N.** Both are outputs of the sweep and cannot exist before it runs. The registered
-> obligation: the sweep's full per-setting table (per-arm durations, completion bytes,
-> `reasoning_output_tokens`, per-arm perfect and identity rates) is published, the chosen setting
-> is named with the rule that chose it, and this section is filled and re-priced at that setting's
-> own observed durations before the pilot runs.
+> **FILLED, 2026-08-24 — the registered compute condition: `codex.reasoningEffort = low`,
+> per-arm N = 60.** The sweep ran 27/27 under the registered label with zero apparatus codes,
+> zero timeouts and no per-setting abort (two earlier invocations were preflight-refused in
+> full by the wrapper with zero spend, for operator error; `DEVIATIONS.md`'s operational record
+> and `sweeps/refused-attempt-0{1,2}-*/` carry them). The full per-setting table — per-arm
+> durations, completion bytes, `reasoning_output_tokens`, and the per-arm perfect and identity
+> rates — is published at `sweeps/2026-08-24-effort-sweep/SWEEP.md`. The rates are the one
+> quantity the driver's own registration forbids it computing; they were scored post-sweep by
+> `harness/sweep_rates.py` — a covered, tested publisher authored after the sweep to discharge
+> this fill's registered obligation, with per-slot detail in `SWEEP-RATES.json` and **no kill
+> quantity computed, by registered scope** (an endpoint-adjacent figure over n = 3 has no
+> registered use before the pilot). The per-arm means, reprinted (triples computed from the
+> ledger's unrounded means, then rounded once):
+>
+> | setting | A mean s | B mean s | C mean s | round triple s | batch at N = 60 | perfect (A/B/C) | identity (A/B/C) |
+> |---|---|---|---|---|---|---|---|
+> | low | 231.6 | 81.2 | 90.8 | 403.5 | 6.72 h | 0/3 · 2/3 · 0/3 | 3/3 · 2/3 · 1/3 |
+> | medium | 298.6 | 123.3 | 112.3 | 534.2 | 8.90 h | 1/3 · 2/3 · 2/3 | 3/3 · 1/3 · 2/3 |
+> | high | 433.6 | 181.2 | 174.0 | 788.7 | 13.15 h | 1/3 · 1/3 · 3/3 | 3/3 · 1/3 · 1/3 |
+>
+> **The rule that chose the setting, named: the operable-condition-match rule.** Choose the
+> pinned model's own catalog default tier — the only tier condition-matched to Study 019's
+> batch (§2a.6: pinning a HIGHER effort demotes §5.6's dispersion figures from calibration to
+> prior; the catalog records `low` as `gpt-5.6-sol`'s `default_reasoning_level`, the tier 019's
+> batch implicitly ran at — a catalog inference, not a witnessed fact of 019, exactly as
+> `codex.modelNote` records) — PROVIDED the sweep shows that tier operable: all nine of its
+> calls complete under the apparatus ceiling with no apparatus code, and the projected batch at
+> the registered N fits the 72 h budget. If the default tier fails operability, step upward to
+> the first tier that passes — N unchanged, the same budget check applied at each step — taking
+> §2a.6's dispersion demotion (and the loss of condition-match the demotion prices) as the
+> recorded cost; if NO swept tier passes, the sweep has chosen nothing, no pilot runs, and the
+> study halts pre-pilot with the sweep published as its record. `low` passed operability — 9/9
+> complete, max call 294.1 s against the 2700 s ceiling, 6.72 h projected at N = 60 — so the
+> rule chose **`low`** without reaching either fallback branch.
+>
+> **When the rule was named, stated plainly.** §2.1 registered pre-sweep that "the chosen
+> setting is named with the rule that chose it" — at fill time, not before the sweep. This rule
+> is therefore NAMED AFTER the durations and rates existed, and the fill does not pretend
+> otherwise. What bounds the operator's hand is not the rule's date but its inputs: a
+> registered fact that predates the sweep (§2a.6's condition-match adjudication), a measured
+> catalog fact that predates the sweep (the swept-set paragraphs above), and the sweep's
+> operability columns (codes, timeouts, durations). Its operability reading is STRICTER than
+> the registered abort rule (any apparatus code, not only a first-arm-A ceiling breach) and
+> binds nothing retroactively, because all 27 calls were clean under both readings.
+>
+> **What the rule deliberately does not read.** It does not read the published perfect or
+> identity rates: at n = 3/arm those rates cannot support a quality-ranked choice, and a tier
+> chosen because its three runs looked good would be the picked-not-swept condition this
+> section's swept-set paragraph exists to forbid. One registered decision DOES read rates at
+> the chosen condition with this sweep on the record, and it is named rather than denied:
+> §2a.4(2)'s minimum viable derived value is declared by the maintainer after the sweep and
+> before the pilot — its registered window — so its declarant has seen this table; the review
+> round audits the declared number against exactly that exposure. The rates otherwise stand as
+> **Tier D description, `citable: false`, outside every population, licensing no direction and
+> steering no later decision**: each setting authored at least one gold-perfect run in some
+> arm; §3.2's presence-idiom guard **fired in fresh authoring** (four B/C runs across `low` and
+> `high` carry `presence-idiom-unsound`, the code's first live firings outside 019's
+> retrospective); and at `low`, arm A's profile — 0/3 gold-perfect beside 3/3 identity — has
+> the same shape as its 019 near-miss anatomy (0/38 perfect at that batch's bar), an
+> observation about a 3-run cell, not a comparison of rates across unequal denominators. The
+> 12/arm calibration pilot at the chosen condition (§2a) is the registered instrument for
+> rate-based calibration.
+>
+> **N = 60, and why.** The branch the registration itself prices and certifies: §5.6's Tier C
+> size simulation (2,000 replicates; Tier C 0.002 / 0.001 / 0.000 under its three null
+> channels) is stated at **N = 60/arm**, as are its observed-validity-gap power ladder's
+> central column, §2.1's dual-pricing table and §5.2's realised-n arithmetic illustration — so
+> the registered batch runs at the N its own operating characteristics were demonstrated at,
+> rather than at a count no simulation in this document prices. (The first draft of this fill
+> registered N = 50, 019's round count, on the claim that §5.6's figures were computed there;
+> the pre-commit verification pass refuted that claim — §5.6 simulates at N = 60 — and this
+> fill was corrected before any registration carried the wrong count.) The sweep's role for N
+> is the budget check: at `low`'s observed round triple (403.5 s) the batch prices at
+> **6.72 h, 9.3 % of the 72 h budget**, inside the three-UTC-day window with an order of
+> magnitude to spare. `harness/PINS.json`'s `batch` block accordingly flips from PORT CARRY to
+> REGISTERED at n = 60 / slots = 180, with the order re-derived at 60 rounds by the registered
+> search — ten whole Williams blocks, no tail, attained spreads (0, 1), a strictly cleaner
+> balance than the 50-round carry it replaces — and `sweep.chosenSetting` carries the choice
+> as data. The ledger's own projection lines print the batch at the THEN-CARRIED `batch.n` =
+> 50 (5.60 h at `low`), exactly as `budgetProjectionNote` registers; the registered figure is
+> this fill's, at 60.
+>
+> **Re-priced at the chosen setting's own observed durations** (superseding the corrected
+> table above's 019-triple illustration):
+>
+> | line | calls | wall clock at `low`'s observed means |
+> |---|---|---|
+> | pre-pilot effort sweep (SPENT, all three settings, observed) | 27 | 1.44 h |
+> | pilot, 12/arm (C1–C5) | 36 | 1.34 h |
+> | D-1/D-2 smoke | ~6 | ~0.22 h |
+> | primary batch, N = 60/arm | 180 | 6.72 h |
+> | **total** | **~249** | **~9.7 h** |
+>
+> **The §2a.6 branch this choice takes:** `low` is not "a higher reasoning effort", so 019's
+> batch REMAINS condition-matched and §5.6's dispersion figures remain a calibration; the
+> pilot's own re-derivation (§2a.6's TODO) still runs and republishes the MDE table at the
+> registered N = 60 before the freeze. The condition 019 could not prove is now pinned AND
+> witnessed: every sweep call's `CALL.json` stamps the tier, and the witness resolution below
+> makes the stamp checkable at gate 5.
 
 **Per-setting abort rule, registered before the sweep.** A setting whose **first** arm-A call
 exceeds **2700 s** (the registered per-call ceiling) is aborted after that call; a setting whose
@@ -449,8 +594,9 @@ Measured against the pinned binary rather than asserted, on 2026-08-24, with no 
 - `codex exec --help` at `codex-cli 0.145.0`, digest `sha256:a2a05daf…` (`codex.binarySha256`),
   names **no reasoning-effort flag at all**. The only spelling the pinned CLI accepts is the
   config override **`-c model_reasoning_effort=<tier>`** — `-c` is the argv flag and
-  `model_reasoning_effort` is a `ConfigToml` field of this build. This resolves the *spelling*
-  half of the `TODO(prereg)` below; the *witness* half stays open, because it needs a call.
+  `model_reasoning_effort` is a `ConfigToml` field of this build. This resolved the *spelling*
+  half at registration time; the *witness* half needed a call, and the sweep's step zero
+  supplied it (the fill below).
 - `codex debug models` renders the build's own model catalog offline. Over its **eight** models the
   tier vocabulary is `low`, `medium`, `high`, `xhigh`, `max`, `ultra`; the four universally
   supported ones are **`low`, `medium`, `high`, `xhigh`** (8/8 each), while `max` is absent from
@@ -460,22 +606,37 @@ Measured against the pinned binary rather than asserted, on 2026-08-24, with no 
   the model Study 019's batch ran, and `medium` for the other seven. The set therefore contains
   the default 019's batch implicitly ran at, and extends from it monotonically upward in cost.
 
+> **CORRECTION OF A CORRECTION (round-1 finding R1-20, 2026-08-24).** These figures were
+> registered correctly, then "corrected" wrongly, and are now restored with their provenance
+> stated. The pre-sweep registration printed `max` absent from five (3/8 support) and defaults
+> `medium` for the other seven — TRUE of `codex debug models --bundled`, the catalog baked into
+> the pinned binary and the only build-owned reading. The fill's verification pass recounted via
+> plain `codex debug models`, which renders a mutable post-call model CACHE, got 4/8 and
+> `medium` ×6 + `high` ×1, and a first correction note replaced the true figures with the
+> cache's. R1-20 caught it; the bundled recount confirms the original text, this note replaces
+> the erroneous correction at the same prominence, and the lesson is registered where the next
+> reader needs it: **a catalog figure claimed as build-owned must come from `--bundled`.** The
+> load-bearing facts held through every version — all eight models expose the four swept tiers,
+> and `gpt-5.6-sol` defaults to `low`. `harness/PINS.json`'s `sweep.settingsProvenance` carries
+> the same restoration.
+
 **Why the set stops below `xhigh`, stated rather than implied.** `xhigh` is as available as the
 three swept tiers, so its exclusion is a **budget** decision and not an availability one, and it
-is registered as such: the dual-pricing table above already puts a 27-call sweep at 2.57 h and an
-`N = 60` batch at 51.46 h *at pilot-like durations under the default effort*, and a fourth tier
+is registered as such: the dual-pricing table above (as corrected) already puts a 27-call sweep
+at 7.72 h and an `N = 60` batch at 51.46 h *at pilot-like durations under the default effort*, and a fourth tier
 above `high` adds nine more calls to a sweep whose own abort rule is written for the case where
 the tiers already registered run long. `xhigh`, `max` and `ultra` are therefore **not swept**, and
 are reachable only by a `DEVIATIONS.md` entry naming the reason and republishing the price, under
 the cap clause immediately above — the same clause that governs raising the 27-call cap, because
 reaching a costlier tier is the same act as buying more calls. `max` and `ultra` carry the further
-defect that they are absent from most of the catalog, so a sweep over them would not be a sweep
-the model pin is free to move within.
+defect of partial catalog support — `ultra` absent from most models, `max` from half — so a sweep
+over them would not be a sweep the model pin is free to move within.
 
-**What this registers, and what it does not.** It names the swept SET, which must exist before the
-sweep can run. It does **not** name the chosen condition: the `TODO(prereg)` above — the
-`codex.reasoningEffort` value and the per-arm N together — stays open, and both remain outputs of
-the sweep. Naming three tiers is not choosing one.
+**What this registered, and what it did not.** It named the swept SET, which had to exist before
+the sweep could run. It did **not** name the chosen condition: that stayed open — the
+`codex.reasoningEffort` value and the per-arm N together, both outputs of the sweep — until the
+sweep ran and the fill above closed it by the named rule.
+Naming three tiers is not choosing one, and the record keeps the two moments distinct.
 
 **Where the set is carried, and the mode's name.** The set is `harness/PINS.json`'s
 `sweep.settings` and `harness/batch.py`'s `SWEEP_SETTINGS`; `harness/tests/test_sweep.py` binds
@@ -504,7 +665,7 @@ member and its null-⇒-PILOT test, moved out of §7's ported-unchanged list, an
 passes it explicitly and `CALL.json` stamps it. **There is no transcript witness to bind it to
 today**: 019's `session.jsonl` carries exactly one `turn_context` record whose payload names
 `model` and no effort member, and the only occurrence of `reasoning_effort` anywhere is an
-override slot holding `null` — against which `transcript_check.py:603-608` would refuse every
+override slot holding `null` — against which gate 5's membership idiom (`transcript_check.py`'s `turn-context-mismatch` clauses; a line span cited here before the fill was stale for 020's copy) would refuse every
 call. Registered instead: **a witness-resolution step at pin time, run before the sweep**, which
 sets the flag and inspects the resulting `session.jsonl` for a non-null member naming the effort.
 
@@ -517,18 +678,35 @@ sets the flag and inspects the resulting `session.jsonl` for a non-null member n
   published record of the condition. 019's medians, for the band's calibration: **A 2067.5** over
   48 runs, **B 502.5** over 38, **C 696** over 39.
 
-> **TODO(prereg) — the witness-resolution outcome.** The FLAG'S SPELLING half of this TODO is
+> **The witness-resolution outcome — BOTH HALVES CLOSED.** The FLAG'S SPELLING half is
 > **CLOSED, 2026-08-24**: the pinned CLI exposes no reasoning-effort flag, and the registered
 > spelling is the config override `-c model_reasoning_effort=<tier>`, carried as
 > `codex.reasoningEffortFlag` (`-c`) and `codex.reasoningEffortConfigKey`
 > (`model_reasoning_effort`) so the wrapper still reads it from the registry and still refuses to
-> guess it. The WITNESS half stays open, because it needs a call: it is resolved as **step zero of
-> the sweep** — `harness/batch.py sweep` inspects the FIRST sweep call's own `session.jsonl` for a
-> non-null member naming the effort and records which M-24 branch fired into `SWEEP.json`, so the
-> resolution is made from a call the sweep was going to spend anyway rather than from an extra
-> probe. The branch taken is recorded here afterwards and the corresponding gate-5 change (or its
-> registered absence) lands with it; the sweep publishes the branch, it does not amend gate 5 on
-> its own authority.
+> guess it. The WITNESS half is **CLOSED, 2026-08-24 — branch `gate-5-extension`**, resolved as
+> registered: step zero of the sweep, over the FIRST sweep call's own retained transcript
+> (`sweeps/2026-08-24-effort-sweep/low/arm-A/run-001/session.jsonl`,
+> `sha256:78983d57099d078231622b24005ea28e7daeaee96c7c99c16ceeb53cc785cb01`). The
+> `turn_context` record carries TWO non-null members naming the effort —
+> `collaboration_mode.settings.reasoning_effort: "low"` and top-level `effort: "low"` — with
+> zero null occurrences and zero occurrences outside `turn_context`. The registered resolution
+> is run-001's, exactly as the step registers; the 26 sibling transcripts are retained beside
+> it, each carrying the same members with its own setting's tier, re-derivable by any reader
+> from the published slots (and re-derived exhaustively by this fill's verification pass —
+> a check on retained bytes, not a second resolution). The effort pin is therefore NOT a self-report, and the
+> corresponding gate-5 change lands with this fill, before the primary batch, exactly as
+> registered: `harness/transcript_check.py`'s gate 5 binds `codex.reasoningEffort` beside the
+> model and the cwd — by path, over both witnessed spellings, over EVERY `turn_context`, with
+> the same `turn-context-mismatch` reason tag and the same apparatus-side classification, and
+> with a member PRESENT-AND-NULL (019's actual shape) being neither a witness nor a mismatch,
+> mirroring the sweep step's own null-is-not-a-witness rule. The self-report band
+> (`reasoning_output_tokens` into C4) is NOT taken and stands as the registered
+> branch-not-taken. One citation correction travels with this fill: the pre-resolution text
+> above cited `transcript_check.py:603-608`, a line span true of 019's copy and stale in
+> 020's (the port note shifted the module by nine lines); the published `SWEEP.json` note
+> carries the same stale span as immutable published bytes, and `DEVIATIONS.md`'s operational
+> record notes it — the clause is the gate's `turn-context-mismatch` membership idiom,
+> wherever it sits.
 
 ## 2a. Calibration under registered conditions — C1 to C5
 
@@ -580,6 +758,80 @@ here so a fifth cannot be discovered later: output under `calibration/<label>/`;
 count; `citable: false`; and the pin state (§2.1's design-time-resolved rule). Pilot N: **12/arm**
 (CP lower bound 0.779 on a clean sweep, from the table above).
 
+**AMENDED (round 1, R1-17) — the mode's landed spellings.** The `--calibration` mode registered
+above is the driver subcommand **`harness/batch.py pilot`**, claiming **`PIN_LABEL=PILOT`** at the
+wrapper — the registered labels are now PRIMARY, SWEEP and PILOT, and the wrapper's PILOT branch
+shares every effort rule with PRIMARY (no exemption, no threaded setting: the fourth registered
+difference is the design-time pin-state rule *applying*, not relaxing) while anchoring slots at
+`calibration/<UTC date>-pilot/arm-<ARM>/run-NNN` and stamping `citable: false`. The driver
+publishes `PILOT.json`/`PILOT.md` after every call and computes no rate; the per-arm counts are
+computed post-hoc by `harness/pilot_rates.py` through the registered scoring components (the
+§2.1 rates scope: **no kill quantity**, by construction — a scope that binds `pilot_rates.py`,
+the go/no-go's publisher; §2a.6's post-pilot analysis pass computes per-run kill records under a
+closed no-peek schema, round 2) and published as
+`calibration/<label>/PILOT-RATES.json` — the record validated by the sealed
+`calibration/derive_floor.py`'s own `validate_record()` at publication AND at the freeze gate
+(`make_manifest.calibration_record_problems()`), so the producer and the go/no-go's consumer
+cannot drift apart. `batch.py pilot` refuses while `calibration.minimumViable` or
+`calibration.minimumViableBasis` is undeclared — §2a.4(2)'s ordering, enforced rather than
+promised — and refuses a second pilot under §2a.6's one-pilot rule. The wrapper's `PILOT` and
+`integrity.study_label()`'s `PILOT` deliberately coincide: a calibration-pilot call is a call
+under a registry whose freeze pins are null, and a state where the two spellings disagreed would
+be a pilot running after the freeze, which this section's ceremony order forbids.
+
+**AMENDED (round 2, R2-10) — the pilot slot count names two numbers.** "Pilot N: 12/arm" above
+is read as **12 apparatus-clean calls per arm, drawn under a registered attempt cap of
+21/arm (63 attempts)** — at most 21 attempts per arm. The 12 is the denominator §2a.1's table
+prices the derived floor at, and it was never a different number; what the first printing left
+implicit was that an apparatus refusal inside those 12 was counted as a Bernoulli failure. At
+Study 019's own per-arm apparatus rates the probability that all three arms reach 12 clean calls
+within 12 attempts is ≈ 0.0001, so a fixed-12 denominator made §2a.4(2)'s 0.20 gate fire on
+apparatus noise about half the time (the reviewer's ≈ 52 % figure) — study death by design.
+Under the amended rule every attempt is retained, sealed and published with its §1a code; the
+scored 12 are the apparatus-clean ones (§1a's population rule, "attempted runs whose apparatus
+succeeded", applied to the pilot exactly as to the batch); and an arm still short of 12 clean at
+the cap **publishes no rates and is a `DEVIATIONS.md` event** — under M-9 the study ABORTS
+rather than descopes. The cap is 21 because P(all three arms reach 12 clean) is 0.95 there —
+the study's own α — at 019's rates (0.68 at 18, 0.90 at 20, 0.995 at 24); its cost at `low`'s
+observed means is ≈ 2.35 h against the 1.34 h the §2.1 budget rows carry, and §2.1's budget note
+records the difference. Nothing about the declaration moves: 0.20, `identityFloor`, ≥ 6/12, the
+≈ 6 % pricing and the 0.82 catch probability all stand, because they were always correct for the
+population §1a registers and 019 published (34/38, 26/37, 28/39). The driver's order is an
+A-first round robin over the arms that still need a clean call (`batch.pilot_next_entry()`),
+derived from the ledger's own codes so the freeze gate can RECONSTRUCT it rather than compare
+it to a constant.
+
+**AMENDED (round 2, R2-8) — the pilot runs the batch's per-slot finalization, and the golden
+capture precedes it.** The driver's duties enumerated above stopped at "publishes
+`PILOT.json`/`PILOT.md` after every call"; the wrapper delegates the refusal record, the
+schedule stamps, the transcript binding and the seal to its driver, and a pilot that skipped
+them was a FIFTH difference from the batch. So `batch.py pilot` runs, for every attempt and in
+the batch's order, `refuse_slot` → `stamp_slot` → `bind_transcript` (completed calls only) →
+`seal_slot` → a chained `ledger_record`, and `PILOT.json` is written atomically as a hash chain
+in schedule order with a header mirroring `arms/BATCH.json`'s. Two consequences are registered
+with it. (i) **The golden-context capture is a precondition of the pilot**, not only of the
+batch: the binding's gate 4 (the golden pre-prompt context) runs unconditionally, so a pilot
+bound with no capture would file every slot as unreadable apparatus, and "binds gates 1, 2, 3
+and 5 but not 4" would be the fifth difference this section forbids by name. The isolation
+negative control remains a precondition of the batch alone. (ii) **Every call's `pinsSha256`
+reconciles to the ledger header's**, which records the digest of the registry the pilot ran
+under — not to the registry at freeze time, because this section's own ceremony edits the
+registry after the pilot (label, N and output digest go in). `harness/pilot_rates.py` reads the
+sealed slots through the primary path's pre-scoring order (seal, wrapper outcome, registry
+stamp, golden stamp, recomputed transcript binding, completion presence) before it scores; an
+author protocol violation — for which the wrapper writes no completion by design — is COUNTED
+under its authoring code and scores zero, never filed as the apparatus code `slot-shape`. What
+"validating a registered pilot output" means at the freeze gate (R2-7) is therefore: the ledger
+is the driver's; its records are the round robin replayed from their own codes and its chain
+verifies; every slot's seal recomputes to the record's digest; no slot exists that the ledger
+does not name; every completed slot's sealed `CALL.json` carries the scheduled arm, slot index,
+`PILOT` label, `citable: false`, the header's registry and golden digests, the pinned arm prompt
+and the pinned reasoning effort; and the counts record's rows are exactly the ledger's slots,
+with each per-arm cell reconciled to its rows and any embedded verdict equal to its own
+recomputation. `calibration/derive_floor.py` was edited before the pilot ran to carry the
+row-reconciliation half of that contract; the pre-pilot edit is lawful under §2a.4(1) ("sealed
+before the pilot runs") and is recorded in `DEVIATIONS.md`'s operational record.
+
 ### 2a.3 C2 — pin the compute condition, bind it, register what the binding proves
 
 Registered in §2.1: the pin, the wrapper flag, the `CALL.json` stamp, the witness-resolution step,
@@ -595,11 +847,26 @@ proves the derived list has power. Applied here:
    number entering**.
 2. **A minimum viable value declared in advance**, below which the study does not freeze. Under
    M-9's ruling the below-minimum branch **aborts** rather than descopes.
-   > **TODO(prereg) — the minimum viable derived value.** It is declared **before the pilot runs**
-   > and **after** the sweep fixes the compute condition, because the attainable per-arm perfect
-   > rate is condition-dependent and 019's own figure was calibrated on a population its
-   > registered condition never reproduced (§2a.1). The obligation is registered here; the number
-   > is not yet a number, and inventing one now would repeat 019's defect.
+   > **FILLED, 2026-08-25 (round 1, R1-17) — the declaration.** **`calibration.minimumViable =
+   > 0.20`, bound to the IDENTITY floor (`minimumViableBasis = "identityFloor"`)** — the
+   > maintainer's declaration, made after the sweep fixed the compute condition (§2.1: `low`)
+   > and before any pilot call, with `batch.py pilot` refusing to spend a call while the
+   > registry did not carry it. **Why the identity floor and not the perfect floor:** §5.7
+   > registers arm A's imperfection as a REPORTED RESULT (019: A 0/38 perfect), so a
+   > perfect-rate minimum over all arms would abort by design — the declaration would
+   > contradict the registration's own stance; identity-passing is what feeds the per-protocol
+   > population (§5.2), which is the instrument this gate protects. **Why 0.20:** GO requires
+   > the derived floor to reach 0.20 in every arm, which at n = 12 means **≥ 6/12**
+   > identity-passing (6/12 floors at 0.245; 5/12 floors at 0.181 and fails). Priced before
+   > the pilot: at 019's registered identity rates (A 0.895 / B 0.703 / C 0.718) the three-arm
+   > false-abort risk is ≈ 6 %, against ≈ 19 % at the next rung (≥ 7/12, min 0.30); a true
+   > rate of 1/3 — the C arm's swept n = 3 point at `low` — is caught with probability 0.82,
+   > and 1/4 with 0.95. The abort is study-death under M-9 (no descope), so the gate is set to
+   > catch COLLAPSE; thin-but-alive arms are the business of §2a.6's recomputed dispersion
+   > table, a separate pre-freeze instrument. The declared pair lives beside its provenance in
+   > `PINS.json`'s `calibration` block, is read by `calibration/derive_floor.py`'s go/no-go
+   > and by the freeze gate's record validation, and no post-batch row reads it (item 3
+   > below).
 3. **The threshold's seat is a pre-freeze go/no-go, and only that.** Under M-23 (§5.7) there is no
    author-side control gate on the batch, so no post-batch row reads this value.
 
@@ -636,16 +903,68 @@ pilot from this dispersion.
 | per-arm median `reasoning_output_tokens` | `session.jsonl` | [0.65×, 1.55×] | cannot be evaluated against 019 (no pilot `session.jsonl`); registered for 020 |
 
 **C4 is two-sided.** *If every exact-equality row holds and only band rows differ, the pilot is
-suspect and the outcome is `calibration-invalid`, requiring a re-pilot under C5; if any
+suspect and the outcome is `calibration-invalid`, ~~requiring a re-pilot under C5~~; if any
 exact-equality row differs, the batch is suspect and the outcome is `pipeline-invalid`.* Both
-outcomes are recorded with the rows that produced them.
+outcomes are recorded with the rows that produced them. **AMENDED (round 2, R2-12):** the
+struck clause named no reachable state — `calibration-invalid` is observable only during the
+primary attempt, of which there is exactly one — so the outcome is recorded with the rows that
+produced it and reaches §5.9 row 3, which is terminal. The two-sided ROUTING is untouched.
 
-### 2a.6 C5 — one pilot, sealed, append-only re-pilot rule
+**AMENDED (round 2, R2-11) — the gate now exists, and four things the table left implicit are
+registered.** The gate was in `decision.CONTROL_GATES` and produced by nothing, so every attempt
+would have failed as "not evaluated" and neither branch above could occur. It is produced now:
+`harness/e4lib/transfer.py` reads both sides through ONE reader, `harness/pilot_analysis.py`
+publishes the pilot side as **`calibration/<label>/C4-REFERENCE.json`** after the pilot and
+before the freeze (pinned at **`calibration.c4ReferenceSha256`**, a freeze pin), and
+`harness/score.py` reads the batch side from every present executed slot at attempt time,
+compares, publishes `transferGate` in every outcome, and routes: an unequal exact row (or a side
+that disagrees with itself) is `pipeline-invalid` at row 1, with the band rows still computed
+and published; otherwise an out-of-band or unevaluable band cell is `calibration-invalid` at
+row 3; otherwise the gate holds. An absent, unpinned or non-validating reference is itself a
+row-1 problem — §6: a gate the scorer did not evaluate fails. The four registrations: **(i) two
+band rows, not three** (maintainer ruling on R2-11(A)): the `reasoning_output_tokens` row above
+is ~~[0.65×, 1.55×]~~ struck as a gating row, because §2.1's M-24 fill registered the
+self-report band as NOT taken once the witness resolution landed on the gate-5-extension branch
+and the two sentences contradicted each other; the per-arm token median is still published on
+both sides as a descriptive quantity that no gate reads. **(ii) The cohort** is executed calls
+only — a slot whose wrapper wrote a `CALL.json` with a resolvable duration — which is
+`design/BRIEF.md`'s own cohort (the exit-126 records carried `durationSeconds: null` and were
+outside the 199 / 75 / 75 s triple). **(iii) The median** at even n is the mean of the two
+middles, stated because the pilot's n is 12. **(iv) The ratio** is pilot ÷ batch and the band is
+closed at both ends, so 019's mismatch reads 1660.184 / 199 = 8.34× exactly as the power column
+prints it. The eight exact rows are `model`, CLI version, binary sha256, reasoning effort (each
+from `CALL.json`; the transcript witness is gate 5's business per slot), sandbox policy (the
+`--sandbox` argv token), `codexHomeIsolated`, `environmentScrubbed`, and the sorted isolation
+inventory.
 
-The pilot runs once; label, N and output digest go into `PINS.json` before the primary attempt. A
-second pilot requires a `DEVIATIONS.md` entry naming the reason, and then **the derived threshold
-is the maximum over all pilots** and **the transfer bands are the tightest over all pilots**, with
-every pilot's rates published side by side. Re-piloting is monotone in strictness.
+### 2a.6 C5 — one pilot, sealed, terminal
+
+The pilot runs once; label, N and output digest go into `PINS.json` before the primary attempt
+— and, **AMENDED (round 2)**, so do the two post-pilot analysis artifacts' digests
+(`calibration.c4ReferenceSha256`, `calibration.dispersionSha256`), and **all five calibration
+members are FREEZE PINS** read by `integrity.study_label()`: this sentence was enforced by no
+label rule before round 2, and a REGISTERED attempt was reachable with every one of them null.
+**There is no second pilot.** A `calibration-invalid` outcome at C4 is terminal under §5.9 row 3,
+exactly as any control-gate failure is.
+
+> **AMENDED (round 2, R2-12) — the first printing's rule, struck and kept for the record.** It
+> read: *~~A second pilot requires a `DEVIATIONS.md` entry naming the reason, and then the
+> derived threshold is the maximum over all pilots and the transfer bands are the tightest over
+> all pilots, with every pilot's rates published side by side. Re-piloting is monotone in
+> strictness.~~* It named no reachable state: `calibration-invalid` is observable only at score
+> time; §"The freeze and the primary attempt" registers exactly one primary attempt; and
+> `make_manifest.prior_attempt_problems()` refuses re-freezing any tree carrying an entry under
+> `results/`. A promise with no reachable state is worse than no promise — it made C4's
+> two-sidedness read as a recoverable branch when it is terminal on both sides — so the promise
+> is removed rather than the machinery built.
+>
+> **And one sentence added, for the state that was unrecoverable by typo.** A pilot label under
+> which **no call completed** — every attempt wrapper-refused, or no ledger at all — spent nothing
+> and is not the one pilot: it is ABANDONED by `batch.py abandon --label <label>` after a
+> `DEVIATIONS.md` entry names it, and the tree is retained under `calibration/abandoned-<label>/`,
+> never deleted. The driver refuses to abandon a label holding even one completed call; the
+> freeze gate skips abandoned trees in the one-pilot count and refuses one that hides a
+> completed call.
 
 **Pinning effort undermines the dispersion calibration, and the adjudication is registered.** If
 020 pins a higher reasoning effort, 019's batch is no longer condition-matched and §5.6's
@@ -653,9 +972,30 @@ dispersion figures become a **prior, not a calibration**. Registered: pin the ef
 and **re-derive the dispersion from the pilot at the pinned effort**; 019's SDs are a fallback
 prior and are labelled as one wherever they appear.
 
-> **TODO(prereg) — the dispersion re-derived from the pilot at the pinned effort.** §5.6's σ table
-> stands as a labelled fallback prior until the pilot at the registered condition reports; the
-> per-member MDE table is then recomputed at the registered N and republished before the freeze.
+> **LANDED (round 2, R2-13; maintainer ruling: implement, shared pass, σ stands beside the
+> prior).** `harness/pilot_analysis.py` — the same post-pilot pass that publishes the C4
+> reference — scores the apparatus-clean pilot slots through `score.score_run()`, the ONE scoring
+> path, builds units exactly as `score.registered_family()` does, and publishes
+> **`calibration/<label>/PILOT-DISPERSION.json`** (pinned at `calibration.dispersionSha256`, a
+> freeze pin): for each of the eighteen registered members, σ on its registered basis (pooled
+> within-arm, N − k; residual, N − 4, for the adjusted members), the degrees of freedom, the exact
+> two-sided 95 % χ² interval for σ (`e4lib/dispersion.py`), and the MDE at the pilot's own n and
+> at the registered N (each arm's realised n derived from the pilot's own membership fraction for
+> that member's population — a size, not a direction). **It computes no contrast, no test and no
+> direction**: it never calls `family.score_member()` or `family.family_report()`, its schema is
+> closed, and a no-peek gate refuses publication — and the freeze — if any member at any depth is
+> a difference, sign, p-value, rejection, interval, mean, contrast, verdict or claim. §2a.2's
+> "no kill quantity, by construction" is scoped to `pilot_rates.py`, the go/no-go's publisher;
+> this pass necessarily computes per-run kill records, and the closed no-peek schema is what
+> makes that not a peek. **§5.6's 019 table stays as published, labelled the fallback prior; the
+> recomputed table is appended to §5.6 from this file's bytes by the ceremony, with df and
+> interval per row, and stands BESIDE the prior rather than replacing it** — the pilot estimate is
+> materially less precise (χ² factors [0.739, 1.548] at the per-protocol floor against
+> [0.876, 1.171] on 019's 88 runs), and "recomputed" is not "better". The registered planning
+> statements of §5.6 (the binding MDE ≈ 0.165; 80 %-powered against ≈ 2 / ≈ 9 classes) therefore
+> stand on the prior and are reprinted beside the pilot's figures, not replaced by them. The
+> ceremony step is: pilot → `pilot_rates.py --write` → `pilot_analysis.py --write` → pin the
+> three digests → freeze.
 
 ## 3. Arms and prompt materials
 
@@ -726,14 +1066,45 @@ a repair, not an exclusion, and not a prompt edit.**
   faults) stands **unexplained** by this mechanism and is published as Tier D material —
   descriptive, direction-free, and no decision reads it.
 
-**The obligation, and it is a freeze gate — SATISFIED for (i), (ii), (iii) and (v).**
+**The obligation, and it is a freeze gate — SATISFIED for all five of (i)–(v).**
 `GATE(pre-freeze)`: **the guard is registered with its own power analysis, computed and published
-before the freeze.** The analysis is mechanical and its inputs already exist in 019's frozen tree,
+before the freeze.**
+
+> **The registration condition, AMENDED 2026-08-24 (round-1 finding R1-9; ruled by the
+> maintainer; PENDING round-2 review, and if round 2 refuses the amendment the kill switch
+> flips false and the guard demotes to Tier D).** The original condition read: if the detector
+> cannot meet (i) and (ii) exactly — 40/40 and 0/22 — the guard is not registered at all. The
+> measurement is 39/39 on every policy the pinned parser accepts and 32/32 on the registered
+> operating set, with the fortieth in-class policy (`B run-040`) refused by `opa check` before
+> any admission-level detector can see it. R1-9 is right that receipt of SOME authoring code is
+> not detector sensitivity, and the round-1 power analysis blurred that. The amended condition,
+> stated prospectively and to be applied to the re-run certification (R1-10's detector repairs
+> force a full re-run of all five quantities): **(i-a) the detector flags every in-class policy
+> in its registered operating set (the admitted policies) exactly — n/n; (i-b) every in-class
+> retained run receives a registered authoring code from the admission chain — 40/40, the
+> detector's code or an earlier one; (ii) 0/22 perfect runs flagged, unchanged.** The amendment
+> is the condition an admission-level detector could ever have met on this corpus — a policy
+> the parser refuses is structurally unreachable, by the same §3.2 order that makes the guard a
+> detector and not a repair — and it is registered AFTER the first measurement was seen, which
+> is why it does not certify anything by itself: the re-run certification under R1-10's
+> repaired detector must meet it fresh, and round 2 must bless the criterion, before the
+> switch's `registered: true` stands. **The fresh run is EXECUTED (2026-08-24, recorded in
+> `harness/POWER-PRESENCE-IDIOM.md`'s re-certification section): the repaired detector
+> reproduces every certified figure exactly — 39/39, 178 uses, B 19 / C 13 with the pinned
+> set-identity digest, 0/22, 0/392, zero non-string probes in the corpus — so (i-a), (i-b)
+> and (ii) hold under the amendment, all three R1-10 defects measured latent, and only
+> round 2's blessing remains outstanding.** The analysis is mechanical and its inputs already exist in 019's frozen tree,
 so it was an obligation with a deadline rather than a hope; it has been executed and is published
 at `harness/POWER-PRESENCE-IDIOM.md`, with the numbers reprinted in the filled entry below and
-`harness/PINS.json`'s `presenceIdiomGuard` block carrying the verdict as data. **(iv) alone
-remains open**, and what blocks it is named there. It must report, at minimum: (i) **sensitivity** — the detector run over 019's 76 retained
-B+C policies must fire on the 40 that use bare-object `in`; (ii) **specificity** — it must fire on
+`harness/PINS.json`'s `presenceIdiomGuard` block carrying the verdict as data. (iv) was the last
+to fill: it was blocked on the family scorer (§7 delta 5) and is now computed by the registered
+script `harness/counterfactual_shift.py`. It must report, at minimum: (i) **sensitivity** — ~~the detector run over 019's 76 retained
+B+C policies must fire on the 40 that use bare-object `in`~~ **[SUPERSEDED by the R1-9 amendment
+above (2026-08-24; blessed by round 2): (i-a) the detector flags every in-class policy in its
+registered operating set — the admitted policies — exactly, n/n; (i-b) every in-class retained run
+receives a registered authoring code from the admission chain, 40/40, the detector's code or an
+earlier one. Marked round 2, R2-4: this clause restated the retired condition sixteen lines below
+the amendment that retires it.]**; (ii) **specificity** — it must fire on
 **none** of the 22 perfect runs; (iii) the **false-positive rate on lawful `in` uses** (over sets
 and arrays) across the same 76 policies and across both reference implementations; (iv) the
 **counterfactual per-member shift** on 019's batch — every one of §5.2's eighteen members
@@ -742,8 +1113,7 @@ figures, so the code's effect on the family is a measured quantity rather than a
 (v) a **mutation check** in the program's standing discipline: break the detector, confirm the
 test that certifies it fails, and label any assertion that cannot discriminate.
 
-> **FILLED — the presence-idiom guard's power-analysis numbers (i), (ii), (iii) and (v); (iv)
-> remains a `TODO(prereg)` and names what blocks it.** The detector exists
+> **FILLED — all five of the presence-idiom guard's power-analysis numbers.** The detector exists
 > (`harness/e4lib/presence_idiom.py`), it was run over Study 019's retained arm-B/arm-C
 > policies with the pinned binary, and the analysis is published in full at
 > **`harness/POWER-PRESENCE-IDIOM.md`**, which is a registered document (`harness/
@@ -756,13 +1126,16 @@ test that certifies it fails, and label any assertion that cannot discriminate.
 >
 > | | result |
 > |---|---|
-> | **(i) sensitivity** | **40/40 in-class runs receive an authoring code.** The in-class set was re-derived from the policy SOURCE BYTES by an independent oracle sharing no code and no input representation with the detector, and it is 40 of the 76 — arm B 21, arm C 19 — reproducing M-14's discriminator by a method M-14 did not use. The detector flags **39/39** of the policies the pinned parser accepts and **32/32** of the admitted policies, the population §3.2 registers it to run over; the fortieth (`B run-040`) is refused by the parser and receives the earlier registered code `unparseable-artifact`. Agreement with the oracle is exact at the USE level too: 178 flagged uses against 178, with zero per-run count mismatches over all 73 parseable policies. |
+> | **(i-a) detector coverage of the registered operating set** | **32/32 admitted in-class policies flagged, 39/39 parseable** — zero false negatives on the admitted operating set, the population §3.2 registers the detector to run over, and on every policy the pinned parser accepts; the set-identity digest `759b0ddc…` is carried at `harness/PINS.json` `presenceIdiomGuard.counterfactualPerMemberShift.flaggedSet.sha256` AND in `harness/counterfactual_shift.py`'s covered constant, which `certify_identity()` requires to agree (round 2, R2-19: until then the "pinned" digest lived only in the covered constant). *(Row split from the single "(i) sensitivity" row, round 2, R2-4; the (i) label is kept as the parent so the review record's citations survive.)* |
+> | **(i-b) admission-chain code coverage** | **40/40 in-class retained runs receive a registered authoring code.** The in-class set was re-derived from the policy SOURCE BYTES by an independent oracle sharing no code and no input representation with the detector, and it is 40 of the 76 — arm B 21, arm C 19 — reproducing M-14's discriminator by a method M-14 did not use. The detector flags **39/39** of the policies the pinned parser accepts and **32/32** of the admitted policies, the population §3.2 registers it to run over; the fortieth (`B run-040`) is refused by the parser and receives the earlier registered code `unparseable-artifact`. Agreement with the oracle is exact at the USE level too: 178 flagged uses against 178, with zero per-run count mismatches over all 73 parseable policies. |
 > | **(ii) specificity** | **0/22 perfect runs flagged**, in every population; all 22 parse and all 22 are admitted. |
 > | **(iii) false positives on lawful `in`** | **0/392 lawful uses, 0/15 over sets and arrays** — the two forms this section names. 599 membership terms were read over the 73 parseable policies: 248 presence tests (178 flagged, 38 lawful over set-returning calls, 3 over non-object names, 29 unclassified — 178 + 38 + 3 + 29 = 248) and 351 iterations and bindings, none flagged. 29 uses are UNCLASSIFIED and none is flagged: an unresolvable name is reported, never guessed at. |
-> | **(iv) counterfactual per-member shift** | **NOT COMPUTED, and the blocker is named**: it requires all eighteen of §5.2's members recomputed with the flagged runs coded `presence-idiom-unsound`, and the eighteen-member family scorer is §7's delta 5 (`harness/SCAFFOLD.md` item S4), which has not landed and which the freeze is gated on. Computing it with an ad-hoc implementation would publish eighteen numbers no registered code path can reproduce. **This sub-item stays open.** What is stated instead, as a bound rather than an estimate: the flagged set is 32 of the 60 admitted 019 runs — arm B 15 of 30, arm C 17 of 30. |
+> | **(iv) counterfactual per-member shift** | **COMPUTED** by the registered script `harness/counterfactual_shift.py` (reproduced by `harness/tests/test_counterfactual_shift.py`; full 36-row table in `harness/COUNTERFACTUAL-SHIFT.json`). The flagged set is **derived, then gated**: the script re-runs the certified detector over the 60 admitted 019 policies and refuses to publish off the certified counts — **32 of 60, arm B 19 of 30, arm C 13 of 30** (this document first printed the split as B 15 / C 17; that was unmeasured arithmetic, the gate refused it, and the correction note in `harness/POWER-PRESENCE-IDIOM.md` §(iv) records the reconciliation — every other certified figure stands). The recode is the registered one: identity false, no kill record, exactly as the other authoring codes present. **Measured effect (A–C), REGENERATED round 2 under the registered estimand (R2-2, native-for-both; the file names the estimand it was computed under):** every ITT member amplified (+0.168 … +0.210), every unadjusted PP member attenuated (−0.031 … −0.006), PP/ANCOVA within ±0.015 (−0.008 … +0.015 — M18, L2c/excl, is the one adjusted member whose shift is now POSITIVE; the first printing, under the superseded hybrid, had all six adjusted shifts in −0.008 … −0.002); exactly two α = 0.05 decisions flip, **M2 and M5** (L1/PP, both columns: p 0.0213 → 0.3483), from reject to not-reject — unchanged. A–B: ITT +0.246 … +0.303, PP \|shift\| ≤ 0.020. The unflagged column reproduces the REGISTERED reading — fifteen of Reprint 1's rows to the printed digit for every point estimate and unadjusted p-value, to the decision boundary for the six ANCOVA p-values per §5.5's marked R1-6 scope note, and the three excluded-column L2c rows at the figures §5.2's F-1 re-ruling states (M17 A–C +0.0839) — pinning the script's adapter to the fixture adapter. The effect is **direction-heterogeneous by population** — ITT away from the null, unadjusted PP toward it — so no single-direction story about the guard's effect is licensed. The JSON is manifest-covered since round 2 (R2-16). |
 > | **(v) mutation check** | Break the detector by dropping the object-type branch: flagged runs fall **39/39 → 23/39** and flagged uses 178 → 83, so condition (i) fails and the certifying measurement discriminates. Driven in CI as `harness/tests/test_score_presence_idiom.py::test_breaking_the_object_branch_makes_the_sensitivity_case_fail`. **One assertion was found not to discriminate and was rebuilt** — its first version patched a function the scan does not call — and the finding is recorded in the published analysis. |
 >
-> **Two measured ceilings are published with it**, rather than discovered later: a presence
+> **Three measured ceilings are published with it**, rather than discovered later (the third
+> — the numeric-key trap outside the non-string-probe class — added by the R1-10
+> re-certification): a presence
 > test over a FUNCTION PARAMETER is not detected (2 runs of the 76, both non-perfect, so the
 > semantic class may be 42 rather than 40 — the analysis does not count them, because moving
 > the boundary after seeing which side the runs fell on is the choice §5.2's admission test
@@ -908,7 +1281,7 @@ admission.
 - **E5: interpretive-spread census** — per-arm distinct structural encodings and pairwise-
   disagreement profiles over the frozen gold-row input set, the count freeze-pinned in `PINS.json`.
 - **E6 (new, reported): `ownPolicyIdentity`** — the per-run score of the authored suite against the
-  run's own authored policy (§1.2, M-13). One extra engine invocation per run. **Published per run
+  run's own authored policy (§1.2, M-13; exposure as measured there, R1-14). **Published per run
   and per arm; gates nothing; conditions R1's construct statement.** The conjunction
   `referenceIdentity ∧ ownPolicyIdentity` is published as a Tier D population disposition, so the
   population 020 did **not** register is visible beside the one it did.
@@ -958,6 +1331,7 @@ coverage marginal of class g:
 |---|---|---|---|
 | **L2 — native mutant** (019's registered quantity) | \|J_g\|/69 vs \|R_g\|/62 | **−0.0496** (per-protocol) / −0.0485 (ITT) | 0.5400 |
 | **L2, engine-excluded** | \|J^ex_g\|/57 vs \|R_g\|/55 | −0.0492 / −0.0481 | 0.5046 |
+| **L2, engine-excluded — REGISTERED weights, AMENDED round 2 (R2-2)** | \|J^ex_g\|/57 vs \|R_g\|/62 (native: an exclusion that removes no Rego mutant leaves Rego's own denominator unmoved) | **−0.00567** (per-protocol) / **−0.00554** (ITT) | — |
 | **L1 — group**, weight 1/33 each | 1/33 vs 1/33 | **0 by construction** | 0 |
 | **L3 — symmetrised mutant**, w_g = (\|J_g\|+\|R_g\|)/131 | identical in both arms | **0 by construction** | 0 |
 
@@ -965,11 +1339,67 @@ coverage marginal of class g:
 (iii) in its raw form — and by criterion (iii) it enters **de-biased, not removed**:
 
 > **L2c, registered definition.** Per-run outcome = the native-denominator paired kill fraction;
-> then **off̂ is subtracted from every *scoreable* arm-A run's outcome**, where
+> then **off̂ is subtracted from every arm-A run's outcome that carries a kill record**, where
 > off̂ = Σ_g π̂_g(w^A_g − w^C_g) and π̂ is the pooled, **arm-label-free** coverage marginal over the
-> scoreable runs of that member's own analysis population. Unscoreable runs score 0 in both arms
-> and take no offset. On 019: off̂ = −0.04956 (per-protocol, engine-included), −0.04846 (ITT),
-> −0.04922 / −0.04813 excluded-column.
+> kill-record-carrying runs of that member's own analysis population. Runs with no kill record
+> score 0 in both arms and take no offset. On 019: off̂ = −0.04956 (per-protocol,
+> engine-included), −0.04846 (ITT), −0.04922 / −0.04813 excluded-column.
+>
+> **AMENDED (round 2, R2-2; the F-1 re-ruling below).** The weights w^A_g, w^C_g in off̂ are the
+> SAME native denominators the outcome uses — one universe. On 019 that leaves the
+> engine-included figures exactly as printed (all 33 included classes are shared, so the native
+> and shared denominators coincide there) and moves the excluded column to **−0.00567**
+> (per-protocol) / **−0.00554** (ITT); the −0.04922 / −0.04813 above are the shared-denominator
+> reading, published beside the registered one as Tier D by `family_report()`'s offsets block.
+>
+> **PREDICATE CORRECTION — of Study 019, marked, 2026-08-24 (round-1 finding R1-3; no verdict
+> and no α = 0.05 decision moves).** This definition's first printing said "scoreable" and
+> "unscoreable", one word carrying two facts. Study 019's scorer gated mutant execution on the
+> identity control, so its two identity-failing admitted runs (`A/run-025`, `A/run-046`)
+> EVALUATED NO MUTANT — yet their frozen records carry a kill block, and 019's published ITT
+> offsets are obtainable ONLY with those two runs inside the marginal (measured:
+> −0.04846 = −0.04956 × 88/90 to every digit). The registered reading above — the marginal and
+> the subtraction select on CARRYING A KILL RECORD — is therefore 019's own, reproduces every
+> §5.5 reprint, and stands. The evaluation-corrected reading (marginal over the 88 runs that
+> actually evaluated a mutant) is published beside it by `family_report()`
+> (`included/ITT −0.04956`, `excluded/ITT −0.04922`; both per-protocol marginals are the same
+> set under either predicate), and under it exactly four member figures of 019's Reprint 1
+> move, none across a decision boundary:
+>
+> | member | as published (kill-record) | evaluation-corrected |
+> |---|---|---|
+> | M13, A−C | +0.1463 (p 0.0210) | +0.1448 (p 0.0240) |
+> | M16, A−C | +0.2323 (p 0.0008) | +0.2308 (p 0.0010) |
+> | M13, A−B | +0.1416 | +0.1401 |
+> | M16, A−B | +0.2276 | +0.2261 |
+>
+> **RECOMPUTED (round 2; the R2-2 re-ruling, and a repair).** The table above was TRANSCRIBED:
+> `member_outcomes()` hard-coded the subtraction set to the kill-record predicate while only the
+> marginal took the argument, so the evaluation-corrected column could not be produced by the
+> registered scorer. The predicate is threaded through both now (`e4lib/family.py`,
+> `test_family.py::test_the_predicate_threads_through_the_subtraction_set_too`), and the table
+> under the REGISTERED estimand, computed rather than asserted, is:
+>
+> | member | registered (kill-record) | evaluation-corrected |
+> |---|---|---|
+> | M13, A−C | +0.1463 (p 0.0210) | +0.1448 (p 0.0239) |
+> | M16, A−C | +0.1920 (p 0.0044) | +0.1918 (p 0.0044) |
+> | M13, A−B | +0.1416 (p 0.0296) | +0.1401 (p 0.0331) |
+> | M16, A−B | +0.1873 (p 0.0060) | +0.1871 (p 0.0060) |
+>
+> M13 is unchanged from the first printing because the included column is one universe already;
+> M16's two readings now differ by 0.0002 rather than 0.0015 because the native excluded-column
+> marginal is an order of magnitude smaller than the shared one. Neither reading crosses a
+> decision boundary. The M13 A−C evaluation-corrected p prints 0.0239 here and 0.0240 above:
+> the same stream, the first printing rounded from a transcription.
+>
+> `e4lib/family.py`'s `Unit` now carries the two predicates separately (`carries_kill_record`,
+> `evaluated`), `offset()` takes the predicate as an argument, and the fixture adapter builds
+> the two runs as carrying-but-not-evaluated instead of synthesizing an all-survivor vector
+> that asserted an evaluation which never happened. This is a correction OF Study 019's
+> vocabulary published by 020's reprint discipline, not a failure of the reprint: the
+> registered default reproduces 019 exactly, and the corrected reading is a second computation
+> beside it.
 
 **M-16(d), ruled: the three L2c ceilings are accepted as registered ceilings, in the brief's own
 words** — π̂ on the per-protocol population is estimated on a post-treatment-selected cohort
@@ -977,6 +1407,51 @@ words** — π̂ on the per-protocol population is estimated on a post-treatment
 member's test; and for the adjusted members the offset is subtracted from unit outcomes *before*
 the ANCOVA, so the adjusted contrast inherits it linearly. **L3's presence beside L2c is the
 mitigation**: L3 needs no estimated offset and is unbiased for *any* π (§11.9).
+
+> **F-1, RULED 2026-08-24 (round-1 finding R1-4; the maintainer decision `harness/e4lib/family.py`'s
+> finding F-1 demanded, now on the record).** The registered estimand is the HYBRID the L2c
+> definition above already describes, ruled explicitly rather than left implied: each member's
+> OUTCOME is the language-native paired kill fraction (native denominators — Rego `/62` in the
+> excluded column, because an exclusion that removes no Rego mutant leaves Rego's own denominator
+> unmoved), and L2c's OFFSET weights are the SHARED-class denominators (`57/55`), because the
+> offset is a shared-support de-biasing term and computing it over support one arm cannot reach
+> would import exactly the vacuity it exists to remove. Two facts carried the ruling: this is the
+> only reading under which every §5.5 reprint figure reproduces (the registered Tier D anchors),
+> and the offset's role is structural correction, not outcome measurement, so the two sides of
+> the hybrid answer different questions and may lawfully use different weights. The two
+> single-universe alternatives are PUBLISHED beside it rather than erased — shared-for-both, and
+> native-for-both in both sub-readings (−0.00567 / −0.00554 pooled-vacuous — the ITT cell as
+> measured under R1-3's honest units; +0.03795 / +0.03711
+> marginal-over-29) — by `family_report()`'s offsets block, so a reader can see what the ruling
+> chose against. `harness/e4lib/family.py`'s F-1 note records the ruling at the code; round 2
+> verifies it.
+
+> **F-1, RE-RULED (round-2 finding R2-2, REFUSING the round-1 ruling; maintainer decision
+> 2026-08-26: NATIVE-FOR-BOTH).** Round 2 verified the hybrid and refused it: de-biasing a
+> native-weighted outcome with a shared-weighted offset leaves a residual that is computable
+> from the frozen corpus alone under a true null — **+0.043552 (per-protocol) / +0.042584
+> (ITT) per subtracted unit in the excluded column, 7.7× the raw native bias of −0.00567** —
+> which is precisely what criterion (iii) forbids a member to carry. The registered estimand is
+> therefore ONE universe: each L2c member's outcome and its offset are both weighted by the
+> language-native denominators (Rego `/62` in the excluded column, JPS `/57`), and the reading is
+> registered in `harness/PINS.json` (`family.outcomeWeighting` / `family.offsetWeighting`, both
+> `native`), read from there by `harness/score.py` and `harness/counterfactual_shift.py`, and
+> enforced at the member seat: `e4lib/family.py` refuses a seat whose two weightings differ
+> (`MixedUniverseRefused`, beside the ITT × ANCOVA refusal). What moves on 019, all excluded
+> column, none across a decision boundary: **M16 +0.2323 → +0.1920 (p 0.0008 → 0.0044),
+> M17 +0.1275 → +0.0839 (p < 0.0001 → 0.0018), M18 +0.0911 → +0.0476 (p 0.0002 → 0.0125)**;
+> A−B M16 +0.2276 → +0.1873 (p 0.0014 → 0.0060), M17 +0.1065 → +0.0629 (p < 0.0001 → 0.0102),
+> M18 +0.1105 → +0.0669 (p 0.0002 → 0.0005). The included column is unchanged (all 33 of its
+> classes are shared, so its native and shared denominators coincide and M13–M15 reproduce to
+> the digit). **The verdict does not move: A−C 16 positive / 2 negative, 10 of 18 reject —
+> INDETERMINATE-BY-DISAGREEMENT; A−B 18 positive, 8 of 18 reject; Reprint 2's nine rows are
+> identical.** M16's dispersion tightens (σ 0.29826 → 0.29649; MDE at 019's n 0.1905 → 0.1893);
+> the per-protocol members' σ is offset-invariant. The two readings the ruling chose against are
+> PUBLISHED, complete — every row, the verdict, the drop-a-pole table — as Tier D by
+> `family_report()`'s `alternatives` block: the hybrid (native outcome / shared offset, 019's
+> reading, **SUPERSEDED**; it remains the reading under which every §5.5 reprint reproduces, and
+> is retained for exactly that reason) and shared-for-both (**ALTERNATIVE**; 8 of 18 reject on
+> A−C, 6 on A−B). Round 1's ruling above is retained as written and superseded by this block.
 
 #### The eighteen members
 
@@ -1034,15 +1509,28 @@ The family is the crossing **{L1, L3, L2c} × {engine-included, engine-excluded}
    published whether or not R1 fires.
 
    > **TODO(prereg) — each member's registered per-arm n.** A function of N (§2.1) and of the
-   > realised-n arithmetic below; both are filled with the compute condition, before the freeze.
+   > realised-n arithmetic below. **N resolved 2026-08-24 (§2.1's fill: 60/arm), so this TODO is
+   > UNBLOCKED**; the arithmetic is applied at the registered N = 60 in the §5 analysis-set pass and this entry
+   > fills before the freeze — deliberately not in the same edit as the condition, so the §5
+   > numbers land in one reviewed pass rather than scattered. **(MARKED CORRECTION, round-2
+   > finding R2-6: this cell transcribed the fill as "50/arm" — the count §2.1's first draft
+   > carried. The registered N is 60; `harness/PINS.json`'s `batch.n` is the one home of that
+   > number, and `harness/tests/test_prereg_currency.py` now reads this cell against it. The
+   > per-member table itself is STILL OWED — `harness/SCAFFOLD.md` S10. RULED 2026-09-02: it is
+   > filled from the TERMINAL PILOT's measured apparatus-clean membership fractions — the
+   > realised-n arithmetic `harness/pilot_analysis.py` already derives (R2-13) — not from either
+   > apparatus-repair branch assumed here, so it stays owed until the pilot has run and fills
+   > before the freeze from measured rates.)**
 
-**Realised-n arithmetic, shown rather than asserted, at the illustrative N = 60 branch.** Derived
+**Realised-n arithmetic, shown rather than asserted, at the REGISTERED N = 60 (§2.1's fill; this
+sentence said "illustrative" until round-2 R2-6).** Derived
 from 019's `population.*.apparatusCodes` (A: `registry-mismatch` 9, `slot-shape` 2,
 `transcript-refused` 1; B: `slot-shape` 11, `post-call-failure` 1, `transcript-refused` 1; C:
 `slot-shape` 11) and the conditional artifact-plus-identity rates A 34/38 = 0.895, B 26/37 = 0.703,
 C 28/39 = 0.718: with `slot-shape` pre-paid, arm A is 1 − 10/50 = 0.80 → 48 admitted → ≈ **43**
 scoreable; arm B 0.96 → 57.6 → ≈ **40**; arm C 1.00 → 60 → ≈ **43**. With `registry-mismatch` also
-repaired, arm A is 0.98 → 58.8 → ≈ **53**. **Without that repair arm A projects to ~43, not 50.**
+repaired, arm A is 0.98 → 58.8 → ≈ **53**. **Without that repair arm A projects to ~43, not ~~50~~
+60** (R2-6: an N = 50 residue; the arithmetic above was already at 60).
 
 #### Membership is append-only after registration
 
@@ -1123,6 +1611,40 @@ throughout.
 > **Tier C's verdict on 019's batch: INDETERMINATE-BY-DISAGREEMENT.**
 > A−B is unanimous in direction (18 positive) but only 8 of 18 reject — and it is unreachable
 > anyway, gated behind A−C.
+
+> **REPRODUCTION SCOPE, marked 2026-08-24 (round-1 finding R1-6; `e4lib/family.py` finding
+> F-2 is the measurement).** The registered scorer reproduces this table's every point
+> estimate, every n, the twelve unadjusted p-values to the printed digit, every reject /
+> not-reject decision at α = 0.05, the 16/2 sign split and all of Reprint 2 — and does NOT
+> reproduce the six ANCOVA p-values to the digit, because 019's generating script is not in
+> its tree and the residual is a different Monte-Carlo stream under the same scheme. Both
+> value sets, at the registered B = 4,000: M3/M6 print 0.2309 above and the scorer computes
+> **0.2462**; M9 0.8823 / **0.8883**; M12 0.7881 / **0.7891**; M15 0.8263 / **0.8395**; the
+> A−B column's M3/M6 0.1110 / **0.1107**, M9 0.3077 / **0.3062**, M12 0.1577 / **0.1647**,
+> M15 0.3779 / **0.3809**; M18 is exact in both contrasts. Every claim in this study that a
+> figure "reproduces to the printed digit" is scoped by this note: it holds for the point
+> estimates and the unadjusted scheme, and for the six ANCOVA p-values it means
+> decision-boundary agreement with the scorer's own stream printed beside 019's.
+>
+> **SCOPE EXTENDED (round 2, R2-2).** Reprint 1 is 019's reading — the hybrid estimand of
+> round 1's F-1 ruling — and since the re-ruling the registered scorer reproduces it through
+> the SUPERSEDED Tier D `alternatives` block of `family_report()`, not through the member rows.
+> The member rows under the registered estimand reproduce fifteen of the eighteen to the digit
+> and move the three excluded-column L2c members to the figures below.
+
+**Reprint 1b — the three rows that move under the registered estimand (round 2, R2-2;
+native-for-both). Reprint 1 above is retained as 019's own reading, SUPERSEDED as estimand.**
+
+| id | level | engine | population | adj | n (A/B/C) | **A−C** | p | **A−B** | p |
+|---|---|---|---|---|---|---|---|---|---|
+| M16 | L2c | excl | ITT | — | 38/37/39 | **+0.1920** | **0.0044** | +0.1873 | **0.0060** |
+| M17 | L2c | excl | PP | — | 34/26/28 | **+0.0839** | **0.0018** | +0.0629 | **0.0102** |
+| M18 | L2c | excl | PP | ANCOVA | 34/26/28 | **+0.0476** | **0.0125** | +0.0669 | **0.0005** |
+
+> **The verdict line is unchanged**: A−C 16 positive / 2 negative, 10 of 18 reject —
+> INDETERMINATE-BY-DISAGREEMENT; A−B 18 positive, 8 of 18 reject, unreachable behind A−C.
+> Reprint 2 below is identical row for row under either reading. The three rows here and the
+> fifteen above are what `harness/COUNTERFACTUAL-SHIFT.json`'s unflagged column reproduces.
 
 **Reprint 2 — the drop-a-pole table, and the one exception.** Dropping every member carrying a
 given pole and re-evaluating:
@@ -1220,7 +1742,11 @@ C 0.718): θ = 1 → 0.127 (N=40) / 0.246 (60) / 0.356 (80); θ = 2 → 0.581 / 
 **Dispersion and minimum detectable effect, per member** — pooled within-arm SD, unbiased (N − k;
 residual N − 4 for the adjusted members), all arm-blind; MDE = 2.8016 · σ · √(1/n_A + 1/n_C) at
 two-sided α = 0.05, 80 % power. **These are 019 figures and are a labelled fallback prior until the
-pilot re-derives them at the pinned effort (§2a.6).**
+pilot re-derives them at the pinned effort (§2a.6).** **AMENDED (round 2, R2-13):** the
+re-derivation is `harness/pilot_analysis.py`'s `PILOT-DISPERSION.json`, and its eighteen rows —
+σ, df, the exact χ² 95 % interval, MDE at the pilot's n and at the registered N — are APPENDED
+below this table by the ceremony once the pilot has run, and stand beside it. This table is
+retained as published; no figure in it moves.
 
 | id | σ | MDE @ 019 n | MDE @ N=60, slot-shape cured | MDE @ N=60, + registry cure | MDE @ N=100 |
 |---|---|---|---|---|---|
@@ -1242,6 +1768,16 @@ pilot re-derives them at the pinned effort (§2a.6).**
 | M12 L3/excl/PP/anc | 0.06849 | 0.0490 | 0.0414 | 0.0394 | 0.0305 |
 | M15 L2c/incl/PP/anc | 0.06049 | 0.0432 | 0.0365 | 0.0348 | 0.0269 |
 | M18 L2c/excl/PP/anc | 0.06420 | 0.0459 | 0.0388 | 0.0369 | 0.0286 |
+
+> **M16 under the registered estimand (round 2, R2-2; this table stays as published).** The
+> row above is 019's hybrid reading. Under native-for-both M16's σ is **0.29649** and its MDE at
+> 019's n **0.1893** (the three N-columns scale by the same ratio: 0.1608 / 0.1523 / 0.1181);
+> M13's and every per-protocol member's σ are unchanged, the per-protocol members' because the
+> offset is subtracted from every arm-A unit of that population and a constant shift leaves a
+> within-arm variance alone. The size-and-power simulation above (`oc18.py`) recomputed L2c's
+> offset from each replicate's own pooled marginal under the SHARED weights of the reading then
+> registered; it is not re-run here, it stays a labelled prior, and §2a.6's pilot dispersion
+> pass (R2-13) is the registered re-derivation at the pinned effort.
 
 σ across the family spans **0.0507 to 0.3216 — a factor of 6.3**. **Tier C's precision is the ITT
 members' precision**: at N = 60/arm with every apparatus repair the binding MDE is **≈ 0.165** — for
@@ -1347,7 +1883,19 @@ the off-gold equivalence certificate is current at the freeze commit; the OPA ca
 refused; the golden-context gate holds with the isolation negative control on record; **every scored
 engine invocation of the attempt returned an answer** (`engine-execution-clean` — a pinned engine
 that timed out, failed to compile or refused on a *frozen* study artifact is an apparatus failure,
-and it is neither a kill nor an identity failure, and this now covers E6's extra invocation too);
+and it is neither a kill nor an identity failure; **AMENDED 2026-08-24, R1-1: the gate's scan also
+covers invocations on the AUTHOR'S artifact during admission and E1** — an engine that never
+answered there files the run under `engine-invocation-refused` (§1a's amended table), the run
+leaves every population, and the exclusion reaches this gate through `scoringApparatus`, so an
+unanswered invocation can gate the attempt but can never move a rate — and this covers E6's extra
+invocation too —
+**with ONE registered exemption, ruled 2026-08-24 on round-1 finding R1-15: the sealed reviewer
+holdout's invocations are EXEMPT from this gate and purely descriptive.** §4.3 registers that the
+holdout moves nothing, and a pinned-engine refusal inside reviewer-authored prospective content is
+published in the holdout's own record — scored "as authored", refusals listed beside kills — and
+can neither gate nor invalidate the primary attempt; letting it would hand reviewer-authored bytes
+a veto over the study, which is exactly what "moves nothing" was registered to prevent. The
+exemption is the ruling §4.3 and this sentence had left implicit, and round 2 verifies it);
 every binary digest matches its pin; the schedule matches the registered plan; **the C4 transfer gate
 holds two-sided** (§2a.5). **A gate the scorer did not evaluate fails**: an absent gate is not a gate
 that held. Manifest failures, unregistered absences, and enforcement failures are NOT-ADJUDICATED —
@@ -1369,9 +1917,10 @@ glossed.** `integrity` is the only study-local module the scorer imports at modu
 no study-local module itself, and `integrity.verify()` is the first study-local call the scorer
 makes. What that cannot be is a proof that the checker is the checker the manifest describes. The
 exact-set manifest covers every byte the scorer executes and every payload it reads; the manifest is
-scoped per ADR 0004, with `DEVIATIONS.md`, `README.md`, `PREREG-REVIEW.md`, `CORRECTION-TARGETS.md`
-(named while absent, refusing `--freeze` on it) and `harness/ADVISORIES.md` excluded by named
-constant, each with an asserting test. **Anchor order is linear and one-directional (ADR 0005):
+scoped per ADR 0004, with `DEVIATIONS.md`, `README.md`, `PREREG-REVIEW.md`, `CORRECTION-TARGETS-LOG.md`
+and `harness/ADVISORIES.md` excluded by named constant, each with an asserting test (corrected
+round 2, R2-14: `CORRECTION-TARGETS.md` is COVERED and freezes with the tree — §10's R1-18
+amendment governs, and this sentence had kept the pre-amendment "named while absent" reading). **Anchor order is linear and one-directional (ADR 0005):
 covered files → manifest → the registry pins the manifest → the commit anchors the registry.** The
 manifest is regenerated **last** in every reconciliation. **Suite-of-record claims are
 archive-verified (ADR 0005, decision 1):** a "N passed" claim is made only of a commit, after
@@ -1383,10 +1932,24 @@ included.**
 
 1. **The scorer's survivor-vector schema — the token collision is fixed.** The scorer **emits an
    explicit per-mutant survivor vector for every admitted run** and **never encodes "nothing
-   evaluated" and "everything killed" with the same token**; `survivorsPaired: []` with
-   `killedPaired: 0` is refused at write time rather than read as 33/33 (§5.2). It also emits
-   `caseCount` for every admitted run with a suite. A harness test drives both refusals, and the
-   mutation check is required: break the refusal, confirm the test fails.
+   evaluated" and "everything killed" with the same token**. It also emits `caseCount` for every
+   admitted run with a suite. A harness test drives the refusals, and the mutation check is
+   required: break the refusal, confirm the test fails.
+
+   > **AMENDED, 2026-08-24 (round-1 finding R1-2, marked).** This delta's first wording kept
+   > 019's refusal condition — `survivorsPaired: []` with `killedPaired: 0` refuses at write
+   > time — which was right for 019's records (no vector, so that state IS the collision) and
+   > wrong once this delta's own vector exists: with a total, registered-vocabulary vector on
+   > every record, that aggregate state is exactly what the REGISTERED nothing-was-evaluated
+   > record looks like (`evaluatedPaired: 0`), it arises on the most common production paths
+   > (no suite, no cases, out-of-domain, identity failure), and refusing it hard-aborted the
+   > attempt one such admitted run in. The write gate now holds the VECTOR authoritative and
+   > refuses genuine inconsistency between vector and aggregates in any direction —
+   > `killedPaired` off the vector's count, `survivorsPaired` off its SURVIVED entries,
+   > `evaluatedPaired` off its evaluated count (the genuinely impossible state the old guard
+   > was reaching for). The total not-evaluated record is ACCEPTED as the registered ITT-zero
+   > state. The token collision stays fixed — by the vector, which is where this delta fixed
+   > it all along.
 2. **Per-language cuts machinery: retained, with no threshold on top of it.** The machinery that
    keeps each language's paired-adequate denominator and lattice separate is **kept** — it computes
    and publishes both denominators (69 JPS / 62 Rego included, 57 / 55 excluded), both lattices and
@@ -1398,9 +1961,13 @@ included.**
 3. **The new admission code.** `harness/e4lib/presence_idiom.py` and the `presence-idiom-unsound`
    code, wired into `admit()`, §1a's partition table, E2's ordered table and the partition-diff test
    (§3.2). Gated on §3.2's pre-freeze power analysis.
-4. **The `ownPolicyIdentity` invocation.** One extra engine invocation per admitted run, routed
-   through the same `engine-execution-clean` control (§6), emitting E6. `referenceIdentity` and
-   `ownPolicyIdentity` are two named relations in the scorer, never one field with two meanings.
+4. **The `ownPolicyIdentity` invocation.** One extra engine EXPOSURE per admitted run (invocation
+   count arm- and case-dependent as §1.2 measures it, R1-14), routed through the same
+   `engine-execution-clean` control (§6) via its own refusal member (`e6EngineRefused`), so an E6
+   refusal can neither overwrite a completed `referenceIdentity` result nor hide from the gate.
+   `referenceIdentity` and `ownPolicyIdentity` are two named relations in the scorer, never one
+   field with two meanings, and E6's published rate divides by the runs E6 actually answered for,
+   with the not-asked count printed beside it.
 5. **The family scorer.** New: the eighteen members, L2c's offset estimator, the two permutation
    schemes with their pinned B and seed, the IU verdict, the drop-a-pole table, the BCa intervals,
    and the **refusal** rather than fallback on the ITT × ANCOVA cell (§5.2).
@@ -1424,7 +1991,10 @@ included.**
     door because 020's policy prose is ported frozen rather than drafted here. The first act of the
     port is `--write`, which replaces this document's hand-written sentence with a rendered one.
 11. **`DEVIATIONS.md` is outside the freeze set** — carried from Study 018's lesson and from ADR
-    0004's rule, with an asserting test.
+    0004's rule, with an asserting test. (R1-18 settled a claim made in this delta's name that
+    this text never carried: `CORRECTION-TARGETS.md` is COVERED and freezes with the tree — §10's
+    amended sentence governs — and only `CORRECTION-TARGETS-LOG.md` shares `DEVIATIONS.md`'s
+    appendable status.)
 12. **`design/pilot/pilot_run.py` is deleted, not ported** (§2a.2).
 13. **D-1's smoke is restated** as *"a real exec at the registered prompt bytes, stand-in binary
     permitted"* — D-1's failure was `/usr/bin/env: Argument list too long` at `exec`, which a
@@ -1535,7 +2105,11 @@ truth resembles 019, Tier C returns INDETERMINATE" as a *planned*, not a disappo
 document **`CORRECTION-TARGETS.md`**, in Study 019's pattern (019 round-7 finding R7-9: the obligation
 was once declared in a publication section and enforced nowhere, so the ceremony could complete
 without it). It is named in `harness/make_manifest.py`, **which names it while it is absent and
-refuses `--freeze` on it**, and the freeze runbook carries the step that lands it. `GATE(pre-freeze)`.
+refuses `--freeze` on it**, and the freeze runbook carries the step that lands it. **AMENDED
+2026-08-24 (R1-18): the register is COVERED by the exact-set manifest and freezes with the
+tree** — its first registration excluded it as appendable, and a precommitment the maintainer
+may rewrite post-freeze precommits nothing; post-freeze venue or status changes append to
+`CORRECTION-TARGETS-LOG.md`, which is the appendable half. `GATE(pre-freeze)`.
 020's targets must include, at minimum: the R1 verdict sentence `ANALYSIS.md` will publish (quoted
 verbatim from the scorer's published `verdict` member, whose vocabulary is the closed
 CLAIM / INDETERMINATE-BY-DISAGREEMENT pair plus §5.9's gate rows); the study-index and repo-root index
@@ -1569,7 +2143,14 @@ here rather than discovered in the results.
 4. **Tier C's power depends on a quantity 020 cannot know in advance** (the per-arm authoring-validity
    rate), and in the regime where it looks powered, six of eighteen members are near-automatically
    satisfied by a channel that is not the construct (§5.6).
-5. **The reasoning-effort pin may be a recorded intention, not a verified condition** (§2.1, M-24).
+5. ~~The reasoning-effort pin may be a recorded intention, not a verified condition~~ **RETIRED
+   BY MEASUREMENT, 2026-08-24** (§2.1, M-24): the sweep's witness-resolution step found the
+   effort named non-null in `turn_context` and gate 5 now binds the pin against the transcript,
+   so the ceiling's condition — no witness exists — measured false. It is struck rather than
+   deleted so the record shows a registered ceiling can retire only by the registered
+   resolution step, never by editing. What remains true and is NOT retired: the pin binds the
+   REQUESTED tier; no transcript member proves what the service did with it beyond the
+   reasoning-token counts it returned.
 6. **019's pilot compute condition is unrecoverable**, so no transfer gate can be evaluated against it
    on the model, isolation or reasoning-token rows; service-side drift over 2026-08-15 → 2026-08-21
    cannot be excluded (§2a.1).

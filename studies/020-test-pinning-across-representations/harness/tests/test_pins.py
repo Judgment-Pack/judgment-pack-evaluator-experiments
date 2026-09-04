@@ -99,7 +99,12 @@ def test_the_freeze_pin_set_is_the_registered_one():
         "offGoldCertificate", "studyManifest",
         "opaCapabilities", "jpackBuildAttestation",
         "probePrompt", "goldenContext", "isolationAssent",
-        "reviewerMutantSet", "censusStimulusCount"]
+        "reviewerMutantSet", "censusStimulusCount",
+        # ROUND 2: §2a.6's "label, N and output digest go into PINS.json
+        # before the primary attempt" enforced by the label rule at last, plus
+        # the two post-pilot analysis artifacts (R2-11, R2-13).
+        "calibrationLabel", "calibrationOutput", "calibrationDerivedFloor",
+        "c4Reference", "pilotDispersion"]
     # M-25: the two that left the freeze set are HERE, not gone. A pin deleted
     # from one tuple and added to neither is exactly the re-shrinking R1-9's
     # test exists to prevent, so the second list is asserted as tightly.
@@ -347,17 +352,18 @@ def test_an_unregistered_calibration_label_is_refused(pins):
         batch.design_time_unfilled(pins, "smoke")
 
 
-def test_the_effort_pin_exists_and_carries_the_unwitnessed_sentence(pins):
-    """M-24, ruled as drafted. The pin exists beside `model` / `version` /
-    `binarySha256`, and the registry carries §2.1's own sentence about what it
-    can and cannot prove: "A pin nobody can check is a recorded intention, and
-    this preregistration says so." The sentence is a REGISTRY member because it
-    "travels with every published record of the condition", and a note kept
-    only in the preregistration does not travel."""
+def test_the_effort_pin_exists_and_carries_the_resolution(pins):
+    """M-24, ruled as drafted and RESOLVED by the sweep's step zero. The pin
+    exists beside `model` / `version` / `binarySha256`, and the registry's own
+    note records the resolution rather than the pre-resolution hedge: the
+    "recorded intention" self-report sentence was CONDITIONED on no witness
+    existing, the witness step measured that condition false (branch
+    `gate-5-extension`), and a registry still carrying the hedge would assert
+    a condition known to be false. The label rule's text is untouched."""
     assert "reasoningEffort" in pins["codex"]
     note = pins["codex"]["note"]
-    assert "SELF-REPORT" in note
-    assert "recorded intention" in note
+    assert "gate-5-extension" in note
+    assert "branch not taken" in note
     assert "design-time-resolved pins, NOT freeze pins" in note
 
 
@@ -547,38 +553,34 @@ def test_an_unregistered_label_context_is_refused_rather_than_ignored(pins):
         integrity.study_label(_fill(pins), "PRIMARY")
 
 
-def test_the_design_time_pins_are_in_their_pre_sweep_states(pins):
-    """Pre-sweep, the two design-time pins are in DIFFERENT states, and the
-    difference is M-25's own text. `codex.reasoningEffort` is null: it is the
-    output of the sweep, and §2.1's exemption is one value and one label wide
-    so a sweep can run while it is null. `codex.model` is NOT swept — all 27
-    sweep calls run the same pinned model — and M-25 says in terms that
-    "codex.model is never exempt" from the null check, so the sweep driver
-    refuses to spend a call while it is null. This test originally asserted
-    both null on the ground that carrying 019's model forward would "pin a
-    compute condition the sweep outputs"; that conflated the model with the
-    condition (effort + N), and under it the registered sweep could never run.
-    Adjudicated 2026-08-24: the model is design-time-resolved before the sweep,
-    the effort after it."""
+def test_the_design_time_pins_are_both_filled_post_sweep(pins):
+    """Post-sweep, both design-time pins are filled, and the ORDER they filled
+    in is M-25's own text: the model resolved BEFORE the sweep (all 27 sweep
+    calls ran the same pinned model; "codex.model is never exempt" from the
+    null check), the effort AFTER it (§2.1's fill — the operable-condition-
+    match rule choosing the model's own catalog default `low`). The earlier
+    form of this test asserted the pre-sweep states — model filled, effort
+    null — and its adjudication (the model is design-time-resolved before the
+    sweep, the effort after it) is kept as the reason both assertions now read
+    filled."""
     assert pins["codex"]["model"] == "gpt-5.6-sol"
-    assert pins["codex"]["reasoningEffort"] is None
-    assert "recorded intention" in pins["codex"]["reasoningEffortNote"]
+    assert pins["codex"]["reasoningEffort"] == "low"
+    assert "operable-condition-match" in pins["codex"]["reasoningEffortNote"]
 
 
-def test_the_effort_pin_records_the_witness_branch_it_has_not_taken(pins):
-    """M-24. The witness resolution needs a CALL and has not run, so the member
-    it fills is null and the note carries BOTH branches — the gate-5 extension
-    and the self-report fallback. A registration that named only the branch it
-    hoped for would be a registration of a hope.
-
-    §2.1's TODO had two halves and they resolve at different moments. The
-    SPELLING half needed no call and is closed (below); the WITNESS half is
-    resolved as the sweep's step zero, over the first sweep call's own
-    transcript, and `reasoningEffortWitness` is where the branch lands."""
-    assert pins["codex"]["reasoningEffortWitness"] is None
+def test_the_effort_pin_records_the_witness_branch_it_took(pins):
+    """M-24, both halves closed. The witness resolution ran as the sweep's
+    step zero over the first sweep call's own transcript and took the
+    `gate-5-extension` branch; `reasoningEffortWitness` records it, and the
+    note still names the self-report branch as the one that would have fired
+    had the transcript been silent — a registration that erased the branch
+    not taken would erase the evidence that both were registered in
+    advance."""
+    assert pins["codex"]["reasoningEffortWitness"] == "gate-5-extension"
     note = pins["codex"]["reasoningEffortNote"]
     assert "transcript gate 5" in note
-    assert "self-report" in note
+    assert "self-report branch" in note
+    assert "NOT taken" in note
 
 
 def test_the_effort_flag_spelling_is_resolved_and_needed_two_members(pins):

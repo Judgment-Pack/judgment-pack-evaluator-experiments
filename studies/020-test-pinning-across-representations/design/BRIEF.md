@@ -239,6 +239,12 @@ Arm-labelled **by design**, under Tier D. Unadjusted members: label permutation,
 > **Tier C verdict on 019's batch: INDETERMINATE-BY-DISAGREEMENT.**
 > A−B is unanimous in direction (18 positive) but only 8 of 18 reject — and it is unreachable anyway, gated behind A−C.
 
+*[HISTORICAL — the table above is the design-phase reading (native outcome, shared-denominator
+offset). The registered estimand is native-for-both since round-2 finding R2-2, under which the
+three excluded-column L2c rows read M16 +0.1920 (p 0.0044), M17 +0.0839 (p 0.0018), M18 +0.0476
+(p 0.0125) on A−C and the verdict line is unchanged; `PREREGISTRATION.md` §5.2 (F-1, re-ruled)
+and §5.5 (Reprint 1b) are normative.]*
+
 **Robustness of that verdict to the choice of family** (the objection Tier C must answer). Dropping every member carrying a given pole and re-evaluating:
 
 | pole dropped | members left | positive | reject | verdict |
@@ -506,7 +512,10 @@ Bands are ~2.5× the measured within-condition span for the two rows with demons
 
 **C4 is two-sided** (panel #21). v1 registered the pilot as the reference and could only invalidate the batch — which, at the recommended N, discards 180 isolated calls on the authority of a 36-call reference whose own condition §6.1 shows was the corrupted side. **Registered adjudication: if every exact-equality row holds and only band rows differ, the pilot is suspect and the outcome is `calibration-invalid`, requiring a re-pilot under C5; if any exact-equality row differs, the batch is suspect and the outcome is `pipeline-invalid`.** Both outcomes are recorded with the rows that produced them.
 
-**C5 — one pilot, sealed, append-only re-pilot rule.** The pilot runs once; label, N and output digest go into `PINS.json` before the primary attempt. A second pilot requires a `DEVIATIONS.md` entry naming the reason, and then **the derived threshold is the maximum over all pilots** and **the transfer bands are the tightest over all pilots**, with every pilot's rates published side by side. Re-piloting is monotone in strictness.
+**C5 — one pilot, sealed, append-only re-pilot rule.** *[HISTORICAL — this is the design
+brief as disclosed under §0; PREREGISTRATION.md §2a.6 as amended in round 2 (R2-12) struck the
+re-pilot rule as naming no reachable state and registers one terminal pilot. The brief's text
+is retained unchanged below.]* The pilot runs once; label, N and output digest go into `PINS.json` before the primary attempt. A second pilot requires a `DEVIATIONS.md` entry naming the reason, and then **the derived threshold is the maximum over all pilots** and **the transfer bands are the tightest over all pilots**, with every pilot's rates published side by side. Re-piloting is monotone in strictness.
 
 ### 6.4 Pinning effort undermines the dispersion calibration
 
@@ -749,3 +758,28 @@ Nothing in this document is registered. The following are put to the maintainer,
 > **M-26 — does Tier C's claim sentence carry the "against the shared reference, not against the accompanying policy" qualifier, or does M-13's control land first?** Panel #19 asks for one of the two. If M-13 lands, `identityPass` changes meaning and **every per-protocol member's population changes with it**, so §4.3.2's dispersion figures and §4.3.3–§4.3.4's operating characteristics would all have to be re-derived. This brief has no basis to prefer either and takes no position.
 
 **Not decided anywhere in this document, and not by an M-block:** whether the study is worth running at all if the maintainer's answer to M-20 is (a) and the truth resembles 019 — in which case Tier C returns INDETERMINATE with probability approaching 1, and the study's entire yield is Tier D's descriptive battery plus a repaired instrument. That is a programme judgement, and it belongs to the maintainer, not to the brief.
+
+---
+
+## Correction, appended 2026-08-24 (round-1 finding R1-21; historical bytes above unchanged)
+
+**§8's pricing table understates two rows threefold.** The sweep row (27 calls) and the smoke
+row (~6 calls) were priced by dividing calls by NINE instead of by three — 27 calls are nine
+round-triples, six calls are two — while the pilot and batch rows used the correct basis. The
+corrected rows and totals, on §8's own registered triples (349 s / 3,087 s):
+
+| line | calls | wall clock, registered condition | wall clock, pilot-like durations |
+|---|---|---|---|
+| pre-pilot effort sweep, 3 settings × 3/arm | 27 | **0.87 h** | **7.72 h** |
+| pilot, 12/arm (C1–C5) | 36 | 1.16 h | 10.29 h |
+| D-1/D-2 smoke | ~6 | **~0.19 h** | **~1.72 h** |
+| primary batch, N = 60/arm | 180 | 5.82 h | 51.46 h (2.14 d) |
+| **total under M-23 = (a)** | **~249** | **~8.05 h** | **~71.2 h** |
+
+The pilot-like total leaves roughly 1 % headroom against the 72 h budget, not the ~10 % the
+original table implied. The observed sweep corroborates the corrected basis: it cost 1.44 h,
+1.65× the corrected registered-condition row and 5× the erroneous one. The same error was
+registered into `PREREGISTRATION.md` §2.1's dual-pricing table and corrected there with a
+marked note by the fill's verification pass; §0.1 makes this brief governing where the rulings
+are silent, so the correction lands here too — appended, at the same table shape, with the
+historical bytes above untouched. `CORRECTION-TARGETS.md` records this venue.

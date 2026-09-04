@@ -135,10 +135,13 @@ class Slot:
             for row in rows:
                 handle.write((json.dumps(row) + "\n").encode("utf-8"))
 
-    def verdict(self, arm="A"):
+    def verdict(self, arm="A", effort=None):
+        # `effort` defaults to None — the pin-unfilled posture — so every case
+        # written before the gate-5 extension stays about what it is about.
         return transcript_check.classify(self.session, self.prompt,
                                          self.completion, self.call,
-                                         self.golden, model=MODEL, arm=arm)
+                                         self.golden, model=MODEL, arm=arm,
+                                         effort=effort)
 
 
 def assert_refused(verdict, reason, side):
@@ -342,6 +345,149 @@ def test_a_turn_context_naming_another_workdir_is_apparatus(tmp_path):
     assert_refused(Slot(tmp_path / "cwd", rows=rows,
                         golden_rows=rows_for()).verdict(),
                    "turn-context-mismatch", "apparatus")
+
+
+def test_a_turn_context_naming_another_effort_is_apparatus(tmp_path):
+    """Gate 5's `gate-5-extension` clause (§2.1's M-24 branch), the model
+    case's mirror: the top-level `effort` spelling names a tier that is not
+    the pinned one."""
+    rows = rows_for()
+    for row in rows:
+        if row["type"] == "turn_context":
+            row["payload"]["effort"] = "high"
+    assert_refused(Slot(tmp_path / "effort", rows=rows).verdict(effort="low"),
+                   "turn-context-mismatch", "apparatus")
+
+
+def test_a_second_turn_context_naming_another_effort_is_apparatus(tmp_path):
+    """The cwd clause's EVERY-member rule, mirrored for the effort's nested
+    spelling: a second turn_context carrying a foreign tier refuses even
+    though the first names the pinned one."""
+    rows = rows_for()
+    for row in rows:
+        if row["type"] == "turn_context":
+            row["payload"]["effort"] = "low"
+    rows.append({"type": "turn_context",
+                 "payload": {"model": MODEL, "cwd": CWD,
+                             "collaboration_mode": {
+                                 "settings": {"reasoning_effort": "xhigh"}}}})
+    assert_refused(Slot(tmp_path / "effort2", rows=rows,
+                        golden_rows=rows_for()).verdict(effort="low"),
+                   "turn-context-mismatch", "apparatus")
+
+
+def test_a_null_effort_member_is_no_witness_and_a_filled_pin_refuses(
+        tmp_path):
+    """R1-12 flipped this test's earlier form, which asserted the 019-shaped
+    all-null transcript ADMITS under a filled pin — the fail-open the review
+    caught while the wrapper stamped `reasoningEffortWitnessed: true`
+    unconditionally. A null member is still not a WITNESS (the sweep step's
+    rule, kept), but under the gate-5-extension branch a filled pin with zero
+    non-null witnesses is an unwitnessed call and refuses as apparatus. An
+    UNFILLED pin still skips the clause, which is the state every 019-era
+    fixture runs under."""
+    rows = rows_for()
+    for row in rows:
+        if row["type"] == "turn_context":
+            row["payload"]["collaboration_mode"] = {
+                "settings": {"reasoning_effort": None}}
+    slot = Slot(tmp_path / "effortnull", rows=rows)
+    assert_refused(slot.verdict(effort="low"),
+                   "turn-context-mismatch", "apparatus")
+    verdict = slot.verdict(effort=None)
+    assert verdict["admissible"] is True, verdict
+
+
+def test_a_non_string_effort_witness_is_malformed_not_a_crash(tmp_path):
+    """R1-12's other half, found by the fill's own verification pass: a list
+    or dict witness value raised TypeError out of `classify()`. It refuses
+    with the gate's reason now."""
+    for label, value in (("list", ["low"]), ("dict", {"tier": "low"}),
+                         ("int", 3)):
+        rows = rows_for()
+        for row in rows:
+            if row["type"] == "turn_context":
+                row["payload"]["effort"] = value
+        assert_refused(Slot(tmp_path / ("badtype-" + label),
+                            rows=rows).verdict(effort="low"),
+                       "turn-context-mismatch", "apparatus")
+
+
+def test_a_matching_effort_witness_admits(tmp_path):
+    """The positive fixture of the witnessed shape (none existed anywhere in
+    the suite before the extension): both spellings present, both naming the
+    pinned tier — the sweep's own transcripts' shape, verified over all 27."""
+    rows = rows_for()
+    for row in rows:
+        if row["type"] == "turn_context":
+            row["payload"]["effort"] = "low"
+            row["payload"]["collaboration_mode"] = {
+                "settings": {"reasoning_effort": "low"}}
+    verdict = Slot(tmp_path / "effortok", rows=rows).verdict(effort="low")
+    assert verdict["admissible"] is True, verdict
+
+
+def test_a_malformed_collaboration_mode_is_an_absent_path_not_a_crash(
+        tmp_path):
+    """A nested level that is not an object is an ABSENT PATH: every refusal in
+    this module leaves through `TranscriptError` with a reason and a side, and
+    a malformed `collaboration_mode` (a string, a list, a number) must not hand
+    `classify()` an AttributeError it has no classification for. Found by the
+    fill's adversarial verification pass, which crashed the first
+    implementation with `collaboration_mode: "off"`."""
+    for label, malformed in (("string", "off"), ("list", ["x"]),
+                             ("settings-string", {"settings": "none"})):
+        rows = rows_for()
+        for row in rows:
+            if row["type"] == "turn_context":
+                row["payload"]["effort"] = "low"
+                row["payload"]["collaboration_mode"] = malformed
+        verdict = Slot(tmp_path / ("malformed-" + label),
+                       rows=rows).verdict(effort="low")
+        assert verdict["admissible"] is True, (label, verdict)
+
+
+def test_the_effort_is_read_by_path_and_never_by_name_scan(tmp_path):
+    """The registered by-path property, made to discriminate: look-alike
+    members OUTSIDE the two registered paths — a same-named key inside another
+    structure, and the nested spelling at the wrong level — must not reach the
+    gate. A recursive name-scan implementation refuses this transcript and
+    fails here."""
+    rows = rows_for()
+    for row in rows:
+        if row["type"] == "turn_context":
+            row["payload"]["effort"] = "low"
+            row["payload"]["last_token_usage"] = {"effort": "xhigh"}
+            row["payload"]["settings"] = {"reasoning_effort": "xhigh"}
+    verdict = Slot(tmp_path / "lookalike", rows=rows).verdict(effort="low")
+    assert verdict["admissible"] is True, verdict
+
+
+def test_the_driver_seat_threads_the_pin_into_the_gate(tmp_path, monkeypatch):
+    """The production seat, made mutation-visible: `batch.transcript_verdict()`
+    must hand the REGISTRY's `codex.reasoningEffort` to `classify()`. Found by
+    the fill's verification pass: with every existing case, deleting the
+    `effort=` threading left the suite green, so nothing bound the driver to
+    the gate it claims to run. Here a transcript naming a foreign tier under a
+    filled pin must refuse THROUGH THE DRIVER's own call — an implementation
+    that drops the threading admits it and fails the first assertion — and the
+    same slot under a matching pin must admit, so the case cannot pass by
+    refusing everything."""
+    rows = rows_for()
+    for row in rows:
+        if row["type"] == "turn_context":
+            row["payload"]["effort"] = "xhigh"
+    slot = Slot(tmp_path / "seat", rows=rows)
+    monkeypatch.setattr(batch, "arm_prompt",
+                        lambda pins, arm: (slot.prompt, "sha256:stand-in"))
+    pins = {"codex": {"model": MODEL, "reasoningEffort": "low"}}
+    verdict = batch.transcript_verdict(slot.root, "A", pins, slot.golden)
+    assert verdict["admissible"] is False, verdict
+    assert verdict["reason"] == "turn-context-mismatch", verdict
+    assert verdict["side"] == "apparatus", verdict
+    matching = {"codex": {"model": MODEL, "reasoningEffort": "xhigh"}}
+    verdict = batch.transcript_verdict(slot.root, "A", matching, slot.golden)
+    assert verdict["admissible"] is True, verdict
 
 
 def test_a_recorded_nonzero_exit_is_apparatus(tmp_path):
