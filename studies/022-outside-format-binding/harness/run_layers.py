@@ -25,11 +25,27 @@ PUBKEY = STUDY / "fixtures" / "baseline" / "gateway.pubkey"
 AUTHORITY = (STUDY / "fixtures" / "baseline" / "AUTHORITY").read_text().strip()
 
 
+TRUSTED_KEY = STUDY / "fixtures" / "baseline" / "attestations" / "adapter.pubkey.json"
+
+
+def tree_digest(root):
+    """A digest over every regular file under a tree, by relative path and bytes; a symbolic link is refused."""
+    h = hashlib.sha256()
+    for p in sorted(Path(root).rglob("*")):
+        rel = p.relative_to(root).as_posix()
+        if p.is_symlink():
+            raise RuntimeError("symbolic link in %s: %s" % (root, rel))
+        if p.is_file():
+            h.update(rel.encode() + b"\0" + hashlib.sha256(p.read_bytes()).digest())
+    return h.hexdigest()
+
+
 def gateway_layer(binary, cell):
     proc = subprocess.run([binary, "verify", str(cell / "store"), str(cell / "registry.jsonl"), AUTHORITY, "--decision-records", str(cell / "decisions")],
                           input=PUBKEY.read_bytes(), capture_output=True)
-    if not proc.stdout.strip():
-        raise RuntimeError("gateway verify produced no verdict for %s: %s" % (cell.name, proc.stderr.decode(errors="replace")[:300]))
+    # SPEC.md section 4.1: a verifier that exits non-zero gave no verdict, whatever stdout holds
+    if proc.returncode != 0 or not proc.stdout.strip():
+        raise RuntimeError("gateway verify gave no verdict for %s (exit %d): %s" % (cell.name, proc.returncode, proc.stderr.decode(errors="replace")[:300]))
     report = json.loads(proc.stdout)
     findings = report.get("findings", [])
     return {"ok": report.get("ok"), "findings": findings,
@@ -39,10 +55,13 @@ def gateway_layer(binary, cell):
 
 
 def observe(binary, cell):
+    snapshot = tree_digest(cell)
     g = gateway_layer(binary, cell)
-    i = verify_attestation.verify(cell / "store", cell / "attestations", cell / "decisions")
+    i = verify_attestation.verify(cell / "store", cell / "attestations", cell / "decisions", verify_attestation.trusted_key(TRUSTED_KEY))
     b = verify_binding.verify(cell / "store", cell / "attestations")
-    return {"cell": cell.name, "gateway": g, "intoto": i, "binding": b,
+    if tree_digest(cell) != snapshot:
+        raise RuntimeError("the cell %s changed while it was being observed" % cell.name)
+    return {"cell": cell.name, "cellSha256": snapshot, "gateway": g, "intoto": i, "binding": b,
             "combined": "pass" if (g["ok"] is True and i["pass"] and b["pass"]) else "fail"}
 
 
@@ -56,7 +75,8 @@ def main():
     cells = sorted(p for p in Path(args.cells).iterdir() if p.is_dir())
     observations = [observe(args.gateway, c) for c in cells]
     with open(args.out, "x") as f:
-        f.write(json.dumps({"attemptId": args.attempt_id, "gatewaySha256": hashlib.sha256(Path(args.gateway).read_bytes()).hexdigest(), "cells": observations}, indent=1))
+        f.write(json.dumps({"attemptId": args.attempt_id, "gatewaySha256": hashlib.sha256(Path(args.gateway).read_bytes()).hexdigest(),
+                            "python": sys.version.split()[0], "trustedKeySha256": hashlib.sha256(TRUSTED_KEY.read_bytes()).hexdigest(), "cells": observations}, indent=1))
     for o in observations:
         print("%-40s gateway ok=%-5s %s | intoto %s | binding %s | %s" % (o["cell"], o["gateway"]["ok"], o["gateway"]["statuses"], "pass" if o["intoto"]["pass"] else "FAIL", "pass" if o["binding"]["pass"] else "FAIL", o["combined"]))
 

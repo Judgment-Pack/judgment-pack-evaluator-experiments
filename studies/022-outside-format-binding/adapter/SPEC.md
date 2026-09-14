@@ -49,7 +49,11 @@ gateway's key**. The two trust roots stay apart on purpose: the gateway's key vo
 receipt, the adapter's key for the attestation, and what the binding does and does not carry
 across from one to the other is what the study measures (cell `c01`). The public half is
 written beside the attestations as `adapter.pubkey.json` (`securesystemslib`'s key form with
-its key id); the in-toto layer verifies under that key alone.
+its key id) for a consumer's convenience; **the ceremony does not trust that file**. The in-toto
+layer verifies under the pinned adapter key handed in from outside the cell — the study's
+fixture copy of that file, held to the pinned key id and key material before any attempt runs
+(`harness/pins.py`) — so a key file substituted beside the envelopes changes nothing the layer
+trusts (the reviewer's holdout `h01` probes this boundary).
 
 ## 3. What the binding asserts
 
@@ -59,13 +63,38 @@ Beyond what DSSE and the Statement assert, the binding asserts, per attestation:
    same document, compared by canonical serialization;
 2. the `artifact` subject's digest is the predicate's `resultDigest`;
 3. for an action: the `decision-record` subject's digest is the predicate's
-   `action.decision.recordDigest`, and the set of `cites/…` subjects is exactly one per entry
-   of the predicate's `action.cites`, named by that entry's session and index;
+   `action.decision.recordDigest`, and the `cites/…` subjects are exactly one per entry of the
+   predicate's `action.cites`, named by that entry's session and index — one subject per
+   citation and no more, by multiplicity, so a second subject under a citation's name breaks
+   the rule as a missing one does;
 4. no other subject is present.
 
 These are the rules a consumer needs beyond in-toto's own to read an attestation as being
 *about* its receipt; without them an attestation can verify as an attestation and vouch for
 the wrong thing (cells `b03`, `b08`, `b09`).
+
+### 3a. The binding layer's codes and their precedence
+
+`adapter/verify_binding.py` checks the rules in this order per stored receipt and reports the
+first broken as the attestation's code; `pass` when none is:
+
+1. `fail:missing-attestation` — no attestation at the receipt's path;
+2. `fail:unreadable` — the envelope does not parse, its payload is not a JSON object, its
+   `subject` is not a list, a subject is not an object with a string `name` and a `digest`
+   object holding a string `sha256`, or the stored receipt is not a JSON object. Shapes are
+   checked before any member is read, so a malformed input gets this code and never an
+   exception;
+3. `fail:predicate-differs-from-store` — rule 1;
+4. `fail:artifact-subject-mismatch` — rule 2 (the `artifact` subjects are not exactly one, or
+   its digest is not the predicate's `resultDigest`);
+5. `fail:decision-subject-mismatch` — rule 3, the record subject (an action only);
+6. `fail:cites-subject-set` — rule 3, the citation subjects (an action only);
+7. `fail:foreign-subject` — rule 4.
+
+The layer verifies no signature and reads no key: an attestation signed by anyone, or by no
+one, is held to the same rules. A file the layer cannot read for an I/O reason is not an
+outcome: the exception propagates, the observation aborts, and the attempt is pipeline-invalid
+(the validity channel, `PREREGISTRATION.md` §5).
 
 ## 4. The three layers
 
@@ -73,8 +102,14 @@ the wrong thing (cells `b03`, `b08`, `b09`).
   decision-record directory, under the corpus public key on stdin: `ok` and the findings'
   statuses (`SPEC.md` §1.4 per receipt, §4 per session and registry, §4 steps 5–7 the joins).
   It reads no attestation.
-- **intoto** — the reference implementation's ceremony (§5). It reads no gateway key and runs
-  no gateway code; what it sees is what an in-toto consumer sees.
+- **intoto** — a **study-written consumer ceremony using unmodified DSSE verification and
+  unmodified Statement validation** (§5): `securesystemslib` verifies the envelope's
+  signature and `in-toto-attestation` validates the Statement's shape, both consumed at pinned
+  versions and modified nowhere; everything else in §5 — enumerating the store's receipts,
+  requiring an attestation per receipt, pinning the payload type, the statement type and the
+  predicate type, resolving each subject and re-digesting it — is this study's consumer
+  policy, and §5 marks which step is whose. It reads no gateway key and runs no gateway code;
+  what it sees is what an in-toto consumer following this ceremony sees.
 - **binding** — §3, checked by `adapter/verify_binding.py`. It verifies no signature and
   resolves no citation; it compares the statement with the store's receipt file and with
   itself.
@@ -84,27 +119,40 @@ The combined verdict is `pass` only when all three pass. No layer stands in for 
 ## 5. The in-toto layer's ceremony
 
 For every receipt the store holds, in this order, the first failure ending the attestation's
-verification:
+verification. Each step says whose check it is: **[consumer]** is this study's policy,
+**[upstream]** is the pinned implementation's own code, called as shipped.
 
-1. an attestation is present at its path, or `fail:missing-attestation`;
-2. the envelope parses, or `fail:unparseable`; its `payloadType` is
+1. **[consumer]** an attestation is present at its path, or `fail:missing-attestation`;
+2. **[upstream parse, consumer pin]** the envelope parses as a DSSE envelope
+   (`Envelope.from_dict`), or `fail:unparseable`; its `payloadType` is
    `application/vnd.in-toto+json`, or `fail:payload-type`;
-3. a signature by the pinned adapter key is present — the signature's key id is the pinned
-   one, or `fail:untrusted-key` — and `securesystemslib` verifies it over the PAE of the
+3. **[consumer selection, upstream verification]** a signature under the pinned adapter key's
+   id is present in the envelope, or `fail:untrusted-key` (the key is the one §2 hands in,
+   never the cell's file); `securesystemslib` verifies that signature over the PAE of the
    payload type and the payload, or `fail:signature`; then `dsse` is `pass`;
-4. the payload is JSON, or `invalid:not-json`; its `_type` is Statement v1, or
+4. **[consumer pins, upstream validation]** the payload is JSON, or `invalid:not-json`; it is a
+   JSON object, or `invalid:not-object`; its `_type` is Statement v1, or
    `invalid:statement-type`; its `predicateType` is the registered one, or
-   `invalid:predicate-type`; the `in-toto-attestation` bindings validate it, or
-   `invalid:bindings`; then `statement` is `valid`;
-5. each subject is re-digested against what it names: `artifact` against the file under the
-   store's `artifacts/` at that digest (`match`, `mismatch`, or `missing`); `decision-record`
-   against the candidates the gateway's rule enumerates under the decision-record directory —
-   every regular file whole and, for a `.jsonl` file, additionally each line (`match` or
-   `missing`; a consumer needs that rule to place the subject, and this ceremony adopts it);
-   `cites/<session>/<index>` against that receipt file's bytes (`match`, `mismatch`, or
-   `missing`); any other name is `unknown-subject`.
+   `invalid:predicate-type`; the `in-toto-attestation` bindings validate the Statement **as
+   supplied** — every descriptor with every member it carries (a descriptor member the
+   bindings define no field for, or a `subject` that is not a list, fails validation), the
+   predicate type, the predicate — or `invalid:bindings`; then `statement` is `valid`;
+5. **[consumer]** every subject is re-digested against what it names and every outcome is
+   retained, in the statement's order: `artifact` against the file under the store's
+   `artifacts/` at that digest (`match`, `mismatch`, or `missing`); `decision-record` against
+   the candidates the gateway's rule enumerates under the decision-record directory — every
+   regular file whole and, for a `.jsonl` file, additionally each line (`match` or `missing`;
+   a consumer needs that rule to place the subject, and this ceremony adopts it);
+   `cites/<session>/<index>` — exactly three path segments, the index digits — against that
+   receipt file's bytes (`match`, `mismatch`, or `missing`); any other name, or a subject whose
+   name or digest is not of the shape §1 gives, is `unknown-subject`. A later subject under
+   the same name does not replace an earlier outcome: the per-name rule is §6's.
 
-The layer passes when every attestation reaches step 5 and every subject matches.
+The layer passes when every attestation reaches step 5 with at least one subject and every
+subject outcome is `match`. Shapes are checked before members are read at every step, so a
+malformed input gets a code and never an exception; a file the layer cannot read for an I/O
+reason is not an outcome — the exception propagates, the observation aborts, and the attempt
+is pipeline-invalid (`PREREGISTRATION.md` §5).
 
 ## 6. The reduced form the registration compares
 
@@ -112,8 +160,12 @@ Per cell, the scorer compares the observed outcome with the registered one in th
 
 - `gateway`: `ok` (Boolean) and the sorted set of distinct finding statuses;
 - `intoto`: `pass` and, per attestation that did not fully pass, its first failure — the
-  `dsse` code if not `pass`, else the `statement` code if not `valid`, else the map of
-  subjects that did not `match` to their outcome;
+  `dsse` code if not `pass`, else the `statement` code if not `valid`, else the map from
+  subject name to outcome for each name whose outcomes are not all `match`, the outcome being
+  **the first that is not `match` in the statement's order** (so a later subject under the
+  same name cannot erase an earlier failure — the reviewer's holdout `h02`); a valid
+  statement with no subject outcome does not pass and reduces to an empty map (unreachable
+  under the bindings, which require a subject; stated so the rule is total);
 - `binding`: `pass` and, per attestation that did not pass, its code;
 - `combined`: `pass` or `fail`.
 
@@ -127,4 +179,7 @@ key, its shape — and, by re-digest, the correspondence of each subject with th
 owns nothing the attestation does not name (no seal, no chain, no count) and cannot tell a
 predicate from a store receipt. The binding owns the correspondence of the attestation with
 its receipt. None of them owns the gateway's key from the attestation's side: an attestation
-of a receipt signed under another gateway key is as good an attestation as any (`c01`).
+of a receipt signed under another gateway key is as good an attestation as any (`c01`). The
+predicate carries the gateway's own members — `keyId`, `prevSignature`, `signature`, the
+citations' signatures — as bytes the adapter copied from the store; the in-toto layer and the
+binding compare them and interpret none of them, and neither verifies a receipt signature.

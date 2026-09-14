@@ -28,30 +28,46 @@ def canonical_receipt_bytes(doc):
     return json.dumps(doc, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 
+CODES = ("pass", "fail:missing-attestation", "fail:unreadable", "fail:predicate-differs-from-store", "fail:artifact-subject-mismatch",
+         "fail:decision-subject-mismatch", "fail:cites-subject-set", "fail:foreign-subject")
+
+
 def check_one(envelope_path, receipt_path):
+    envelope_bytes, receipt_bytes = envelope_path.read_bytes(), receipt_path.read_bytes()  # an I/O failure propagates: it is not an outcome
     try:
-        env = Envelope.from_dict(json.loads(envelope_path.read_text()))
+        env = Envelope.from_dict(json.loads(envelope_bytes.decode("utf-8")))
         statement = json.loads(env.payload)
-        stored = json.loads(receipt_path.read_text())
+        stored = json.loads(receipt_bytes.decode("utf-8"))
+        if not isinstance(statement, dict) or not isinstance(statement.get("subject"), list) or not isinstance(stored, dict):
+            return "fail:unreadable"
+        names = []
+        for s in statement["subject"]:
+            if not isinstance(s, dict) or not isinstance(s.get("name"), str) or not isinstance(s.get("digest"), dict) or not isinstance(s["digest"].get("sha256"), str):
+                return "fail:unreadable"
+            names.append((s["name"], s["digest"]["sha256"]))
     except Exception:  # noqa: BLE001
         return "fail:unreadable"
     predicate = statement.get("predicate")
     if not isinstance(predicate, dict) or canonical_receipt_bytes(predicate) != canonical_receipt_bytes(stored):
         return "fail:predicate-differs-from-store"
-    subjects = {s.get("name"): s.get("digest", {}).get("sha256") for s in statement.get("subject", [])}
-    if subjects.get("artifact") != str(predicate.get("resultDigest", "")).split(":", 1)[-1]:
+    by_name = {}
+    for name, digest in names:
+        by_name.setdefault(name, []).append(digest)
+    if by_name.get("artifact") != [str(predicate.get("resultDigest", "")).split(":", 1)[-1]]:
         return "fail:artifact-subject-mismatch"
     expected = {"artifact"}
     if predicate.get("kind") == "action":
-        action = predicate.get("action", {})
-        if subjects.get("decision-record") != str(action.get("decision", {}).get("recordDigest", "")).split(":", 1)[-1]:
+        action = predicate.get("action", {}) if isinstance(predicate.get("action"), dict) else {}
+        if by_name.get("decision-record") != [str((action.get("decision") or {}).get("recordDigest", "")).split(":", 1)[-1]]:
             return "fail:decision-subject-mismatch"
         expected.add("decision-record")
-        cited = {"cites/%s/%s" % (c.get("sessionId"), c.get("callIndex")) for c in action.get("cites", [])}
-        if {n for n in subjects if isinstance(n, str) and n.startswith("cites/")} != cited:
+        cited = ["cites/%s/%s" % (c.get("sessionId"), c.get("callIndex")) for c in (action.get("cites") or [])]
+        present = [n for n, _ in names if n.startswith("cites/")]
+        # exactly one subject per citation, named by it: multiplicity counts, not only the set of names
+        if sorted(present) != sorted(cited):
             return "fail:cites-subject-set"
-        expected |= cited
-    if set(subjects) != expected:
+        expected |= set(cited)
+    if [n for n, _ in names] and sorted(n for n, _ in names) != sorted(expected):
         return "fail:foreign-subject"
     return "pass"
 

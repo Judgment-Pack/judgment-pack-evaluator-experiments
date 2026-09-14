@@ -13,7 +13,8 @@ from pathlib import Path
 STUDY = Path(__file__).resolve().parent.parent
 MANIFEST_PATH = STUDY / "harness" / "STUDY-MANIFEST.sha256"
 DOCUMENTS = ("PREREGISTRATION.md", "PREREG-REVIEW.md", "adapter/SPEC.md", "harness/MATRIX.json", "harness/MATRIX-HOLDOUT.json")
-GLOBS = ("adapter/*.py", "harness/*.py", "harness/tests/*.py", "fixtures/baseline/**/*")
+GLOBS = ("adapter/**/*", "harness/**/*", "fixtures/baseline/**/*")
+ALLOWED_DIRS = ("adapter", "harness", "harness/tests", "fixtures", "fixtures/baseline")  # plus everything under fixtures/baseline
 EXCLUDED = ("harness/PINS.json", "harness/STUDY-MANIFEST.sha256", "README.md", "DEVIATIONS.md")
 
 
@@ -24,8 +25,17 @@ def covered_paths():
             paths.add(relative)
     for pattern in GLOBS:
         for p in STUDY.glob(pattern):
-            if p.is_file():
-                paths.add(p.relative_to(STUDY).as_posix())
+            rel = p.relative_to(STUDY).as_posix()
+            if "__pycache__" in rel or rel.endswith(".pyc"):
+                continue
+            if p.is_dir():
+                # a directory under adapter/ or harness/ that is not the tests directory could shadow a pinned package on the import path
+                if not (rel in ALLOWED_DIRS or rel.startswith("fixtures/baseline/")):
+                    raise SystemExit("refusing: unexpected directory %s under the harness roots" % rel)
+                continue
+            if p.is_symlink():
+                raise SystemExit("refusing: symbolic link %s" % rel)
+            paths.add(rel)
     return sorted(p for p in paths if p not in EXCLUDED)
 
 

@@ -24,9 +24,19 @@
         "version": "0.9.3",
         "installedDigest": "32dad40034170c092da683e5a62122d66264bfb882557e7784dbdc0084577ee6",
         "role": "the in-toto Statement v1 bindings (validation)"
+      },
+      "cryptography": {
+        "version": "47.0.0",
+        "installedDigest": "a5fb9c9b73d6858e69969d8d8f0926dee5616f794d2e054c34fc5888035cffba",
+        "role": "the Ed25519 primitive securesystemslib verifies with"
+      },
+      "protobuf": {
+        "version": "5.29.6",
+        "installedDigest": "32340637fbeb1d76d165ae459856f249d730661e49792fc54f2b2852198dd59d",
+        "role": "the message runtime the in-toto-attestation bindings validate with"
       }
     },
-    "note": "installed with pip into a virtual environment; the digest is over the distribution's files in RECORD order, bytes included, so a patched installation does not pass as the release"
+    "note": "installed with pip into a virtual environment; the digest is over the distribution's files in RECORD order, bytes included, so a patched installation does not pass as the release; and the module each package is imported from must be a file of that distribution (import origins are checked), so a package shadowing the installation under a prepended path does not pass either"
   },
   "adapter": {
     "keyid": "96a15d62b0624e0b057d695eaaa592f249785dfe100c06c8d59b7b65a26f9b99",
@@ -34,8 +44,8 @@
   },
   "harnessPython": {
     "implementation": "CPython",
-    "series": "3.8",
-    "note": "the interpreter of the virtual environment the packages are installed in; the registered attempt records the exact version in its marker"
+    "version": "3.8.20",
+    "note": "the interpreter of the virtual environment the packages are installed in, enforced exactly; the marker and the observations record it"
   },
   "freeze": {
     "preregistration": null,

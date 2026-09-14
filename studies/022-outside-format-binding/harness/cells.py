@@ -174,28 +174,39 @@ def b09_cited_subject_dropped_resigned(cell):
     resign(cell, 1, st)
 
 
+RECEIPT_PREFIX_V3 = b"judgment-pack-gateway/receipt/3:"
+
+
+def gateway_canon(core):
+    """The gateway's canonical form for the members it signs (SPEC.md section 1.1): code-point order, compact, raw UTF-8."""
+    return json.dumps(core, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
+
+
 def c01_store_reminted_other_gateway_key(cell):
-    """A store minted under another gateway key, its attestations bound afresh by the adapter: the adapter's key holds, the gateway's does not."""
+    """A coherent receipt chain re-signed under another gateway key -- keyId, chain and citation all its own --
+    presented against the unchanged trusted corpus registry, its attestations bound afresh by the adapter."""
     from cryptography.hazmat.primitives.asymmetric import ed25519
-    import base64
-    # re-sign both receipts under a different Ed25519 key, keeping every other member; the gateway's keyId is the
-    # first 32 hex of sha256(public key), as SPEC.md section 1.2 defines it
     private = ed25519.Ed25519PrivateKey.from_private_bytes(hashlib.sha256(b"022 other gateway").digest())
     public = private.public_key().public_bytes_raw()
     key_id = hashlib.sha256(public).hexdigest()[:32]
     prev = None
+    signatures = {}
     for index in (0, 1):
         p = receipt_path(cell, index)
         doc = json.loads(p.read_text())
         doc["keyId"] = key_id
         doc["prevSignature"] = prev
+        if doc.get("kind") == "action":
+            for c in doc["action"]["cites"]:
+                c["signature"] = signatures[(c["sessionId"], c["callIndex"])]
         core = {k: v for k, v in doc.items() if k != "signature"}
-        canon = json.dumps(core, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
-        prefix = b"judgment-pack-gateway-receipt-v3:"
-        sig = private.sign(prefix + canon).hex()
+        sig = private.sign(RECEIPT_PREFIX_V3 + gateway_canon(core)).hex()
         doc["signature"] = sig
+        signatures[("s2", index)] = sig
         prev = sig
         p.write_text(json.dumps(doc, sort_keys=True, separators=(",", ":"), ensure_ascii=False))
+        # the construction validates its own chain: the signature verifies under the foreign key with the gateway's prefix
+        private.public_key().verify(bytes.fromhex(sig), RECEIPT_PREFIX_V3 + gateway_canon(core))
     shutil.rmtree(cell / "attestations")
     bind.bind(cell / "store", cell / "attestations")
 
@@ -232,12 +243,63 @@ CELLS = {
 }
 
 
+# --- the reviewer's holdout constructions, implemented verbatim from harness/MATRIX-HOLDOUT.json ---
+
+def h01_foreign_key_file_and_envelopes(cell):
+    """Call bind.bind(cell / 'store', cell / 'attestations', signer=foreign_signer()): the key file beside the envelopes and both envelopes are the foreign key's; no gateway input changes."""
+    bind.bind(cell / "store", cell / "attestations", signer=foreign_signer())
+
+
+def h02_duplicate_citation_subject_bad_first(cell):
+    """Insert {'name': 'cites/s2/0', 'digest': {'sha256': '0' * 64}} at index 0 of the action statement's subjects, keep the originals in order, re-sign."""
+    st = statement_of(cell, 1)
+    st["subject"].insert(0, {"name": "cites/s2/0", "digest": {"sha256": "0" * 64}})
+    resign(cell, 1, st)
+
+
+def h03_unreferenced_record_malformed_cites(cell):
+    """Write exactly b'{"cites":null}\n' to the new regular file decisions/audit/h03.json; every baseline file unchanged."""
+    (cell / "decisions" / "audit" / "h03.json").write_bytes(b'{"cites":null}\n')
+
+
+def h04_action_tail_removed_orphan_kept(cell):
+    """Delete only the action receipt; keep its attestation, both artifacts, the registry and the book."""
+    receipt_path(cell, 1).unlink()
+
+
+def h05_jsonl_crlf_and_empty_lines(cell):
+    """The book's bytes change while its one non-empty record candidate is preserved: CRLF endings and empty lines around it."""
+    p = cell / "decisions" / "audit" / "evaluations.jsonl"
+    data = p.read_bytes()
+    assert data.endswith(b"\n") and data.count(b"\n") == 1
+    p.write_bytes(b"\r\n" + data[:-1] + b"\r\n\r\n")
+
+
+def h06_empty_subject_list_resigned(cell):
+    """The action statement's subject list emptied and the statement re-signed with the adapter's key."""
+    st = statement_of(cell, 1)
+    st["subject"] = []
+    resign(cell, 1, st)
+
+
+HOLDOUT_CELLS = {
+    "h01-foreign-key-file-and-envelopes": h01_foreign_key_file_and_envelopes,
+    "h02-duplicate-citation-subject-bad-first": h02_duplicate_citation_subject_bad_first,
+    "h03-unreferenced-record-malformed-cites": h03_unreferenced_record_malformed_cites,
+    "h04-action-tail-removed-orphan-kept": h04_action_tail_removed_orphan_kept,
+    "h05-jsonl-crlf-and-empty-lines": h05_jsonl_crlf_and_empty_lines,
+    "h06-empty-subject-list-resigned": h06_empty_subject_list_resigned,
+}
+
+ALL_CELLS = dict(CELLS, **HOLDOUT_CELLS)
+
+
 def build(cell_id, out_root):
     cell = Path(out_root) / cell_id
     if cell.exists():
         raise FileExistsError(cell)
     shutil.copytree(BASELINE, cell)
-    CELLS[cell_id](cell)
+    ALL_CELLS[cell_id](cell)
     return cell
 
 

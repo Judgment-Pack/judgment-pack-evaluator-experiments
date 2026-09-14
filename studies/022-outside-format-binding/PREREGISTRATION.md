@@ -6,18 +6,20 @@ after it this file is never edited — corrections go to `DEVIATIONS.md`.
 
 **Nothing has run under a freeze.** Everything executed during harness development lands under
 `pilots/`, is labeled harness validation, and supports no claim. The apparatus is deterministic
-end to end — a committed baseline, nineteen registered constructions, three verifiers — so the
-pilots necessarily produced the same observations the registered attempt will; what the
-registration adds is the expectation per cell **derived from the three specifications before
-the attempt**, with the pilots as the check that the derivation read them right, and the
-registered attempt as the check that the pinned artifacts behave as the development ones did.
-Every cell's reason says which clause of which specification it follows from.
+end to end — a committed baseline, nineteen locked constructions, three verifiers — so under
+unchanged implementations the registered attempt is expected to reproduce the pilots'
+observations of the locked stratum; what the registration adds is the expectation per cell
+**derived from the three specifications before the attempt**, with the pilots as the check that
+the derivation read them right, and the registered attempt as the check that the pinned
+artifacts behave as the development ones did. The holdout stratum (§1a) has no pilot. Every
+cell's reason says which clause of which specification it follows from.
 
 Three companion artifacts are registered *with* this document and pinned at the freeze:
 [`adapter/SPEC.md`](adapter/SPEC.md) (the binding, the three layers, the in-toto ceremony, the
 reduced form, the ownership map), `harness/MATRIX.json` (the registered cells) and
-`harness/MATRIX-HOLDOUT.json` (the reviewer's holdout cells, authored during review and kept
-byte-for-byte). Where prose here and those artifacts could diverge, the artifacts govern.
+`harness/MATRIX-HOLDOUT.json` (the reviewer's holdout cells: the reviewer's expectations and
+construction strings, kept byte-for-byte). Where prose here and those artifacts could diverge,
+the artifacts govern.
 
 ## The freeze and the primary attempt
 
@@ -29,21 +31,33 @@ byte-for-byte). Where prose here and those artifacts could diverge, the artifact
   tags stop at `v0.2.0`), which is why a commit and a build recipe are pinned rather than an
   asset.
 - **The external component**: the in-toto reference implementation — `securesystemslib` 1.3.1
-  (DSSE) and `in-toto-attestation` 0.9.3 (Statement v1 bindings) — installed with pip into a
-  virtual environment and pinned by version and by a digest over each distribution's installed
-  files; a patched installation does not pass as the release.
+  (DSSE) and `in-toto-attestation` 0.9.3 (Statement v1 bindings) — with the two libraries
+  their checks run on, `cryptography` 47.0.0 (the Ed25519 primitive) and `protobuf` 5.29.6
+  (the message runtime the bindings validate with), installed with pip into a virtual
+  environment under CPython 3.8.20 and pinned by version and by a digest over each
+  distribution's installed files; a patched installation does not pass as the release. The
+  module each of the four is imported from must be a file of its pinned distribution (import
+  origins are checked), so a package shadowing the installation under a prepended path does
+  not pass either; the manifest covers every file under `adapter/` and `harness/` recursively
+  and refuses an unexpected directory there.
 - **Primary attempt root**: `results/primary-attempt-001` — literal, must not exist at the
-  freeze; the runner refuses an existing root, and the first invocation of the governing
-  command is the primary attempt, crash and all.
+  freeze; the runner and the scorer refuse any other root for a registered attempt, the marker
+  names the root and the scorer checks it, the runner refuses an existing root, and the first
+  invocation of the governing command is the primary attempt, crash and all.
 - **Governing invocation** (offline; the pinned gateway binary and the virtual environment):
 
       python harness/run_attempt.py --attempt-root results/primary-attempt-001 --gateway <the pinned binary>
 
   The runner holds the pins first (every pin non-null and matching), creates the root
-  exclusively, writes `ATTEMPT.json` before anything else — an attempt id, the label, the
-  gateway's digest, the raw digest of `harness/PINS.json`, the adapter key id, the cell set —
-  then builds every registered cell from the baseline, runs the three layers over every cell,
-  and scores with the holdout. A crash after the marker leaves the marker: the root is spent.
+  exclusively, writes `ATTEMPT.json` before anything else — an attempt id, the root, the label,
+  the gateway's digest, the raw digest of `harness/PINS.json`, the adapter key id, the
+  interpreter version, the cell set (locked and holdout) — then builds every locked cell from
+  the baseline, then each holdout cell (their first construction anywhere: a holdout
+  construction that raises is recorded in `HOLDOUT-CONSTRUCTION.json`, its partial tree
+  removed, and the locked stratum is unaffected), runs the three layers over every cell, scores
+  the locked stratum and reports the holdout beside it. A crash after the marker leaves the
+  marker: the root is spent, and the runner's terminal handler records `pipeline-invalid` in
+  `ADJUDICATION.json` when the scorer wrote nothing (a failure to write even that is printed).
 
 ## 1. Question
 
@@ -57,30 +71,50 @@ in-toto Statement in a DSSE envelope (`adapter/SPEC.md`) and measures, over nine
 constructions of a tampered store or a tampered attestation, what each of three verifiers sees:
 the gateway's own, the in-toto reference implementation's, and the binding's rules.
 
-**R1 (primary, retractable):** for every registered **endpoint** cell in `harness/MATRIX.json`
-(and, with `--include-holdout`, the holdout matrix), the observed outcome of every layer, in
-the reduced form `adapter/SPEC.md` §6 defines, equals the registered expectation. Divergence in
-any cell falsifies R1 — a detection on a layer registered as undetected as much as a miss: an
-in-toto layer that saw a seal it has no concept of, or a binding that missed a swapped subject,
-would each be a defect in the registration's account of the mechanism.
+**R1 (primary, retractable):** for every **endpoint** cell of the locked stratum
+(`harness/MATRIX.json`), the observed outcome of every layer, in the reduced form
+`adapter/SPEC.md` §6 defines, equals the registered expectation. Divergence in any locked
+endpoint cell falsifies R1 — a detection on a layer registered as undetected as much as a
+miss: an in-toto layer that saw a seal it has no concept of, or a binding that missed a swapped
+subject, would each be a defect in the registration's account of the mechanism. The holdout
+stratum (§1a) is adjudicated by the same comparison and reported in its own section of
+`ADJUDICATION.json`; it decides nothing.
 
 **R2 (descriptive):** the ownership map — which constructions each layer's own checks see,
 which layers are silent on which constructions, and which constructions no layer sees except
 by a rule the binding itself adds. R2 restates the matrix by category and decides nothing.
 
-This **is** an interoperability study in the sense of Studies 013–016: the in-toto layer is an
-independently developed verifier the study does not modify, consumed at a pinned version. It is
-not a study of any real deployment: the store is a corpus vector, the adapter key is minted
-here, and nothing was fetched from anywhere.
+This **is** an interoperability study in the sense of Studies 013–016, with one precision: the
+in-toto layer is a **study-written consumer ceremony using unmodified DSSE verification and
+Statement validation** — the signature check and the Statement's structural validation are an
+independently developed implementation the study does not modify, consumed at a pinned
+version; the enumeration of receipts, the presence rule, the type pins, the subject resolution
+and the re-digests are this study's consumer policy (`adapter/SPEC.md` §4–§5 mark which step is
+whose, and §4 below says which cells exercise which). It is not a study of any real deployment:
+the store is a corpus vector, the adapter key is minted here, and nothing was fetched from
+anywhere.
 
 ## 1a. Two strata
 
 The 014/016 remedy, inherited: the locked stratum (`harness/MATRIX.json`, nineteen cells) is a
 conformance suite over behaviour the maintainer derived from the three specifications and
-checked in pilots; the holdout stratum (`harness/MATRIX-HOLDOUT.json`) is authored by the
-reviewer during review — constructions the maintainer implements on request before the freeze,
-with the reviewer's own expectations kept byte-for-byte — and reports separately. The locked
-stratum decides R1; the holdout stratum's divergences are published as such.
+checked in pilots; the holdout stratum (`harness/MATRIX-HOLDOUT.json`, six cells) is authored
+by the reviewer during review — the reviewer's expectations and construction strings kept
+byte-for-byte, the constructions implemented by the maintainer from those strings in
+`harness/cells.py` (`HOLDOUT_CELLS`) — and reports separately. The locked stratum decides R1;
+the holdout stratum is adjudicated by the same comparison in its own section, deciding nothing.
+
+The holdout is prospective: **no pilot and no harness test builds a holdout cell**, and the
+registered attempt is their first construction anywhere. The pilot runner constructs the locked
+stratum only; the tests build the locked constructions only and check of the holdout that each
+registered id has a construction function and nothing more. What was done before the freeze,
+and is disclosed here, is function-level testing of the verifier fixes the round-1 review asked
+for (a foreign-key binding refused under the pinned key; a duplicated subject name retained;
+malformed inputs given codes), which touch the boundaries the reviewer's `h01`, `h02` and `h06`
+probe without building or observing those cells. A holdout construction that raises inside the
+registered attempt is recorded as `unconstructed` in the holdout section, and neither
+invalidates the pipeline nor touches R1. The two matrices are disjoint and together are exactly
+the constructions the harness registers; the scorer refuses otherwise.
 
 ## 2. Apparatus and pins
 
@@ -88,20 +122,26 @@ stratum decides R1; the holdout stratum's divergences are published as such.
   acquisition receipt and an action receipt that cites it and names one line of a `.jsonl`
   decision book, sealed, signed under the corpus test key — materialized as
   `fixtures/baseline/` (store, registry, decision records, authority, the corpus public key) and
-  bound by the adapter into `fixtures/baseline/attestations/`. Nothing in it was authored for
-  this study.
+  bound by the adapter into `fixtures/baseline/attestations/`. The corpus inputs were not
+  authored for this study; the attestations and the adapter's key were, by the adapter.
 - **Three verifiers**, none modifying the others (D-2): the pinned gateway binary; the pinned
   reference implementation, driven by `adapter/verify_attestation.py` exactly as `adapter/SPEC.md`
   §5 states; the binding's rules in `adapter/verify_binding.py` (§3).
 - **Pins are enforced, not declared**: before a registered attempt starts and before any
   adjudication, `harness/pins.py` compares the gateway binary's digest, the corpus public key's
-  digest, each package's version and installed-files digest, the adapter key id, each freeze
-  pin and the manifest against the tree and the environment, and refuses on any mismatch; a
-  registered adjudication further requires every pin non-null, the holdout included and
-  non-empty, and the attempt marker parsed and matched.
+  digest, each package's version, installed-files digest and import origin, the interpreter
+  version, the adapter key id and the fixture's trusted-key file (key id and key material),
+  each freeze pin and the manifest against the tree and the environment, and refuses on any
+  mismatch; a registered adjudication further requires every pin non-null, the holdout
+  included and non-empty, and the attempt marker parsed and matched.
 - **Determinism**: every construction is a function of the committed baseline; the scorer
-  rebuilds every cell from the baseline and compares byte for byte before reading an
-  observation, and a harness test builds cells twice and compares.
+  rebuilds every cell from the baseline and compares byte for byte — the same path set, the
+  same kinds, every regular file's bytes by SHA-256, a symbolic link refused — before reading
+  an observation, and a harness test builds the locked cells twice and compares the same way.
+- **Observations are bound to what was observed**: each cell's observation carries a digest of
+  the cell tree taken before the layers ran and checked again after, and the scorer compares it
+  with the digest of the cell it rebuilt; the observations file carries the attempt id, the
+  gateway's digest, the interpreter version and the trusted-key file's digest, each checked.
 
 ## 3. Scenario and the threat model
 
@@ -123,9 +163,11 @@ Each registers the exact reduced outcome of all three layers, an `ownership` lin
 naming the clauses it follows from. The structures the reasons rest on:
 
 - **What the gateway's key covers and in-toto's does not** (a05, a06, c01): the seal, the
-  chain, the count, and the gateway's own identity. An attestation carries none of these; a
-  store re-minted under another gateway key binds and verifies as attestations exactly as the
-  genuine one does — the binding carries no gateway-key trust.
+  chain, the count, and the gateway's own identity. The attestation's predicate carries the
+  gateway's identity and chain members (`keyId`, `prevSignature`, the signatures) as copied
+  bytes, and the ceremony interprets none of them; the seal and the count it does not carry at
+  all. A store re-minted under another gateway key binds and verifies as attestations exactly
+  as the genuine one does — the binding carries no gateway-key trust.
 - **What re-digest sees** (a01, a03, a04, a02 from the action's side): a subject named by digest
   is checked against the store, so an edited artifact, a removed cited receipt and a rewritten
   record are visible to an in-toto consumer — through the action's attestation, whose subjects
@@ -136,12 +178,14 @@ naming the clauses it follows from. The structures the reasons rest on:
   `resultDigest`, or whose subjects do not cover the predicate's citations verifies as an
   attestation; the binding's rules (§3 of the specification) are what make it about its
   receipt. These are the study's registered limits of the outside format alone.
-- **What in-toto's own checks see** (neg, b01, b02, b04, b05, b06, b07): the envelope's
-  signature and key, the payload type, the statement's type and predicate type as the ceremony
-  pins them, the attestation's presence.
+- **What the in-toto layer sees** (neg, b01, b02, b04, b05, b06, b07), split by whose check it
+  is: the envelope's signature is the upstream DSSE verification (neg, b01, and b02 under the
+  key the ceremony hands in); the attestation's presence (b06), the payload type (b07), the
+  statement type (b05) and the predicate type (b04) are the ceremony's own pins — consumer
+  policy, which a consumer that pinned less would not see.
 - **Where a non-gateway layer sees a store change only by the ceremony's rule** (a06): an
-  appended receipt is missed by in-toto and the binding not because they read the seal but
-  because the ceremony requires one attestation per stored receipt.
+  appended receipt is seen by in-toto and the binding not because they read the seal but
+  because the ceremony requires one attestation per stored receipt (`fail:missing-attestation`).
 
 ## 5. Endpoints and decision rule
 
@@ -149,19 +193,27 @@ The 014–018 regime, inherited: an ordered exhaustive decision rule (pipeline-i
 pins, the marker, the cells or the observations not as registered — → control-gate failure —
 the positive control not passing all three layers, or the negative control not failing exactly
 where registered — → zero divergence among endpoint cells, which is `R1 holds` → otherwise
-`R1 falsified`). An unobserved registered cell is pipeline-invalid. Every terminal path after
-the marker is recorded in `ADJUDICATION.json`, written once.
+`R1 falsified`). An unobserved registered cell is pipeline-invalid; a holdout cell whose
+construction raised is `unconstructed` in the holdout section and is not (§1a). Every terminal
+path after the marker is recorded in `ADJUDICATION.json`, written once: the scorer's record, or
+the runner's terminal record of `pipeline-invalid` when the scorer wrote none.
 
 ## 6. Validity, controls, enforcement
 
 `harness/score.py` refuses an existing adjudication, an unpinned or mismatching gateway,
-package, key or freeze file, a marker whose label, gateway digest, pins digest, key id or cell
-set is not this attempt's, cells that are not the registered constructions byte for byte,
-observations not stamped with the attempt and the pinned gateway, observations not covering
-exactly the registered cells once each, and any observation that is not a complete record of
-all three layers with a combined verdict that follows from them. The negative control holds the
-reference implementation to its signature check; the positive control holds all three layers
-to the baseline.
+package, import origin, interpreter, key or freeze file, a registered root other than the
+literal one, a marker whose root, label, gateway digest, pins digest, key id, interpreter or
+cell set is not this attempt's, cells that are not the registered constructions byte for byte,
+observations not stamped with the attempt, the pinned gateway, the interpreter and the
+trusted-key file, observations not covering exactly the registered cells once each, and any
+observation that is not a complete record of all three layers: the gateway's `ok` and statuses
+recomputed from its findings (the gateway's rule) with a finding per stored receipt, one
+in-toto record and one binding record per stored receipt in order with codes from the
+vocabulary and phase-dependent members, each layer's `pass` recomputed from its records, the
+combined verdict recomputed from the layers, and the cell's snapshot digest equal to the
+rebuilt cell's. A shortfall is a validity failure before any reduction. The negative control
+holds the reference implementation to its signature check; the positive control holds all
+three layers to the baseline.
 
 ## 7. Analytic limitations
 

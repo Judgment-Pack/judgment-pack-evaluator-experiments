@@ -534,8 +534,8 @@
     "combined": "fail"
    },
    "ownership": "gateway only: registered undetected for in-toto and the binding",
-   "structure": "a store under another gateway key, bound afresh",
-   "reason": "both receipts are re-signed under another Ed25519 key with its own keyId and the attestations bound afresh by the adapter: the gateway, verifying under the corpus key, reports key-mismatch on both (\u00a71.4 order 3); the attestations verify under the adapter's key and every subject re-digests; the binding holds. The binding carries no trust in the gateway's key: an in-toto consumer cannot tell this store from the genuine one"
+   "structure": "a coherent receipt chain under another gateway key, presented against the unchanged trusted registry, bound afresh",
+   "reason": "both receipts are re-signed under another Ed25519 key as a chain of that key's own: its keyId on both, the action's prevSignature and the signature its citation names both the foreign acquisition's, each signature over the gateway's canonical form under the gateway's signing prefix (§1.1, §1.2a) and verified during construction; the trusted corpus registry is unchanged and the attestations are bound afresh by the adapter. The gateway, verifying under the corpus key, reports key-mismatch on both (§1.4 order 3: the key id is not the trusted one, before any signature is checked, so the joins never run and the unchanged seal still matches the count); the attestations verify under the adapter's key and every subject re-digests; the binding holds. The binding carries no trust in the gateway's key: an in-toto consumer cannot tell this store from the genuine one"
   }
  ]
 }

@@ -51,6 +51,33 @@ def adapter_keyid():
     return bind.adapter_signer().public_key.keyid
 
 
+def import_origin_problems(name, module_name):
+    """The module the harness imports must come from the pinned distribution's own files, not a shadow."""
+    import importlib
+    from importlib import metadata
+    try:
+        dist = metadata.distribution(name)
+        module = importlib.import_module(module_name)
+    except Exception as e:  # noqa: BLE001
+        return ["%s cannot be imported (%s)" % (module_name, type(e).__name__)]
+    origin = Path(getattr(module, "__file__", "") or "").resolve()
+    owned = {Path(dist.locate_file(f)).resolve() for f in (dist.files or [])}
+    if origin not in owned:
+        return ["%s is imported from %s, which is not a file of the pinned %s distribution" % (module_name, origin, name)]
+    return []
+
+
+def trusted_pubkey_problems(pins):
+    """The fixture's public key file is the pinned adapter key, by material and by id."""
+    sys.path.insert(0, str(STUDY / "adapter"))
+    import bind
+    public = json.loads((STUDY / "fixtures" / "baseline" / "attestations" / "adapter.pubkey.json").read_text())
+    signer = bind.adapter_signer()
+    if public.get("keyid") != pins["adapter"]["keyid"] or public.get("keyval", {}).get("public") != signer.public_key.keyval.get("public"):
+        return ["fixtures/baseline/attestations/adapter.pubkey.json is not the pinned adapter key"]
+    return []
+
+
 def problems(pins, gateway_binary, require_all=False):
     out = []
     if gateway_binary is None or not Path(gateway_binary).is_file():
@@ -77,6 +104,13 @@ def problems(pins, gateway_binary, require_all=False):
             out.append("%s's installed digest is not pinned" % name)
     if adapter_keyid() != pins["adapter"]["keyid"]:
         out.append("the adapter key is not the pinned one")
+    out += trusted_pubkey_problems(pins)
+    for name, module_name in (("securesystemslib", "securesystemslib"), ("in-toto-attestation", "in_toto_attestation"), ("cryptography", "cryptography"), ("protobuf", "google.protobuf")):
+        out += import_origin_problems(name, module_name)
+    if pins["harnessPython"].get("version") and pins["harnessPython"]["version"] != sys.version.split()[0]:
+        out.append("the interpreter is %s, not the pinned %s" % (sys.version.split()[0], pins["harnessPython"]["version"]))
+    if require_all and not pins["harnessPython"].get("version"):
+        out.append("the interpreter version is not pinned")
     for key, relative in FREEZE_FILES.items():
         expected = pins["freeze"].get(key)
         if expected and expected != sha256_file(STUDY / relative):
