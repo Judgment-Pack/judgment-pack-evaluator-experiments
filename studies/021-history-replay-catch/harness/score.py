@@ -243,8 +243,11 @@ def signature_evidence_ok(sig, mismatched, boundaries=None, origins=None, ledger
 
 
 def same_document(a, b):
-    """JSON equality that preserves types, as Core section 7.4 compares values: Python
-    would take true for 1 and 1.0 for 1; the canonical serializations must be identical."""
+    """Strict document identity by deterministic serialization -- stronger than Core
+    section 7.4's equality, which compares numbers by mathematical value (1 equals 1.0
+    there) while holding a Boolean apart from a number: here the canonical serializations
+    must be identical, so no retained mutant differs from the planter's document in any
+    token, type included."""
     return json.dumps(a, sort_keys=True, separators=(",", ":")) == json.dumps(b, sort_keys=True, separators=(",", ":"))
 
 

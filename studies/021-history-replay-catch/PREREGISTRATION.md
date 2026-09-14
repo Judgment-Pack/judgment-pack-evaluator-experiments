@@ -1,8 +1,9 @@
 # Preregistration — Study 021: does replayed history catch a planted defect, and can the profile tell a moved line from the rest?
 
-**Status: DRAFT, not frozen.** Pre-freeze cross-vendor review rounds are recorded in
-`PREREG-REVIEW.md`; the freeze is the squash-merge of the pull request that this file will
-name, and after it this file is never edited — corrections go to `DEVIATIONS.md`.
+**Status: FROZEN by the squash-merge of the pull request `PREREG-REVIEW.md` names; governing
+thereafter.** Eight pre-freeze cross-vendor review rounds concluded with `freezable as written`
+(`PREREG-REVIEW.md`). After the freeze this file is never edited — corrections go to
+`DEVIATIONS.md`.
 
 **Nothing has run under a freeze: as of the freeze commit no registered attempt exists.**
 Everything executed during harness development lands under `pilots/`, is labeled harness
@@ -27,7 +28,11 @@ kept byte-for-byte). Where prose here and those artifacts could diverge, the art
 - **Freeze commit**: the squash-merge commit of the pull request named in `PREREG-REVIEW.md`.
 - **Runtime**: the judgment-pack runtime release **v0.21.0**, the first carrying the history
   profile (runtime ADR-0034), pinned by the digest of its published linux/amd64 binary in
-  `harness/PINS.json`; the scorer refuses any other binary.
+  `harness/PINS.json`; the scorer refuses any other binary. That one member is filled after
+  the freeze, by a single commit made when v0.21.0 publishes, carrying the published binary's
+  digest and touching nothing else — `harness/PINS.json` is outside the manifest for this
+  reason, and `DEVIATIONS.md` names that commit; until it is filled the runner refuses to
+  start a registered attempt, so no registered draw can precede the pin.
 - **Primary attempt root**: `results/primary-attempt-001` — literal, must not exist at the
   freeze; the runner refuses an existing root, and the first invocation of the governing
   command is the primary attempt, crash and all.

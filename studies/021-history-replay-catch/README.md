@@ -1,8 +1,10 @@
 # Study 021 — does replayed history catch a planted defect, and can the profile tell a moved line from the rest?
 
-**Status: preregistration DRAFT — in pre-freeze cross-vendor review (`PREREG-REVIEW.md`).
-Nothing has run under a freeze; `results/` is absent until the registered primary attempt, and
-everything under `pilots/` is harness validation that supports no claim.**
+**Status: preregistration through eight pre-freeze cross-vendor review rounds, the last
+`freezable as written` (`PREREG-REVIEW.md`); FROZEN at the squash-merge of the pull request
+that record names. Nothing has run under the freeze; `results/` is absent until the registered
+primary attempt, which waits on the runtime's v0.21.0 release for its pin; everything under
+`pilots/` is harness validation that supports no claim.**
 
 A pack drafted from policy documents is tested against the decisions actually made under the
 policy — each past decision a matrix row whose facts are what was on file and whose expectation

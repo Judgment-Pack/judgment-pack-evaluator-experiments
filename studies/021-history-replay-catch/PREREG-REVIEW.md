@@ -1082,5 +1082,79 @@ Every finding is applied.
 
 | # | Severity | Disposition |
 |---|---|---|
-| 1 | BLOCKER | **Applied.** `score.same_document` compares a retained mutant with the planter's document by their canonical JSON serializations (`sort_keys`, compact separators), which preserves JSON types as Core §7.4 compares values: `true` is not `1`, `1` is not `1.0`. A test holds `true → 1`, `false → 0` and `1 → 1.0` to inequality and every canonical mutant to equality with its own round trip. |
+| 1 | BLOCKER | **Applied.** `score.same_document` compares a retained mutant with the planter's document by their canonical JSON serializations (`sort_keys`, compact separators): strict document identity, stronger than Core §7.4's equality (which compares numbers by mathematical value, so `1` equals `1.0` there, while holding a Boolean apart from a number) — under it `true` is not `1` and `1` is not `1.0`, so no retained mutant differs from the planter's document in any token. A test holds `true → 1`, `false → 0` and `1 → 1.0` to inequality and every canonical mutant to equality with its own round trip. |
 | 2 | MINOR | **Applied.** `replay.replay` holds the summary's total and mismatched to `is_count` (the mismatched bounded by the total); the scorer holds every recorded row count in gate and cell records to `is_count` beside the equality it already required. |
+
+## Round 8 — 2026-09-14
+
+Reviewer: codex-cli 0.153.4, model gpt-6-astra (OpenAI), read-only sandbox, on worktree commit `c8535804`; different vendor than the model that drafted (Claude). Verdict: **freezable as written** (1 MINOR, documentation); the round-7 fixes confirmed closed; the holdout confirmed byte-for-byte.
+
+> Note: the finding prose is verbatim.
+
+### Round 8 — prompt (verbatim)
+
+```
+You are the pre-freeze cross-vendor reviewer for Study 021 in the judgment-pack-evaluator-experiments repository, under the interim review regime (a model from a different vendor than the one that drafted; Claude drafted). This is ROUND 8 on commit c8535804 (`git log -1`). Rounds 1 to 7 (recorded verbatim with the maintainer's dispositions in studies/021-history-replay-catch/PREREG-REVIEW.md) returned thirteen blockers, thirteen majors and ten minors in all, every one applied; round 1 authored eight holdout cells, placed byte-for-byte as a top-level array in harness/MATRIX-HOLDOUT.json.
+
+First, verify each round-7 fix against the harness and the registration — score.same_document (JSON-type-preserving mutant comparison) and the count checks in replay.replay and score.evidence. Say per round-7 finding whether the edit makes the registration true and enforceable, and whether it introduced a new defect. Then say per finding whether the edit makes the registration true and enforceable, and whether it introduced a new defect. In particular: run `python -m unittest discover -s harness/tests` from the study directory (the pinned runtime is not available to you, so the two ledger tests skip; say so); read harness/score.py end to end for any path that still reaches "R1 holds" without complete observations, executed gates, matching pins and the reserved ledger set; read harness/run_attempt.py for the exclusive root and the marker; read harness/build_ledgers.py for the discrete-uniform draw, the not-applicable drop, the refusal-exhaustion failure and the reserved-seed guard; read harness/replay.py for the placement condition and the verdict check. re-read PREREGISTRATION.md and harness/MATRIX.json whole for anything the earlier rounds missed. If nothing that would let a favourable outcome be reached for the wrong reason remains, say so plainly and return `freezable as written`; note that the runtime pin (harness/PINS.json jpack.sha256) is null by design until the runtime's v0.21.0 release publishes, and the freeze pins are filled at the freeze commit — say whether anything in the design depends on their being filled earlier. Verify your own holdout cells still fit the schema the scorer loads and that their reasons survive the corrected generator (discrete-uniform: sanctions {0,1,2} at one third each; expense lattice of 151 values; vendor lattice of 500001).
+
+The study directory is studies/021-history-replay-catch/ of the current worktree; the spec and runtime checkouts are at /home/onword/repo/judgment-pack/judgment-pack-spec and /home/onword/repo/judgment-pack/judgment-pack-runtime, read via `git -C <path> show origin/main:<file>`.
+
+For each finding give: severity (BLOCKER / MAJOR / MINOR), the exact sentence, cell or line, what the source says, and the smallest edit. Then a verdict: `freezable as written`, `freezable after fixes` (list them), or `not freezable as written`.
+```
+
+### Round 8 — findings (verbatim)
+
+**Verdict: `freezable as written`.** I found no remaining path in the reviewed governing pipeline that permits a favourable registered outcome for the wrong reason. One non-blocking MINOR documentation issue remains.
+
+Reviewed commit `c8535804edbe6489bf9eb72094d49d5accce573b`, the complete registration and matrix, both holdout and harness sources. Source comparisons used the requested `git show origin/main:<file>` reads: spec `587ebc5e…`, runtime `0c8a4b63…`.
+
+| Round-7 finding | Registration now true and enforceable? | New defect introduced? |
+|---|---|---|
+| **1 — BLOCKER: mutant comparison conflates JSON types** | **Yes, closed.** `same_document()` is used by `registered_inputs_ok()`. The original triage D8-13 extra `true → 1` mutation is rejected through that consuming function. All 63 canonical mutants pass their round-trip comparison tests. | No behavioural regression. The explanation introduces the MINOR source-attribution issue below. |
+| **2 — MINOR: incomplete count enforcement** | **Yes, closed for the identified paths.** `replay.replay()` checks both summary counts with `is_count`, including mismatch bounds. `score.evidence()` applies it to gate and cell row counts before equality checks. Targeted probes rejected twelve malformed summary-count cases and Boolean/float row counts in both record types. | None found. |
+
+**MINOR — the new explanation overstates its equivalence to Core equality.**
+
+- **Exact locations:** [score.py:246](studies/021-history-replay-catch/harness/score.py) says “JSON equality that preserves types, as Core section 7.4 compares values”; [PREREG-REVIEW.md:1085](studies/021-history-replay-catch/PREREG-REVIEW.md) associates that rule with “`1` is not `1.0`.”
+- **What the source says:** Core §7.4, lines 423–426, compares JSON numbers by mathematical value. Runtime `internal/evaluation/condition.go:520–544` and `573–577` implement that rule. Thus numeric `1` and `1.0` are equal there; Boolean `true` and numeric `1` are unequal.
+- **Smallest edit:** describe this as **strict document identity by deterministic serialization, stronger than Core’s numeric equality**. Keep the comparator and tests unchanged. This wording issue cannot produce a favourable outcome and does not block freezing.
+
+The remaining safeguards hold on inspection and targeted probes:
+
+- Registered scoring requires complete matching pins, the registered marker and nonempty holdout; the exact ledger set; canonical mutants; every valid defect × ledger pair; bound gate/cell records; and complete observations. `allowsNoCaught` cannot rescue missing observations.
+- Every ledger is reconstructed before favourable adjudication. G1 mismatches and documented G2 drops prevent success; G3 executes before the final decision.
+- The runner checks pins before exclusive root creation and writes the marker before construction. Outputs refuse overwrites.
+- Random construction uses inclusive discrete-uniform lattices, drops refused/not-applicable draws, fails on exhaustion, and guards reserved seeds.
+- Replay checks completed verdicts, row identities, counts and status consistency. Threshold evidence reconciles jointly against named mismatched rows; placement and the existential qualifying-literal rule match §5.
+
+The eight holdouts remain byte-for-byte identical to the round-1 array, load through `score.load_matrix()`, and yield **131 unique IDs and endpoint combinations** with the main matrix.
+
+| Holdout | Reason survives? |
+|---|---|
+| h01 | Yes: deny → fallback review below 75. |
+| h02 | Yes: removing the amount guard removes the only threshold. |
+| h03 | Yes: the changed at-250000 row defeats the signature. |
+| h04 | Yes: the retained 250000 boundary supplies one-sidedness. |
+| h05 | Yes: canonical embargo exception escalates; no threshold exists. |
+| h06 | Yes: changed zero and two occupy opposite sides. |
+| h07 | Yes: per-row probability `1/30`; n=20 catch probability **0.492385**. |
+| h08 | Yes: per-row probability `(1/108) × (250000/500001)`; n=20 probability **0.088631**. |
+
+The generator’s lattices are **3, 151 and 500001 values**, respectively. I found no further matrix expectation requiring correction.
+
+The requested unittest command ran **36 tests: 30 passed, 2 skipped, 4 errored**. The two ledger tests skipped because the runtime is unavailable. The four errors were temporary-directory creation failures in this read-only sandbox. The available interpreter is CPython **3.8.20**, rather than registered 3.12. Targeted probes mocked runtime/filesystem operations; they are not runtime validation.
+
+The 22-file manifest matches; the freeze-set checker reports zero problems. The primary root is absent, and no retained pilot ledger uses reserved seeds. No files changed or registered attempt ran.
+
+The intentionally null runtime digest is **not a blocker**. Nothing depends on runtime or freeze pins being filled before their stated release/freeze milestones. All must be complete and matching before registered construction; current null pins correctly prevent it.
+
+### Round 8 — maintainer disposition
+
+| # | Severity | Disposition |
+|---|---|---|
+| — | MINOR | **Applied.** The comparator's docstring and the round-7 disposition now describe strict document identity by deterministic serialization, stronger than Core §7.4's numeric equality; the comparator and its tests are unchanged. |
+
+Two maintainer additions after this round, each stated in the registration and both checked by the merge review of the pull request: the freeze pins in `harness/PINS.json` are filled with the digests of the preregistration, the matrix, the holdout matrix and the manifest as merged; and the runtime pin is stated to be filled after the freeze by a single commit made when v0.21.0 publishes, touching nothing else, named in `DEVIATIONS.md`, with the runner refusing to start a registered attempt until then (§ The freeze and the primary attempt).
+
+The verdict `freezable as written` stands; the freeze is the squash-merge of the pull request named at the top of this record.
