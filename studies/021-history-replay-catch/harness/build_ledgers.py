@@ -15,7 +15,7 @@ never what any draft produces. Two strata:
   (facts outside its applicability or its grammar) are kept when the runtime
   produces a disposition, dropped when it refuses -- a ledger holds decisions.
 
-Run: python harness/build_ledgers.py POLICY [--n 5 10 20 50] [--seeds 30] --out DIR
+Run: python harness/build_ledgers.py POLICY [--n 5 10 20 50] [--seeds 30] [--seed-base 1] --out DIR
 """
 import argparse
 import copy
@@ -179,6 +179,7 @@ def main():
     ap.add_argument("policy")
     ap.add_argument("--n", nargs="*", type=int, default=[5, 10, 20, 50])
     ap.add_argument("--seeds", type=int, default=30)
+    ap.add_argument("--seed-base", type=int, default=1, help="the first seed; pilots drew 1..30, the registered attempt draws 101..130")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
     pack, base = load_policy(args.policy)
@@ -190,7 +191,7 @@ def main():
         (out / "literal.matrix.json").write_text(json.dumps(ledger, indent=1))
         print("literal: %d rows (%d candidates refused)" % (len(ledger["cases"]), dropped))
         for n in args.n:
-            for seed in range(1, args.seeds + 1):
+            for seed in range(args.seed_base, args.seed_base + args.seeds):
                 ledger, dropped = random_ledger(args.policy, pack, base, root, n, seed)
                 (out / ("random-%d-%d.matrix.json" % (n, seed))).write_text(json.dumps(ledger, indent=1))
         print("random: n in %s x %d seeds" % (args.n, args.seeds))

@@ -143,8 +143,21 @@ def main():
         sys.exit("refusing: the runtime's digest %s is not the pinned %s" % (digest, pins["jpack"]["sha256"]))
     registered = (not args.pilot) and all(pins["freeze"].get(k) for k in ("preregistration", "matrix", "studyManifest"))
     cells_by_policy = {}
+    gate_failures = []
     for f in sorted(root.glob("*/cells.json")):
         cells_by_policy[f.parent.name] = json.loads(f.read_text())
+        gate = f.parent / "cells.gate.json"
+        if not gate.exists():
+            gate_failures.append("%s: no gate record (the unplanted replay did not run)" % f.parent.name)
+        else:
+            for g in json.loads(gate.read_text()):
+                if g["mismatched"]:
+                    gate_failures.append("%s: the unplanted pack mismatched %d row(s) of %s" % (f.parent.name, g["mismatched"], g["ledger"]))
+        index = f.parent / "defects" / "INDEX.json"
+        if index.exists():
+            for d in json.loads(index.read_text()):
+                if not d["valid"]:
+                    gate_failures.append("%s: instance %s was dropped as invalid" % (f.parent.name, d["id"]))
     rates, sigs = aggregate(cells_by_policy)
     (root / "CATCH-RATES.json").write_text(json.dumps(rates, indent=1))
     (root / "SIGNATURE.json").write_text(json.dumps(sigs, indent=1))
@@ -156,9 +169,9 @@ def main():
         adjudication += adjudicate(m, cells_by_policy)
     diverging = [r for r in adjudication if r["verdict"] == "diverges"]
     gates = [r for r in adjudication if r["role"] == "control-gate" and r["verdict"] != "holds"]
-    decision = "pipeline-invalid" if not cells_by_policy else ("control-gate-failed" if gates else ("R1 holds" if not diverging else "R1 falsified"))
+    decision = "pipeline-invalid" if not cells_by_policy else ("control-gate-failed" if (gates or gate_failures) else ("R1 holds" if not diverging else "R1 falsified"))
     (root / "ADJUDICATION.json").write_text(json.dumps({"label": "REGISTERED" if registered else "PILOT", "jpackDigest": digest,
-                                                          "decision": decision, "cells": adjudication}, indent=1))
+                                                          "decision": decision, "gateFailures": gate_failures, "cells": adjudication}, indent=1))
     print("%s: %s (%d registered cells, %d diverge)" % ("REGISTERED" if registered else "PILOT", decision, len(adjudication), len(diverging)))
 
 

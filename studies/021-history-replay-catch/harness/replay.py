@@ -63,8 +63,17 @@ def main():
     ap.add_argument("--ledgers", required=True)
     ap.add_argument("--defects", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--policy-pack", help="the UNPLANTED pack: replay it against every ledger and write <out>.gate.json (control gate G1)")
     args = ap.parse_args()
     ledgers = sorted(Path(args.ledgers).glob("*.matrix.json"))
+    if args.policy_pack:
+        original = json.loads(Path(args.policy_pack).read_text())
+        gate = []
+        for l in ledgers:
+            r = replay(args.policy, original, json.loads(l.read_text()))
+            gate.append({"ledger": l.stem.replace(".matrix", ""), "rows": r["rows"], "mismatched": r["mismatched"], "status": r["status"]})
+        Path(args.out.replace(".json", ".gate.json")).write_text(json.dumps(gate, indent=1))
+        print("gate: %d ledgers, %d with a mismatch" % (len(gate), sum(1 for g in gate if g["mismatched"])))
     index = json.loads((Path(args.defects) / "INDEX.json").read_text())
     cells = []
     for d in index:

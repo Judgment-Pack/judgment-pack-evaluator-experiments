@@ -100,6 +100,25 @@ class Planting(unittest.TestCase):
         self.assertEqual(plant.moved("42.50", "0.25"), "53.12")  # a quarter of 42.50 is 10.625: half-even at the authored precision
 
 
+class RegisteredCells(unittest.TestCase):
+    def test_every_registered_defect_is_one_the_planter_yields(self):
+        matrix = json.loads((STUDY / "harness" / "MATRIX.json").read_text())
+        ids = {}
+        for f in sorted((STUDY / "fixtures" / "policies").glob("*.pack.json")):
+            pack = json.loads(f.read_text())
+            ids[f.name.replace(".pack.json", "")] = {"%s-%02d" % (i["class"], k) for k, i in enumerate(plant.instances(pack))}
+        for c in matrix["cells"]:
+            self.assertIn(c["policy"], ids)
+            self.assertIn(c["defect"], ids[c["policy"]], c["id"])
+            self.assertLessEqual(c["expected"]["min"], c["expected"]["max"], c["id"])
+            self.assertIn(c["endpoint"], ("caught", "lineMovedWhenCaught"), c["id"])
+
+    def test_cell_ids_are_unique(self):
+        matrix = json.loads((STUDY / "harness" / "MATRIX.json").read_text())
+        ids = [c["id"] for c in matrix["cells"]]
+        self.assertEqual(len(ids), len(set(ids)))
+
+
 class Adjudication(unittest.TestCase):
     def cells(self):
         return {"p": [

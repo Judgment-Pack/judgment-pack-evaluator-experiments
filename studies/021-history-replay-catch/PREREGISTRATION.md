@@ -7,7 +7,14 @@ name, and after it this file is never edited — corrections go to `DEVIATIONS.m
 **Nothing has run under a freeze.** Everything executed during harness development lands
 under `pilots/`, is labeled harness validation, and supports no claim. The registered cells
 below were derived from the packs' text and the runtime's documented semantics; the pilots
-informed which structures needed naming, and every cell says which structure it names.
+informed which structures needed naming, and every cell says which structure it names. Said
+plainly, because the apparatus is deterministic: the pilots drew random ledgers from seeds
+1–30 and the registrations were checked against them before the freeze; the registered attempt
+draws seeds **101–130**, which no pilot has drawn, so the random-stratum cells are adjudicated
+on ledgers the registration never saw. The literal stratum is one deterministic ledger per
+policy and its cells are, by construction, checked in the pilots — those cells register a
+reading of the pack's text, and what the registered attempt adds for them is only that the
+pinned release behaves as the development binary did.
 
 Two companion artifacts are registered *with* this document and pinned at the freeze:
 `harness/MATRIX.json` (the registered cells and their expectations) and
@@ -26,10 +33,11 @@ kept byte-for-byte). Where prose here and those artifacts could diverge, the art
 - **Governing invocation** (fully offline; the runtime and CPython 3.12 only):
 
       for each policy P in fixtures/policies:
-        python harness/build_ledgers.py P --n 5 10 20 50 --seeds 30 --out results/primary-attempt-001
+        python harness/build_ledgers.py P --n 5 10 20 50 --seeds 30 --seed-base 101 --out results/primary-attempt-001
         python harness/plant.py P --out results/primary-attempt-001
         python harness/replay.py P --ledgers results/primary-attempt-001/P \
-          --defects results/primary-attempt-001/P/defects --out results/primary-attempt-001/P/cells.json
+          --defects results/primary-attempt-001/P/defects --out results/primary-attempt-001/P/cells.json \
+          --policy-pack fixtures/policies/P.pack.json
       python harness/score.py --attempt-root results/primary-attempt-001 --include-holdout
 
 ## 1. Question
@@ -170,25 +178,43 @@ structures, registered once and applied per cell:
   flipped guard would newly admit are the rows the exception escalates. Registered
   **undetected** on both strata.
 - **S2 — a rule whose outcome is the fallback.** A rule that decides what the fallback decides
-  (`vendor-onboarding`: `request-info-incomplete` → `request-info`, the fallback) is unobservable
-  to a replay of dispositions: a D7 edit that stops it firing changes the trace and not the
-  disposition. Registered **undetected** on both strata.
+  (`vendor-onboarding`: `request-info-incomplete` → `request-info`; `data-request-intake-triage`:
+  `clarify-incomplete-or-not-evaluable` → `clarify-return`) is unobservable to a replay of
+  dispositions where it fires alone: a D7 edit that stops it firing changes the trace and not the
+  disposition. It *is* observable where another rule can fire with it — the two together are a
+  `conflict` (Core §8.3) where one alone decides — so the registration is per literal: undetected
+  on both strata for the literals no other rule's condition can share (`vendor-onboarding`'s
+  two; triage's `pending` and `not-evaluable`), detected for triage's `incomplete`, which the
+  hard-fail case fires beside `decline-hard-appropriateness-failure`.
 - **S3 — boundary flips and random history.** A D3 flip changes the disposition of a case
   exactly at the literal and of no other. The literal stratum holds that case; a random draw at
-  the literal's precision over [0, 2L] hits it with probability 1/(2L+1) per row. Registered
-  **detected** on the literal stratum (where not masked by S1) and **undetected** on the random
-  stratum at every n (rate in [0, 0.1]).
+  the literal's precision over [0, 2L] hits it with probability 1/(2L+1) per row, and the case
+  must also satisfy whatever else the rule needs. Registered **detected** on the literal stratum
+  (where not masked by S1), and on the random stratum at n = 50 registered per policy from that
+  probability: `vendor-onboarding` (1/500001) in [0, 0.1]; `expense-approval` (1/151, and the
+  case must be permitted and receipted) in [0, 0.25]; `sanctions-screening` (1/3) in [0.9, 1].
+  A flip caught on the random stratum carries no signature: every changed case sits AT the
+  literal.
 - **S4 — evidence guards under a required-evidence escalation.** Dropping an `evidence-present`
   condition (D6) from a rule whose requirement the pack marks `required` changes nothing the
   ledger can see: a case with that evidence absent escalates on the requirement before any rule
   fires, and a case with it present fires the rule either way. Registered **undetected** on both
   strata.
 - **S5 — one-sided sites.** A defect whose disagreeing cases all lie on one side of the pack's
-  sole threshold — because the rule or exception it edits fires only on that side, or because
-  the other side is escalated by an exception before the edit can matter — carries the
-  line-moved signature whenever it is caught. Registered **signature = 1** for the named D5,
-  D6, D7, D8 and D9 instances of `vendor-onboarding` and `expense-approval` whose site is
-  one-sided by the pack's text, on both strata; these are the registered masquerades.
+  sole threshold — because the rule or exception it edits fires only on that side, because the
+  other side is escalated by an exception before the edit can matter (a true escalating
+  exception blocks a forced outcome, Core §8.3), or because a reversed comparison's own side is
+  the escalated one — carries the line-moved signature whenever it is caught. Registered
+  **signature = 1** at n = 50 for the named D4, D5, D6, D7, D8 and D9 instances of
+  `vendor-onboarding`, `expense-approval` and `sanctions-screening` whose site is one-sided by
+  the pack's text; these are the registered masquerades. Two qualifications the text also
+  gives: a changed case that sits exactly AT the literal breaks the signature, so a site whose
+  changed cases include the literal itself registers **signature = 0** (`sanctions-screening`'s
+  reimbursed literal 1, and its D2 whose moved literal is the floor of the domain), and one
+  whose changed cases reach the literal with a computable probability registers an interval
+  (`expense-approval`'s fallback, reached at 75); and an edit that removes the pack's only
+  ordered comparison (`expense-approval` D6 dropping the amount guard) leaves no threshold to
+  report, so it is caught off-threshold and carries none.
 - **S6 — two-sided sites.** A defect whose disagreeing cases lie on both sides of a threshold
   (D4 reversing the sole comparison; a D7 edit to an applicability-adjacent member that fires on
   both sides) carries **no** signature on the random stratum (rate in [0, 0.1] at n = 50) and
@@ -196,8 +222,12 @@ structures, registered once and applied per cell:
   case on one side. The literal stratum's one-sidedness is the base row's, not the defect's —
   registered as the stratum's weakness, not the profile's strength.
 - **S7 — the moved line.** A D1 or D2 instance at an unmasked site carries the signature in
-  every caught replicate on both strata (rate 1): the disagreeing cases are exactly those
-  between the old line and the new one, on one side of the new one.
+  every caught replicate (rate 1): the disagreeing cases are exactly those between the old line
+  and the new one, on one side of the new one — except where a random draw can land exactly on
+  the new literal and change there, which sits AT it and breaks the signature: registered as an
+  interval from that probability (`expense-approval` D2, whose new literal 56 is drawn with
+  probability 1/151 per row, in [0.5, 1]) and as 0 where every changed case is at the new
+  literal (`sanctions-screening` D2, moved to the floor 0).
 
 Cells outside these structures are registered from the same reading of the pack's text, each
 with its reason in the matrix. `harness/MATRIX-HOLDOUT.json` holds the reviewer's cells, authored
@@ -207,13 +237,14 @@ during review from the same rules and kept byte-for-byte.
 
 The 016–018 regime, inherited: an ordered exhaustive decision rule (pipeline-invalid — no cells
 read — → control-gate failure → zero divergence among registered cells, which is `R1 holds` →
-otherwise `R1 falsified`). Control gates, evaluated first: (G1) for every policy, replaying the
-**unplanted** pack against every ledger mismatches no row — the ledger is the pack's own word;
+otherwise `R1 falsified`). Control gates, evaluated first and recorded in the adjudication:
+(G1) for every policy, replaying the **unplanted** pack against every ledger mismatches no row —
+the ledger is the pack's own word (`replay.py --policy-pack`, the `cells.gate.json` record);
 (G2) every defect instance is a valid pack, or is dropped with its note in `INDEX.json`, and the
 dropped set is empty for the four policies (a non-empty set is a control failure, not a
-finding); (G3) building the attempt root twice yields byte-identical ledgers. The scorer refuses
-an existing attempt root, refuses an unpinned runtime, writes the aggregate files before the
-adjudication, and labels the attempt.
+finding); (G3) the random ledgers are deterministic in the seed (a harness test builds one
+twice and compares bytes). The scorer refuses an existing attempt root, refuses an unpinned
+runtime, writes the aggregate files before the adjudication, and labels the attempt.
 
 ## 8. Analytic limitations
 
