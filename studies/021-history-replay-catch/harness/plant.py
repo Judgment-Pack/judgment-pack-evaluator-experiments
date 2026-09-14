@@ -128,6 +128,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("policy")
     ap.add_argument("--out", required=True)
+    ap.add_argument("--attempt-id", default=None, help="the attempt this index belongs to, stamped into INDEX.json")
     args = ap.parse_args()
     pack = json.loads((POLICIES / (args.policy + ".pack.json")).read_text())
     out = Path(args.out) / args.policy / "defects"
@@ -137,11 +138,13 @@ def main():
         ok, note = valid(inst["pack"])
         entry = {"id": "%s-%02d" % (inst["class"], k), "class": inst["class"], "site": inst["site"], "valid": ok}
         if ok:
-            (out / (entry["id"] + ".pack.json")).write_text(json.dumps(inst["pack"], indent=1))
+            with open(out / (entry["id"] + ".pack.json"), "x") as f:
+                f.write(json.dumps(inst["pack"], indent=1))
         else:
             entry["note"] = note
         index.append(entry)
-    (out / "INDEX.json").write_text(json.dumps(index, indent=1))
+    with open(out / "INDEX.json", "x") as f:
+        f.write(json.dumps({"attemptId": args.attempt_id, "instances": index}, indent=1))
     from collections import Counter
     print("%s: %d instances (%d valid) %s" % (args.policy, len(index), sum(e["valid"] for e in index), dict(Counter(e["class"] for e in index if e["valid"]))))
     for e in index:

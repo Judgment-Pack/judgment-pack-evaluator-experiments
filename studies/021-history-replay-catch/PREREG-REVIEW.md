@@ -312,3 +312,163 @@ Further notes taken: the "Nothing has run" banner is time-qualified to the freez
 ### After round 1 — a pilot check of the corrected generator (maintainer note)
 
 The harness was re-run as a pilot under the corrected generator (`pilots/r2`, seeds 1–30, labelled PILOT, supporting no claim). Every gate held, every holdout cell held, and one registered cell diverged: `expense-approval/D7-01/random-50/lineMovedWhenCaught`, registered [0, 0.1], observed 0.2. The registration's reason was right about the mechanism (the changed cases sit on both sides of 75) and wrong about the count: only a receipted case changes, so a ledger of 50 changes about six rows, and with so few rows all on one side happens by chance — about 0.08 of caught ledgers from the generator's arithmetic, whose observed fraction over thirty ledgers runs to 0.2 one time in a hundred. The three `expense-approval` D7 cells and D4-09, which share that count, now register [0, 0.35] with the computed probability in their reasons; D5-13, whose changed rows number about nineteen, keeps [0, 0.1]. The correction is to the derivation, not to the pilot's number, and is recorded here rather than silently.
+
+## Round 2 — 2026-09-14
+
+Reviewer: codex-cli 0.153.4, model gpt-6-astra (OpenAI), read-only sandbox, on worktree commit `8c06202a`; different vendor than the model that drafted (Claude). Verdict: **not freezable as written** (3 BLOCKER, 3 MAJOR, 1 MINOR); the round-1 fixes audited, four closed and six partial; the eight holdout cells confirmed valid under the corrected generator.
+
+> Note: the reviewer's worktree paths are normalized here. The finding prose is otherwise verbatim.
+
+### Round 2 — prompt (verbatim)
+
+```
+You are the pre-freeze cross-vendor reviewer for Study 021 in the judgment-pack-evaluator-experiments repository, under the interim review regime (a model from a different vendor than the one that drafted; Claude drafted). This is ROUND 2. Round 1 (recorded verbatim with the maintainer's disposition in studies/021-history-replay-catch/PREREG-REVIEW.md) returned three blockers and seven majors, all applied in the commit under review (`git log -1`), and authored eight holdout cells, now placed byte-for-byte as a top-level array in harness/MATRIX-HOLDOUT.json.
+
+First, verify each round-1 fix against the harness and the registration: say per finding whether the edit makes the registration true and enforceable, and whether it introduced a new defect. In particular: run `python -m unittest discover -s harness/tests` from the study directory (the pinned runtime is not available to you, so the two ledger tests skip; say so); read harness/score.py end to end for any path that still reaches "R1 holds" without complete observations, executed gates, matching pins and the reserved ledger set; read harness/run_attempt.py for the exclusive root and the marker; read harness/build_ledgers.py for the discrete-uniform draw, the not-applicable drop, the refusal-exhaustion failure and the reserved-seed guard; read harness/replay.py for the placement condition and the verdict check. Then re-read PREREGISTRATION.md and harness/MATRIX.json whole for anything round 1 missed, and check that every cell the round-1 disposition says was changed (expense-approval D7-00/01/02 reasons and D6-03; sanctions-screening D4-04, D5-06, D3-03 and the six random caught cells; vendor-onboarding D8-23 and D2-17) reads as the disposition says. Verify your own holdout cells still fit the schema the scorer loads and that their reasons survive the corrected generator (discrete-uniform: sanctions {0,1,2} at one third each; expense lattice of 151 values; vendor lattice of 500001).
+
+The study directory is studies/021-history-replay-catch/ of the current worktree; the spec and runtime checkouts are at /home/onword/repo/judgment-pack/judgment-pack-spec and /home/onword/repo/judgment-pack/judgment-pack-runtime, read via `git -C <path> show origin/main:<file>`.
+
+For each finding give: severity (BLOCKER / MAJOR / MINOR), the exact sentence, cell or line, what the source says, and the smallest edit. Then a verdict: `freezable as written`, `freezable after fixes` (list them), or `not freezable as written`.
+```
+
+### Round 2 — findings (verbatim)
+
+**Verdict: `not freezable as written`.** Round 1’s empty-observation failure is closed, but a scorer path still permits `REGISTERED: R1 holds` with incomplete observations and mismatching attempt provenance.
+
+I reviewed commit `8c06202a4c673c3d80a71443ddd1529880e11d52`, all requested harness files, the complete registration and matrix, Core §§7–8 at spec `origin/main` `587ebc5e…`, and runtime sources/ADRs at `origin/main` `0c8a4b63…`.
+
+The requested unittest command ran from the study directory: **19 passed, 2 skipped, 2 errored**. The two ledger tests skipped because the pinned runtime is unavailable. Both errors came from `tempfile.mkdtemp()` in the read-only sandbox; those two tests passed when I substituted an existing directory for that fixture, without changing files. The 21-file manifest matches, and the freeze-set checker reports no problems. No primary attempt, runtime evaluations, or reserved draws ran; the worktree remains unchanged.
+
+The round-1 dispositions resolve as follows:
+
+| R1 finding | Verification against registration and implementation | New defect introduced? |
+|---|---|---|
+| **1 — BLOCKER: observations/gates** | **Partial.** Empty/missing observations now fail; `allowsNoCaught` requires 30 records; G3 executes. Replay rejects missing verdicts and short reads; refusal exhaustion raises. However, record counts do not establish unique observations, valid replay records, or retained inputs. Finding 1 below remains blocking. | No new defect in the replay/exhaustion changes; scorer enforcement remains incomplete. |
+| **2 — BLOCKER: pins/holdout** | **Partial.** Current artifact hashes and manifest contents are checked; nonempty holdout participation and runtime digest are required for the registered label. The bare array loads correctly. Production identity is recorded but never checked against scoring identity. | The new marker is accepted by existence alone; finding 2. |
+| **3 — BLOCKER: attempt/seeds** | **Partial.** The runner exclusively creates the root and refuses reuse. Builder seed-range checks work. Neither runner provenance nor a pinned registered configuration is required to consume reserved seeds. | The new default runner can consume reserved seeds with null pins; finding 3. |
+| **4 — MAJOR: distribution** | **Partial.** The three numeric domains now use the correct discrete-uniform draws. Expense D6-03 is corrected. Two sanctions catch derivations remain wrong. | Yes: the shared replacement reason incorrectly assigns the one-value probability to two-value mutations. |
+| **5 — MAJOR: signature predictions** | **Partial.** The three intervals changed as promised, and §5 correctly states the existential literal condition. §6 still contains the rejected generalizations. | Vendor D8-23’s new per-ledger probability is wrong. |
+| **6 — MAJOR: denominator** | **Closed.** Both instance and class signature tables use every caught cell; threshold-free catches count as zero and are separately counted. | None found. |
+| **7 — MAJOR: intervals** | **Partial.** Random per-instance intervals and pooled reference intervals are distinguished correctly. Deterministic literal results still receive `ci95exact`. | The literal-stratum defect remains. |
+| **8 — MAJOR: absence overlay** | **Closed.** §3 now accurately describes the overlay, baseline duplicate, and excluded fact-absence coverage. | None found. |
+| **9 — MAJOR: placement** | **Closed.** `signature(profile, mismatched)` requires complete placement and preserves the existential test across literals. This agrees with ADR-0034’s comparable-value buckets. | None found. |
+| **10 — MAJOR: expense reasons** | **Closed.** All three literal D7 reasons now correctly say deny → fallback review. | None found. |
+
+The remaining findings are:
+
+1. **BLOCKER — counts still substitute for complete, valid observations.**
+
+   **Exact commitment:** §7: “every valid instance has a cell against every ledger,” with missing observations making the result pipeline-invalid.
+
+   **Implementation:** [score.py](<worktree>/studies/021-history-replay-catch/harness/score.py:180), especially lines 190–218, checks the union of ledger names, defect sets, and total counts. It never requires each `(defect, ledger)` pair exactly once. `observe()` likewise counts records, not distinct seeds. The scorer does not validate mutant replay `status`, `rows`, or `mismatched`; G1 even accepts an absent mismatch count. It checks no ledger inputs beyond G3’s four selected files, and trusts the supplied index rather than checking it against the planter’s complete expected instances.
+
+   **Reproduction:** replacing expense D7-00’s `random-50-130` record with a second `random-50-129` left `gate_checks(..., registered=True)` empty and made its complete-set `allowsNoCaught` adjudication hold.
+
+   A separate in-memory test of the real scoring/adjudication code returned:
+
+   ```text
+   REGISTERED: R1 holds (131 registered cells, 0 diverge, 0 gate failures)
+   ```
+
+   Its synthetic records had failed replay statuses, zero row counts, absent G1 mismatch counts, a duplicate pair, only four retained ledger inputs, and a mismatching marker. Runtime calls used by G3 were mocked; this demonstrates scorer acceptance, not a study result.
+
+   **Smallest sufficient edit:** validate the exact four-policy set, canonical defect index, unique defect–ledger Cartesian product, every corresponding input and required row count, and complete internally consistent replay/G1 records before aggregation or adjudication. Reject missing or malformed evidence as pipeline-invalid.
+
+2. **BLOCKER — matching current pins do not establish matching production pins.**
+
+   **Exact commitment:** §2 says pins are enforced and that the runner records runtime identity “when the ledgers are built, not only when they are scored.”
+
+   **Implementation:** `score.py:267` tests only `(root / "ATTEMPT.json").exists()`. It never parses the marker’s runtime digest, raw pins digest, label, seeds, sizes, or policies. [run_attempt.py:42](<worktree>/studies/021-history-replay-catch/harness/run_attempt.py:42) records these fields, but they have no enforcement effect.
+
+   The adversarial marker explicitly said `PILOT`, seeds `[1,30]`, and wrong runtime/pins digests; the scorer still labelled the supplied records `REGISTERED`. Current artifact-hash checks were retained in that probe.
+
+   **Smallest edit:** require and validate the marker’s schema and configuration; compare its runtime and raw pins digests with the current pinned identities; bind the generated inputs and replay records to that attempt. A production-identity mismatch must refuse registered adjudication.
+
+3. **BLOCKER — reserved seeds remain accessible outside a registered attempt.**
+
+   **Exact sentence:** §3 says seeds 101–130 are those “which the builder refuses outside the runner.”
+
+   **Implementation:** [build_ledgers.py:198](<worktree>/studies/021-history-replay-catch/harness/build_ledgers.py:198) requires only `--reserved` plus the correct range. An arbitrary output root needs no marker. An in-memory probe reached construction with exactly that configuration and no runner provenance. Existing output files can also be overwritten.
+
+   Separately, the default runner selects reserved seeds before validating any pins. With the currently null pins, it can consume the holdout seeds and only subsequently obtain a PILOT label.
+
+   **Smallest edit:** make reserved construction require a validated active registered-attempt context; check complete matching pins before any reserved draw; reject existing generated outputs. Keep exclusive root creation. The current flags alone do not implement the stated reservation.
+
+4. **MAJOR — deterministic literal results still carry an exact-binomial coverage claim.**
+
+   **Exact commitment:** R2 promises exact intervals “per stratum,” justified because an instance has thirty independently seeded ledgers.
+
+   **Implementation:** `score.py:123–130` emits `ci95exact` for `literal` as well as `random`. A literal threshold-free catch produces `ci95exact: [0.0, 0.975]` for its signature. That single deterministic ledger is not the repeated random experiment used by the justification.
+
+   **Smallest edit:** restrict exact intervals to random, per-instance results at a fixed n. Publish literal counts/rates descriptively, and explicitly qualify R2.
+
+5. **MAJOR — §6 still states generalizations that the corrected cells reject.**
+
+   **Exact locations in [PREREGISTRATION.md](<worktree>/studies/021-history-replay-catch/PREREGISTRATION.md:235):**
+
+   - S5, lines 243–245: a site whose changed cases include the literal “registers **signature = 0**.”
+   - S6, lines 250–255: two-sided sites have random signature rate “[0, 0.1]”.
+   - S7, lines 256–262: landing at the new literal “breaks the signature.”
+
+   **Source comparison:** possible changed cases are not necessarily observed cases; the expense D7/D4 matrix now permits `[0,0.35]`; and vendor D2-17 can retain its signature despite an observed at-row at 187500 because 250000 also qualifies. §5 now explains that last point correctly, but S7 does not contain the qualification claimed by the disposition.
+
+   **Smallest edit:** distinguish support-level statements from finite-ledger predictions, give the policy-specific intervals, and say an at-row defeats the signature only when no other literal qualifies.
+
+6. **MAJOR — several numerical reasons remain incorrect.**
+
+   These are exact cells in [MATRIX.json](<worktree>/studies/021-history-replay-catch/harness/MATRIX.json:1496):
+
+   | Cell / location | What it says | Source-derived correction and smallest edit |
+   |---|---|---|
+   | Sanctions D4-04 and D5-06, `random-50/caught`, IDs at lines 1496 and 1526 | Catch probability `1-(5/6)^50` | D4 changes `{0,2}`; D5 changes `{1,2}`. With present evidence, each union has per-row probability **1/3**, giving **`1-(2/3)^50`**. Replace those two reasons; `[0.9,1]` can remain. |
+   | Vendor D8-23, `random-50/lineMovedWhenCaught`, ID at line 653 | At-row probability means “about one ledger in three hundred” | Per ledger it is **`1-(500000/500001)^50 ≈ 0.000100`**, about **one in 10,000**. Approximately 0.003 is the probability across thirty ledgers. Correct the unit; `[0.95,1]` can remain. |
+   | Expense D2-07, `random-50/lineMovedWhenCaught`, ID at line 971 | An at-56 draw occurs in “about a quarter of ledgers” and changes there | A changed at-row also requires permitted category and receipt: **1/1208 per row**, giving **0.04056 per ledger**. Conditional signature probability is approximately **0.92590**. State those restrictions; `[0.5,1]` can remain. |
+
+7. **MINOR — a few descriptions still name the wrong actor, boundary, or outcome.**
+
+   - Registration line 32 says **“the scorer refuses an existing root.”** The runner does; the scorer refuses an existing adjudication. Replace “scorer” with “runner.”
+   - Vendor D4-14’s literal reason says its reversed guard fires **“at and above 250000.”** D4 changes `<` to `>`. Replace with “strictly above.”
+   - Vendor D4-19’s reasons include the at-row among changes. Reversing `>=` to `<=` leaves equality true in both packs. State that the at-row is unchanged.
+   - S5 calls sanctions literal 1 **“reimbursed.”** Its outcome is `match`; correct the word.
+
+I also checked every specifically named matrix edit:
+
+| Requested cells | Result |
+|---|---|
+| Expense D7-00/01/02 literal reasons | All correctly say deny → fallback review. |
+| Expense D6-03 | Correct literal mechanism; random per-row probability **76/1208 = 0.062914**, catch probability **0.961187**. |
+| Sanctions D4-04 and D5-06 signatures | Both now `[0,0.1]`; conditional signature probabilities are approximately **0.00021977** and **0.00010988**, consistent with their approximate reasons. |
+| Sanctions D3-03 catch | Correctly includes evidence: **1/6 per row**, `1-(5/6)^50`. |
+| Six sanctions random caught cells | All received the promised text. Four are correct; D4-04 and D5-06 need finding 6’s correction. |
+| Vendor D8-23 | Interval changed as promised; per-ledger arithmetic needs correction. |
+| Vendor D2-17 | Retained-250000 explanation is sound; exact signature expectation survives the at-row. |
+| Additional post-pilot expense edits | D7-00/01/02 and D4-09 now use `[0,0.35]`. Their conditional signature probabilities are approximately **0.07520** and **0.07859**, supporting “about 0.08.” |
+
+Finally, all eight holdout cells remain valid. The file is **byte-for-byte identical** to the review’s JSON array, all IDs and combinations are unique, every defect exists, and all fields fit `load_matrix()` and adjudication.
+
+| Holdout | Reason audit |
+|---|---|
+| h01 | Deny → review at base amount 42.50; signature present. |
+| h02 | Amount guard removed; caught with no threshold. |
+| h03 | Changed literal at-row at 250000 prevents the signature. |
+| h04 | Retained 250000 boundary establishes the signature. |
+| h05 | Embargo exception changes the disposition; no ordered threshold exists. |
+| h06 | Changed zero and two cases occupy both sides; no signature. |
+| h07 | Unaffected by numeric-lattice correction: per-row **1/30**, n=20 catch probability **0.492385**. |
+| h08 | Vendor lattice gives per-row **`(1/108) × (250000/500001)`**, n=20 catch probability **0.088631**. |
+
+The generator now uses inclusive integer draws over **0–2**, **0–150**, and **0–500000**, so the holdout derivations survive the corrected sanctions, expense, and vendor distributions without edits.
+
+### Round 2 — maintainer disposition
+
+Every finding is applied.
+
+| # | Severity | Disposition |
+|---|---|---|
+| 1 | BLOCKER | **Applied.** The scorer loads the records only through `evidence()`: the four policies exactly; each defect index equal to the planter's canonical instance set (recomputed from the vendored pack) with every instance valid; every registered ledger present with its row count and no unregistered one; the gate record covering every ledger exactly once, `passed` with zero mismatches, bound to the ledger's bytes and to the policy pack's; the cells exactly the Cartesian product of valid instances and ledgers with no pair twice, each bound by digest to its ledger and its defect pack, each with a verdict, a row count equal to the ledger's, a mismatch count within it and `caught` equal to `mismatched > 0`. Anything short is named and the decision is pipeline-invalid. `observe()` counts distinct ledgers. |
+| 2 | BLOCKER | **Applied.** The marker is parsed and matched — label, runtime digest against the scorer's runtime and the pin, pins digest against the current `harness/PINS.json`, seeds, sizes, policies, a 32-hex attempt id — and a registered adjudication refuses on any mismatch rather than falling back to PILOT; a pilot adjudication requires a `PILOT` marker. Every record carries the attempt id (`attemptId` in the index, the gate record and the cells) and `evidence()` holds it. |
+| 3 | BLOCKER | **Applied.** `--reserved` is allowed only when the output root holds a valid `REGISTERED` marker under complete, matching pins (`attempt.registered_context_problems`); the runner holds the pins before creating a registered root, so no reserved seed is drawn under a null pin, and a pilot marker says `PILOT` with seeds 1–30. Ledger, defect and record files are opened for exclusive creation and never overwritten. |
+| 4 | MAJOR | **Applied.** The literal stratum reports counts and rates with no interval; exact intervals are emitted for random per-instance results only; R2 says so. |
+| 5 | MAJOR | **Applied.** S5, S6 and S7 now distinguish the support of the changed cases from the finite-ledger prediction, give the policy-specific intervals, and say an at-row defeats the signature only when no other literal of the pointer qualifies (`vendor-onboarding` D2-17 named). |
+| 6 | MAJOR | **Applied.** `sanctions-screening` D4-04 and D5-06 catch reasons say one third per row and 1 − (2/3)^50; `vendor-onboarding` D8-23 says about one ledger in ten thousand and about 0.003 over thirty; `expense-approval` D2-07 states the permitted-and-receipted restriction (1/1208 per row, about 0.04 of ledgers) and the resulting 0.93. |
+| 7 | MINOR | **Applied.** "Runner" refuses an existing root; D4-14 fires strictly above 250000; D4-19's reasons say the at-row is unchanged; S5 says the literal 1 is matched. |

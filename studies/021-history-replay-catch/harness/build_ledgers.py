@@ -29,6 +29,7 @@ import re
 import tempfile
 from pathlib import Path
 
+import attempt
 import jp
 
 STUDY = Path(__file__).resolve().parent.parent
@@ -186,6 +187,12 @@ def random_ledger(name, pack, base, root, n, seed):
     return {"matrixVersion": "3", "cases": rows}, dropped
 
 
+def write_new(path, text):
+    """An output is written once: an existing file is refused, never overwritten."""
+    with open(path, "x") as f:
+        f.write(text)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("policy")
@@ -193,13 +200,17 @@ def main():
     ap.add_argument("--seeds", type=int, default=30)
     ap.add_argument("--seed-base", type=int, default=1, help="the first seed; pilots drew 1..30, the registered attempt draws 101..130")
     ap.add_argument("--out", required=True)
-    ap.add_argument("--reserved", action="store_true", help="draw the seeds reserved for the registered attempt (101-130); refused otherwise, and required for them")
+    ap.add_argument("--reserved", action="store_true", help="draw the seeds reserved for the registered attempt (101-130): requires --out to be a valid, active REGISTERED attempt root (harness/attempt.py); refused otherwise, and required for them")
     args = ap.parse_args()
     seeds = list(range(args.seed_base, args.seed_base + args.seeds))
     reserved = set(range(RESERVED_SEEDS[0], RESERVED_SEEDS[1] + 1))
-    if args.reserved and set(seeds) != reserved:
-        raise SystemExit("--reserved draws exactly seeds %d-%d" % RESERVED_SEEDS)
-    if not args.reserved and reserved.intersection(seeds):
+    if args.reserved:
+        if set(seeds) != reserved:
+            raise SystemExit("--reserved draws exactly seeds %d-%d" % RESERVED_SEEDS)
+        problems, _ = attempt.registered_context_problems(args.out)
+        if problems:
+            raise SystemExit("reserved seeds need a valid registered attempt at %s:\n  " % args.out + "\n  ".join(problems))
+    elif reserved.intersection(seeds):
         raise SystemExit("seeds %d-%d are reserved for the registered attempt (harness/run_attempt.py)" % RESERVED_SEEDS)
     pack, base = load_policy(args.policy)
     out = Path(args.out) / args.policy
@@ -207,12 +218,12 @@ def main():
     with tempfile.TemporaryDirectory() as tmp:
         root = jp.project(tmp, args.policy, pack)
         ledger, dropped = literal_ledger(args.policy, pack, base, root)
-        (out / "literal.matrix.json").write_text(json.dumps(ledger, indent=1))
+        write_new(out / "literal.matrix.json", json.dumps(ledger, indent=1))
         print("literal: %d rows (%d candidates refused)" % (len(ledger["cases"]), dropped))
         for n in args.n:
             for seed in seeds:
                 ledger, dropped = random_ledger(args.policy, pack, base, root, n, seed)
-                (out / ("random-%d-%d.matrix.json" % (n, seed))).write_text(json.dumps(ledger, indent=1))
+                write_new(out / ("random-%d-%d.matrix.json" % (n, seed)), json.dumps(ledger, indent=1))
         print("random: n in %s x %d seeds" % (args.n, args.seeds))
 
 

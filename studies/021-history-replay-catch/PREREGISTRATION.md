@@ -29,18 +29,25 @@ kept byte-for-byte). Where prose here and those artifacts could diverge, the art
   profile (runtime ADR-0034), pinned by the digest of its published linux/amd64 binary in
   `harness/PINS.json`; the scorer refuses any other binary.
 - **Primary attempt root**: `results/primary-attempt-001` — literal, must not exist at the
-  freeze; the scorer refuses an existing root, and the first invocation of the governing
+  freeze; the runner refuses an existing root, and the first invocation of the governing
   command is the primary attempt, crash and all.
 - **Governing invocation** (fully offline; the runtime and CPython 3.12 only), one command:
 
       python harness/run_attempt.py --attempt-root results/primary-attempt-001
 
-  The runner creates the root exclusively (an existing root, whatever it holds, is refused),
-  writes `ATTEMPT.json` first — the runtime's version and digest, the raw digest of
+  The runner first holds the pins — every freeze pin non-null and matching its file, the
+  runtime's digest equal to the pin, the manifest equal to the tree — and refuses to start
+  otherwise, so no reserved seed is drawn under a null or mismatching pin; then creates the
+  root exclusively (an existing root, whatever it holds, is refused); writes `ATTEMPT.json`
+  first — an attempt id, the label, the runtime's version and digest, the raw digest of
   `harness/PINS.json`, the reserved seeds and sizes, the policies — and only then builds every
-  ledger with the reserved seeds (`--reserved`), plants every defect, replays every cell with
-  the unplanted gate, and scores with the holdout. A crash after the marker leaves the marker:
-  the root is spent, and a second attempt needs a new root named in `DEVIATIONS.md`.
+  ledger with the reserved seeds (`--reserved`, which the builder allows only under a valid
+  registered marker in the attempt root), plants every defect, replays every cell with the
+  unplanted gate, and scores with the holdout. Every record the attempt writes — the defect
+  index, the gate record, the cells — carries the attempt id, and every cell carries the digest
+  of the ledger and of the defect pack it replayed; an output is written once and never
+  overwritten. A crash after the marker leaves the marker: the root is spent, and a second
+  attempt needs a new root named in `DEVIATIONS.md`.
 
 ## 1. Question
 
@@ -69,14 +76,16 @@ caught what the ledger cannot see, or a profile that told a defect from a moved 
 registration says it cannot, would each be a defect in the registration's account of the
 mechanism, and must be able to falsify it.
 
-**R2 (descriptive):** the catch-rate curves — per policy, per defect **instance**, per stratum,
-per n — with exact 95% Clopper–Pearson intervals, exact because an instance's thirty seeded
-ledgers at one n are independent draws; per defect class the same counts pooled over the
-class's instances, which share ledgers, with a binomial *reference* interval that carries no
-nominal coverage claim; and the signature table — per instance and per class, among the
-**caught** cells (a caught cell whose pack draws no threshold counts as carrying none, and is
-counted separately as threshold-free), the fraction carrying the line-moved signature, with
-the same two kinds of interval. Published whichever way they land, and read only with the
+**R2 (descriptive):** the catch-rate curves — per policy, per defect **instance**, per n on the
+random stratum — with exact 95% Clopper–Pearson intervals, exact because an instance's thirty
+seeded ledgers at one n are independent draws; the literal stratum's one deterministic ledger
+per policy reported as a count and a rate with **no interval**, since it is not a sample of
+anything; per defect class the random counts pooled over the class's instances, which share
+ledgers, with a binomial *reference* interval that carries no nominal coverage claim; and the
+signature table — per instance and per class, among the **caught** cells (a caught cell whose
+pack draws no threshold counts as carrying none, and is counted separately as threshold-free),
+the fraction carrying the line-moved signature, with the same kinds of interval and the same
+exclusion of the literal stratum. Published whichever way they land, and read only with the
 registered structural account beside them.
 
 This is **not an interoperability study** and not a model study: no external component and no
@@ -98,11 +107,13 @@ narrow (§9).
 - **Pins are enforced, not declared**: before reading a cell the scorer compares the runtime's
   digest with the pin, each of the preregistration, the matrix, the holdout matrix and the
   manifest with its pinned digest where one is filled, and the manifest with the tree; a
-  mismatch refuses the run. An attempt is labelled REGISTERED only when every pin is non-null
-  and matches, the holdout is included and non-empty, `ATTEMPT.json` is present, and every
-  policy holds exactly the registered ledger set; any null, and any pilot flag, makes it a
-  PILOT. The runner records the runtime's identity when the ledgers are built, not only when
-  they are scored.
+  mismatch refuses the run. A registered adjudication further requires every pin non-null,
+  the holdout included and non-empty, and the attempt marker parsed and matched — label
+  `REGISTERED`, runtime digest equal to the scorer's runtime and to the pin, pins digest equal
+  to the current `harness/PINS.json`, seeds 101–130, the registered sizes and policies — and
+  refuses on any mismatch rather than falling back to a pilot label; a pilot adjudication
+  requires a marker that says `PILOT`. The runner records the runtime's identity when the
+  ledgers are built, and the scorer holds its own runtime to it.
 - **Determinism**: every random ledger is drawn by `random.Random("021:<policy>:<n>:<seed>")`;
   two builds of the same ledger are byte-identical — a harness test asserts it, and the scorer
   rebuilds one random ledger per policy under the pinned runtime and compares bytes (G3).
@@ -139,7 +150,8 @@ Two ledger strata, registered as different kinds of history:
   decided under the pack. A draw the runtime refuses, or one the pack does not apply to, is not
   a decision: it is dropped and redrawn, and a generator that cannot fill a ledger fails the
   construction rather than returning a short one. n ∈ {5, 10, 20, 50}, thirty seeds each; the
-  registered attempt draws seeds 101–130, which the builder refuses outside the runner. It
+  registered attempt draws seeds 101–130, which the builder refuses except under a valid
+  registered attempt marker in the output root, itself written only after the pins held. It
   stands for a history that never aimed at the lines. Two bounds of this generator, stated as
   its own: it pools every literal a pointer is compared against, whether in the applicability
   or in a rule, so a pack whose applicability shares a pointer with a rule would draw that
@@ -240,26 +252,38 @@ structures, registered once and applied per cell:
   **signature = 1** at n = 50 for the named D4, D5, D6, D7, D8 and D9 instances of
   `vendor-onboarding`, `expense-approval` and `sanctions-screening` whose site is one-sided by
   the pack's text; these are the registered masquerades. Two qualifications the text also
-  gives: a changed case that sits exactly AT the literal breaks the signature, so a site whose
-  changed cases include the literal itself registers **signature = 0** (`sanctions-screening`'s
-  reimbursed literal 1, and its D2 whose moved literal is the floor of the domain), and one
+  gives, each a statement about the **support** of the changed cases that becomes a
+  finite-ledger prediction in the matrix: a changed case that sits exactly AT the literal
+  breaks the signature when no other literal of the pointer qualifies, so a site whose changed
+  cases include the literal itself registers a signature near 0 with the probability that a
+  ledger happens to hold only its other changed cases (`sanctions-screening`'s matched literal
+  1 in D5-06, and its D2 whose moved literal is the floor of the domain: [0, 0.1]), and one
   whose changed cases reach the literal with a computable probability registers an interval
-  (`expense-approval`'s fallback, reached at 75); and an edit that removes the pack's only
+  from it (`expense-approval`'s fallback, reached at 75: [0.8, 1]; `vendor-onboarding`'s
+  exception moved at 250000 in D8-23: [0.95, 1]); and an edit that removes the pack's only
   ordered comparison (`expense-approval` D6 dropping the amount guard) leaves no threshold to
   report, so it is caught off-threshold and carries none.
-- **S6 — two-sided sites.** A defect whose disagreeing cases lie on both sides of a threshold
-  (D4 reversing the sole comparison; a D7 edit to an applicability-adjacent member that fires on
-  both sides) carries **no** signature on the random stratum (rate in [0, 0.1] at n = 50) and
-  **does** on the literal stratum wherever the base row's threshold value puts every varied
-  case on one side. The literal stratum's one-sidedness is the base row's, not the defect's —
-  registered as the stratum's weakness, not the profile's strength.
+- **S6 — two-sided sites.** A defect whose changed cases lie on both sides of a threshold in
+  their support (D4 reversing the sole comparison; a D7 edit to a category member that changes
+  cases at every amount) carries the signature on a random ledger only when the ledger happens
+  to hold changed cases on one side alone — which is a matter of how many changed cases a
+  ledger holds: with about nineteen (`expense-approval` D5-13) or with every row on one side
+  changing (`vendor-onboarding` D4-19, `sanctions-screening` D4-04) the probability is under
+  0.001 and the cell registers [0, 0.1]; with about six (`expense-approval`'s D7 category
+  edits and D4-09, where only a receipted case changes) it is about 0.08 per caught ledger and
+  the cell registers [0, 0.35]. On the literal stratum the same defect **does** carry the
+  signature wherever the base row's threshold value puts every varied case on one side; that
+  one-sidedness is the base row's, not the defect's — registered as the stratum's weakness, not
+  the profile's strength.
 - **S7 — the moved line.** A D1 or D2 instance at an unmasked site carries the signature in
-  every caught replicate (rate 1): the disagreeing cases are exactly those between the old line
-  and the new one, on one side of the new one — except where a random draw can land exactly on
-  the new literal and change there, which sits AT it and breaks the signature: registered as an
-  interval from that probability (`expense-approval` D2, whose new literal 56 is drawn with
-  probability 1/151 per row, in [0.5, 1]) and as 0 where every changed case is at the new
-  literal (`sanctions-screening` D2, moved to the floor 0).
+  every caught replicate (rate 1): the changed cases are exactly those between the old line and
+  the new one, on one side of the new one — except where a random draw can land exactly on the
+  new literal and change there, which sits AT it and breaks the signature **when no other
+  literal of the pointer qualifies**: `expense-approval` D2's new literal 56 is the pack's only
+  one, so the cell registers an interval from that probability ([0.5, 1]); `vendor-onboarding`
+  D2-17's retained guard at 250000 still has every changed case below it, so the signature
+  survives an at-row and the cell registers 1; and where every changed case is at the new
+  literal (`sanctions-screening` D2, moved to the floor 0) the cell registers 0.
 
 Cells outside these structures are registered from the same reading of the pack's text, each
 with its reason in the matrix. `harness/MATRIX-HOLDOUT.json` holds the reviewer's cells, authored

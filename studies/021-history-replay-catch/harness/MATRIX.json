@@ -315,7 +315,7 @@
     "max": 1
    },
    "structure": "S5",
-   "reason": "the reversed guard fires only at and above 250000, where the exception escalates first: approve-standard never decides, and every approving row falls to request-info",
+   "reason": "the reversed guard fires only strictly above 250000, where the exception escalates first: approve-standard never decides, and every approving row falls to request-info",
    "role": "endpoint"
   },
   {
@@ -400,7 +400,7 @@
     "max": 1
    },
    "structure": "S6",
-   "reason": "cases at or below 250000 now escalate and cases above it fall to request-info: both sides",
+   "reason": "cases below 250000 now escalate and cases above it fall to request-info, while the case at 250000 satisfies both comparisons and is escalated in both packs: both sides change, the at-row does not",
    "role": "endpoint"
   },
   {
@@ -661,7 +661,7 @@
     "allowsNoCaught": true
    },
    "structure": "S5",
-   "reason": "only cases at or above 250000 change; a draw exactly at 250000 changes too and sits AT the literal, with probability 1/500001 per row -- about one ledger in three hundred",
+   "reason": "only cases at or above 250000 change; a draw exactly at 250000 changes too and sits AT the literal, with probability 1/500001 per row -- about one ledger of 50 in ten thousand, so about 0.003 over thirty ledgers",
    "role": "endpoint",
    "n": 50
   },
@@ -741,7 +741,7 @@
     "allowsNoCaught": true
    },
    "structure": "S6",
-   "reason": "cases change on both sides of the line: at or below it they escalate, above it they fall to request-info",
+   "reason": "cases change on both sides of the line: below it every case that did not already escalate now escalates, above it every case falls to request-info; the case at 250000 is unchanged",
    "role": "endpoint",
    "n": 50
   },
@@ -979,7 +979,7 @@
     "allowsNoCaught": true
    },
    "structure": "S7 with an at-row",
-   "reason": "the changed cases lie in [56, 75); a draw exactly at 56 (probability 1/151 per row, about a quarter of ledgers of 50) changes too and sits AT the new literal, breaking the signature",
+   "reason": "the changed cases lie in [56, 75); a draw exactly at 56 (1/151 per row) that is also permitted (1/4) and receipted (1/2) -- 1/1208 per row, about 0.04 of ledgers of 50 -- changes and sits AT the new literal, and no other literal remains to satisfy the one-side condition, so about 0.93 of caught ledgers carry the signature; registered at least 0.5",
    "role": "endpoint",
    "n": 50
   },
@@ -1503,7 +1503,7 @@
     "max": 1
    },
    "structure": "small domain",
-   "reason": "every changed value is drawn with probability one third per row and the required evidence is present half the time: one sixth per row, and a ledger of 50 holds a changed case with probability 1 - (5/6)^50",
+   "reason": "two of the three lattice values change (0 and 2), each drawn with probability one third, and the required evidence is present half the time: one third per row in all, so a ledger of 50 holds a changed case with probability 1 - (2/3)^50",
    "role": "endpoint",
    "n": 50
   },
@@ -1533,7 +1533,7 @@
     "max": 1
    },
    "structure": "small domain",
-   "reason": "every changed value is drawn with probability one third per row and the required evidence is present half the time: one sixth per row, and a ledger of 50 holds a changed case with probability 1 - (5/6)^50",
+   "reason": "two of the three lattice values change (1 and 2), each drawn with probability one third, and the required evidence is present half the time: one third per row in all, so a ledger of 50 holds a changed case with probability 1 - (2/3)^50",
    "role": "endpoint",
    "n": 50
   },

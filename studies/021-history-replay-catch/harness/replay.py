@@ -18,11 +18,16 @@ A replay with no threshold pointer disagreeing but rows mismatched is
 Run: python harness/replay.py POLICY --ledgers DIR --defects DIR --out FILE
 """
 import argparse
+import hashlib
 import json
 import tempfile
 from pathlib import Path
 
 import jp
+
+
+def digest_of(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
 def signature(profile, mismatched=None):
@@ -75,6 +80,7 @@ def main():
     ap.add_argument("--defects", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--policy-pack", help="the UNPLANTED pack: replay it against every ledger and write <out>.gate.json (control gate G1)")
+    ap.add_argument("--attempt-id", default=None, help="the attempt these records belong to, stamped into both files")
     args = ap.parse_args()
     ledgers = sorted(Path(args.ledgers).glob("*.matrix.json"))
     if args.policy_pack:
@@ -82,21 +88,25 @@ def main():
         gate = []
         for l in ledgers:
             r = replay(args.policy, original, json.loads(l.read_text()))
-            gate.append({"ledger": l.stem.replace(".matrix", ""), "rows": r["rows"], "mismatched": r["mismatched"], "status": r["status"]})
-        Path(args.out.replace(".json", ".gate.json")).write_text(json.dumps(gate, indent=1))
+            gate.append({"ledger": l.stem.replace(".matrix", ""), "ledgerSha256": digest_of(l), "rows": r["rows"], "mismatched": r["mismatched"], "status": r["status"]})
+        with open(args.out.replace(".json", ".gate.json"), "x") as f:
+            f.write(json.dumps({"attemptId": args.attempt_id, "policyPackSha256": digest_of(args.policy_pack), "ledgers": gate}, indent=1))
         print("gate: %d ledgers, %d with a mismatch" % (len(gate), sum(1 for g in gate if g["mismatched"])))
     index = json.loads((Path(args.defects) / "INDEX.json").read_text())
     cells = []
-    for d in index:
+    for d in index["instances"]:
         if not d["valid"]:
             continue
-        pack = json.loads((Path(args.defects) / (d["id"] + ".pack.json")).read_text())
+        defect_path = Path(args.defects) / (d["id"] + ".pack.json")
+        pack = json.loads(defect_path.read_text())
         for l in ledgers:
             ledger = json.loads(l.read_text())
             r = replay(args.policy, pack, ledger)
-            r.update({"defect": d["id"], "class": d["class"], "site": d["site"], "ledger": l.stem.replace(".matrix", "")})
+            r.update({"defect": d["id"], "class": d["class"], "site": d["site"], "ledger": l.stem.replace(".matrix", ""),
+                      "ledgerSha256": digest_of(l), "defectSha256": digest_of(defect_path)})
             cells.append(r)
-    Path(args.out).write_text(json.dumps(cells, indent=1))
+    with open(args.out, "x") as f:
+        f.write(json.dumps({"attemptId": args.attempt_id, "cells": cells}, indent=1))
     from collections import defaultdict
     by = defaultdict(list)
     for c in cells:

@@ -168,7 +168,43 @@ class Adjudication(unittest.TestCase):
         self.assertEqual((row["caught"], row["lineMoved"], row["noThreshold"], row["rate"]), (1, 0, 1, 0.0))
 
 
+class AttemptMarker(unittest.TestCase):
+    def marker(self, **over):
+        import attempt
+        m = {"attemptId": "a" * 32, "label": "REGISTERED", "jpackVersion": "jpack 0.21.0", "jpackDigest": "sha256:x",
+             "pinsRawSha256": attempt.pins_raw_sha256(), "seeds": [101, 130], "sizes": [5, 10, 20, 50],
+             "policies": list(attempt.POLICIES), "startedAt": "t"}
+        m.update(over)
+        return m
+
+    def test_a_matching_registered_marker_has_no_problem(self):
+        import attempt
+        self.assertEqual(attempt.marker_problems(self.marker(), "sha256:x", "REGISTERED"), [])
+
+    def test_a_pilot_marker_is_not_a_registered_one(self):
+        import attempt
+        self.assertTrue(attempt.marker_problems(self.marker(label="PILOT"), "sha256:x", "REGISTERED"))
+        self.assertTrue(attempt.marker_problems(self.marker(seeds=[1, 30]), "sha256:x", "REGISTERED"))
+        self.assertTrue(attempt.marker_problems(self.marker(jpackDigest="sha256:y"), "sha256:x", "REGISTERED"))
+        self.assertTrue(attempt.marker_problems(self.marker(pinsRawSha256="0" * 64), "sha256:x", "REGISTERED"))
+        self.assertTrue(attempt.marker_problems(None, "sha256:x", "REGISTERED"))
+
+    def test_the_scorer_refuses_a_root_without_a_marker(self):
+        import subprocess
+        root = tempfile.mkdtemp()
+        proc = subprocess.run([sys.executable, str(HERE.parent / "score.py"), "--attempt-root", root, "--pilot"], capture_output=True, text=True)
+        self.assertNotEqual(proc.returncode, 0)
+        self.assertIn("refusing", proc.stderr)
+
+
 class ReservedSeeds(unittest.TestCase):
+    def test_reserved_draws_need_a_valid_registered_attempt(self):
+        import subprocess
+        proc = subprocess.run([sys.executable, str(HERE.parent / "build_ledgers.py"), "sanctions-screening", "--n", "5", "--seeds", "30",
+                               "--seed-base", "101", "--reserved", "--out", tempfile.mkdtemp()], capture_output=True, text=True)
+        self.assertNotEqual(proc.returncode, 0)
+        self.assertIn("valid registered attempt", proc.stderr)
+
     def test_the_builder_refuses_reserved_seeds_without_the_flag(self):
         import subprocess
         proc = subprocess.run([sys.executable, str(HERE.parent / "build_ledgers.py"), "sanctions-screening", "--n", "5", "--seeds", "30",
