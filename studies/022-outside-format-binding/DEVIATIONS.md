@@ -1,3 +1,3 @@
 # Deviations — Study 022
 
-None recorded. This file is written after the freeze, when the study finds something its registration did not anticipate; it is outside the freeze set by design.
+None. The registration, the matrices and the harness ran as frozen; no holdout construction raised; the attempt's marker, observations and adjudication are in `results/primary-attempt-001`. This file is outside the freeze set by design.

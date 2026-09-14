@@ -1,0 +1,1141 @@
+{
+ "label": "REGISTERED",
+ "attemptId": "110ef6ff3c41840d70d1a649621d4403",
+ "gatewaySha256": "aaa16fecb3f7f4134bfe926c751cd77fba279e81d881759f4b265cb2316e238c",
+ "holdoutIncluded": true,
+ "decision": "R1 holds",
+ "validityFailures": [],
+ "gateFailures": [],
+ "cells": [
+  {
+   "id": "pos-baseline",
+   "role": "control-gate",
+   "verdict": "holds",
+   "expected": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": true,
+     "failures": {}
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "pass"
+   },
+   "observed": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": true,
+     "failures": {}
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "pass"
+   }
+  },
+  {
+   "id": "neg-dsse-signature-flipped",
+   "role": "control-gate",
+   "verdict": "holds",
+   "expected": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:signature"
+     }
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   },
+   "observed": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:signature"
+     }
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   }
+  },
+  {
+   "id": "a01-artifact-edited",
+   "role": "endpoint",
+   "verdict": "holds",
+   "expected": {
+    "gateway": {
+     "ok": false,
+     "statuses": [
+      "artifact-mismatch",
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": {
+       "artifact": "mismatch"
+      }
+     }
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   },
+   "observed": {
+    "gateway": {
+     "ok": false,
+     "statuses": [
+      "artifact-mismatch",
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": {
+       "artifact": "mismatch"
+      }
+     }
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   }
+  },
+  {
+   "id": "a02-cited-receipt-member-edited",
+   "role": "endpoint",
+   "verdict": "holds",
+   "expected": {
+    "gateway": {
+     "ok": false,
+     "statuses": [
+      "ok",
+      "sequence-broken",
+      "signature-mismatch"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": {
+       "cites/s2/0": "mismatch"
+      }
+     }
+    },
+    "binding": {
+     "pass": false,
+     "failures": {
+      "s2/0.dsse.json": "fail:predicate-differs-from-store"
+     }
+    },
+    "combined": "fail"
+   },
+   "observed": {
+    "gateway": {
+     "ok": false,
+     "statuses": [
+      "ok",
+      "sequence-broken",
+      "signature-mismatch"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": {
+       "cites/s2/0": "mismatch"
+      }
+     }
+    },
+    "binding": {
+     "pass": false,
+     "failures": {
+      "s2/0.dsse.json": "fail:predicate-differs-from-store"
+     }
+    },
+    "combined": "fail"
+   }
+  },
+  {
+   "id": "a03-cited-receipt-removed",
+   "role": "endpoint",
+   "verdict": "holds",
+   "expected": {
+    "gateway": {
+     "ok": false,
+     "statuses": [
+      "citation-unresolved",
+      "ok",
+      "sequence-broken",
+      "tail-rollback"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": {
+       "cites/s2/0": "missing"
+      }
+     }
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   },
+   "observed": {
+    "gateway": {
+     "ok": false,
+     "statuses": [
+      "citation-unresolved",
+      "ok",
+      "sequence-broken",
+      "tail-rollback"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": {
+       "cites/s2/0": "missing"
+      }
+     }
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   }
+  },
+  {
+   "id": "a04-decision-record-rewritten",
+   "role": "endpoint",
+   "verdict": "holds",
+   "expected": {
+    "gateway": {
+     "ok": false,
+     "statuses": [
+      "decision-record-mismatch",
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": {
+       "decision-record": "missing"
+      }
+     }
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   },
+   "observed": {
+    "gateway": {
+     "ok": false,
+     "statuses": [
+      "decision-record-mismatch",
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": {
+       "decision-record": "missing"
+      }
+     }
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   }
+  },
+  {
+   "id": "a05-registry-seal-removed",
+   "role": "endpoint",
+   "verdict": "holds",
+   "expected": {
+    "gateway": {
+     "ok": false,
+     "statuses": [
+      "ok",
+      "unregistered-session"
+     ]
+    },
+    "intoto": {
+     "pass": true,
+     "failures": {}
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   },
+   "observed": {
+    "gateway": {
+     "ok": false,
+     "statuses": [
+      "ok",
+      "unregistered-session"
+     ]
+    },
+    "intoto": {
+     "pass": true,
+     "failures": {}
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   }
+  },
+  {
+   "id": "a06-receipt-appended-after-seal",
+   "role": "endpoint",
+   "verdict": "holds",
+   "expected": {
+    "gateway": {
+     "ok": false,
+     "statuses": [
+      "count-exceeds-seal",
+      "misfiled",
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/2.dsse.json": "fail:missing-attestation"
+     }
+    },
+    "binding": {
+     "pass": false,
+     "failures": {
+      "s2/2.dsse.json": "fail:missing-attestation"
+     }
+    },
+    "combined": "fail"
+   },
+   "observed": {
+    "gateway": {
+     "ok": false,
+     "statuses": [
+      "count-exceeds-seal",
+      "misfiled",
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/2.dsse.json": "fail:missing-attestation"
+     }
+    },
+    "binding": {
+     "pass": false,
+     "failures": {
+      "s2/2.dsse.json": "fail:missing-attestation"
+     }
+    },
+    "combined": "fail"
+   }
+  },
+  {
+   "id": "a07-action-member-edited",
+   "role": "endpoint",
+   "verdict": "holds",
+   "expected": {
+    "gateway": {
+     "ok": false,
+     "statuses": [
+      "ok",
+      "signature-mismatch"
+     ]
+    },
+    "intoto": {
+     "pass": true,
+     "failures": {}
+    },
+    "binding": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:predicate-differs-from-store"
+     }
+    },
+    "combined": "fail"
+   },
+   "observed": {
+    "gateway": {
+     "ok": false,
+     "statuses": [
+      "ok",
+      "signature-mismatch"
+     ]
+    },
+    "intoto": {
+     "pass": true,
+     "failures": {}
+    },
+    "binding": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:predicate-differs-from-store"
+     }
+    },
+    "combined": "fail"
+   }
+  },
+  {
+   "id": "b01-envelope-payload-edited",
+   "role": "endpoint",
+   "verdict": "holds",
+   "expected": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:signature"
+     }
+    },
+    "binding": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:predicate-differs-from-store"
+     }
+    },
+    "combined": "fail"
+   },
+   "observed": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:signature"
+     }
+    },
+    "binding": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:predicate-differs-from-store"
+     }
+    },
+    "combined": "fail"
+   }
+  },
+  {
+   "id": "b02-envelope-resigned-foreign-key",
+   "role": "endpoint",
+   "verdict": "holds",
+   "expected": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:untrusted-key"
+     }
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   },
+   "observed": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:untrusted-key"
+     }
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   }
+  },
+  {
+   "id": "b03-subject-swapped-resigned",
+   "role": "endpoint",
+   "verdict": "holds",
+   "expected": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": true,
+     "failures": {}
+    },
+    "binding": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:artifact-subject-mismatch"
+     }
+    },
+    "combined": "fail"
+   },
+   "observed": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": true,
+     "failures": {}
+    },
+    "binding": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:artifact-subject-mismatch"
+     }
+    },
+    "combined": "fail"
+   }
+  },
+  {
+   "id": "b04-predicate-type-changed-resigned",
+   "role": "endpoint",
+   "verdict": "holds",
+   "expected": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "invalid:predicate-type"
+     }
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   },
+   "observed": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "invalid:predicate-type"
+     }
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   }
+  },
+  {
+   "id": "b05-statement-type-changed-resigned",
+   "role": "endpoint",
+   "verdict": "holds",
+   "expected": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "invalid:statement-type"
+     }
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   },
+   "observed": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "invalid:statement-type"
+     }
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   }
+  },
+  {
+   "id": "b06-attestation-deleted",
+   "role": "endpoint",
+   "verdict": "holds",
+   "expected": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:missing-attestation"
+     }
+    },
+    "binding": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:missing-attestation"
+     }
+    },
+    "combined": "fail"
+   },
+   "observed": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:missing-attestation"
+     }
+    },
+    "binding": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:missing-attestation"
+     }
+    },
+    "combined": "fail"
+   }
+  },
+  {
+   "id": "b07-payload-type-changed",
+   "role": "endpoint",
+   "verdict": "holds",
+   "expected": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:payload-type"
+     }
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   },
+   "observed": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:payload-type"
+     }
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   }
+  },
+  {
+   "id": "b08-predicate-receipt-edited-resigned",
+   "role": "endpoint",
+   "verdict": "holds",
+   "expected": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": true,
+     "failures": {}
+    },
+    "binding": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:predicate-differs-from-store"
+     }
+    },
+    "combined": "fail"
+   },
+   "observed": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": true,
+     "failures": {}
+    },
+    "binding": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:predicate-differs-from-store"
+     }
+    },
+    "combined": "fail"
+   }
+  },
+  {
+   "id": "b09-cited-subject-dropped-resigned",
+   "role": "endpoint",
+   "verdict": "holds",
+   "expected": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": true,
+     "failures": {}
+    },
+    "binding": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:cites-subject-set"
+     }
+    },
+    "combined": "fail"
+   },
+   "observed": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": true,
+     "failures": {}
+    },
+    "binding": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:cites-subject-set"
+     }
+    },
+    "combined": "fail"
+   }
+  },
+  {
+   "id": "c01-store-reminted-other-gateway-key",
+   "role": "endpoint",
+   "verdict": "holds",
+   "expected": {
+    "gateway": {
+     "ok": false,
+     "statuses": [
+      "key-mismatch"
+     ]
+    },
+    "intoto": {
+     "pass": true,
+     "failures": {}
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   },
+   "observed": {
+    "gateway": {
+     "ok": false,
+     "statuses": [
+      "key-mismatch"
+     ]
+    },
+    "intoto": {
+     "pass": true,
+     "failures": {}
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   }
+  }
+ ],
+ "holdout": {
+  "cells": [
+   {
+    "id": "h01-foreign-key-file-and-envelopes",
+    "role": "endpoint",
+    "verdict": "holds",
+    "expected": {
+     "gateway": {
+      "ok": true,
+      "statuses": [
+       "ok"
+      ]
+     },
+     "intoto": {
+      "pass": false,
+      "failures": {
+       "s2/0.dsse.json": "fail:untrusted-key",
+       "s2/1.dsse.json": "fail:untrusted-key"
+      }
+     },
+     "binding": {
+      "pass": true,
+      "failures": {}
+     },
+     "combined": "fail"
+    },
+    "observed": {
+     "gateway": {
+      "ok": true,
+      "statuses": [
+       "ok"
+      ]
+     },
+     "intoto": {
+      "pass": false,
+      "failures": {
+       "s2/0.dsse.json": "fail:untrusted-key",
+       "s2/1.dsse.json": "fail:untrusted-key"
+      }
+     },
+     "binding": {
+      "pass": true,
+      "failures": {}
+     },
+     "combined": "fail"
+    }
+   },
+   {
+    "id": "h02-duplicate-citation-subject-bad-first",
+    "role": "endpoint",
+    "verdict": "holds",
+    "expected": {
+     "gateway": {
+      "ok": true,
+      "statuses": [
+       "ok"
+      ]
+     },
+     "intoto": {
+      "pass": false,
+      "failures": {
+       "s2/1.dsse.json": {
+        "cites/s2/0": "mismatch"
+       }
+      }
+     },
+     "binding": {
+      "pass": false,
+      "failures": {
+       "s2/1.dsse.json": "fail:cites-subject-set"
+      }
+     },
+     "combined": "fail"
+    },
+    "observed": {
+     "gateway": {
+      "ok": true,
+      "statuses": [
+       "ok"
+      ]
+     },
+     "intoto": {
+      "pass": false,
+      "failures": {
+       "s2/1.dsse.json": {
+        "cites/s2/0": "mismatch"
+       }
+      }
+     },
+     "binding": {
+      "pass": false,
+      "failures": {
+       "s2/1.dsse.json": "fail:cites-subject-set"
+      }
+     },
+     "combined": "fail"
+    }
+   },
+   {
+    "id": "h03-unreferenced-record-malformed-cites",
+    "role": "endpoint",
+    "verdict": "holds",
+    "expected": {
+     "gateway": {
+      "ok": false,
+      "statuses": [
+       "ok",
+       "record-citation-malformed"
+      ]
+     },
+     "intoto": {
+      "pass": true,
+      "failures": {}
+     },
+     "binding": {
+      "pass": true,
+      "failures": {}
+     },
+     "combined": "fail"
+    },
+    "observed": {
+     "gateway": {
+      "ok": false,
+      "statuses": [
+       "ok",
+       "record-citation-malformed"
+      ]
+     },
+     "intoto": {
+      "pass": true,
+      "failures": {}
+     },
+     "binding": {
+      "pass": true,
+      "failures": {}
+     },
+     "combined": "fail"
+    }
+   },
+   {
+    "id": "h04-action-tail-removed-orphan-kept",
+    "role": "endpoint",
+    "verdict": "holds",
+    "expected": {
+     "gateway": {
+      "ok": false,
+      "statuses": [
+       "ok",
+       "tail-rollback"
+      ]
+     },
+     "intoto": {
+      "pass": true,
+      "failures": {}
+     },
+     "binding": {
+      "pass": true,
+      "failures": {}
+     },
+     "combined": "fail"
+    },
+    "observed": {
+     "gateway": {
+      "ok": false,
+      "statuses": [
+       "ok",
+       "tail-rollback"
+      ]
+     },
+     "intoto": {
+      "pass": true,
+      "failures": {}
+     },
+     "binding": {
+      "pass": true,
+      "failures": {}
+     },
+     "combined": "fail"
+    }
+   },
+   {
+    "id": "h05-jsonl-crlf-and-empty-lines",
+    "role": "endpoint",
+    "verdict": "holds",
+    "expected": {
+     "gateway": {
+      "ok": true,
+      "statuses": [
+       "ok"
+      ]
+     },
+     "intoto": {
+      "pass": true,
+      "failures": {}
+     },
+     "binding": {
+      "pass": true,
+      "failures": {}
+     },
+     "combined": "pass"
+    },
+    "observed": {
+     "gateway": {
+      "ok": true,
+      "statuses": [
+       "ok"
+      ]
+     },
+     "intoto": {
+      "pass": true,
+      "failures": {}
+     },
+     "binding": {
+      "pass": true,
+      "failures": {}
+     },
+     "combined": "pass"
+    }
+   },
+   {
+    "id": "h06-empty-subject-list-resigned",
+    "role": "endpoint",
+    "verdict": "holds",
+    "expected": {
+     "gateway": {
+      "ok": true,
+      "statuses": [
+       "ok"
+      ]
+     },
+     "intoto": {
+      "pass": false,
+      "failures": {
+       "s2/1.dsse.json": "invalid:bindings"
+      }
+     },
+     "binding": {
+      "pass": false,
+      "failures": {
+       "s2/1.dsse.json": "fail:artifact-subject-mismatch"
+      }
+     },
+     "combined": "fail"
+    },
+    "observed": {
+     "gateway": {
+      "ok": true,
+      "statuses": [
+       "ok"
+      ]
+     },
+     "intoto": {
+      "pass": false,
+      "failures": {
+       "s2/1.dsse.json": "invalid:bindings"
+      }
+     },
+     "binding": {
+      "pass": false,
+      "failures": {
+       "s2/1.dsse.json": "fail:artifact-subject-mismatch"
+      }
+     },
+     "combined": "fail"
+    }
+   }
+  ],
+  "diverging": [],
+  "unconstructed": [],
+  "note": "the reviewer's stratum: reported, deciding nothing"
+ }
+}

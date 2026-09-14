@@ -1,0 +1,1822 @@
+{
+ "attemptId": "110ef6ff3c41840d70d1a649621d4403",
+ "gatewaySha256": "aaa16fecb3f7f4134bfe926c751cd77fba279e81d881759f4b265cb2316e238c",
+ "python": "3.8.20",
+ "trustedKeySha256": "954883bdde9d4787e6659e44b335922fce6efa47a2facbcb10dcb7b657ded28f",
+ "cells": [
+  {
+   "cell": "a01-artifact-edited",
+   "cellSha256": "165803b8af818ace7325b93b78cca12716c992ae7ecc25042f9c47847e54fc75",
+   "gateway": {
+    "ok": false,
+    "findings": [
+     {
+      "callIndex": 0,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "artifact-mismatch"
+     }
+    ],
+    "statuses": [
+     "artifact-mismatch",
+     "ok"
+    ],
+    "byReceipt": {
+     "s2/0": "ok",
+     "s2/1": "artifact-mismatch"
+    },
+    "session": []
+   },
+   "intoto": {
+    "pass": false,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ]
+      ]
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "mismatch"
+       ],
+       [
+        "decision-record",
+        "match"
+       ],
+       [
+        "cites/s2/0",
+        "match"
+       ]
+      ]
+     }
+    ]
+   },
+   "binding": {
+    "pass": true,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "binding": "pass"
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "binding": "pass"
+     }
+    ]
+   },
+   "combined": "fail"
+  },
+  {
+   "cell": "a02-cited-receipt-member-edited",
+   "cellSha256": "a5a09f28a97cd7900e9a1488dd1a6273c35558fd6a0f0433541e1420fdfeebfc",
+   "gateway": {
+    "ok": false,
+    "findings": [
+     {
+      "callIndex": 0,
+      "sessionId": "s2",
+      "status": "signature-mismatch"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "callIndex": null,
+      "sessionId": "s2",
+      "status": "sequence-broken"
+     }
+    ],
+    "statuses": [
+     "ok",
+     "sequence-broken",
+     "signature-mismatch"
+    ],
+    "byReceipt": {
+     "s2/0": "signature-mismatch",
+     "s2/1": "ok",
+     "s2/None": "sequence-broken"
+    },
+    "session": []
+   },
+   "intoto": {
+    "pass": false,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ]
+      ]
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ],
+       [
+        "decision-record",
+        "match"
+       ],
+       [
+        "cites/s2/0",
+        "mismatch"
+       ]
+      ]
+     }
+    ]
+   },
+   "binding": {
+    "pass": false,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "binding": "fail:predicate-differs-from-store"
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "binding": "pass"
+     }
+    ]
+   },
+   "combined": "fail"
+  },
+  {
+   "cell": "a03-cited-receipt-removed",
+   "cellSha256": "b4723132c12c120637a3df93cd3799360baee855f6ad7ca447afe465ed022f26",
+   "gateway": {
+    "ok": false,
+    "findings": [
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "callIndex": null,
+      "sessionId": "s2",
+      "status": "sequence-broken"
+     },
+     {
+      "have": 1,
+      "sealed": 2,
+      "sessionId": "s2",
+      "status": "tail-rollback"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "citation-unresolved"
+     }
+    ],
+    "statuses": [
+     "citation-unresolved",
+     "ok",
+     "sequence-broken",
+     "tail-rollback"
+    ],
+    "byReceipt": {
+     "s2/1": "citation-unresolved",
+     "s2/None": "sequence-broken"
+    },
+    "session": [
+     "tail-rollback"
+    ]
+   },
+   "intoto": {
+    "pass": false,
+    "attestations": [
+     {
+      "attestation": "s2/1.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ],
+       [
+        "decision-record",
+        "match"
+       ],
+       [
+        "cites/s2/0",
+        "missing"
+       ]
+      ]
+     }
+    ]
+   },
+   "binding": {
+    "pass": true,
+    "attestations": [
+     {
+      "attestation": "s2/1.dsse.json",
+      "binding": "pass"
+     }
+    ]
+   },
+   "combined": "fail"
+  },
+  {
+   "cell": "a04-decision-record-rewritten",
+   "cellSha256": "55d80d1dfc8c435706f315b4d6fe5d8bf2f1c2d550bc5bc87355f4d750de5cef",
+   "gateway": {
+    "ok": false,
+    "findings": [
+     {
+      "callIndex": 0,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "decision-record-mismatch"
+     }
+    ],
+    "statuses": [
+     "decision-record-mismatch",
+     "ok"
+    ],
+    "byReceipt": {
+     "s2/0": "ok",
+     "s2/1": "decision-record-mismatch"
+    },
+    "session": []
+   },
+   "intoto": {
+    "pass": false,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ]
+      ]
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ],
+       [
+        "decision-record",
+        "missing"
+       ],
+       [
+        "cites/s2/0",
+        "match"
+       ]
+      ]
+     }
+    ]
+   },
+   "binding": {
+    "pass": true,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "binding": "pass"
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "binding": "pass"
+     }
+    ]
+   },
+   "combined": "fail"
+  },
+  {
+   "cell": "a05-registry-seal-removed",
+   "cellSha256": "c3350c862a9ca52b0b4626d13bf7736d0cc9b8721414dda55ddbefaf18e02c72",
+   "gateway": {
+    "ok": false,
+    "findings": [
+     {
+      "callIndex": 0,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "sessionId": "s2",
+      "status": "unregistered-session"
+     }
+    ],
+    "statuses": [
+     "ok",
+     "unregistered-session"
+    ],
+    "byReceipt": {
+     "s2/0": "ok",
+     "s2/1": "ok"
+    },
+    "session": [
+     "unregistered-session"
+    ]
+   },
+   "intoto": {
+    "pass": true,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ]
+      ]
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ],
+       [
+        "decision-record",
+        "match"
+       ],
+       [
+        "cites/s2/0",
+        "match"
+       ]
+      ]
+     }
+    ]
+   },
+   "binding": {
+    "pass": true,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "binding": "pass"
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "binding": "pass"
+     }
+    ]
+   },
+   "combined": "fail"
+  },
+  {
+   "cell": "a06-receipt-appended-after-seal",
+   "cellSha256": "20dabf47ba58ff3291e78978ce3c6f0a382e3805e6c3535549a09dc0ee04f3f1",
+   "gateway": {
+    "ok": false,
+    "findings": [
+     {
+      "callIndex": 0,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "misfiled"
+     },
+     {
+      "have": 3,
+      "sealed": 2,
+      "sessionId": "s2",
+      "status": "count-exceeds-seal"
+     }
+    ],
+    "statuses": [
+     "count-exceeds-seal",
+     "misfiled",
+     "ok"
+    ],
+    "byReceipt": {
+     "s2/0": "ok",
+     "s2/1": "misfiled"
+    },
+    "session": [
+     "count-exceeds-seal"
+    ]
+   },
+   "intoto": {
+    "pass": false,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ]
+      ]
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ],
+       [
+        "decision-record",
+        "match"
+       ],
+       [
+        "cites/s2/0",
+        "match"
+       ]
+      ]
+     },
+     {
+      "attestation": "s2/2.dsse.json",
+      "dsse": "fail:missing-attestation",
+      "statement": null,
+      "subjects": []
+     }
+    ]
+   },
+   "binding": {
+    "pass": false,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "binding": "pass"
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "binding": "pass"
+     },
+     {
+      "attestation": "s2/2.dsse.json",
+      "binding": "fail:missing-attestation"
+     }
+    ]
+   },
+   "combined": "fail"
+  },
+  {
+   "cell": "a07-action-member-edited",
+   "cellSha256": "7195118469f019c6db32921bde06202fde2f4a1b2de6e1153b3d57937c342898",
+   "gateway": {
+    "ok": false,
+    "findings": [
+     {
+      "callIndex": 0,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "signature-mismatch"
+     }
+    ],
+    "statuses": [
+     "ok",
+     "signature-mismatch"
+    ],
+    "byReceipt": {
+     "s2/0": "ok",
+     "s2/1": "signature-mismatch"
+    },
+    "session": []
+   },
+   "intoto": {
+    "pass": true,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ]
+      ]
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ],
+       [
+        "decision-record",
+        "match"
+       ],
+       [
+        "cites/s2/0",
+        "match"
+       ]
+      ]
+     }
+    ]
+   },
+   "binding": {
+    "pass": false,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "binding": "pass"
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "binding": "fail:predicate-differs-from-store"
+     }
+    ]
+   },
+   "combined": "fail"
+  },
+  {
+   "cell": "b01-envelope-payload-edited",
+   "cellSha256": "8926009cb376df4e370180105b5c5e2203ef7adb7af5112823a62bb7fc6eb5ea",
+   "gateway": {
+    "ok": true,
+    "findings": [
+     {
+      "callIndex": 0,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "ok"
+     }
+    ],
+    "statuses": [
+     "ok"
+    ],
+    "byReceipt": {
+     "s2/0": "ok",
+     "s2/1": "ok"
+    },
+    "session": []
+   },
+   "intoto": {
+    "pass": false,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ]
+      ]
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "dsse": "fail:signature",
+      "statement": null,
+      "subjects": []
+     }
+    ]
+   },
+   "binding": {
+    "pass": false,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "binding": "pass"
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "binding": "fail:predicate-differs-from-store"
+     }
+    ]
+   },
+   "combined": "fail"
+  },
+  {
+   "cell": "b02-envelope-resigned-foreign-key",
+   "cellSha256": "d29feb098115b1c7c2ef04d853d2194e624f4e5be40a96968dc7a6e8960882ad",
+   "gateway": {
+    "ok": true,
+    "findings": [
+     {
+      "callIndex": 0,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "ok"
+     }
+    ],
+    "statuses": [
+     "ok"
+    ],
+    "byReceipt": {
+     "s2/0": "ok",
+     "s2/1": "ok"
+    },
+    "session": []
+   },
+   "intoto": {
+    "pass": false,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ]
+      ]
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "dsse": "fail:untrusted-key",
+      "statement": null,
+      "subjects": []
+     }
+    ]
+   },
+   "binding": {
+    "pass": true,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "binding": "pass"
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "binding": "pass"
+     }
+    ]
+   },
+   "combined": "fail"
+  },
+  {
+   "cell": "b03-subject-swapped-resigned",
+   "cellSha256": "08a0ba298987a961c6b4184332309111fa68af6ae282475f0583eaf441c229e6",
+   "gateway": {
+    "ok": true,
+    "findings": [
+     {
+      "callIndex": 0,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "ok"
+     }
+    ],
+    "statuses": [
+     "ok"
+    ],
+    "byReceipt": {
+     "s2/0": "ok",
+     "s2/1": "ok"
+    },
+    "session": []
+   },
+   "intoto": {
+    "pass": true,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ]
+      ]
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ],
+       [
+        "decision-record",
+        "match"
+       ],
+       [
+        "cites/s2/0",
+        "match"
+       ]
+      ]
+     }
+    ]
+   },
+   "binding": {
+    "pass": false,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "binding": "pass"
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "binding": "fail:artifact-subject-mismatch"
+     }
+    ]
+   },
+   "combined": "fail"
+  },
+  {
+   "cell": "b04-predicate-type-changed-resigned",
+   "cellSha256": "e82cf9b986e7ae7c18900ab3ee9879d992bb57917abc981e9ee3afb43da9771c",
+   "gateway": {
+    "ok": true,
+    "findings": [
+     {
+      "callIndex": 0,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "ok"
+     }
+    ],
+    "statuses": [
+     "ok"
+    ],
+    "byReceipt": {
+     "s2/0": "ok",
+     "s2/1": "ok"
+    },
+    "session": []
+   },
+   "intoto": {
+    "pass": false,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ]
+      ]
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "dsse": "pass",
+      "statement": "invalid:predicate-type",
+      "subjects": []
+     }
+    ]
+   },
+   "binding": {
+    "pass": true,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "binding": "pass"
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "binding": "pass"
+     }
+    ]
+   },
+   "combined": "fail"
+  },
+  {
+   "cell": "b05-statement-type-changed-resigned",
+   "cellSha256": "c58802cd7e2c2fd541424901e6eaa27000d0d40fc403d1822405895e18b9184f",
+   "gateway": {
+    "ok": true,
+    "findings": [
+     {
+      "callIndex": 0,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "ok"
+     }
+    ],
+    "statuses": [
+     "ok"
+    ],
+    "byReceipt": {
+     "s2/0": "ok",
+     "s2/1": "ok"
+    },
+    "session": []
+   },
+   "intoto": {
+    "pass": false,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ]
+      ]
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "dsse": "pass",
+      "statement": "invalid:statement-type",
+      "subjects": []
+     }
+    ]
+   },
+   "binding": {
+    "pass": true,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "binding": "pass"
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "binding": "pass"
+     }
+    ]
+   },
+   "combined": "fail"
+  },
+  {
+   "cell": "b06-attestation-deleted",
+   "cellSha256": "1617c526a12a178a5ea275d3b2a101c502dc64a6eed0bdc882b27c755837d54e",
+   "gateway": {
+    "ok": true,
+    "findings": [
+     {
+      "callIndex": 0,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "ok"
+     }
+    ],
+    "statuses": [
+     "ok"
+    ],
+    "byReceipt": {
+     "s2/0": "ok",
+     "s2/1": "ok"
+    },
+    "session": []
+   },
+   "intoto": {
+    "pass": false,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ]
+      ]
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "dsse": "fail:missing-attestation",
+      "statement": null,
+      "subjects": []
+     }
+    ]
+   },
+   "binding": {
+    "pass": false,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "binding": "pass"
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "binding": "fail:missing-attestation"
+     }
+    ]
+   },
+   "combined": "fail"
+  },
+  {
+   "cell": "b07-payload-type-changed",
+   "cellSha256": "93fdd2f4eed87e8296ec53467f0685b7661ab725d7b97fbb0c9d9a5018f8312a",
+   "gateway": {
+    "ok": true,
+    "findings": [
+     {
+      "callIndex": 0,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "ok"
+     }
+    ],
+    "statuses": [
+     "ok"
+    ],
+    "byReceipt": {
+     "s2/0": "ok",
+     "s2/1": "ok"
+    },
+    "session": []
+   },
+   "intoto": {
+    "pass": false,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ]
+      ]
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "dsse": "fail:payload-type",
+      "statement": null,
+      "subjects": []
+     }
+    ]
+   },
+   "binding": {
+    "pass": true,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "binding": "pass"
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "binding": "pass"
+     }
+    ]
+   },
+   "combined": "fail"
+  },
+  {
+   "cell": "b08-predicate-receipt-edited-resigned",
+   "cellSha256": "1102d175ea983ae2400bb25fb3af4290205ea46f9325d0d6df2bdc6046cb0cd2",
+   "gateway": {
+    "ok": true,
+    "findings": [
+     {
+      "callIndex": 0,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "ok"
+     }
+    ],
+    "statuses": [
+     "ok"
+    ],
+    "byReceipt": {
+     "s2/0": "ok",
+     "s2/1": "ok"
+    },
+    "session": []
+   },
+   "intoto": {
+    "pass": true,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ]
+      ]
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ],
+       [
+        "decision-record",
+        "match"
+       ],
+       [
+        "cites/s2/0",
+        "match"
+       ]
+      ]
+     }
+    ]
+   },
+   "binding": {
+    "pass": false,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "binding": "pass"
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "binding": "fail:predicate-differs-from-store"
+     }
+    ]
+   },
+   "combined": "fail"
+  },
+  {
+   "cell": "b09-cited-subject-dropped-resigned",
+   "cellSha256": "a075ae1c5545022bab07894784cdd4ccb63f6a8499b3b0ae273b9d2d1a768312",
+   "gateway": {
+    "ok": true,
+    "findings": [
+     {
+      "callIndex": 0,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "ok"
+     }
+    ],
+    "statuses": [
+     "ok"
+    ],
+    "byReceipt": {
+     "s2/0": "ok",
+     "s2/1": "ok"
+    },
+    "session": []
+   },
+   "intoto": {
+    "pass": true,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ]
+      ]
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ],
+       [
+        "decision-record",
+        "match"
+       ]
+      ]
+     }
+    ]
+   },
+   "binding": {
+    "pass": false,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "binding": "pass"
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "binding": "fail:cites-subject-set"
+     }
+    ]
+   },
+   "combined": "fail"
+  },
+  {
+   "cell": "c01-store-reminted-other-gateway-key",
+   "cellSha256": "0dc879e98c8f59dff08edafaac2860ce6c9f2c481394a1cf06b856e0fdba6dc0",
+   "gateway": {
+    "ok": false,
+    "findings": [
+     {
+      "callIndex": 0,
+      "sessionId": "s2",
+      "status": "key-mismatch"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "key-mismatch"
+     }
+    ],
+    "statuses": [
+     "key-mismatch"
+    ],
+    "byReceipt": {
+     "s2/0": "key-mismatch",
+     "s2/1": "key-mismatch"
+    },
+    "session": []
+   },
+   "intoto": {
+    "pass": true,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ]
+      ]
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ],
+       [
+        "decision-record",
+        "match"
+       ],
+       [
+        "cites/s2/0",
+        "match"
+       ]
+      ]
+     }
+    ]
+   },
+   "binding": {
+    "pass": true,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "binding": "pass"
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "binding": "pass"
+     }
+    ]
+   },
+   "combined": "fail"
+  },
+  {
+   "cell": "h01-foreign-key-file-and-envelopes",
+   "cellSha256": "389cd872ed028fa454885a150a2e315834db88940fa678b9c93996c9a5f7db82",
+   "gateway": {
+    "ok": true,
+    "findings": [
+     {
+      "callIndex": 0,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "ok"
+     }
+    ],
+    "statuses": [
+     "ok"
+    ],
+    "byReceipt": {
+     "s2/0": "ok",
+     "s2/1": "ok"
+    },
+    "session": []
+   },
+   "intoto": {
+    "pass": false,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "dsse": "fail:untrusted-key",
+      "statement": null,
+      "subjects": []
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "dsse": "fail:untrusted-key",
+      "statement": null,
+      "subjects": []
+     }
+    ]
+   },
+   "binding": {
+    "pass": true,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "binding": "pass"
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "binding": "pass"
+     }
+    ]
+   },
+   "combined": "fail"
+  },
+  {
+   "cell": "h02-duplicate-citation-subject-bad-first",
+   "cellSha256": "574f9544618b386efd9a3aee1d59bd7eb51776a13b2e813f3b21650683910c34",
+   "gateway": {
+    "ok": true,
+    "findings": [
+     {
+      "callIndex": 0,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "ok"
+     }
+    ],
+    "statuses": [
+     "ok"
+    ],
+    "byReceipt": {
+     "s2/0": "ok",
+     "s2/1": "ok"
+    },
+    "session": []
+   },
+   "intoto": {
+    "pass": false,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ]
+      ]
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "cites/s2/0",
+        "mismatch"
+       ],
+       [
+        "artifact",
+        "match"
+       ],
+       [
+        "decision-record",
+        "match"
+       ],
+       [
+        "cites/s2/0",
+        "match"
+       ]
+      ]
+     }
+    ]
+   },
+   "binding": {
+    "pass": false,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "binding": "pass"
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "binding": "fail:cites-subject-set"
+     }
+    ]
+   },
+   "combined": "fail"
+  },
+  {
+   "cell": "h03-unreferenced-record-malformed-cites",
+   "cellSha256": "a08b08fb687bccfa2969fe74fc45eb3cc94fd903c8457d234362560e42983987",
+   "gateway": {
+    "ok": false,
+    "findings": [
+     {
+      "callIndex": 0,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "recordDigest": "sha256:e3e6366101528cd48836ea602b5936d865113f57a48dc673b8d61f7048854380",
+      "status": "record-citation-malformed"
+     }
+    ],
+    "statuses": [
+     "ok",
+     "record-citation-malformed"
+    ],
+    "byReceipt": {
+     "s2/0": "ok",
+     "s2/1": "ok"
+    },
+    "session": [
+     "record-citation-malformed"
+    ]
+   },
+   "intoto": {
+    "pass": true,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ]
+      ]
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ],
+       [
+        "decision-record",
+        "match"
+       ],
+       [
+        "cites/s2/0",
+        "match"
+       ]
+      ]
+     }
+    ]
+   },
+   "binding": {
+    "pass": true,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "binding": "pass"
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "binding": "pass"
+     }
+    ]
+   },
+   "combined": "fail"
+  },
+  {
+   "cell": "h04-action-tail-removed-orphan-kept",
+   "cellSha256": "e7f4c1b0a20f53a4f780cae3e43215b996094a19a18f4dd7a6534b4af39ccfb6",
+   "gateway": {
+    "ok": false,
+    "findings": [
+     {
+      "callIndex": 0,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "have": 1,
+      "sealed": 2,
+      "sessionId": "s2",
+      "status": "tail-rollback"
+     }
+    ],
+    "statuses": [
+     "ok",
+     "tail-rollback"
+    ],
+    "byReceipt": {
+     "s2/0": "ok"
+    },
+    "session": [
+     "tail-rollback"
+    ]
+   },
+   "intoto": {
+    "pass": true,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ]
+      ]
+     }
+    ]
+   },
+   "binding": {
+    "pass": true,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "binding": "pass"
+     }
+    ]
+   },
+   "combined": "fail"
+  },
+  {
+   "cell": "h05-jsonl-crlf-and-empty-lines",
+   "cellSha256": "211308e7b7d599c693d5eb44b51287851873a8419f688c90596c1ce6ebd8e57c",
+   "gateway": {
+    "ok": true,
+    "findings": [
+     {
+      "callIndex": 0,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "ok"
+     }
+    ],
+    "statuses": [
+     "ok"
+    ],
+    "byReceipt": {
+     "s2/0": "ok",
+     "s2/1": "ok"
+    },
+    "session": []
+   },
+   "intoto": {
+    "pass": true,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ]
+      ]
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ],
+       [
+        "decision-record",
+        "match"
+       ],
+       [
+        "cites/s2/0",
+        "match"
+       ]
+      ]
+     }
+    ]
+   },
+   "binding": {
+    "pass": true,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "binding": "pass"
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "binding": "pass"
+     }
+    ]
+   },
+   "combined": "pass"
+  },
+  {
+   "cell": "h06-empty-subject-list-resigned",
+   "cellSha256": "e69b681f98e9eeff423bf1e8f09033770bf8e5ab4a94aaaf7b25807be423a16a",
+   "gateway": {
+    "ok": true,
+    "findings": [
+     {
+      "callIndex": 0,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "ok"
+     }
+    ],
+    "statuses": [
+     "ok"
+    ],
+    "byReceipt": {
+     "s2/0": "ok",
+     "s2/1": "ok"
+    },
+    "session": []
+   },
+   "intoto": {
+    "pass": false,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ]
+      ]
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "dsse": "pass",
+      "statement": "invalid:bindings",
+      "subjects": []
+     }
+    ]
+   },
+   "binding": {
+    "pass": false,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "binding": "pass"
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "binding": "fail:artifact-subject-mismatch"
+     }
+    ]
+   },
+   "combined": "fail"
+  },
+  {
+   "cell": "neg-dsse-signature-flipped",
+   "cellSha256": "88c74a63fc2fc0bf00658d0076267a3ce61c98d2f0444fffe192dafecd7fdccf",
+   "gateway": {
+    "ok": true,
+    "findings": [
+     {
+      "callIndex": 0,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "ok"
+     }
+    ],
+    "statuses": [
+     "ok"
+    ],
+    "byReceipt": {
+     "s2/0": "ok",
+     "s2/1": "ok"
+    },
+    "session": []
+   },
+   "intoto": {
+    "pass": false,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ]
+      ]
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "dsse": "fail:signature",
+      "statement": null,
+      "subjects": []
+     }
+    ]
+   },
+   "binding": {
+    "pass": true,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "binding": "pass"
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "binding": "pass"
+     }
+    ]
+   },
+   "combined": "fail"
+  },
+  {
+   "cell": "pos-baseline",
+   "cellSha256": "3fa3c7152f0193359c8e881eb8e467ad984251eaa0d1b3868060e1cf6bb9c108",
+   "gateway": {
+    "ok": true,
+    "findings": [
+     {
+      "callIndex": 0,
+      "sessionId": "s2",
+      "status": "ok"
+     },
+     {
+      "callIndex": 1,
+      "sessionId": "s2",
+      "status": "ok"
+     }
+    ],
+    "statuses": [
+     "ok"
+    ],
+    "byReceipt": {
+     "s2/0": "ok",
+     "s2/1": "ok"
+    },
+    "session": []
+   },
+   "intoto": {
+    "pass": true,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ]
+      ]
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "dsse": "pass",
+      "statement": "valid",
+      "subjects": [
+       [
+        "artifact",
+        "match"
+       ],
+       [
+        "decision-record",
+        "match"
+       ],
+       [
+        "cites/s2/0",
+        "match"
+       ]
+      ]
+     }
+    ]
+   },
+   "binding": {
+    "pass": true,
+    "attestations": [
+     {
+      "attestation": "s2/0.dsse.json",
+      "binding": "pass"
+     },
+     {
+      "attestation": "s2/1.dsse.json",
+      "binding": "pass"
+     }
+    ]
+   },
+   "combined": "pass"
+  }
+ ]
+}
