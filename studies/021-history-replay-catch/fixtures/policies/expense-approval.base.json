@@ -1,0 +1,13 @@
+{
+  "baseRow": "reimburse-small-meal",
+  "facts": {
+    "expense": {
+      "kind": "meal",
+      "category": "team-meal",
+      "amountUsd": "42.50"
+    }
+  },
+  "evidenceAvailability": {
+    "itemised-receipt": "present"
+  }
+}

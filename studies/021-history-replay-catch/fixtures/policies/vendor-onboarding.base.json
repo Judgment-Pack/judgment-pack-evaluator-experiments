@@ -1,0 +1,24 @@
+{
+  "baseRow": "approve-clean-vendor",
+  "facts": {
+    "request": {
+      "type": "new-vendor-onboarding"
+    },
+    "submission": {
+      "completeness": "complete"
+    },
+    "vendor": {
+      "taxFormStatus": "received",
+      "sanctionsScreening": {
+        "status": "clear"
+      }
+    },
+    "engagement": {
+      "annualSpendUsd": "84000"
+    }
+  },
+  "evidenceAvailability": {
+    "sanctions-screening": "present",
+    "tax-form": "present"
+  }
+}

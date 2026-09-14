@@ -1,0 +1,11 @@
+{
+  "baseRow": "clear-on-zero-matches",
+  "facts": {
+    "screening": {
+      "matchCount": "0"
+    }
+  },
+  "evidenceAvailability": {
+    "screening-record": "present"
+  }
+}
