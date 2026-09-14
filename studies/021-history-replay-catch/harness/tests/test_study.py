@@ -70,8 +70,21 @@ class SignatureRule(unittest.TestCase):
         self.assertFalse(replay.signature(profile([("/x", "10", 2, 0, 0), ("/y", "5", 1, 0, 0)]), 2)["lineMoved"])
 
     def test_no_threshold_carries_none(self):
-        self.assertFalse(replay.signature({"thresholds": []})["applicable"])
-        self.assertFalse(replay.signature(None)["applicable"])
+        # the runtime omits `thresholds` for a pack that draws no line; the pack must draw none
+        sig = replay.signature({"agreement": []}, 2, expected=0)
+        self.assertFalse(sig["applicable"])
+        self.assertEqual(sig["thresholdEntries"], 0)
+        with self.assertRaises(RuntimeError):
+            replay.signature({"agreement": []}, 2, expected=1)
+        with self.assertRaises(RuntimeError):
+            replay.signature(profile([("/x", "10", 1, 0, 0)]), 1, expected=2)
+
+    def test_expected_thresholds_counts_distinct_ordered_literals(self):
+        packs = {f.name: json.loads(f.read_text()) for f in (STUDY / "fixtures" / "policies").glob("*.pack.json")}
+        self.assertEqual(replay.expected_thresholds(packs["data-request-intake-triage.pack.json"]), 0)
+        self.assertEqual(replay.expected_thresholds(packs["vendor-onboarding.pack.json"]), 1)  # two sites, one literal
+        self.assertEqual(replay.expected_thresholds(packs["expense-approval.pack.json"]), 1)
+        self.assertEqual(replay.expected_thresholds(packs["sanctions-screening.pack.json"]), 1)
 
     def test_no_disagreement_is_not_a_signature(self):
         self.assertFalse(replay.signature(profile([("/x", "10", 0, 0, 0)]), 0)["lineMoved"])
@@ -166,6 +179,29 @@ class Adjudication(unittest.TestCase):
         _, sigs = score.aggregate(cells)
         row = [r for r in sigs if r["defect"] == "D6-00"][0]
         self.assertEqual((row["caught"], row["lineMoved"], row["noThreshold"], row["rate"]), (1, 0, 1, 0.0))
+
+
+class SignatureEvidence(unittest.TestCase):
+    def test_incomplete_signature_evidence_is_refused(self):
+        self.assertFalse(score.signature_evidence_ok({"applicable": True}, 3))
+        self.assertFalse(score.signature_evidence_ok({"applicable": False}, 3))
+        self.assertTrue(score.signature_evidence_ok({"applicable": False, "thresholdEntries": 0}, 3))
+        self.assertFalse(score.signature_evidence_ok({"applicable": False, "thresholdEntries": 0}, 3, expected_entries=1))
+        good = replay.signature(profile([("/x", "10", 3, 0, 0)]), 3)
+        self.assertTrue(score.signature_evidence_ok(good, 3))
+        forged = dict(good, lineMoved=False)
+        self.assertFalse(score.signature_evidence_ok(forged, 3), "a recorded verdict must agree with its own counts")
+
+    def test_a_missing_profile_fails_the_replay(self):
+        with self.assertRaises(RuntimeError):
+            replay.signature(None, 1, expected=0)
+        with self.assertRaises(RuntimeError):
+            replay.signature({}, 1, expected=1)
+
+    def test_the_attempt_id_is_hexadecimal(self):
+        import attempt
+        m = AttemptMarker().marker(attemptId="z" * 32)
+        self.assertTrue(attempt.marker_problems(m, "sha256:x", "REGISTERED"))
 
 
 class AttemptMarker(unittest.TestCase):

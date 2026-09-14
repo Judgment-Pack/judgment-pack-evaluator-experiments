@@ -257,7 +257,8 @@ structures, registered once and applied per cell:
   breaks the signature when no other literal of the pointer qualifies, so a site whose changed
   cases include the literal itself registers a signature near 0 with the probability that a
   ledger happens to hold only its other changed cases (`sanctions-screening`'s matched literal
-  1 in D5-06, and its D2 whose moved literal is the floor of the domain: [0, 0.1]), and one
+  1 in D5-06: [0, 0.1]) or exactly 0 where every changed case sits at it (its D2, whose moved
+  literal 0 is the floor of the domain, as S7 says), and one
   whose changed cases reach the literal with a computable probability registers an interval
   from it (`expense-approval`'s fallback, reached at 75: [0.8, 1]; `vendor-onboarding`'s
   exception moved at 250000 in D8-23: [0.95, 1]); and an edit that removes the pack's only
@@ -304,10 +305,20 @@ dropped set is empty for the four policies (a non-empty set is a control failure
 finding), every valid instance has a cell against every ledger, and the ledger set is exactly
 the registered one (the literal ledger and seeds 101–130 at each n); (G3) the random ledgers
 are deterministic in the seed: the scorer rebuilds one per policy under the pinned runtime and
-compares bytes. A replay that does not run to a verdict, or reads fewer rows than the ledger
-holds, fails the construction rather than recording a count. The scorer refuses an existing
-adjudication, refuses an unpinned or mismatching runtime, writes the aggregate files before
-the adjudication, and labels the attempt.
+compares bytes. Before any gate is read the scorer holds the records to be **the registered
+experiment's**: every retained mutant equal to the planter's document for its site, every
+literal ledger rebuilt byte for byte under the pinned runtime, every signature record complete
+— the profile present, its threshold entries as many as the replayed pack draws distinct
+(pointer, literal) ordered comparisons (none for a pack that draws no line, which the runtime
+reports by omitting the member), and where a threshold exists the bucket counts per pointer
+and literal, from which the recorded verdict is recomputed and must agree; a replay whose
+report carries no profile, or a threshold count that is not the pack's, fails the
+construction, as does one that does not run to a verdict,
+reads fewer rows than the ledger holds, or reports a status that disagrees with its count.
+Any shortfall in that validity is pipeline-invalid before anything is aggregated; only the
+executed controls (G1 as bound clean gate records, G3) can fail as control gates. The scorer
+refuses an existing adjudication, refuses an unpinned or mismatching runtime, writes each of
+its three files once and never over an existing one, and labels the attempt.
 
 ## 8. Analytic limitations
 

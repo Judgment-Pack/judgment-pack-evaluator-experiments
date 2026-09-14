@@ -1,6 +1,6 @@
 {
   "pinsVersion": "1",
-  "note": "Every non-null member is ENFORCED by harness/score.py before adjudication: the runtime binary's digest always; the freeze pins (preregistration, matrix, studyManifest) when filled. An attempt is labelled REGISTERED only when every freeze pin is non-null; any null makes it a PILOT. The manifest (harness/STUDY-MANIFEST.sha256) covers neither itself nor this file; this file pins the manifest's digest; the freeze commit anchors this file.",
+  "note": "Every non-null member is ENFORCED by harness/score.py before adjudication: the runtime binary's digest always; the freeze pins (preregistration, matrix, studyManifest) when filled. A registered attempt (harness/run_attempt.py without --pilot, and a registered adjudication) REFUSES to run under any null or mismatching pin; a pilot is an explicit mode (--pilot) whose marker says PILOT, and is never a demotion. The manifest (harness/STUDY-MANIFEST.sha256) covers neither itself nor this file; this file pins the manifest's digest; the freeze commit anchors this file.",
   "jpack": {"version": "0.21.0", "sha256": null, "source": "the judgment-pack runtime release v0.21.0 (ADR-0034: the history profile); the digest of the linux/amd64 binary as published"},
   "freeze": {"preregistration": null, "matrix": null, "matrixHoldout": null, "studyManifest": null}
 }

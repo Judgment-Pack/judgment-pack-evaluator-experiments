@@ -39,6 +39,7 @@ import attempt
 import build_ledgers
 import jp
 import plant
+import replay
 
 STUDY = Path(__file__).resolve().parent.parent
 POLICIES = attempt.POLICIES
@@ -138,14 +139,17 @@ def aggregate(cells_by_policy):
             caught = sum(c["caught"] for c in cs)
             caught_cells = [c for c in cs if c["caught"]]
             moved = sum(1 for c in caught_cells if c["signature"].get("lineMoved"))
+            random_stratum = stratum == "random"
             rates.append({"policy": policy, "class": cls, "defect": "*", "stratum": stratum, "n": n, "cells": len(cs), "caught": caught,
-                          "rate": round(caught / len(cs), 4), "referenceInterval": clopper_pearson(caught, len(cs)),
-                          "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"})
+                          "rate": round(caught / len(cs), 4), "referenceInterval": clopper_pearson(caught, len(cs)) if random_stratum else None,
+                          "note": ("pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+                                   if random_stratum else "pooled over the class's instances on the one deterministic ledger: counts, no interval")})
             sigs.append({"policy": policy, "class": cls, "defect": "*", "stratum": stratum, "n": n, "caught": len(caught_cells), "lineMoved": moved,
                          "noThreshold": sum(1 for c in caught_cells if not c["signature"].get("applicable")),
                          "rate": (round(moved / len(caught_cells), 4) if caught_cells else None),
-                         "referenceInterval": clopper_pearson(moved, len(caught_cells)) if caught_cells else None,
-                         "note": "pooled over the class's instances: a reference interval with no nominal coverage"})
+                         "referenceInterval": clopper_pearson(moved, len(caught_cells)) if (caught_cells and random_stratum) else None,
+                         "note": ("pooled over the class's instances: a reference interval with no nominal coverage" if random_stratum
+                                  else "the one deterministic ledger: counts, no interval")})
     return rates, sigs
 
 
@@ -180,6 +184,48 @@ def adjudicate(cells, cells_by_policy):
             verdict = "unobserved"
         rows.append({"id": cell["id"], "role": cell.get("role", "endpoint"), "expected": expected, **got, "verdict": verdict})
     return rows
+
+
+def signature_evidence_ok(sig, mismatched, expected_entries=None):
+    """A signature record is complete evidence: the threshold count, and when a
+    threshold exists the bucket counts per pointer and literal, from which the
+    recorded lineMoved and placed are recomputed and must agree."""
+    if not isinstance(sig, dict) or not isinstance(sig.get("applicable"), bool) or not isinstance(sig.get("thresholdEntries"), int):
+        return False
+    if expected_entries is not None and sig["thresholdEntries"] != expected_entries:
+        return False
+    if not sig["applicable"]:
+        return sig["thresholdEntries"] == 0 and set(sig) == {"applicable", "thresholdEntries"}
+    if sig["thresholdEntries"] < 1 or not isinstance(sig.get("lineMoved"), bool) or not isinstance(sig.get("placed"), bool) or not isinstance(sig.get("disagreeing"), dict):
+        return False
+    for pointer, entries in sig["disagreeing"].items():
+        if not isinstance(entries, list) or not entries:
+            return False
+        for e in entries:
+            if set(e) != {"literal", "below", "at", "above"} or not all(isinstance(e[k], int) and e[k] >= 0 for k in ("below", "at", "above")):
+                return False
+    line_moved, placed = replay.signature_from_buckets(sig["disagreeing"], mismatched)
+    return line_moved == sig["lineMoved"] and placed == sig["placed"]
+
+
+def registered_inputs_ok(root, failures):
+    """The retained inputs are the registered ones: every mutant equals the planter's document for its site, and every literal ledger rebuilds byte for byte under the pinned runtime."""
+    import tempfile
+    for policy in POLICIES:
+        pdir = Path(root) / policy
+        pack, base = build_ledgers.load_policy(policy)
+        for k, inst in enumerate(plant.instances(pack)):
+            path = pdir / "defects" / ("%s-%02d.pack.json" % (inst["class"], k))
+            if not path.exists() or json.loads(path.read_text()) != inst["pack"]:
+                failures.append("%s: the retained mutant %s is not the planter's document for its site" % (policy, path.name))
+                break
+        literal = pdir / "literal.matrix.json"
+        if literal.exists():
+            with tempfile.TemporaryDirectory() as tmp:
+                project = jp.project(tmp, policy, pack)
+                rebuilt, _ = build_ledgers.literal_ledger(policy, pack, base, project)
+            if json.dumps(rebuilt, indent=1) != literal.read_text():
+                failures.append("%s: the literal ledger is not the registered construction" % policy)
 
 
 def canonical_instances(policy):
@@ -267,15 +313,20 @@ def evidence(root, marker):
         if set(pairs) != wanted:
             failures.append("%s: the cells are not exactly every valid instance against every ledger (%d of %d)" % (policy, len(set(pairs) & wanted), len(wanted)))
         site_of = {c["id"]: (c["class"], c["site"]) for c in canon}
+        expected_entries = {}
         for c in cells:
             rows = ledger_rows.get(c.get("ledger"))
             defect_path = pdir / "defects" / (str(c.get("defect")) + ".pack.json")
+            if defect_path.exists() and c.get("defect") not in expected_entries:
+                expected_entries[c["defect"]] = replay.expected_thresholds(json.loads(defect_path.read_text()))
             ok = (c.get("status") in ("passed", "mismatch") and isinstance(c.get("mismatched"), int) and rows is not None
                   and c.get("rows") == rows and 0 <= c["mismatched"] <= rows and c.get("caught") == (c["mismatched"] > 0)
-                  and isinstance(c.get("signature"), dict) and isinstance(c["signature"].get("applicable"), bool)
+                  and (c["status"] == "mismatch") == (c["mismatched"] > 0)
                   and c.get("ledgerSha256") == ledger_digest.get(c.get("ledger"))
                   and defect_path.exists() and c.get("defectSha256") == attempt.sha256_file(defect_path)
-                  and site_of.get(c.get("defect")) == (c.get("class"), c.get("site")))
+                  and site_of.get(c.get("defect")) == (c.get("class"), c.get("site"))
+                  and signature_evidence_ok(c.get("signature"), c["mismatched"] if isinstance(c.get("mismatched"), int) else None,
+                                            expected_entries.get(c.get("defect"))))
             if not ok:
                 failures.append("%s: cell %s x %s is not a complete, bound replay record" % (policy, c.get("defect"), c.get("ledger")))
                 break
@@ -325,30 +376,38 @@ def main():
     if not args.pilot and not holdout:
         sys.exit("refusing: a registered adjudication includes the holdout")
     registered = not args.pilot
-    gate_failures, cells_by_policy = evidence(root, marker)
-    if len(cells_by_policy) != len(POLICIES) or gate_failures:
-        decision, rates, sigs, adjudication = ("pipeline-invalid" if len(cells_by_policy) != len(POLICIES) else "control-gate-failed"), [], [], []
-        if len(cells_by_policy) == len(POLICIES):
-            rates, sigs = aggregate(cells_by_policy)
+    # validity first: the records must be a complete, unique, bound set of the
+    # registered inputs, or nothing is aggregated and nothing adjudicated
+    validity_failures, cells_by_policy = evidence(root, marker)
+    if len(cells_by_policy) == len(POLICIES) and not validity_failures:
+        registered_inputs_ok(root, validity_failures)
+    rates, sigs, adjudication, gate_failures = [], [], [], []
+    if validity_failures or len(cells_by_policy) != len(POLICIES):
+        decision = "pipeline-invalid"
     else:
-        rates, sigs = aggregate(cells_by_policy)
+        # then the executed controls: G1 is held inside evidence() as bound clean gate records; G3 here
         gate_failures = determinism_check(root)
+        rates, sigs = aggregate(cells_by_policy)
         adjudication = adjudicate(load_matrix(STUDY / "harness" / "MATRIX.json") + holdout, cells_by_policy)
         unobserved = [r["id"] for r in adjudication if r["verdict"] == "unobserved"]
         diverging = [r for r in adjudication if r["verdict"] == "diverges"]
         if unobserved:
             decision = "pipeline-invalid"
-            gate_failures = gate_failures + ["unobserved registered cells: %d (first: %s)" % (len(unobserved), unobserved[0])]
+            validity_failures = ["unobserved registered cells: %d (first: %s)" % (len(unobserved), unobserved[0])]
         elif gate_failures:
             decision = "control-gate-failed"
         else:
             decision = "R1 holds" if not diverging else "R1 falsified"
+    def write_once(name, payload):
+        with open(root / name, "x") as f:
+            f.write(json.dumps(payload, indent=1))
     if rates:
-        (root / "CATCH-RATES.json").write_text(json.dumps(rates, indent=1))
-        (root / "SIGNATURE.json").write_text(json.dumps(sigs, indent=1))
-    (root / "ADJUDICATION.json").write_text(json.dumps({"label": attempt.REGISTERED_LABEL if registered else attempt.PILOT_LABEL, "attemptId": marker["attemptId"],
-                                                          "jpackDigest": digest, "jpackVersion": jp.runtime_version(), "holdoutIncluded": bool(holdout),
-                                                          "decision": decision, "gateFailures": gate_failures, "cells": adjudication}, indent=1))
+        write_once("CATCH-RATES.json", rates)
+        write_once("SIGNATURE.json", sigs)
+    write_once("ADJUDICATION.json", {"label": attempt.REGISTERED_LABEL if registered else attempt.PILOT_LABEL, "attemptId": marker["attemptId"],
+                                     "jpackDigest": digest, "jpackVersion": jp.runtime_version(), "holdoutIncluded": bool(holdout),
+                                     "decision": decision, "validityFailures": validity_failures, "gateFailures": gate_failures, "cells": adjudication})
+    gate_failures = validity_failures + gate_failures
     print("%s: %s (%d registered cells, %d diverge, %d gate failures)" % (attempt.REGISTERED_LABEL if registered else attempt.PILOT_LABEL, decision, len(adjudication),
           sum(1 for r in adjudication if r["verdict"] == "diverges"), len(gate_failures)))
     if decision in ("pipeline-invalid", "control-gate-failed"):

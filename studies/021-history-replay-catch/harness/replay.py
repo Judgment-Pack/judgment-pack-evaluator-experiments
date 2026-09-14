@@ -30,7 +30,42 @@ def digest_of(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def signature(profile, mismatched=None):
+ORDERED = {"greater-than", "greater-than-or-equal", "less-than", "less-than-or-equal"}
+
+
+def expected_thresholds(pack):
+    """How many threshold entries the profile must report for this pack: its
+    distinct (pointer, literal) ordered comparisons, over the applicability,
+    the rules and the exceptions (runtime ADR-0034 groups coincident sites)."""
+    found = set()
+
+    def walk(node):
+        if not isinstance(node, dict):
+            return
+        if node.get("op") == "fact" and node.get("operator") in ORDERED:
+            found.add((node["path"], node["value"]))
+        for child in node.get("conditions", []) or []:
+            walk(child)
+        if "condition" in node:
+            walk(node["condition"])
+    walk(pack.get("applicability"))
+    for r in pack.get("rules", []):
+        walk(r.get("when"))
+    for e in pack.get("exceptions", []):
+        walk(e.get("when"))
+    return len(found)
+
+
+def signature_from_buckets(per_pointer, mismatched):
+    """The rule over retained bucket counts: what the scorer recomputes from a record."""
+    one = len(per_pointer) == 1
+    entries = next(iter(per_pointer.values())) if one else []
+    sided = one and any(e["at"] == 0 and ((e["below"] > 0) != (e["above"] > 0)) for e in entries)
+    placed = one and mismatched is not None and all(e["below"] + e["at"] + e["above"] == mismatched for e in entries)
+    return bool(one and sided and placed), bool(placed)
+
+
+def signature(profile, mismatched=None, expected=None):
     """The registered line-moved signature, read per POINTER across origins.
 
     A pack may compare one pointer against several literals (a rule's guard
@@ -40,23 +75,30 @@ def signature(profile, mismatched=None):
     at least one of that pointer's literals every disagreeing row lies
     strictly on one side of it (below xor above) and none at it.
     """
-    if not profile or not profile.get("thresholds"):
-        return {"applicable": False}
+    if not isinstance(profile, dict):
+        raise RuntimeError("the replay report carries no profile: the runtime did not report the history profile")
+    # the runtime omits `thresholds` when the pack draws no line; the number
+    # reported must be the number the pack draws, or the evidence is not the
+    # pack's
+    entries = profile.get("thresholds") or []
+    if not isinstance(entries, list):
+        raise RuntimeError("the profile's thresholds member is not a list")
+    if expected is not None and len(entries) != expected:
+        raise RuntimeError("the profile reports %d threshold entries where the pack draws %d" % (len(entries), expected))
+    if not entries:
+        return {"applicable": False, "thresholdEntries": 0}
     per_pointer = {}
-    for t in profile["thresholds"]:
+    for t in entries:
         below = sum(o["below"]["disagreeing"] for o in t["origins"])
         at = sum(o["at"]["disagreeing"] for o in t["origins"])
         above = sum(o["above"]["disagreeing"] for o in t["origins"])
         if below + at + above:
             per_pointer.setdefault(t["pointer"], []).append({"literal": t["literal"], "below": below, "at": at, "above": above})
-    one = len(per_pointer) == 1
-    entries = next(iter(per_pointer.values())) if one else []
-    sided = one and any(e["at"] == 0 and ((e["below"] > 0) != (e["above"] > 0)) for e in entries)
     # every mismatched row must be PLACED on that pointer: a row whose value
     # the profile could not compare sits in no bucket, and a signature over
     # the placed rows alone would say nothing about it
-    placed = one and mismatched is not None and all(e["below"] + e["at"] + e["above"] == mismatched for e in entries)
-    return {"applicable": True, "lineMoved": bool(one and sided and placed), "placed": placed, "disagreeing": per_pointer}
+    line_moved, placed = signature_from_buckets(per_pointer, mismatched)
+    return {"applicable": True, "thresholdEntries": len(entries), "lineMoved": line_moved, "placed": placed, "disagreeing": per_pointer}
 
 
 def replay(policy, pack, ledger):
@@ -69,8 +111,10 @@ def replay(policy, pack, ledger):
         raise RuntimeError("replay of %s did not run to a verdict: status %r, summary %r" % (policy, entry.get("status"), summary))
     if summary["total"] != len(ledger["cases"]):
         raise RuntimeError("replay of %s read %d rows of a ledger of %d" % (policy, summary["total"], len(ledger["cases"])))
+    if (entry["status"] == "mismatch") != (summary["mismatched"] > 0):
+        raise RuntimeError("replay of %s reports status %s with %d mismatched" % (policy, entry["status"], summary["mismatched"]))
     return {"status": entry["status"], "rows": summary["total"], "mismatched": summary["mismatched"],
-            "caught": summary["mismatched"] > 0, "signature": signature(entry.get("profile"), summary["mismatched"])}
+            "caught": summary["mismatched"] > 0, "signature": signature(entry.get("profile"), summary["mismatched"], expected_thresholds(pack))}
 
 
 def main():

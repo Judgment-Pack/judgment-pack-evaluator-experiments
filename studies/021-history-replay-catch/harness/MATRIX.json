@@ -741,7 +741,7 @@
     "allowsNoCaught": true
    },
    "structure": "S6",
-   "reason": "cases change on both sides of the line: below it every case that did not already escalate now escalates, above it every case falls to request-info; the case at 250000 is unchanged",
+   "reason": "cases change on both sides of the line: below it every case not already escalated gains the exception's escalation, above it every case loses it -- and what it then decides is the rules' (approve, request-info, or reject where the sanctions exception forces it; unresolved where required evidence is absent); the case at 250000 is unchanged",
    "role": "endpoint",
    "n": 50
   },

@@ -472,3 +472,145 @@ Every finding is applied.
 | 5 | MAJOR | **Applied.** S5, S6 and S7 now distinguish the support of the changed cases from the finite-ledger prediction, give the policy-specific intervals, and say an at-row defeats the signature only when no other literal of the pointer qualifies (`vendor-onboarding` D2-17 named). |
 | 6 | MAJOR | **Applied.** `sanctions-screening` D4-04 and D5-06 catch reasons say one third per row and 1 − (2/3)^50; `vendor-onboarding` D8-23 says about one ledger in ten thousand and about 0.003 over thirty; `expense-approval` D2-07 states the permitted-and-receipted restriction (1/1208 per row, about 0.04 of ledgers) and the resulting 0.93. |
 | 7 | MINOR | **Applied.** "Runner" refuses an existing root; D4-14 fires strictly above 250000; D4-19's reasons say the at-row is unchanged; S5 says the literal 1 is matched. |
+
+## Round 3 — 2026-09-14
+
+Reviewer: codex-cli 0.153.4, model gpt-6-astra (OpenAI), read-only sandbox, on worktree commit `9fe2d6bb`; different vendor than the model that drafted (Claude). Verdict: **not freezable as written** (2 BLOCKER, 1 MAJOR, 4 MINOR); the round-2 fixes audited, the pin, marker and reserved-seed bypasses confirmed closed; the holdout confirmed byte-for-byte.
+
+> Note: the reviewer's worktree paths are normalized here. The finding prose is otherwise verbatim.
+
+### Round 3 — prompt (verbatim)
+
+```
+You are the pre-freeze cross-vendor reviewer for Study 021 in the judgment-pack-evaluator-experiments repository, under the interim review regime (a model from a different vendor than the one that drafted; Claude drafted). This is ROUND 3 on commit 9fe2d6bb (`git log -1`). Rounds 1 and 2 (recorded verbatim with the maintainer's dispositions in studies/021-history-replay-catch/PREREG-REVIEW.md) returned six blockers and ten majors in all, every one applied; round 1 authored eight holdout cells, placed byte-for-byte as a top-level array in harness/MATRIX-HOLDOUT.json.
+
+First, verify each round-2 fix against the harness and the registration — in particular harness/attempt.py (the marker and pin checks), score.py's evidence() (the complete, unique, bound record set), run_attempt.py (pins held before a registered root; the attempt id; the stamps), build_ledgers.py (reserved draws under a validated registered context; outputs written once), replay.py (digest binding), and the changed matrix reasons and §6 structures. Say per round-2 finding whether the edit makes the registration true and enforceable, and whether it introduced a new defect. Then say per finding whether the edit makes the registration true and enforceable, and whether it introduced a new defect. In particular: run `python -m unittest discover -s harness/tests` from the study directory (the pinned runtime is not available to you, so the two ledger tests skip; say so); read harness/score.py end to end for any path that still reaches "R1 holds" without complete observations, executed gates, matching pins and the reserved ledger set; read harness/run_attempt.py for the exclusive root and the marker; read harness/build_ledgers.py for the discrete-uniform draw, the not-applicable drop, the refusal-exhaustion failure and the reserved-seed guard; read harness/replay.py for the placement condition and the verdict check. re-read PREREGISTRATION.md and harness/MATRIX.json whole for anything the earlier rounds missed. If nothing that would let a favourable outcome be reached for the wrong reason remains, say so plainly and return `freezable as written`; note that the runtime pin (harness/PINS.json jpack.sha256) is null by design until the runtime's v0.21.0 release publishes, and the freeze pins are filled at the freeze commit — say whether anything in the design depends on their being filled earlier. Verify your own holdout cells still fit the schema the scorer loads and that their reasons survive the corrected generator (discrete-uniform: sanctions {0,1,2} at one third each; expense lattice of 151 values; vendor lattice of 500001).
+
+The study directory is studies/021-history-replay-catch/ of the current worktree; the spec and runtime checkouts are at /home/onword/repo/judgment-pack/judgment-pack-spec and /home/onword/repo/judgment-pack/judgment-pack-runtime, read via `git -C <path> show origin/main:<file>`.
+
+For each finding give: severity (BLOCKER / MAJOR / MINOR), the exact sentence, cell or line, what the source says, and the smallest edit. Then a verdict: `freezable as written`, `freezable after fixes` (list them), or `not freezable as written`.
+```
+
+### Round 3 — findings (verbatim)
+
+**Verdict: `not freezable as written`.** The round-2 changes close the pin, marker and reserved-seed bypasses, but the scorer still accepts incomplete signature evidence and inputs that do not implement the registered experiment.
+
+I reviewed commit `9fe2d6bbc5c09805ad8ce64c56b1d309fd4dd02f`, the complete registration and both matrices, and all harness sources. Source comparisons used spec `origin/main` at `587ebc5e…` and runtime `origin/main` at `0c8a4b63…`, through the requested `git show` commands.
+
+The requested unittest command ran from the study directory: **21 passed, 2 skipped, 4 errored**. The two ledger tests skipped because the pinned runtime is unavailable. All four errors arose at `tempfile.mkdtemp()` because the sandbox is read-only. The interpreter here is CPython 3.8.20, not the registered 3.12. The 22-file manifest matches; the freeze-set checker reports zero problems. No primary attempt, runtime evaluation or reserved draw ran. Files remain unchanged.
+
+The round-2 findings resolve as follows:
+
+| Round-2 finding | Does the edit make the registration true and enforceable? | New defect introduced? |
+|---|---|---|
+| **1 — BLOCKER: complete observations** | **Partial.** Unique defect–ledger pairs, retained random-ledger counts, canonical index metadata, G1 coverage, digests and attempt stamps are checked. Signature completeness and registered input construction remain insufficiently checked. | The new failure branch also misclassifies incomplete evidence; finding 3 below. |
+| **2 — BLOCKER: production pins** | **Closed for provenance.** Runtime and raw pins digests, label, policies, sizes and seeds are matched before scoring. A mismatch refuses registered adjudication. Index, gate and cell-file envelopes must carry the matching attempt ID. | Minor new validation discrepancy: the claimed hexadecimal ID check only checks length. |
+| **3 — BLOCKER: reserved seeds** | **Closed for reserved construction.** Pins are checked before exclusive root creation; the builder requires a matching registered context; ledger, mutant and replay-record files use exclusive creation. | No new seed defect found. The broader promise that *every output* is written once remains unenforced for scorer outputs. |
+| **4 — MAJOR: literal intervals** | **Exact-coverage defect closed; prose only partially implemented.** Literal per-instance intervals are null, but pooled literal reference intervals remain. | No new coverage claim; a residual reporting discrepancy remains. |
+| **5 — MAJOR: §6 generalizations** | **Substantially corrected.** Support and finite-ledger predictions are distinguished; expense intervals and the retained vendor literal are explained. | S5 newly groups sanctions D2 under `[0,0.1]`, contradicting its exact-zero matrix cell and S7. |
+| **6 — MAJOR: numerical reasons** | **Closed.** Both sanctions unions use `1−(2/3)^50`; vendor D8-23 distinguishes per-ledger and thirty-ledger probabilities; expense D2-07 includes permitted category and receipt. | None found. |
+| **7 — MINOR: actor/boundary/outcome wording** | The requested replacements were applied. The vendor D4-19 random reason still overstates the resulting outcome. | No new endpoint defect; residual wording is detailed below. |
+
+The remaining findings are:
+
+1. **BLOCKER — missing signature observations can still count as observed zero.**
+
+   **Exact implementation:** [score.py:273](<worktree>/studies/021-history-replay-catch/harness/score.py:273) requires a signature dictionary and Boolean `applicable`, but does not require or validate `lineMoved`, `placed` or the supporting counts. Line 166 treats a missing `lineMoved` as false. Meanwhile, `replay.py:43–44,73` converts a missing profile into `{"applicable": false}`.
+
+   **Source:** §§5 and 7 require the signature to be observed from the profile and missing observations to invalidate the pipeline. ADR-0034 provides a profile when rows declare origins; these generated rows do.
+
+   **Reproduction:** In memory, I replaced all thirty sanctions D3-03/random-50 signatures in retained pilot records with `{"applicable": true}`. `evidence()` returned **no failures**, and adjudication returned **131/131 holds**, including observed signature rate zero for that cell. Separately, the real replay adapter accepted a mocked mismatch report with no profile as a threshold-free catch.
+
+   **Smallest sufficient edit:** require the expected profile and its complete signature evidence; validate Boolean results and counts; recompute the signature from retained evidence. Missing profile data must not mean “no threshold.” Also enforce status/count consistency: the present checks accept `passed` with positive mismatches and `mismatch` with zero.
+
+2. **BLOCKER — digest binding does not establish that the inputs are the registered inputs.**
+
+   **Exact implementation:** `score.py:185–188` recomputes only mutant **metadata**, discarding the expected mutated document. Lines 272–278 accept whichever pack occupies that filename when its recorded digest matches. Lines 229–233 require only that the literal ledger be nonempty.
+
+   **Source:** §4 registers a particular mechanical edit at each site; §3 registers the complete literal candidate construction, including evidence-present/absent/unknown probes.
+
+   **Two independent in-memory reproductions:**
+
+   - Replacing vendor `D1-11.pack.json` with the **unplanted original**, and updating its recorded digest, produced no evidence failures and **131/131 holds**. This masked defect’s registered nondetection therefore succeeds without the registered defect being present.
+   - Removing expense’s absent-receipt and unknown-receipt literal probes, updating row counts and digests, likewise produced no failures and **131/131 holds**. The ledger had 15 rows instead of 17.
+
+   These probes used retained pilot data; they are scorer acceptance demonstrations, not study results.
+
+   **Smallest sufficient edit:** compare each retained mutant with its corresponding document from `plant.instances()`. Rebuild and compare each literal ledger, or validate an equivalently complete registered candidate set. Matching a file’s digest and accepting any positive literal row count are insufficient.
+
+3. **MAJOR — incomplete evidence is classified as a control failure and aggregated.**
+
+   **Exact implementation:** `score.py:329–332` chooses `control-gate-failed` whenever all four policy dictionaries exist, even when `evidence()` reports missing observations, and then calls `aggregate()`.
+
+   **Source:** §7 gives pipeline invalidity precedence for incomplete observations. The scorer’s own lines 23–26 promise the same.
+
+   **Reproduction:** Removing one expense replay record produced `control-gate-failed` and attempted to write both aggregate files. Output writes were intercepted in memory.
+
+   **Smallest edit:** distinguish evidence-validity failures from executed control failures. Missing, duplicate, malformed or unbound evidence must produce `pipeline-invalid` before aggregation or endpoint adjudication.
+
+4. **MINOR — pooled literal intervals contradict the revised exclusion.**
+
+   **Exact implementation:** `score.py:142,147` still calculates `referenceInterval` for literal class aggregates.
+
+   **Source:** R2, registration lines 79–88, specifies literal counts and rates with **“no interval”**, including the signature table.
+
+   A deterministic threshold-free catch still produces a pooled signature interval `[0.0, 0.975]`. It is now explicitly a reference interval without coverage, so the original exact-coverage error is resolved.
+
+   **Smallest edit:** apply the `stratum == "random"` condition to both pooled interval calculations.
+
+5. **MINOR — scorer outputs can still be overwritten.**
+
+   **Exact sentence:** registration lines 48–49: **“an output is written once and never overwritten.”**
+
+   **Implementation:** `score.py:347–351` uses `write_text()`. Existing aggregate files are overwritten when no adjudication exists—for example, after a crash between aggregate publication and adjudication.
+
+   **Smallest edit:** use exclusive creation for all three scorer outputs. The runner’s exclusive root and the builder/planter/replayer’s exclusive writes are otherwise correctly implemented.
+
+6. **MINOR — the attempt-ID check does not enforce hexadecimal format.**
+
+   **Exact implementation:** [attempt.py:92](<worktree>/studies/021-history-replay-catch/harness/attempt.py:92) checks string type and length, while its error and the round-2 disposition promise a **“32-hex”** token.
+
+   A matching marker with `"z" * 32` returns no problems. The runner itself correctly generates hexadecimal IDs.
+
+   **Smallest edit:** validate against `[0-9a-f]{32}`.
+
+7. **MINOR — three remaining prose discrepancies.**
+
+   | Exact location/text | What the source establishes | Smallest edit |
+   |---|---|---|
+   | Registration S5, line 260, groups sanctions D2 with `[0,0.1]` | Its changed cases all sit at zero; S7 and `sanctions-screening/D2-02/random-50/lineMovedWhenCaught` correctly specify `[0,0]`. | Separate D2’s exact-zero statement from D5-06’s finite-ledger interval. |
+   | `MATRIX.json:744`, vendor D4-19/random-50/signature: **“above it every case falls to request-info”** | Under Core §§8–8.3, present-evidence matches can instead be forced to reject; missing-evidence cases remain unresolved. Adding/removing `exception-escalation` can itself change the full disposition. | Describe the added/removed escalation reason and conditional outcomes; retain the unchanged-at-row statement and interval. |
+   | `PINS.json:3`: **“any null makes it a PILOT”** | The revised runner/scorer refuse registered execution with null pins. Pilot execution requires the explicit pilot mode and matching marker. | Replace the automatic-demotion description with the actual refusal rule. |
+
+The corrected generator uses inclusive `randint` bounds **0–2**, **0–150** and **0–500000**, giving the requested uniform lattices. In-memory checks confirmed not-applicable redraws and failure after refusal exhaustion. The replay’s complete-placement and existential-literal calculation agrees with §5 **when complete profile evidence is supplied**. G3 executes on the admissible scoring path and must succeed before “R1 holds”; the findings above concern evidence that incorrectly reaches that path.
+
+All eight holdouts remain byte-for-byte identical to the round-1 array. They load correctly, name valid defects, and introduce no duplicate IDs or combinations: **123 main cells + 8 holdouts = 131 unique cells**.
+
+| Holdout | Reason survives? |
+|---|---|
+| h01 | Yes: deny → review below 75; signature present. |
+| h02 | Yes: amount guard removed; no threshold. |
+| h03 | Yes: changed at-250000 row prevents the signature. |
+| h04 | Yes: retained 250000 literal establishes one-sidedness. |
+| h05 | Yes: embargo exception changes disposition; no threshold. |
+| h06 | Yes: changed zero and two occupy both sides. |
+| h07 | Yes: per-row probability `1/30`; n=20 catch probability **0.492385**. |
+| h08 | Yes: per-row probability `(1/108) × (250000/500001)`; n=20 catch probability **0.088631**. |
+
+The intentionally null runtime digest is **not a review blocker**. Nothing requires it, or the freeze hashes, to be filled earlier than their stated release/freeze milestones. Complete matching pins are required **before registered construction begins**. An in-memory check confirmed that null pins cause refusal before root creation or any child command.
+
+**Final verdict: `not freezable as written`.** Findings 1–3 require correction; findings 4–7 identify the remaining smaller discrepancies.
+
+### Round 3 — maintainer disposition
+
+Every finding is applied.
+
+| # | Severity | Disposition |
+|---|---|---|
+| 1 | BLOCKER | **Applied.** A replay whose report carries no profile fails the construction (`replay.signature` raises); a signature record carries the profile's threshold count and, where a threshold exists, the bucket counts per pointer and literal with the recorded `lineMoved` and `placed`; the scorer (`signature_evidence_ok`) requires the complete record and recomputes the verdict from the retained counts through the same rule (`replay.signature_from_buckets`), refusing any disagreement; `applicable: false` is accepted only with `thresholdEntries: 0` and nothing else. Status and count are held consistent (`mismatch` iff mismatched > 0) at replay and again at scoring. A note on the runtime's contract, found by the pilot that followed: the runtime omits the profile's `thresholds` member for a pack that draws no line (`omitempty`), so "no thresholds" is a legitimate report for such a pack and not missing evidence. The rule therefore reads the profile against the pack: `replay.expected_thresholds` counts the replayed pack's distinct (pointer, literal) ordered comparisons, the replay fails unless the profile reports exactly that many entries, and the scorer recomputes the expectation from the retained mutant and holds the record to it. |
+| 2 | BLOCKER | **Applied.** `registered_inputs_ok` compares every retained mutant document with the planter's document for its site (JSON equality, not digest) and rebuilds every literal ledger under the pinned runtime, comparing bytes; a difference is a validity failure. §7 says so. |
+| 3 | MAJOR | **Applied.** Validity is held first and any shortfall is `pipeline-invalid` with nothing aggregated or adjudicated; only the executed controls (G1 as bound clean gate records inside the validity check, G3 after it) produce `control-gate-failed`. The adjudication file records validity failures and gate failures separately. |
+| 4 | MINOR | **Applied.** Pooled literal aggregates carry no interval, in both tables. |
+| 5 | MINOR | **Applied.** The scorer's three files are opened for exclusive creation. |
+| 6 | MINOR | **Applied.** The attempt id is held to `[0-9a-f]{32}`. |
+| 7 | MINOR | **Applied.** S5 states `sanctions-screening` D2 as exactly 0 (as S7 and the cell do) apart from D5-06's interval; the D4-19 random reason describes the gained and lost escalation and the conditional outcomes above the line; the pins note states the refusal rule in place of an automatic demotion. |

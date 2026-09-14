@@ -12,6 +12,7 @@ pilot draws no reserved seed.
 """
 import hashlib
 import json
+import re
 from pathlib import Path
 
 import jp
@@ -89,7 +90,7 @@ def marker_problems(marker, runtime_digest, label):
         problems.append("marker sizes %s are not %s" % (marker["sizes"], list(SIZES)))
     if marker["policies"] != list(POLICIES):
         problems.append("marker policies are not the four registered ones")
-    if not isinstance(marker["attemptId"], str) or len(marker["attemptId"]) != 32:
+    if not isinstance(marker["attemptId"], str) or not re.fullmatch(r"[0-9a-f]{32}", marker["attemptId"]):
         problems.append("marker attempt id is not a 32-hex token")
     return problems
 
