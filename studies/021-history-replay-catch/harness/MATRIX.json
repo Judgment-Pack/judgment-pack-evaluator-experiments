@@ -656,12 +656,12 @@
    "stratum": "random",
    "endpoint": "lineMovedWhenCaught",
    "expected": {
-    "min": 1,
+    "min": 0.95,
     "max": 1,
     "allowsNoCaught": true
    },
    "structure": "S5",
-   "reason": "only cases at or above 250000 change, and a random draw sits exactly at 250000 with probability 1/500001",
+   "reason": "only cases at or above 250000 change; a draw exactly at 250000 changes too and sits AT the literal, with probability 1/500001 per row -- about one ledger in three hundred",
    "role": "endpoint",
    "n": 50
   },
@@ -709,7 +709,7 @@
     "allowsNoCaught": true
    },
    "structure": "S7",
-   "reason": "the changed cases lie between 187500 and 250000, above the new literal; a draw exactly at 187500 has probability 1/500001",
+   "reason": "the changed cases lie between 187500 and 250000: above the new literal 187500 and below the retained guard 250000, either of which satisfies the signature's one-literal condition; a draw exactly at 187500 (1/500001 per row) changes and sits at the new literal but not at the retained one",
    "role": "endpoint",
    "n": 50
   },
@@ -756,7 +756,7 @@
     "max": 1
    },
    "structure": "S6",
-   "reason": "the row with that category was denied and is now reimbursed (small, receipted)",
+   "reason": "the row with that category was denied by the category rule; with the member gone neither rule fires (the reimbursement rule's own exclusion still holds) and the case falls to the fallback review",
    "role": "endpoint"
   },
   {
@@ -767,11 +767,11 @@
    "endpoint": "lineMovedWhenCaught",
    "expected": {
     "min": 0,
-    "max": 0.1,
+    "max": 0.35,
     "allowsNoCaught": true
    },
    "structure": "S6",
-   "reason": "cases with that category change at every amount: both sides of 75",
+   "reason": "cases with that category change (deny to review) at every amount, so the changed cases sit on both sides of 75 -- but only a receipted case changes (without a receipt both packs escalate), so a ledger of 50 changes about six rows (binomial, 1/8 per row), and with few rows all on one side happens by chance: the probability a caught ledger carries the signature is about 0.08, so the observed fraction over thirty ledgers is registered at most 0.35",
    "role": "endpoint",
    "n": 50
   },
@@ -786,7 +786,7 @@
     "max": 1
    },
    "structure": "S6",
-   "reason": "the row with that category was denied and is now reimbursed (small, receipted)",
+   "reason": "the row with that category was denied by the category rule; with the member gone neither rule fires (the reimbursement rule's own exclusion still holds) and the case falls to the fallback review",
    "role": "endpoint"
   },
   {
@@ -797,11 +797,11 @@
    "endpoint": "lineMovedWhenCaught",
    "expected": {
     "min": 0,
-    "max": 0.1,
+    "max": 0.35,
     "allowsNoCaught": true
    },
    "structure": "S6",
-   "reason": "cases with that category change at every amount: both sides of 75",
+   "reason": "cases with that category change (deny to review) at every amount, so the changed cases sit on both sides of 75 -- but only a receipted case changes (without a receipt both packs escalate), so a ledger of 50 changes about six rows (binomial, 1/8 per row), and with few rows all on one side happens by chance: the probability a caught ledger carries the signature is about 0.08, so the observed fraction over thirty ledgers is registered at most 0.35",
    "role": "endpoint",
    "n": 50
   },
@@ -816,7 +816,7 @@
     "max": 1
    },
    "structure": "S6",
-   "reason": "the row with that category was denied and is now reimbursed (small, receipted)",
+   "reason": "the row with that category was denied by the category rule; with the member gone neither rule fires (the reimbursement rule's own exclusion still holds) and the case falls to the fallback review",
    "role": "endpoint"
   },
   {
@@ -827,11 +827,11 @@
    "endpoint": "lineMovedWhenCaught",
    "expected": {
     "min": 0,
-    "max": 0.1,
+    "max": 0.35,
     "allowsNoCaught": true
    },
    "structure": "S6",
-   "reason": "cases with that category change at every amount: both sides of 75",
+   "reason": "cases with that category change (deny to review) at every amount, so the changed cases sit on both sides of 75 -- but only a receipted case changes (without a receipt both packs escalate), so a ledger of 50 changes about six rows (binomial, 1/8 per row), and with few rows all on one side happens by chance: the probability a caught ledger carries the signature is about 0.08, so the observed fraction over thirty ledgers is registered at most 0.35",
    "role": "endpoint",
    "n": 50
   },
@@ -860,7 +860,7 @@
     "max": 1
    },
    "structure": "line removed",
-   "reason": "a receipted, permitted case at or above 75 changes: about a fifth of draws, so a ledger of 50 almost surely holds one",
+   "reason": "a changed case is permitted (the one value outside the three prohibited members: 1/4), receipted (1/2) and at or above 75 (76 of the 151 lattice values): about 0.063 per row, so a ledger of 50 holds one with probability about 0.96",
    "role": "endpoint",
    "n": 50
   },
@@ -1034,11 +1034,11 @@
    "endpoint": "lineMovedWhenCaught",
    "expected": {
     "min": 0,
-    "max": 0.15,
+    "max": 0.35,
     "allowsNoCaught": true
    },
    "structure": "S6",
-   "reason": "permitted receipted cases change on both sides of 75",
+   "reason": "permitted receipted cases change on both sides of 75 (below: reimburse to review; above: review to reimburse); only about six rows of a ledger of 50 are permitted and receipted (1/8 per row), so all on one side happens by chance with probability about 0.08 per caught ledger; registered at most 0.35",
    "role": "endpoint",
    "n": 50
   },
@@ -1158,7 +1158,7 @@
     "allowsNoCaught": true
    },
    "structure": "S6",
-   "reason": "prohibited cases change at every amount: both sides",
+   "reason": "prohibited receipted cases change (deny to reimburse) at every amount, about nineteen rows of a ledger of 50 (3/8 per row), so all on one side has probability under 0.001 per ledger",
    "role": "endpoint",
    "n": 50
   },
@@ -1337,7 +1337,7 @@
     "max": 1
    },
    "structure": "S3 on a small domain",
-   "reason": "a draw over {0, 1, 2} sits at 1 with probability one third per row",
+   "reason": "a draw over {0, 1, 2} sits at 1 with probability one third per row and must carry the required evidence (one half): one sixth per row, so a ledger of 50 holds one with probability 1 - (5/6)^50",
    "role": "endpoint",
    "n": 50
   },
@@ -1379,11 +1379,11 @@
    "endpoint": "lineMovedWhenCaught",
    "expected": {
     "min": 0,
-    "max": 0,
+    "max": 0.1,
     "allowsNoCaught": true
    },
    "structure": "S6",
-   "reason": "cases at 0 (below) and at 2 (above) change; the case at 1 matches in both packs",
+   "reason": "cases at 0 (below) and at 2 (above) change, the case at 1 matches in both packs; a caught ledger carries the signature only if every changed case it holds is on one side -- no changed two, or no changed zero -- which for a ledger of 50 with evidence present half the time has probability about 2 x (5/6)^50, under 0.001, so at most a ledger or two in thirty",
    "role": "endpoint",
    "n": 50
   },
@@ -1439,11 +1439,11 @@
    "endpoint": "lineMovedWhenCaught",
    "expected": {
     "min": 0,
-    "max": 0,
+    "max": 0.1,
     "allowsNoCaught": true
    },
    "structure": "at-rows",
-   "reason": "cases at 1 (AT the literal) and at 2 (above) change",
+   "reason": "cases at 1 (AT the literal) and at 2 (above) change; a caught ledger carries the signature only if it holds a changed two and no changed one, probability about (5/6)^50 per ledger",
    "role": "endpoint",
    "n": 50
   },
@@ -1458,7 +1458,7 @@
     "max": 1
    },
    "structure": "small domain",
-   "reason": "every draw over {0, 1, 2} lands on a changed value with probability at least one third per row",
+   "reason": "every changed value is drawn with probability one third per row and the required evidence is present half the time: one sixth per row, and a ledger of 50 holds a changed case with probability 1 - (5/6)^50",
    "role": "endpoint",
    "n": 50
   },
@@ -1473,7 +1473,7 @@
     "max": 1
    },
    "structure": "small domain",
-   "reason": "every draw over {0, 1, 2} lands on a changed value with probability at least one third per row",
+   "reason": "every changed value is drawn with probability one third per row and the required evidence is present half the time: one sixth per row, and a ledger of 50 holds a changed case with probability 1 - (5/6)^50",
    "role": "endpoint",
    "n": 50
   },
@@ -1488,7 +1488,7 @@
     "max": 1
    },
    "structure": "small domain",
-   "reason": "every draw over {0, 1, 2} lands on a changed value with probability at least one third per row",
+   "reason": "every changed value is drawn with probability one third per row and the required evidence is present half the time: one sixth per row, and a ledger of 50 holds a changed case with probability 1 - (5/6)^50",
    "role": "endpoint",
    "n": 50
   },
@@ -1503,7 +1503,7 @@
     "max": 1
    },
    "structure": "small domain",
-   "reason": "every draw over {0, 1, 2} lands on a changed value with probability at least one third per row",
+   "reason": "every changed value is drawn with probability one third per row and the required evidence is present half the time: one sixth per row, and a ledger of 50 holds a changed case with probability 1 - (5/6)^50",
    "role": "endpoint",
    "n": 50
   },
@@ -1518,7 +1518,7 @@
     "max": 1
    },
    "structure": "small domain",
-   "reason": "every draw over {0, 1, 2} lands on a changed value with probability at least one third per row",
+   "reason": "every changed value is drawn with probability one third per row and the required evidence is present half the time: one sixth per row, and a ledger of 50 holds a changed case with probability 1 - (5/6)^50",
    "role": "endpoint",
    "n": 50
   },
@@ -1533,7 +1533,7 @@
     "max": 1
    },
    "structure": "small domain",
-   "reason": "every draw over {0, 1, 2} lands on a changed value with probability at least one third per row",
+   "reason": "every changed value is drawn with probability one third per row and the required evidence is present half the time: one sixth per row, and a ledger of 50 holds a changed case with probability 1 - (5/6)^50",
    "role": "endpoint",
    "n": 50
   },

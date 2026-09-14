@@ -9,11 +9,15 @@ never what any draft produces. Two strata:
   the outermost, one pointer moved at a time from the base row; evidence
   candidates) decided under the pack. One ledger per policy, deterministic.
 - `random-<n>-<seed>` -- the random stratum: n cases drawn by a seeded
-  generator over the pack's own pointer domains (ordered literals span
-  [0, 2*max]; enum literals plus one value outside the domain; booleans;
-  evidence present/absent), decided under the pack. Rows the pack refuses
-  (facts outside its applicability or its grammar) are kept when the runtime
-  produces a disposition, dropped when it refuses -- a ledger holds decisions.
+  generator over the pack's own pointer domains (an ordered literal's pointer
+  discrete-uniform over the lattice [0, 2*max] at the literal's precision;
+  enum literals plus one value outside the domain, weighted as one more
+  member; applicability pointers inside the domain the pack applies to;
+  booleans; evidence present/absent), decided under the pack. A draw the
+  runtime refuses, or one the pack does not apply to, is not a decision and
+  is dropped and redrawn; a generator that cannot fill the ledger fails the
+  construction rather than returning a short one. Seeds 101-130 are reserved
+  for the registered attempt and refused elsewhere.
 
 Run: python harness/build_ledgers.py POLICY [--n 5 10 20 50] [--seeds 30] [--seed-base 1] --out DIR
 """
@@ -30,6 +34,8 @@ import jp
 STUDY = Path(__file__).resolve().parent.parent
 POLICIES = STUDY / "fixtures" / "policies"
 ORDERED = {"greater-than", "greater-than-or-equal", "less-than", "less-than-or-equal"}
+RESERVED_SEEDS = (101, 130)
+SIZES = (5, 10, 20, 50)
 
 
 def load_policy(name):
@@ -108,11 +114,13 @@ def random_case(rng, pack, base, domains):
             set_pointer(facts, pointer, rng.choice(values))
             continue
         if d["ordered"]:
-            lits = [float(x) for x in d["ordered"]]
-            hi = max(lits) * 2 or 1.0
+            # discrete uniform over the lattice at the literal's precision:
+            # every value in [0, 2L] is drawn with probability 1/(2L+1) in units
             places = max(decimals_of(x) for x in d["ordered"])
-            v = rng.uniform(0, hi)
-            set_pointer(facts, pointer, ("%%.%df" % places) % v)
+            units = max(int(round(float(x) * 10 ** places)) for x in d["ordered"]) * 2
+            v = rng.randint(0, max(units, 1))
+            text = str(v) if places == 0 else ("%0*d" % (places + 1, v))[:-places] + "." + ("%0*d" % (places + 1, v))[-places:]
+            set_pointer(facts, pointer, text)
         elif d["enum"]:
             choices = list(dict.fromkeys(json.dumps(x) for x in d["enum"]))
             values = [json.loads(x) for x in choices]
@@ -164,10 +172,14 @@ def random_ledger(name, pack, base, root, n, seed):
     domains = pointer_domains(pack)
     rows = []
     dropped = 0
-    while len(rows) < n and dropped < 10 * n:
+    while len(rows) < n:
+        if dropped >= 10 * n:
+            raise RuntimeError("random ledger %s n=%d seed=%d: %d draws refused or not applicable; the generator does not fit this pack" % (name, n, seed, dropped))
         facts, evidence = random_case(rng, pack, base, domains)
         decided = jp.decide(root, name, facts, evidence)
-        if decided["refused"]:
+        # a ledger holds the decisions the pack made: a refused draw, and a
+        # draw the pack does not apply to, is not a decision and is dropped
+        if decided["refused"] or decided["disposition"].get("kind") == "not-applicable":
             dropped += 1
             continue
         rows.append(row("r%d-%d-%03d" % (n, seed, len(rows)), "random-%d-%d" % (n, seed), facts, evidence, decided))
@@ -181,7 +193,14 @@ def main():
     ap.add_argument("--seeds", type=int, default=30)
     ap.add_argument("--seed-base", type=int, default=1, help="the first seed; pilots drew 1..30, the registered attempt draws 101..130")
     ap.add_argument("--out", required=True)
+    ap.add_argument("--reserved", action="store_true", help="draw the seeds reserved for the registered attempt (101-130); refused otherwise, and required for them")
     args = ap.parse_args()
+    seeds = list(range(args.seed_base, args.seed_base + args.seeds))
+    reserved = set(range(RESERVED_SEEDS[0], RESERVED_SEEDS[1] + 1))
+    if args.reserved and set(seeds) != reserved:
+        raise SystemExit("--reserved draws exactly seeds %d-%d" % RESERVED_SEEDS)
+    if not args.reserved and reserved.intersection(seeds):
+        raise SystemExit("seeds %d-%d are reserved for the registered attempt (harness/run_attempt.py)" % RESERVED_SEEDS)
     pack, base = load_policy(args.policy)
     out = Path(args.out) / args.policy
     out.mkdir(parents=True, exist_ok=True)
@@ -191,7 +210,7 @@ def main():
         (out / "literal.matrix.json").write_text(json.dumps(ledger, indent=1))
         print("literal: %d rows (%d candidates refused)" % (len(ledger["cases"]), dropped))
         for n in args.n:
-            for seed in range(args.seed_base, args.seed_base + args.seeds):
+            for seed in seeds:
                 ledger, dropped = random_ledger(args.policy, pack, base, root, n, seed)
                 (out / ("random-%d-%d.matrix.json" % (n, seed))).write_text(json.dumps(ledger, indent=1))
         print("random: n in %s x %d seeds" % (args.n, args.seeds))

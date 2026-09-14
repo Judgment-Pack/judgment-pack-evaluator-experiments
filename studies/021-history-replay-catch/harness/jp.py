@@ -23,6 +23,10 @@ def binary_digest():
     return "sha256:" + hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def runtime_version():
+    return subprocess.run([JPACK, "version"], capture_output=True, text=True).stdout.strip()
+
+
 def run(args, cwd, stdin=None, check=True):
     proc = subprocess.run([JPACK] + args, cwd=str(cwd), input=stdin, capture_output=True, text=True)
     if check and proc.returncode != 0:

@@ -7,8 +7,10 @@ rows disagreed, and the profile's threshold report -- from which the
 registered line-moved signature is computed:
 
   line-moved signature := exactly one threshold pointer carries disagreeing
-  rows at all, and on that pointer every disagreeing row lies strictly on
-  ONE side of the literal (below xor above), none at it. Read across origins.
+  rows at all; at at least one of that pointer's literals every disagreeing
+  row lies strictly on ONE side (below xor above), none at it; and every
+  mismatched row of the replay is placed on that pointer -- the profile's
+  buckets account for all of them. Read across origins.
 
 A replay with no threshold pointer disagreeing but rows mismatched is
 "caught, off-threshold". A pack with no threshold has no signature to carry.
@@ -23,7 +25,7 @@ from pathlib import Path
 import jp
 
 
-def signature(profile):
+def signature(profile, mismatched=None):
     """The registered line-moved signature, read per POINTER across origins.
 
     A pack may compare one pointer against several literals (a rule's guard
@@ -43,8 +45,13 @@ def signature(profile):
         if below + at + above:
             per_pointer.setdefault(t["pointer"], []).append({"literal": t["literal"], "below": below, "at": at, "above": above})
     one = len(per_pointer) == 1
-    sided = one and any(e["at"] == 0 and ((e["below"] > 0) != (e["above"] > 0)) for e in next(iter(per_pointer.values())))
-    return {"applicable": True, "lineMoved": bool(one and sided), "disagreeing": per_pointer}
+    entries = next(iter(per_pointer.values())) if one else []
+    sided = one and any(e["at"] == 0 and ((e["below"] > 0) != (e["above"] > 0)) for e in entries)
+    # every mismatched row must be PLACED on that pointer: a row whose value
+    # the profile could not compare sits in no bucket, and a signature over
+    # the placed rows alone would say nothing about it
+    placed = one and mismatched is not None and all(e["below"] + e["at"] + e["above"] == mismatched for e in entries)
+    return {"applicable": True, "lineMoved": bool(one and sided and placed), "placed": placed, "disagreeing": per_pointer}
 
 
 def replay(policy, pack, ledger):
@@ -52,9 +59,13 @@ def replay(policy, pack, ledger):
         root = jp.project(tmp, policy, pack, matrix=ledger)
         report = jp.test(root)
     entry = report["packs"][0]
-    summary = entry.get("summary", {})
-    return {"status": entry.get("status"), "rows": summary.get("total"), "mismatched": summary.get("mismatched", 0),
-            "caught": (summary.get("mismatched", 0) or 0) > 0, "signature": signature(entry.get("profile"))}
+    summary = entry.get("summary") or {}
+    if not isinstance(summary.get("total"), int) or not isinstance(summary.get("mismatched"), int) or entry.get("status") not in ("passed", "mismatch"):
+        raise RuntimeError("replay of %s did not run to a verdict: status %r, summary %r" % (policy, entry.get("status"), summary))
+    if summary["total"] != len(ledger["cases"]):
+        raise RuntimeError("replay of %s read %d rows of a ledger of %d" % (policy, summary["total"], len(ledger["cases"])))
+    return {"status": entry["status"], "rows": summary["total"], "mismatched": summary["mismatched"],
+            "caught": summary["mismatched"] > 0, "signature": signature(entry.get("profile"), summary["mismatched"])}
 
 
 def main():

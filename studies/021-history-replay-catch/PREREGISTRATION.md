@@ -4,8 +4,9 @@
 `PREREG-REVIEW.md`; the freeze is the squash-merge of the pull request that this file will
 name, and after it this file is never edited — corrections go to `DEVIATIONS.md`.
 
-**Nothing has run under a freeze.** Everything executed during harness development lands
-under `pilots/`, is labeled harness validation, and supports no claim. The registered cells
+**Nothing has run under a freeze: as of the freeze commit no registered attempt exists.**
+Everything executed during harness development lands under `pilots/`, is labeled harness
+validation, and supports no claim. The registered cells
 below were derived from the packs' text and the runtime's documented semantics; the pilots
 informed which structures needed naming, and every cell says which structure it names. Said
 plainly, because the apparatus is deterministic: the pilots drew random ledgers from seeds
@@ -30,15 +31,16 @@ kept byte-for-byte). Where prose here and those artifacts could diverge, the art
 - **Primary attempt root**: `results/primary-attempt-001` — literal, must not exist at the
   freeze; the scorer refuses an existing root, and the first invocation of the governing
   command is the primary attempt, crash and all.
-- **Governing invocation** (fully offline; the runtime and CPython 3.12 only):
+- **Governing invocation** (fully offline; the runtime and CPython 3.12 only), one command:
 
-      for each policy P in fixtures/policies:
-        python harness/build_ledgers.py P --n 5 10 20 50 --seeds 30 --seed-base 101 --out results/primary-attempt-001
-        python harness/plant.py P --out results/primary-attempt-001
-        python harness/replay.py P --ledgers results/primary-attempt-001/P \
-          --defects results/primary-attempt-001/P/defects --out results/primary-attempt-001/P/cells.json \
-          --policy-pack fixtures/policies/P.pack.json
-      python harness/score.py --attempt-root results/primary-attempt-001 --include-holdout
+      python harness/run_attempt.py --attempt-root results/primary-attempt-001
+
+  The runner creates the root exclusively (an existing root, whatever it holds, is refused),
+  writes `ATTEMPT.json` first — the runtime's version and digest, the raw digest of
+  `harness/PINS.json`, the reserved seeds and sizes, the policies — and only then builds every
+  ledger with the reserved seeds (`--reserved`), plants every defect, replays every cell with
+  the unplanted gate, and scores with the holdout. A crash after the marker leaves the marker:
+  the root is spent, and a second attempt needs a new root named in `DEVIATIONS.md`.
 
 ## 1. Question
 
@@ -67,11 +69,15 @@ caught what the ledger cannot see, or a profile that told a defect from a moved 
 registration says it cannot, would each be a defect in the registration's account of the
 mechanism, and must be able to falsify it.
 
-**R2 (descriptive):** the catch-rate curves — per policy, per defect class, per stratum, per
-n — with exact 95% Clopper–Pearson intervals; and the signature table — per policy, class and
-stratum, the fraction of caught cells carrying the line-moved signature, with the same
-intervals. Published whichever way they land, and read only with the registered structural
-account beside them.
+**R2 (descriptive):** the catch-rate curves — per policy, per defect **instance**, per stratum,
+per n — with exact 95% Clopper–Pearson intervals, exact because an instance's thirty seeded
+ledgers at one n are independent draws; per defect class the same counts pooled over the
+class's instances, which share ledgers, with a binomial *reference* interval that carries no
+nominal coverage claim; and the signature table — per instance and per class, among the
+**caught** cells (a caught cell whose pack draws no threshold counts as carrying none, and is
+counted separately as threshold-free), the fraction carrying the line-moved signature, with
+the same two kinds of interval. Published whichever way they land, and read only with the
+registered structural account beside them.
 
 This is **not an interoperability study** and not a model study: no external component and no
 language model exists anywhere in the apparatus. It measures what one runtime mechanism can and
@@ -89,11 +95,17 @@ narrow (§9).
   its own reviewed matrix, a complete applicable case the pack decides without escalation. They
   are the policies the runtime's own examples were written against; they were not authored for
   this study, and nothing in them was changed.
-- **Pins are enforced, not declared**: the scorer compares the runtime's digest before reading
-  a cell, and labels an attempt REGISTERED only when the preregistration, matrix and manifest
-  digests are all pinned and match; any null makes it a PILOT.
+- **Pins are enforced, not declared**: before reading a cell the scorer compares the runtime's
+  digest with the pin, each of the preregistration, the matrix, the holdout matrix and the
+  manifest with its pinned digest where one is filled, and the manifest with the tree; a
+  mismatch refuses the run. An attempt is labelled REGISTERED only when every pin is non-null
+  and matches, the holdout is included and non-empty, `ATTEMPT.json` is present, and every
+  policy holds exactly the registered ledger set; any null, and any pilot flag, makes it a
+  PILOT. The runner records the runtime's identity when the ledgers are built, not only when
+  they are scored.
 - **Determinism**: every random ledger is drawn by `random.Random("021:<policy>:<n>:<seed>")`;
-  two builds of the same attempt root are byte-identical, and the harness tests assert it.
+  two builds of the same ledger are byte-identical — a harness test asserts it, and the scorer
+  rebuilds one random ledger per policy under the pinned runtime and compares bytes (G3).
 
 ## 3. Scenario
 
@@ -109,17 +121,30 @@ Two ledger strata, registered as different kinds of history:
 - **`literal`** — the literal-adjacent stratum: the runtime's own `packs suggest` candidates
   (every literal the pack compares, one unit either side at the authored precision, midpoints
   between adjacent literals, one unit outside the outermost; each enumerated member; each
-  evidence requirement present, absent and unknown; one pointer moved at a time from the base
-  row) decided under the pack. One ledger per policy, deterministic. It stands for a history
-  whose cases happen to sit where the policy draws its lines — the best case for replay.
+  evidence requirement present, absent and unknown), each candidate's sparse facts **overlaid
+  on the base row** so that one pointer moves at a time and every other holds the base's
+  value, decided under the pack. The overlay has two consequences the stratum owns: the
+  candidate `suggest` emits with no facts at all — its absence probe (runtime ADR-0024) —
+  becomes a duplicate of the base case, so **fact absence and its `onUnknown` paths are outside
+  this stratum**; and a candidate's own evidence availability, where it states one, replaces
+  the base's for that requirement. One ledger per policy, deterministic. It stands for a
+  history whose cases happen to sit where the policy draws its lines — the best case for
+  replay.
 - **`random-<n>-<seed>`** — the random stratum: n cases drawn over the pack's own pointer
-  domains (an ordered literal's pointer uniformly over [0, 2 × its largest literal] at the
-  literal's precision; an enumerated pointer uniformly over the pack's literals plus one value
+  domains (an ordered literal's pointer **discrete-uniform over the lattice** [0, 2 × its
+  largest literal] at the literal's precision, so every lattice value has probability
+  1/(2L+1) in units; an enumerated pointer uniformly over the pack's literals plus one value
   outside them, weighted as one more member; applicability pointers always inside the domain the
-  pack applies to, since a ledger holds the decisions a pack made; booleans uniformly; every
-  evidence requirement present or absent uniformly), decided under the pack; a draw the runtime
-  refuses is dropped and redrawn. n ∈ {5, 10, 20, 50}, thirty seeds each. It stands for a
-  history that never aimed at the lines.
+  pack applies to; booleans uniformly; every evidence requirement present or absent uniformly),
+  decided under the pack. A draw the runtime refuses, or one the pack does not apply to, is not
+  a decision: it is dropped and redrawn, and a generator that cannot fill a ledger fails the
+  construction rather than returning a short one. n ∈ {5, 10, 20, 50}, thirty seeds each; the
+  registered attempt draws seeds 101–130, which the builder refuses outside the runner. It
+  stands for a history that never aimed at the lines. Two bounds of this generator, stated as
+  its own: it pools every literal a pointer is compared against, whether in the applicability
+  or in a rule, so a pack whose applicability shares a pointer with a rule would draw that
+  pointer from the applicability's domain alone (none of the four does); and its case
+  distribution is one among many a real history could have (§8).
 
 ## 4. Defect classes
 
@@ -147,13 +172,20 @@ why the masquerade question is asked of the profile and not of the pack.
 
 The **line-moved signature** is read off `profile.thresholds`, per **pointer**, across origins:
 
-> exactly one pointer carries disagreeing rows at all, and at at least one of that pointer's
-> literals every disagreeing row lies strictly on one side of it (below xor above) and none at it.
+> exactly one pointer carries disagreeing rows at all; at at least one of that pointer's
+> literals every disagreeing row lies strictly on one side of it (below xor above) and none at
+> it; and every mismatched row of the replay is **placed** on that pointer — the profile's
+> below, at and above buckets account for all of them.
 
 Read per pointer, not per literal, because a pack may compare one pointer against several
 literals (a rule's guard and an exception's mirror) and the profile lists one entry per literal
-while the rows that disagree are the same rows. A cell whose pack draws no threshold carries no
-signature; a caught cell with mismatched rows and no threshold disagreeing is *caught
+while the rows that disagree are the same rows; and the one-side condition is **existential
+over the pointer's literals**, so a retained literal that every changed case lies on one side
+of satisfies it even where a moved literal has a changed case at it. The placement condition
+is there because the profile places only rows whose value it can compare (runtime ADR-0034): a
+mismatched row with the pointer absent or not a decimal sits in no bucket, and a signature over
+the placed rows alone would say nothing about it. A cell whose pack draws no threshold carries
+no signature; a caught cell with mismatched rows and no threshold disagreeing is *caught
 off-threshold*, and carries none.
 
 What the signature is for: a reader of the profile who sees it would conclude "the line moved".
@@ -236,15 +268,22 @@ during review from the same rules and kept byte-for-byte.
 ## 7. Endpoints, validity, controls, enforcement
 
 The 016–018 regime, inherited: an ordered exhaustive decision rule (pipeline-invalid — no cells
-read — → control-gate failure → zero divergence among registered cells, which is `R1 holds` →
-otherwise `R1 falsified`). Control gates, evaluated first and recorded in the adjudication:
+read, or any registered cell unobserved, the complete set of its ledgers not present — →
+control-gate failure → zero divergence among registered cells, which is `R1 holds` →
+otherwise `R1 falsified`). A registered cell that expects no catch (`allowsNoCaught`) holds
+only over the complete set of its ledgers with none caught; a missing observation never holds.
+Control gates, evaluated first and recorded in the adjudication:
 (G1) for every policy, replaying the **unplanted** pack against every ledger mismatches no row —
 the ledger is the pack's own word (`replay.py --policy-pack`, the `cells.gate.json` record);
 (G2) every defect instance is a valid pack, or is dropped with its note in `INDEX.json`, and the
 dropped set is empty for the four policies (a non-empty set is a control failure, not a
-finding); (G3) the random ledgers are deterministic in the seed (a harness test builds one
-twice and compares bytes). The scorer refuses an existing attempt root, refuses an unpinned
-runtime, writes the aggregate files before the adjudication, and labels the attempt.
+finding), every valid instance has a cell against every ledger, and the ledger set is exactly
+the registered one (the literal ledger and seeds 101–130 at each n); (G3) the random ledgers
+are deterministic in the seed: the scorer rebuilds one per policy under the pinned runtime and
+compares bytes. A replay that does not run to a verdict, or reads fewer rows than the ledger
+holds, fails the construction rather than recording a count. The scorer refuses an existing
+adjudication, refuses an unpinned or mismatching runtime, writes the aggregate files before
+the adjudication, and labels the attempt.
 
 ## 8. Analytic limitations
 
