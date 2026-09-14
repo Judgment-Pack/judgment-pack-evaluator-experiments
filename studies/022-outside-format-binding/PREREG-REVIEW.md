@@ -2026,5 +2026,8 @@ built through the harness; the registered attempt will be their first constructi
 it (§1a of the preregistration discloses the adapter-layer pretesting of `h01`, `h02` and
 `h06`).
 
-Pull request: see the final line of this file.
+Pull request: Judgment-Pack/judgment-pack-evaluator-experiments #106; its squash-merge commit is the freeze.
 
+---
+
+The freeze is the squash-merge of pull request #106 of judgment-pack-evaluator-experiments.
