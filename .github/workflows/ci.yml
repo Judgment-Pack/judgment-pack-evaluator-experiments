@@ -13,6 +13,10 @@ jobs:
     name: Freeze sets exclude append-after-freeze files
     runs-on: ubuntu-latest
     steps:
+      - name: Allow long paths on Windows
+        if: runner.os == 'Windows'
+        # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
+        run: git config --global core.longpaths true
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up Python
@@ -26,6 +30,10 @@ jobs:
     name: Deterministic standalone components
     runs-on: ubuntu-latest
     steps:
+      - name: Allow long paths on Windows
+        if: runner.os == 'Windows'
+        # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
+        run: git config --global core.longpaths true
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up Python
@@ -46,6 +54,10 @@ jobs:
     name: Go and Python evaluators agree byte for byte
     runs-on: ubuntu-latest
     steps:
+      - name: Allow long paths on Windows
+        if: runner.os == 'Windows'
+        # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
+        run: git config --global core.longpaths true
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       # Pinned to an immutable reviewed commit rather than a branch. A moving
@@ -83,6 +95,10 @@ jobs:
     name: Study 001 · deterministic harness
     runs-on: ubuntu-latest
     steps:
+      - name: Allow long paths on Windows
+        if: runner.os == 'Windows'
+        # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
+        run: git config --global core.longpaths true
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up Python
@@ -107,6 +123,10 @@ jobs:
     name: Study 005 · deterministic harness
     runs-on: ubuntu-latest
     steps:
+      - name: Allow long paths on Windows
+        if: runner.os == 'Windows'
+        # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
+        run: git config --global core.longpaths true
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up Python
@@ -124,6 +144,10 @@ jobs:
     name: Study 011 · deterministic harness
     runs-on: ubuntu-latest
     steps:
+      - name: Allow long paths on Windows
+        if: runner.os == 'Windows'
+        # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
+        run: git config --global core.longpaths true
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up Python
@@ -149,6 +173,10 @@ jobs:
     name: Study 012 · deterministic harness
     runs-on: ubuntu-latest
     steps:
+      - name: Allow long paths on Windows
+        if: runner.os == 'Windows'
+        # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
+        run: git config --global core.longpaths true
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up Python
@@ -194,6 +222,10 @@ jobs:
     name: Evidence sufficiency · frozen case set
     runs-on: ubuntu-latest
     steps:
+      - name: Allow long paths on Windows
+        if: runner.os == 'Windows'
+        # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
+        run: git config --global core.longpaths true
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up Python
@@ -213,6 +245,10 @@ jobs:
     name: Study 014 · deterministic harness
     runs-on: ubuntu-latest
     steps:
+      - name: Allow long paths on Windows
+        if: runner.os == 'Windows'
+        # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
+        run: git config --global core.longpaths true
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up Python
@@ -259,6 +295,10 @@ jobs:
     name: Study 016 · deterministic harness
     runs-on: ubuntu-latest
     steps:
+      - name: Allow long paths on Windows
+        if: runner.os == 'Windows'
+        # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
+        run: git config --global core.longpaths true
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up Python
@@ -304,6 +344,10 @@ jobs:
     name: Study 017 · deterministic harness
     runs-on: ubuntu-latest
     steps:
+      - name: Allow long paths on Windows
+        if: runner.os == 'Windows'
+        # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
+        run: git config --global core.longpaths true
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up Python
@@ -330,6 +374,10 @@ jobs:
     name: Study 018 · deterministic harness
     runs-on: ubuntu-latest
     steps:
+      - name: Allow long paths on Windows
+        if: runner.os == 'Windows'
+        # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
+        run: git config --global core.longpaths true
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up Python
@@ -354,6 +402,10 @@ jobs:
     name: Study 019 · deterministic harness
     runs-on: ubuntu-latest
     steps:
+      - name: Allow long paths on Windows
+        if: runner.os == 'Windows'
+        # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
+        run: git config --global core.longpaths true
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up Python
@@ -406,6 +458,10 @@ jobs:
     name: Study 020 · deterministic harness
     runs-on: ubuntu-latest
     steps:
+      - name: Allow long paths on Windows
+        if: runner.os == 'Windows'
+        # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
+        run: git config --global core.longpaths true
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up Python
@@ -493,6 +549,10 @@ jobs:
       run:
         working-directory: python
     steps:
+      - name: Allow long paths on Windows
+        if: runner.os == 'Windows'
+        # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
+        run: git config --global core.longpaths true
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up Python
@@ -511,6 +571,10 @@ jobs:
     name: Study 015 · deterministic harness
     runs-on: ubuntu-latest
     steps:
+      - name: Allow long paths on Windows
+        if: runner.os == 'Windows'
+        # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
+        run: git config --global core.longpaths true
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up Python
