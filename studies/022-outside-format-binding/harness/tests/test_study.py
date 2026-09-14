@@ -785,6 +785,100 @@ class Pins(unittest.TestCase):
                 run_layers.pinning.execution_problems = original
                 sys.argv = saved
 
+    def test_names_normalize_as_pep_503_and_an_empty_name_grants_nothing(self):
+        for raw in ("Foo.Bar", "foo--bar", "foo__bar", "FOO_.-bar"):
+            self.assertEqual(guard.normalized(raw), "foo-bar", raw)
+            self.assertEqual(pinning.normalized(raw), "foo-bar", raw)
+        with tempfile.TemporaryDirectory() as a:
+            site = Path(a) / "site-packages"
+            for dist, name in (("a-1.dist-info", "Foo.Bar"), ("b-1.dist-info", "foo--bar"), ("c-1.dist-info", "")):
+                (site / dist).mkdir(parents=True)
+                (site / dist / "METADATA").write_text("Metadata-Version: 2.1\nName: %s\nVersion: 1\n\n" % name)
+                (site / dist / "RECORD").write_text("%s/METADATA,,\n%s/RECORD,,\nplanted_%s.py,sha256=x,0\n" % (dist, dist, dist[0]))
+                (site / ("planted_%s.py" % dist[0])).write_text("")
+            saved_path, saved_prefix = list(sys.path), sys.prefix
+            sys.path.append(str(site))
+            sys.prefix = a
+            try:
+                problems = guard.environment_problems()
+                self.assertTrue(any("b-1.dist-info claims the distribution name 'foo-bar'" in p for p in problems), problems)
+                self.assertTrue(any("c-1.dist-info declares no distribution name" in p for p in problems), problems)
+                self.assertTrue(any("planted_b.py is not a file" in p for p in problems), "an equivalent name grants nothing")
+                self.assertTrue(any("planted_c.py is not a file" in p for p in problems), "an empty name grants nothing")
+                dists, inventory_problems = pinning.inventory()
+                self.assertTrue(any("two metadata directories claim the distribution name 'foo-bar'" in p for p in inventory_problems), inventory_problems)
+                self.assertTrue(any("declares no distribution name" in p for p in inventory_problems), inventory_problems)
+                self.assertNotIn("foo-bar", dists)
+            finally:
+                sys.path[:] = saved_path
+                sys.prefix = saved_prefix
+
+    def test_package_bytes_are_authenticated_before_any_import(self):
+        from importlib import metadata
+        self.assertEqual(guard.package_problems(str(STUDY)), [], "the real environment hashes to its pins, by the guard's own computation")
+        # the guard's digest is the digest harness/pins.py computes
+        dists, _ = pinning.inventory()
+        pins = pinning.load()
+        for name, dist in dists.items():
+            root = str(Path(dist._path).parent)
+            self.assertEqual(guard._package_digest(root, str(Path(dist._path) / "RECORD")), pinning.package_digest(dist)[1], name)
+            self.assertEqual(pinning.package_digest(dist)[1], pins["intoto"]["packages"][[k for k in pins["intoto"]["packages"] if pinning.normalized(k) == name][0]]["installedDigest"])
+        with tempfile.TemporaryDirectory() as a:
+            site = Path(a) / "site-packages"
+            (site / "pkg").mkdir(parents=True)
+            (site / "pkg" / "__init__.py").write_text("VALUE = 1\n")
+            (site / "pkg-1.0.dist-info").mkdir()
+            (site / "pkg-1.0.dist-info" / "METADATA").write_text("Metadata-Version: 2.1\nName: pkg\nVersion: 1.0\n\n")
+            (site / "pkg-1.0.dist-info" / "RECORD").write_text("pkg/__init__.py,sha256=x,0\npkg-1.0.dist-info/METADATA,,\npkg-1.0.dist-info/RECORD,,\n")
+            digest = guard._package_digest(str(site), str(site / "pkg-1.0.dist-info" / "RECORD"))
+            fake_pins = {"intoto": {"packages": {"pkg": {"version": "1.0", "installedDigest": digest}}}}
+            self.assertEqual(guard.package_problems(str(STUDY), fake_pins, [str(site)]), [])
+            # the round-6 arrangement: a recorded initializer altered in place, metadata and RECORD unchanged
+            with open(site / "pkg" / "__init__.py", "a") as f:
+                f.write("import pins as _p\n")
+            problems = guard.package_problems(str(STUDY), fake_pins, [str(site)])
+            self.assertTrue(any("pkg" in p and "do not hash to the pinned digest" in p for p in problems), problems)
+            (site / "pkg" / "__init__.py").write_text("VALUE = 1\n")
+            self.assertTrue(any("not pinned" in p for p in guard.package_problems(str(STUDY), {"intoto": {"packages": {}}}, [str(site)])))
+            self.assertTrue(any("is not installed" in p for p in guard.package_problems(str(STUDY), {"intoto": {"packages": {"other": {"installedDigest": "x"}}}}, [str(site)])))
+            self.assertTrue(any("no pinned digest" in p for p in guard.package_problems(str(STUDY), {"intoto": {"packages": {"pkg": {"installedDigest": None}}}}, [str(site)])))
+            # a fresh-process equivalent: the guard, pointed at that environment alone, refuses before anything could be imported
+            saved_path, saved_prefix = list(sys.path), sys.prefix
+            sys.path[:] = [e for e in saved_path if not e.startswith(saved_prefix)] + [str(site)]
+            sys.prefix = a
+            with open(site / "pkg" / "__init__.py", "a") as f:
+                f.write("import pins as _p\n")
+            try:
+                with self.assertRaisesRegex(SystemExit, "hash|not pinned|installed"):
+                    guard.establish(str(STUDY))
+            finally:
+                sys.path[:] = saved_path
+                sys.prefix = saved_prefix
+
+    def test_study_modules_are_authenticated_against_the_manifest_before_import(self):
+        import make_manifest
+        self.assertEqual(guard.study_module_problems(str(STUDY)), [])
+        with tempfile.TemporaryDirectory() as a:
+            study = Path(a)
+            for d in ("adapter", "harness", "harness/tests", "fixtures/baseline"):
+                (study / d).mkdir(parents=True)
+            (study / "harness" / "cells.py").write_text("X = 1\n")
+            (study / "adapter" / "SPEC.md").write_text("spec\n")
+            (study / "harness" / "STUDY-MANIFEST.sha256").write_text(make_manifest.render(study))
+            pins = {"freeze": {"studyManifest": None}, "intoto": {"packages": {}}}
+            self.assertEqual(guard.study_module_problems(str(study), pins), [])
+            (study / "harness" / "cells.py").write_text("X = 2\n")
+            self.assertTrue(any("harness/cells.py does not hash" in p for p in guard.study_module_problems(str(study), pins)))
+            (study / "harness" / "cells.py").write_text("X = 1\n")
+            (study / "harness" / "extra.py").write_text("")
+            self.assertTrue(any("harness/extra.py is a study module the manifest does not list" in p for p in guard.study_module_problems(str(study), pins)))
+            (study / "harness" / "extra.py").unlink()
+            pinned = dict(pins, freeze={"studyManifest": "0" * 64})
+            self.assertTrue(any("freeze pin" in p for p in guard.study_module_problems(str(study), pinned)))
+            import hashlib
+            pinned = dict(pins, freeze={"studyManifest": hashlib.sha256((study / "harness" / "STUDY-MANIFEST.sha256").read_bytes()).hexdigest()})
+            self.assertEqual(guard.study_module_problems(str(study), pinned), [])
+
     def test_the_manifest_refuses_an_importable_non_source_file(self):
         import make_manifest
         with tempfile.TemporaryDirectory() as a:

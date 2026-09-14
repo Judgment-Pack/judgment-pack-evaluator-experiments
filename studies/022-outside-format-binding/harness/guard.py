@@ -1,9 +1,11 @@
 """Trusted import resolution, established before any other study or package import (PREREGISTRATION.md section 2).
 
-This module uses only `os` and `sys`, which the interpreter loads at startup from its own library, so
-nothing it refuses has run when it refuses it. Every entry script sets the bytecode policy with `os` and
-`sys` alone, then imports this module (compiled from its source, as every module after that point is)
-and calls `establish(study)` before importing anything else:
+This module uses only `os`, `sys`, `json` and `hashlib` from the interpreter's own library, so nothing
+it refuses has run when it refuses it. Every entry script sets the bytecode policy with `os` and `sys`
+alone, then imports this module (compiled from its source, as every module after that point is) and
+calls `establish(study)` before importing anything else. The trust anchor is the entry script, this
+module and those four library modules (PREREGISTRATION.md section 7); everything imported afterwards
+-- every pinned distribution's files, every other study module -- is hashed here before it is imported:
 
 - the import path (`sys.path`) holds only the study's own roots (the script's directory, the study root
   as the working directory), the interpreter's own library and the virtual environment; any other entry
@@ -18,8 +20,16 @@ and calls `establish(study)` before importing anything else:
   distribution name, so the distribution whose files are hashed is the one whose record grants
   ownership;
 - no site customization module was imported at start-up;
-- the bytecode-cache prefix is set and holds no file, and bytecode writing is disabled.
+- the bytecode-cache prefix is set and holds no file, and bytecode writing is disabled;
+- every distribution the environment holds is pinned in `harness/PINS.json` and its recorded files hash
+  to the pinned digest (the digest `harness/pins.py` computes, computed here independently), before any
+  of them is imported;
+- every file `harness/STUDY-MANIFEST.sha256` lists hashes to its listed digest, every `.py` under the
+  study roots is listed, and -- once the freeze pin is set -- the manifest itself hashes to the pin,
+  before any study module but this one is imported.
 """
+import hashlib
+import json
 import os
 import sys
 
@@ -98,22 +108,135 @@ def _record_paths(record_file):
     return out
 
 
+def normalized(name):
+    """PEP 503 normalization: lower case, every run of `-`, `_` and `.` collapsed to one hyphen."""
+    out = ""
+    for ch in name.lower():
+        if ch in "-_.":
+            if not out.endswith("-"):
+                out += "-"
+        else:
+            out += ch
+    return out
+
+
 def _declared_name(metadata_file):
-    """The normalized distribution name a METADATA file declares (PEP 503 normalization), or None."""
+    """The normalized distribution name a METADATA file declares, or None when absent or empty."""
     try:
         with open(metadata_file, encoding="utf-8", errors="replace") as f:
             for line in f:
                 if not line.strip():
                     break  # the headers end at the first blank line
                 if line.lower().startswith("name:"):
-                    raw = line.split(":", 1)[1].strip().lower()
-                    out = ""
-                    for ch in raw:
-                        out += "-" if ch in "-_." and not out.endswith("-") else ch
-                    return out
+                    return normalized(line.split(":", 1)[1].strip()) or None
     except OSError:
         return None
     return None
+
+
+def _import_roots():
+    return [_real(e) for e in sys.path if e and _under(e, sys.prefix) and os.path.isdir(e)]
+
+
+def _claimed(root, out):
+    """{normalized name: (metadata directory, RECORD path)} for the uniquely and validly named distributions under a root."""
+    claimed = {}
+    for name in sorted(os.listdir(root)):
+        record = os.path.join(root, name, "RECORD")
+        if name.endswith(".dist-info") and os.path.isfile(record):
+            declared = _declared_name(os.path.join(root, name, "METADATA"))
+            if declared is None:
+                out.append("%s declares no distribution name" % os.path.join(root, name))
+            elif declared in claimed:
+                out.append("%s claims the distribution name %r that %s already claims" % (os.path.join(root, name), declared, claimed[declared][0]))
+                claimed[declared] = (claimed[declared][0], None)  # neither directory grants anything
+            else:
+                claimed[declared] = (os.path.join(root, name), record)
+    return claimed
+
+
+def _package_digest(root, record):
+    """The digest harness/pins.py computes over a distribution's recorded files, computed here before any of them is imported:
+    RECORD paths in string order, each existing file's path, a NUL, its bytes, a NUL; .pyc entries and RECORD itself skipped."""
+    h = hashlib.sha256()
+    for rel in sorted(_record_paths(record)):
+        p = os.path.normpath(os.path.join(root, rel))
+        if os.path.isfile(p) and not rel.endswith((".pyc", "RECORD")):
+            with open(p, "rb") as f:
+                data = f.read()
+            h.update(rel.encode() + b"\0" + data + b"\0")
+    return h.hexdigest()
+
+
+def package_problems(study, pins=None, roots=None):
+    """Before any pinned distribution is imported: the environment holds exactly the pinned distributions, and each one's
+    recorded files hash to the pinned digest."""
+    out = []
+    if pins is None:
+        with open(os.path.join(study, "harness", "PINS.json"), encoding="utf-8") as f:
+            pins = json.load(f)
+    packages = {normalized(k): v for k, v in pins["intoto"]["packages"].items()}
+    roots = _import_roots() if roots is None else [_real(r) for r in roots]
+    seen = set()
+    for root in roots:
+        for name, (directory, record) in sorted(_claimed(root, out).items()):
+            if record is None:
+                continue
+            seen.add(name)
+            pin = packages.get(name)
+            if pin is None:
+                out.append("distribution %s (%s) is installed and is not pinned" % (name, directory))
+                continue
+            if not pin.get("installedDigest"):
+                out.append("distribution %s has no pinned digest" % name)
+            elif _package_digest(root, record) != pin["installedDigest"]:
+                out.append("the recorded files of %s (%s) do not hash to the pinned digest" % (name, directory))
+    for name in sorted(set(packages) - seen):
+        out.append("pinned distribution %s is not installed" % name)
+    return out
+
+
+def study_module_problems(study, pins=None):
+    """Before any study module but this one is imported: every file the manifest lists hashes to its listed digest, every .py
+    under the study roots is listed, and -- once the freeze pin is set -- the manifest itself hashes to the pin."""
+    out = []
+    if pins is None:
+        with open(os.path.join(study, "harness", "PINS.json"), encoding="utf-8") as f:
+            pins = json.load(f)
+    manifest = os.path.join(study, "harness", "STUDY-MANIFEST.sha256")
+    try:
+        with open(manifest, "rb") as f:
+            raw = f.read()
+    except OSError as e:
+        return ["the study manifest cannot be read (%s)" % type(e).__name__]
+    expected = pins.get("freeze", {}).get("studyManifest")
+    if expected and hashlib.sha256(raw).hexdigest() != expected:
+        out.append("harness/STUDY-MANIFEST.sha256 does not hash to its freeze pin")
+    listed = {}
+    for line in raw.decode("utf-8").splitlines():
+        if line.strip():
+            digest, _, rel = line.partition("  ")
+            listed[rel] = digest
+    for rel, digest in sorted(listed.items()):
+        p = os.path.join(study, rel)
+        try:
+            with open(p, "rb") as f:
+                actual = hashlib.sha256(f.read()).hexdigest()
+        except OSError:
+            out.append("%s is listed in the manifest and cannot be read" % rel)
+            continue
+        if actual != digest:
+            out.append("%s does not hash to the digest the manifest lists" % rel)
+    for rel in ROOTS:
+        root = os.path.join(study, rel)
+        for dirpath, dirnames, filenames in os.walk(root):
+            dirnames[:] = [d for d in dirnames if d != "__pycache__"]
+            for name in filenames:
+                if name.endswith(".py"):
+                    module_rel = os.path.relpath(os.path.join(dirpath, name), study).replace(os.sep, "/")
+                    if module_rel not in listed:
+                        out.append("%s is a study module the manifest does not list" % module_rel)
+    return out
 
 
 def environment_problems():
@@ -122,26 +245,16 @@ def environment_problems():
     the import system would prefer to a same-named module), no path hook, no symbolic link. `__pycache__` directories
     are skipped: under the empty cache prefix they are never consulted."""
     out = []
-    roots = [e for e in sys.path if e and _under(e, sys.prefix) and os.path.isdir(e)]
+    roots = _import_roots()
     if not roots:
         out.append("no import root of the virtual environment is on sys.path")
     for root in roots:
         root = _real(root)
         owned_files, owned_dirs = set(), set()
-        claimed = {}
-        for name in sorted(os.listdir(root)):
-            record = os.path.join(root, name, "RECORD")
-            if name.endswith(".dist-info") and os.path.isfile(record):
-                # one metadata directory per distribution name: a second directory claiming a name already claimed is refused,
-                # so the distribution whose files are hashed and the distribution whose RECORD grants ownership are the same
-                declared = _declared_name(os.path.join(root, name, "METADATA"))
-                if declared is None:
-                    out.append("%s declares no distribution name" % os.path.join(root, name))
-                    continue  # its record grants nothing
-                if declared in claimed:
-                    out.append("%s claims the distribution name %r that %s already claims" % (os.path.join(root, name), declared, claimed[declared]))
-                    continue  # its record grants nothing
-                claimed[declared] = os.path.join(root, name)
+        # one metadata directory per distribution name: a second directory claiming a name already claimed, or one declaring
+        # none, grants nothing, so the distribution whose files are hashed and the one whose RECORD grants ownership are the same
+        for name, (directory, record) in _claimed(root, out).items():
+            if record is not None:
                 for rel in _record_paths(record):
                     full = os.path.normpath(os.path.join(root, rel))
                     if not _under(full, root):
@@ -193,6 +306,9 @@ def cache_problems():
 def establish(study):
     """Refuse to run unless trusted import resolution holds; returns None."""
     problems = cache_problems() + site_problems() + path_problems(study) + shadow_problems(study) + environment_problems()
+    if not problems:
+        # only over an environment whose layout passed: the bytes of every pinned distribution, then of every study module
+        problems = package_problems(study) + study_module_problems(study)
     if problems:
         raise SystemExit("refusing to start: trusted import resolution is not established:\n  " + "\n  ".join(problems))
 

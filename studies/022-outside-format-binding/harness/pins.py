@@ -38,10 +38,14 @@ def raw_sha256():
 
 
 def normalized(name):
-    """PEP 503 normalization of a distribution name."""
+    """PEP 503 normalization: lower case, every run of `-`, `_` and `.` collapsed to one hyphen."""
     out = ""
     for ch in name.lower():
-        out += "-" if ch in "-_." and not out.endswith("-") else ch
+        if ch in "-_.":
+            if not out.endswith("-"):
+                out += "-"
+        else:
+            out += ch
     return out
 
 
@@ -53,6 +57,9 @@ def inventory():
     found, problems, duplicated = {}, [], set()
     for dist in metadata.distributions():
         name = normalized(dist.metadata["Name"] or "")
+        if not name:
+            problems.append("a metadata directory declares no distribution name (%s)" % dist._path)
+            continue
         if name in found:
             problems.append("two metadata directories claim the distribution name %r (%s and %s)" % (name, found[name]._path, dist._path))
             duplicated.add(name)
@@ -105,7 +112,7 @@ def _under(path, parent):
     return path == parent or str(path).startswith(str(parent) + "/")
 
 
-def execution_problems(pins):
+def execution_problems(pins, dists=None):
     """The code that is running is the pinned code. Every module in sys.modules is classified by the file it was loaded
     from: a built-in or frozen module of the interpreter; a file of the interpreter's own library (trusted, a stated
     limit); a file of a pinned distribution, loaded by the source or extension loader with its cache path under the
@@ -125,8 +132,10 @@ def execution_problems(pins):
     site = Path(sysconfig.get_paths()["purelib"]).resolve()
     library = Path(sysconfig.get_paths()["stdlib"]).resolve().parent  # the interpreter's lib/: its library, lib-dynload, its zip
     pinned = {normalized(n) for n in pins["intoto"]["packages"]}
-    installed, inventory_problems = inventory()
-    out += inventory_problems
+    if dists is None:
+        dists, inventory_problems = inventory()
+        out += inventory_problems
+    installed = dists
     for extra in sorted(set(installed) - pinned):
         out.append("distribution %s is installed in the virtual environment and is not pinned" % extra)
     for hook in sorted(site.glob("*.pth")):
@@ -238,7 +247,7 @@ def problems(pins, gateway_binary, require_all=False):
             out.append("the gateway binary is not pinned")
     if sha256_file(STUDY / "fixtures" / "baseline" / "gateway.pubkey") != pins["gateway"]["publicKeySha256"]:
         out.append("the corpus public key is not the pinned one")
-    dists, inventory_problems = inventory()
+    dists, inventory_problems = inventory()  # the one inventory: hashing below and ownership in execution_problems() consume it
     out += inventory_problems
     for name, pin in pins["intoto"]["packages"].items():
         dist = dists.get(normalized(name))
@@ -259,7 +268,7 @@ def problems(pins, gateway_binary, require_all=False):
         out.append("the interpreter is %s, not the pinned %s" % (sys.version.split()[0], pins["harnessPython"]["version"]))
     if require_all and not pins["harnessPython"].get("version"):
         out.append("the interpreter version is not pinned")
-    out += execution_problems(pins)
+    out += execution_problems(pins, dists)
     for key, relative in FREEZE_FILES.items():
         expected = pins["freeze"].get(key)
         if expected and expected != sha256_file(STUDY / relative):

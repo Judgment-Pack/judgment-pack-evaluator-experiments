@@ -49,11 +49,17 @@ the artifacts govern.
   of the interpreter's library or a pinned package; the virtual environment's import roots hold
   nothing an installed distribution does not record in its `RECORD` — no unrecorded module, no
   unrecorded package directory (which the import system would prefer to a same-named module),
-  no path hook, no symbolic link — and no two metadata directories claim one distribution name;
-  and no site customization module was imported at start-up. At check time `harness/pins.py`
-  repeats all of that, takes one inventory of the environment's distributions (one per
-  normalized name, a duplicated name refused and used for nothing) from which both the hashed
-  bytes and the ownership of files derive, and classifies
+  no path hook, no symbolic link — and no two metadata directories claim one distribution name
+  (PEP 503-normalized; an absent or empty name grants nothing); no site customization module
+  was imported at start-up; and — **before any pinned distribution or any other study module is
+  imported** — every distribution the environment holds is pinned and its recorded files hash
+  to the pinned digest (the guard computes the digest `harness/pins.py` computes, independently,
+  from the RECORD and the bytes), every file the manifest lists hashes to its listed digest,
+  every `.py` under the study roots is listed, and, once the freeze pin is set, the manifest
+  itself hashes to the pin. At check time `harness/pins.py` repeats all of that, takes one
+  inventory of the environment's distributions (one per normalized name, a duplicated name
+  refused and used for nothing) that both the hashing and the ownership of files consume, and
+  classifies
   every module in `sys.modules` by the file it was loaded from — built-in or frozen; the
   interpreter's own library; a file of a pinned distribution, under the source or extension
   loader by class identity with its cache path under the empty prefix (a namespace package only
@@ -303,7 +309,12 @@ beyond it.
 **What the execution checks establish, and what they cannot.** They establish what code runs
 in a process the harness starts: a fresh interpreter over the environment's import roots as
 they are on disk, with no code of anyone else's running in it before the harness begins
-(site initialization excepted, as above). They are not authentication against code that
+(site initialization excepted, as above). **The trust anchor** of that claim is the entry
+script, `harness/guard.py` and the four library modules the guard uses (`os`, `sys`, `json`,
+`hashlib`), each compiled from its file as it is on disk — the manifest lists the script and
+the guard, and the freeze commit pins the manifest through `harness/PINS.json` — together with
+`harness/PINS.json` itself, which the freeze commit anchors and no check can verify from
+inside. Everything imported after the guard runs is hashed by the guard before it is imported. They are not authentication against code that
 already runs inside the process before the harness starts: such code can replace, wrap or
 spoof any object and any attribute the checks read — the module table, a module's origin,
 its loader, its type's name — and it is inside the trusted base by definition. The regression
