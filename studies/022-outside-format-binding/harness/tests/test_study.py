@@ -186,8 +186,9 @@ class RegisteredContextValidation(unittest.TestCase):
                 (root / "ATTEMPT.json").write_text(json.dumps({"label": "REGISTERED", "attemptId": "not-a-real-attempt", "attemptRoot": str(root)}))
                 with self.assertRaisesRegex(RuntimeError, "marker lacks") as cm:
                     constructions.RegisteredContext(root, gateway)
-                self.assertIn("is not pinned", str(cm.exception), "null freeze pins refuse a registered context before the freeze")
-                self.assertIn("gateway binary's digest", str(cm.exception))
+                if any(v is None for v in pinning.load()["freeze"].values()):
+                    self.assertIn("is not pinned", str(cm.exception), "null freeze pins refuse a registered context before the freeze")
+                self.assertIn("gateway binary's digest", str(cm.exception), "a stand-in gateway is refused by the pins whatever the freeze state")
                 # the positive path, with the pins stood in for (they are null before the freeze): the marker must be whole and matched
                 original = pinning.problems
                 pinning.problems = lambda pins, gateway_binary, require_all=False: []

@@ -1,8 +1,8 @@
 # Preregistration — Study 022: a gateway receipt bound into an in-toto attestation — what each verifier sees, and what neither does
 
-**Status: DRAFT, not frozen.** Pre-freeze cross-vendor review rounds are recorded in
-`PREREG-REVIEW.md`; the freeze is the squash-merge of the pull request that record names, and
-after it this file is never edited — corrections go to `DEVIATIONS.md`.
+**Status: FROZEN by the squash-merge of the pull request `PREREG-REVIEW.md` names**, after
+nine pre-freeze cross-vendor review rounds recorded there, the last `freezable as written`.
+After the freeze this file is never edited — corrections go to `DEVIATIONS.md`.
 
 **Nothing has run under a freeze.** Everything executed during harness development lands under
 `pilots/`, is labeled harness validation, and supports no claim. The apparatus is deterministic
