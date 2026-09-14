@@ -363,6 +363,9 @@ def main():
                     if run_layers.observe(gateway, built) != o:
                         validity.append("observation of %s is not what the pinned apparatus produces over the registered construction" % cid)
                 observed[cid] = o
+    # the executing code is classified again now that the recomputation has run, so a module imported late is held to the pins too
+    for p in pinning.execution_problems(pins):
+        validity.append("after the recomputation, the executing code is not the pinned code: %s" % p)
     rows, holdout_rows = [], []
     if not validity:
         rows = adjudicate(locked, observed)

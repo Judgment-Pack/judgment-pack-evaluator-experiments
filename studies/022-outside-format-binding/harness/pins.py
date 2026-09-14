@@ -95,7 +95,7 @@ def execution_problems(pins):
     out = []
     sys.path.insert(0, str(STUDY / "harness"))
     import guard
-    out += guard.cache_problems() + guard.path_problems(str(STUDY)) + guard.shadow_problems(str(STUDY))
+    out += guard.cache_problems() + guard.site_problems() + guard.path_problems(str(STUDY)) + guard.shadow_problems(str(STUDY)) + guard.environment_problems()
     if platform.python_implementation() != pins["harnessPython"]["implementation"]:
         out.append("the interpreter is %s, not the pinned %s" % (platform.python_implementation(), pins["harnessPython"]["implementation"]))
     site = Path(sysconfig.get_paths()["purelib"]).resolve()
@@ -145,12 +145,14 @@ def execution_problems(pins):
         if modname in pins["harnessPython"].get("originlessModules", {}) and not getattr(mod, "__file__", None) and not (spec is not None and spec.origin):
             continue  # pinned by name: an object a pinned extension creates in memory with no file (PINS.json says which and why)
         if not isinstance(mod, type(sys)):
-            # an object that is not a module (typing registers two classes of its own under typing.io and typing.re): allowed
-            # only when the class comes from a module of the interpreter's library
-            owner = sys.modules.get(getattr(mod, "__module__", None) or "")
-            owner_origin = Path(getattr(owner, "__file__", "") or "/").resolve()
-            if owner is None or not _under(owner_origin, library):
-                out.append("%s is not a module and does not come from the interpreter's library" % modname)
+            # an object that is not a module: exactly the two classes the library's typing module registers under
+            # typing.io and typing.re, by identity, after typing itself is verified; any other stand-in is refused
+            typing_module = sys.modules.get("typing")
+            typing_origin = Path(getattr(typing_module, "__file__", "") or "/").resolve()
+            if modname in ("typing.io", "typing.re") and typing_module is not None and _under(typing_origin, library) \
+                    and mod is getattr(typing_module, modname.split(".")[1], None):
+                continue
+            out.append("%s is not a module (%s) and is not one of typing's own registered objects" % (modname, type(mod).__name__))
             continue
         if origin in (None, "built-in", "frozen"):
             frozen = (machinery.BuiltinImporter, machinery.FrozenImporter)

@@ -117,8 +117,23 @@ class Constructions(unittest.TestCase):
             with self.assertRaises(RuntimeError):
                 constructions.RegisteredContext(a, GATEWAY or "/nonexistent")  # not the literal root
             forged = object.__new__(constructions.RegisteredContext)
-            with self.assertRaises(RuntimeError):
+            with self.assertRaisesRegex(RuntimeError, "not a validated registered context"):
                 constructions.build(next(iter(constructions.HOLDOUT_CELLS)), a, registered=forged)
+            forged.root, forged.gateway, forged.marker = constructions.PRIMARY_ROOT.resolve(), Path(GATEWAY or "/nonexistent"), {}
+            with self.assertRaisesRegex(RuntimeError, "no validated registered attempt"):  # populated: validated from disk, not trusted
+                constructions.build(next(iter(constructions.HOLDOUT_CELLS)), a, registered=forged)
+            forged.check = lambda: None  # an instance-level stand-in for the method: the builder never calls the object's method
+            with self.assertRaisesRegex(RuntimeError, "no validated registered attempt"):
+                constructions.build(next(iter(constructions.HOLDOUT_CELLS)), a, registered=forged)
+
+            class Impostor(constructions.RegisteredContext):
+                def __init__(self):
+                    self.root, self.gateway, self.marker = constructions.PRIMARY_ROOT.resolve(), Path("/nonexistent"), {}
+
+                def check(self):
+                    return None
+            with self.assertRaisesRegex(RuntimeError, "constructed only inside the registered attempt"):
+                constructions.build(next(iter(constructions.HOLDOUT_CELLS)), a, registered=Impostor())
             self.assertEqual(os.listdir(a), [], "nothing is copied before the refusal")
             r = subprocess.run([sys.executable, str(STUDY / "harness" / "cells.py"), a, next(iter(constructions.HOLDOUT_CELLS))], capture_output=True, text=True)
             self.assertNotEqual(r.returncode, 0)
@@ -168,9 +183,13 @@ class RegisteredContextValidation(unittest.TestCase):
                     (root / "ATTEMPT.json").write_text(json.dumps(marker))
                     ctx = constructions.RegisteredContext(root, gateway)
                     ctx.check()
-                    (root / "ATTEMPT.json").write_text(json.dumps(dict(marker, attemptId="b" * 32)))
-                    with self.assertRaisesRegex(RuntimeError, "not the one validated"):
+                    self.assertEqual(constructions.validate_registered_attempt(root, gateway), marker)
+                    (root / "ATTEMPT.json").write_text(json.dumps(dict(marker, attemptId="b" * 3)))
+                    with self.assertRaisesRegex(RuntimeError, "attempt id"):  # the builder's validation reads the disk, not the object
                         ctx.check()
+                    (root / "ATTEMPT.json").write_text("{}")
+                    with self.assertRaisesRegex(RuntimeError, "marker lacks"):
+                        constructions.validate_registered_attempt(root, gateway)
                     (root / "ATTEMPT.json").write_text(json.dumps(dict(marker, cells=sorted(constructions.CELLS))))
                     with self.assertRaisesRegex(RuntimeError, "cell set"):
                         constructions.RegisteredContext(root, gateway)
@@ -577,6 +596,24 @@ class Pins(unittest.TestCase):
                 self.assertTrue(any("no bytecode-cache prefix" in p for p in pinning.execution_problems(pins)))
             finally:
                 sys.pycache_prefix = saved
+        from unittest.mock import Mock
+        genuine_statement = sys.modules["in_toto_attestation.v1.statement"]
+        proxy = Mock(wraps=genuine_statement)  # the round-4 stand-in: a library-class object wrapping a pinned module
+        proxy.Statement.copy_from_pb.return_value.validate.return_value = None
+        sys.modules["in_toto_attestation.v1.planted"] = proxy
+        try:
+            self.assertTrue(any("planted" in p and "not a module" in p for p in pinning.execution_problems(pins)), "a Mock under a pinned name is refused")
+        finally:
+            del sys.modules["in_toto_attestation.v1.planted"]
+        import typing
+        self.assertIs(sys.modules["typing.io"], typing.io)  # typing's own two objects pass, by identity
+        self.assertEqual(pinning.execution_problems(pins), [])
+        sys.modules["typing.io"] = Mock()  # the name alone grants nothing
+        try:
+            self.assertTrue(any(p.startswith("typing.io is not a module") for p in pinning.execution_problems(pins)))
+        finally:
+            sys.modules["typing.io"] = typing.io
+
         class Carrier:  # an object that is not a module, of a class from outside the interpreter's library
             __module__ = "securesystemslib.dsse"
         sys.modules["securesystemslib.carried"] = Carrier()
@@ -638,6 +675,72 @@ class Pins(unittest.TestCase):
                 del os.environ["PYTHONPATH"]
             with self.assertRaises(SystemExit):
                 guard.establish(str(study))
+
+    def test_the_environment_scan_refuses_unrecorded_entries(self):
+        self.assertEqual(guard.environment_problems(), [], "the pinned environment holds nothing unrecorded")
+        with tempfile.TemporaryDirectory() as a:
+            site = Path(a) / "site-packages"
+            (site / "pkg").mkdir(parents=True)
+            (site / "pkg" / "__init__.py").write_text("")
+            (site / "pkg" / "mod.py").write_text("")
+            (site / "pkg-1.0.dist-info").mkdir()
+            (site / "pkg-1.0.dist-info" / "RECORD").write_text("pkg/__init__.py,sha256=x,0\npkg/mod.py,sha256=x,0\n"
+                                                                 "pkg-1.0.dist-info/RECORD,,\n\"pkg/odd,name.py\",sha256=x,0\n../../bin/tool,sha256=x,0\n")
+            (site / "pkg" / "odd,name.py").write_text("")
+            (site / "pkg" / "__pycache__").mkdir()
+            (site / "pkg" / "__pycache__" / "mod.cpython-38.pyc").write_bytes(b"")
+            saved_path, saved_prefix = list(sys.path), sys.prefix
+            sys.path.append(str(site))
+            sys.prefix = a
+            try:
+                self.assertEqual(guard.environment_problems(), [])
+                (site / "pkg" / "mod").mkdir()  # the round-4 route: a package directory the import system prefers to mod.py
+                (site / "pkg" / "mod" / "__init__.py").write_text("")
+                problems = guard.environment_problems()
+                self.assertTrue(any(p.endswith("mod is a directory no installed distribution records a file under") for p in problems), problems)
+                self.assertTrue(any("mod/__init__.py is not a file" in p for p in problems), problems)
+                (site / "pkg" / "extra.py").write_text("")
+                (site / "hook.pth").write_text("")
+                (site / "loose.pyc").write_bytes(b"")
+                os.symlink("pkg", site / "alias")
+                os.unlink(site / "pkg" / "mod.py")
+                os.symlink("../hook.pth", site / "pkg" / "mod.py")  # a recorded path that is now a link elsewhere
+                problems = guard.environment_problems()
+                for needle in ("extra.py is not a file", "hook.pth is not a file", "loose.pyc is not a file", "alias is a symbolic link", "pkg/mod.py is a symbolic link"):
+                    self.assertTrue(any(needle in p for p in problems), (needle, problems))
+                with self.assertRaisesRegex(SystemExit, "installed distribution"):
+                    guard.establish(str(STUDY))
+                # the same refusal at check time, through the pins
+                self.assertTrue(any("no installed distribution records" in p for p in pinning.execution_problems(pinning.load())))
+            finally:
+                sys.path[:] = saved_path
+                sys.prefix = saved_prefix
+        self.assertEqual(guard.site_problems(), [])
+        sys.modules["sitecustomize"] = __import__("types").ModuleType("sitecustomize")
+        try:
+            self.assertTrue(guard.site_problems())
+        finally:
+            del sys.modules["sitecustomize"]
+
+    def test_the_execution_check_is_repeated_after_the_layers_ran(self):
+        # the layer runner refuses to write observations when the code that ran the layers is not the pinned code
+        original = run_layers.pinning.execution_problems
+        run_layers.pinning.execution_problems = lambda pins: ["late problem"]
+        saved = sys.argv
+        with tempfile.TemporaryDirectory() as a:
+            cells_dir = Path(a) / "cells"
+            constructions.build("pos-baseline", cells_dir)
+            fake = Path(a) / "gateway"
+            fake.write_text('#!/bin/sh\nprintf \'{"ok":true,"findings":[{"callIndex":0,"sessionId":"s2","status":"ok"},{"callIndex":1,"sessionId":"s2","status":"ok"}]}\'\n')
+            fake.chmod(0o755)
+            sys.argv = ["run_layers.py", "--cells", str(cells_dir), "--gateway", str(fake), "--out", str(Path(a) / "obs.json")]
+            try:
+                with self.assertRaisesRegex(RuntimeError, "late problem"):
+                    run_layers.main()
+                self.assertFalse((Path(a) / "obs.json").exists())
+            finally:
+                run_layers.pinning.execution_problems = original
+                sys.argv = saved
 
     def test_the_manifest_refuses_an_importable_non_source_file(self):
         import make_manifest

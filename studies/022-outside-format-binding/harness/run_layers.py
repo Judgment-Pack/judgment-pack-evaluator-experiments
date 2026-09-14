@@ -35,6 +35,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parent / "adapter"))
 from trees import tree_digest  # noqa: E402
+import pins as pinning  # noqa: E402
 import verify_attestation  # noqa: E402
 import verify_binding  # noqa: E402
 
@@ -90,6 +91,10 @@ def main():
     gateway = resolved_gateway(args.gateway)
     cells = sorted(p for p in Path(args.cells).iterdir() if p.is_dir())
     observations = [observe(gateway, c) for c in cells]
+    # the executing code is classified again now that every layer has run, so a module imported late is held to the pins too
+    late = pinning.execution_problems(pinning.load())
+    if late:
+        raise RuntimeError("after the layers ran, the executing code is not the pinned code:\n  " + "\n  ".join(late))
     with open(args.out, "x") as f:
         f.write(json.dumps({"attemptId": args.attempt_id, "gatewaySha256": hashlib.sha256(gateway.read_bytes()).hexdigest(),
                             "python": sys.version.split()[0], "trustedKeySha256": hashlib.sha256(TRUSTED_KEY.read_bytes()).hexdigest(), "cells": observations}, indent=1))

@@ -12,6 +12,10 @@ and calls `establish(study)` before importing anything else:
   module (a `.pyc` beside the sources, an extension, an archive), no directory an import could resolve to
   other than `harness/tests` and `__pycache__` (never consulted under the cache prefix), no symbolic link,
   and no `.py` whose name is a module of the interpreter's library or a pinned package's top level;
+- the virtual environment's import roots hold nothing an installed distribution does not record: no
+  unrecorded module or package directory (the import system prefers a package directory to a
+  same-named module), no path hook, no symbolic link;
+- no site customization module was imported at start-up;
 - the bytecode-cache prefix is set and holds no file, and bytecode writing is disabled.
 """
 import os
@@ -73,6 +77,71 @@ def shadow_problems(study):
     return out
 
 
+def _record_paths(record_file):
+    """The relative paths a distribution's RECORD lists (a quoted first field may hold a comma)."""
+    out = []
+    with open(record_file, encoding="utf-8") as f:
+        for line in f:
+            line = line.rstrip("\n")
+            if not line:
+                continue
+            if line.startswith('"'):
+                end = line.find('"', 1)
+                while end != -1 and end + 1 < len(line) and line[end + 1] == '"':
+                    end = line.find('"', end + 2)
+                rel = line[1:end].replace('""', '"') if end != -1 else line.split(",")[0]
+            else:
+                rel = line.split(",")[0]
+            out.append(rel)
+    return out
+
+
+def environment_problems():
+    """Every entry under the virtual environment's import roots is a file an installed distribution records (its RECORD)
+    or a directory such files populate -- nothing else: no unrecorded module, no unrecorded package directory (which
+    the import system would prefer to a same-named module), no path hook, no symbolic link. `__pycache__` directories
+    are skipped: under the empty cache prefix they are never consulted."""
+    out = []
+    roots = [e for e in sys.path if e and _under(e, sys.prefix) and os.path.isdir(e)]
+    if not roots:
+        out.append("no import root of the virtual environment is on sys.path")
+    for root in roots:
+        root = _real(root)
+        owned_files, owned_dirs = set(), set()
+        for name in sorted(os.listdir(root)):
+            record = os.path.join(root, name, "RECORD")
+            if name.endswith(".dist-info") and os.path.isfile(record):
+                for rel in _record_paths(record):
+                    full = os.path.normpath(os.path.join(root, rel))
+                    if not _under(full, root):
+                        continue  # a script outside the import root (bin/): not importable from here
+                    owned_files.add(full)
+                    parent = os.path.dirname(full)
+                    while _under(parent, root) and parent != root:
+                        owned_dirs.add(parent)
+                        parent = os.path.dirname(parent)
+        for dirpath, dirnames, filenames in os.walk(root):
+            dirnames[:] = sorted(d for d in dirnames if d != "__pycache__")
+            for d in dirnames:
+                full = os.path.join(dirpath, d)
+                if os.path.islink(full):
+                    out.append("%s is a symbolic link" % full)
+                elif full not in owned_dirs:
+                    out.append("%s is a directory no installed distribution records a file under" % full)
+            for f in sorted(filenames):
+                full = os.path.join(dirpath, f)
+                if os.path.islink(full):
+                    out.append("%s is a symbolic link" % full)
+                elif full not in owned_files:
+                    out.append("%s is not a file any installed distribution records" % full)
+    return out
+
+
+def site_problems():
+    """Site initialization ran before this guard could: a customization module, if one was imported, has already run."""
+    return ["%s was imported at interpreter start-up" % name for name in ("sitecustomize", "usercustomize") if name in sys.modules]
+
+
 def cache_problems():
     out = []
     if not sys.dont_write_bytecode:
@@ -92,7 +161,7 @@ def cache_problems():
 
 def establish(study):
     """Refuse to run unless trusted import resolution holds; returns None."""
-    problems = cache_problems() + path_problems(study) + shadow_problems(study)
+    problems = cache_problems() + site_problems() + path_problems(study) + shadow_problems(study) + environment_problems()
     if problems:
         raise SystemExit("refusing to start: trusted import resolution is not established:\n  " + "\n  ".join(problems))
 

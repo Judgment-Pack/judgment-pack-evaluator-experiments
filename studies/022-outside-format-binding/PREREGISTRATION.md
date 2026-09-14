@@ -46,7 +46,11 @@ the artifacts govern.
   else is imported: the import path holds only the study roots, the interpreter's library and
   the virtual environment; the study roots hold no importable file that is not a `.py` module,
   no directory an import could resolve to, no symbolic link, and no `.py` named like a module
-  of the interpreter's library or a pinned package. At check time `harness/pins.py` classifies
+  of the interpreter's library or a pinned package; the virtual environment's import roots hold
+  nothing an installed distribution does not record in its `RECORD` — no unrecorded module, no
+  unrecorded package directory (which the import system would prefer to a same-named module),
+  no path hook, no symbolic link; and no site customization module was imported at start-up.
+  At check time `harness/pins.py` repeats all of that and classifies
   every module in `sys.modules` by the file it was loaded from — built-in or frozen; the
   interpreter's own library; a file of a pinned distribution, under the source or extension
   loader by class identity with its cache path under the empty prefix (a namespace package only
@@ -54,9 +58,14 @@ the artifacts govern.
   to the module it holds); a registered study module from its `.py`; or one of two modules
   cryptography's pinned extension creates in memory with no file of their own (`_openssl`,
   `_openssl.lib`), pinned by name in `harness/PINS.json` — and refuses anything else, whatever
-  its name. The manifest covers every file under `adapter/` and `harness/` recursively
-  and refuses an unexpected directory, a symbolic link or an importable non-`.py` file there.
-  What this does not establish is a stated limit (§7).
+  its name (a non-module object in the module table is refused unless it is one of the two
+  objects the library's `typing` registers, by identity). The check runs before the marker and
+  **again after the layers have run** — in the layer runner before the observations are
+  written, in the scorer after the recomputation and before adjudication, in the runner after
+  the cells are built — so a module imported late is classified too. The manifest covers every
+  file under `adapter/` and `harness/` recursively and refuses an unexpected directory, a
+  symbolic link or an importable non-`.py` file there. What this does not establish is a stated
+  limit (§7).
 - **Primary attempt root**: `results/primary-attempt-001` — literal, must not exist at the
   freeze; the runner and the scorer refuse any other root for a registered attempt (the scorer
   refuses to read registered evidence from any other directory, and refuses a marker whose
@@ -131,9 +140,12 @@ the holdout stratum is adjudicated by the same comparison in its own section, de
 The holdout's construction is guarded, and its provenance is split and disclosed:
 
 - **Construction.** `harness/cells.py` builds a holdout cell only under a validated
-  registered-attempt context (`RegisteredContext`: the marker of a `REGISTERED` attempt at the
-  literal primary root, the only place such a marker can be); the pilot runner, the tests and
-  the command-line route never hold one, and the command-line route refuses a holdout id.
+  registered-attempt context (`RegisteredContext`): the builder accepts that exact type only
+  and, trusting nothing the object holds, re-runs the whole validation from disk on the
+  context's root and gateway — every pin non-null and matching, the executing code included,
+  and the marker of a `REGISTERED` attempt at the literal primary root, complete and matched —
+  before copying anything; the pilot runner, the tests and the command-line route never
+  establish one, and the command-line route refuses a holdout id.
   Through `harness/cells.py` no holdout cell was built before the freeze, and the registered
   attempt is their first construction through the harness.
 - **Provenance.** Three holdout cells are **pretested reviewer challenge cells at the
@@ -273,9 +285,14 @@ its standard library and import machinery, of the native libraries it and the pi
 extensions link, of the gateway binary's own dependencies beyond its digest, or of the
 operating system and file system; all of these are trusted, and the checks assume that files
 and the import machinery are not replaced concurrently with their being checked (no check here
-is an atomic snapshot). These assumptions are the environment's; they excuse no unchecked
-replacement under a study-controlled path, which is why every module the interpreter loaded is
-classified and anything outside the three trusted places is refused.
+is an atomic snapshot). Site initialization runs before any check can: a customization module
+(`sitecustomize`, `usercustomize`), if one were present, would have run by the time the guard
+looks; the guard refuses a run in which one was imported, but cannot undo its having run.
+These assumptions are the environment's; they excuse no unchecked replacement under a path
+the study or the environment controls, which is why every module the interpreter loaded is
+classified, every entry under the environment's import roots is held to a distribution's
+record, and anything outside the trusted places is refused — within this base, and not
+beyond it.
 
 ## 8. What this study cannot show
 

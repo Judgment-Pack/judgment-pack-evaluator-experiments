@@ -109,6 +109,9 @@ def main():
                 constructions.build(cid, root / "cells")
         if not args.pilot:
             (root / "HOLDOUT-CONSTRUCTION.json").write_text(json.dumps({"failed": unconstructed}, indent=1))
+        late = pinning.execution_problems(pins)
+        if late:
+            raise RuntimeError("after the cells were built, the executing code is not the pinned code:\n  " + "\n  ".join(late))
         subprocess.run([sys.executable, str(HARNESS / "run_layers.py"), "--cells", str(root / "cells"), "--gateway", gateway,
                         "--out", str(root / "OBSERVATIONS.json"), "--attempt-id", attempt_id], check=True, env=child_env())
         score = [sys.executable, str(HARNESS / "score.py"), "--attempt-root", str(root), "--gateway", gateway]
