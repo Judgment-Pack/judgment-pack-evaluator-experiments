@@ -15,6 +15,7 @@ jobs:
     steps:
       - name: Allow long paths on Windows
         if: runner.os == 'Windows'
+        working-directory: ${{ github.workspace }}  # the job's default directory does not exist before the checkout
         # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
         run: git config --global core.longpaths true
       - name: Check out source
@@ -32,6 +33,7 @@ jobs:
     steps:
       - name: Allow long paths on Windows
         if: runner.os == 'Windows'
+        working-directory: ${{ github.workspace }}  # the job's default directory does not exist before the checkout
         # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
         run: git config --global core.longpaths true
       - name: Check out source
@@ -56,6 +58,7 @@ jobs:
     steps:
       - name: Allow long paths on Windows
         if: runner.os == 'Windows'
+        working-directory: ${{ github.workspace }}  # the job's default directory does not exist before the checkout
         # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
         run: git config --global core.longpaths true
       - name: Check out source
@@ -97,6 +100,7 @@ jobs:
     steps:
       - name: Allow long paths on Windows
         if: runner.os == 'Windows'
+        working-directory: ${{ github.workspace }}  # the job's default directory does not exist before the checkout
         # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
         run: git config --global core.longpaths true
       - name: Check out source
@@ -125,6 +129,7 @@ jobs:
     steps:
       - name: Allow long paths on Windows
         if: runner.os == 'Windows'
+        working-directory: ${{ github.workspace }}  # the job's default directory does not exist before the checkout
         # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
         run: git config --global core.longpaths true
       - name: Check out source
@@ -146,6 +151,7 @@ jobs:
     steps:
       - name: Allow long paths on Windows
         if: runner.os == 'Windows'
+        working-directory: ${{ github.workspace }}  # the job's default directory does not exist before the checkout
         # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
         run: git config --global core.longpaths true
       - name: Check out source
@@ -175,6 +181,7 @@ jobs:
     steps:
       - name: Allow long paths on Windows
         if: runner.os == 'Windows'
+        working-directory: ${{ github.workspace }}  # the job's default directory does not exist before the checkout
         # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
         run: git config --global core.longpaths true
       - name: Check out source
@@ -224,6 +231,7 @@ jobs:
     steps:
       - name: Allow long paths on Windows
         if: runner.os == 'Windows'
+        working-directory: ${{ github.workspace }}  # the job's default directory does not exist before the checkout
         # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
         run: git config --global core.longpaths true
       - name: Check out source
@@ -247,6 +255,7 @@ jobs:
     steps:
       - name: Allow long paths on Windows
         if: runner.os == 'Windows'
+        working-directory: ${{ github.workspace }}  # the job's default directory does not exist before the checkout
         # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
         run: git config --global core.longpaths true
       - name: Check out source
@@ -297,6 +306,7 @@ jobs:
     steps:
       - name: Allow long paths on Windows
         if: runner.os == 'Windows'
+        working-directory: ${{ github.workspace }}  # the job's default directory does not exist before the checkout
         # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
         run: git config --global core.longpaths true
       - name: Check out source
@@ -346,6 +356,7 @@ jobs:
     steps:
       - name: Allow long paths on Windows
         if: runner.os == 'Windows'
+        working-directory: ${{ github.workspace }}  # the job's default directory does not exist before the checkout
         # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
         run: git config --global core.longpaths true
       - name: Check out source
@@ -376,6 +387,7 @@ jobs:
     steps:
       - name: Allow long paths on Windows
         if: runner.os == 'Windows'
+        working-directory: ${{ github.workspace }}  # the job's default directory does not exist before the checkout
         # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
         run: git config --global core.longpaths true
       - name: Check out source
@@ -404,6 +416,7 @@ jobs:
     steps:
       - name: Allow long paths on Windows
         if: runner.os == 'Windows'
+        working-directory: ${{ github.workspace }}  # the job's default directory does not exist before the checkout
         # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
         run: git config --global core.longpaths true
       - name: Check out source
@@ -460,6 +473,7 @@ jobs:
     steps:
       - name: Allow long paths on Windows
         if: runner.os == 'Windows'
+        working-directory: ${{ github.workspace }}  # the job's default directory does not exist before the checkout
         # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
         run: git config --global core.longpaths true
       - name: Check out source
@@ -551,6 +565,7 @@ jobs:
     steps:
       - name: Allow long paths on Windows
         if: runner.os == 'Windows'
+        working-directory: ${{ github.workspace }}  # the job's default directory does not exist before the checkout
         # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
         run: git config --global core.longpaths true
       - name: Check out source
@@ -573,6 +588,7 @@ jobs:
     steps:
       - name: Allow long paths on Windows
         if: runner.os == 'Windows'
+        working-directory: ${{ github.workspace }}  # the job's default directory does not exist before the checkout
         # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
         run: git config --global core.longpaths true
       - name: Check out source
