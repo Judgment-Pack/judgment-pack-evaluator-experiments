@@ -33,10 +33,10 @@ def digest_of(path):
 ORDERED = {"greater-than", "greater-than-or-equal", "less-than", "less-than-or-equal"}
 
 
-def expected_thresholds(pack):
-    """How many threshold entries the profile must report for this pack: its
-    distinct (pointer, literal) ordered comparisons, over the applicability,
-    the rules and the exceptions (runtime ADR-0034 groups coincident sites)."""
+def threshold_boundaries(pack):
+    """The boundaries the profile must report for this pack: its distinct
+    (pointer, literal) ordered comparisons, over the applicability, the rules
+    and the exceptions (runtime ADR-0034 groups coincident sites)."""
     found = set()
 
     def walk(node):
@@ -53,7 +53,23 @@ def expected_thresholds(pack):
         walk(r.get("when"))
     for e in pack.get("exceptions", []):
         walk(e.get("when"))
-    return len(found)
+    return found
+
+
+def expected_thresholds(pack):
+    return len(threshold_boundaries(pack))
+
+
+def buckets_per_pointer(entries):
+    """Sum each entry's origins into (pointer -> [literal, below, at, above]) -- the scorer recomputes this from retained evidence."""
+    per_pointer = {}
+    for t in entries:
+        below = sum(o["below"]["disagreeing"] for o in t["origins"])
+        at = sum(o["at"]["disagreeing"] for o in t["origins"])
+        above = sum(o["above"]["disagreeing"] for o in t["origins"])
+        if below + at + above:
+            per_pointer.setdefault(t["pointer"], []).append({"literal": t["literal"], "below": below, "at": at, "above": above})
+    return per_pointer
 
 
 def signature_from_buckets(per_pointer, mismatched):
@@ -65,7 +81,7 @@ def signature_from_buckets(per_pointer, mismatched):
     return bool(one and sided and placed), bool(placed)
 
 
-def signature(profile, mismatched=None, expected=None):
+def signature(profile, mismatched=None, expected=None, origins=None):
     """The registered line-moved signature, read per POINTER across origins.
 
     A pack may compare one pointer against several literals (a rule's guard
@@ -87,18 +103,19 @@ def signature(profile, mismatched=None, expected=None):
         raise RuntimeError("the profile reports %d threshold entries where the pack draws %d" % (len(entries), expected))
     if not entries:
         return {"applicable": False, "thresholdEntries": 0}
-    per_pointer = {}
     for t in entries:
-        below = sum(o["below"]["disagreeing"] for o in t["origins"])
-        at = sum(o["at"]["disagreeing"] for o in t["origins"])
-        above = sum(o["above"]["disagreeing"] for o in t["origins"])
-        if below + at + above:
-            per_pointer.setdefault(t["pointer"], []).append({"literal": t["literal"], "below": below, "at": at, "above": above})
+        reported = {o.get("origin") for o in t.get("origins", [])}
+        if not reported or (origins is not None and reported != set(origins)):
+            raise RuntimeError("the profile's entry for %s at %s reports origins %s where the ledger holds %s" % (t.get("pointer"), t.get("literal"), sorted(reported), sorted(origins or [])))
+    per_pointer = buckets_per_pointer(entries)
     # every mismatched row must be PLACED on that pointer: a row whose value
     # the profile could not compare sits in no bucket, and a signature over
     # the placed rows alone would say nothing about it
     line_moved, placed = signature_from_buckets(per_pointer, mismatched)
-    return {"applicable": True, "thresholdEntries": len(entries), "lineMoved": line_moved, "placed": placed, "disagreeing": per_pointer}
+    # the profile's threshold entries are retained whole -- every boundary,
+    # every origin, zero counts included -- so the scorer can rebuild the
+    # judgment from evidence rather than trust the flags
+    return {"applicable": True, "thresholdEntries": len(entries), "thresholds": entries, "lineMoved": line_moved, "placed": placed, "disagreeing": per_pointer}
 
 
 def replay(policy, pack, ledger):
@@ -113,8 +130,9 @@ def replay(policy, pack, ledger):
         raise RuntimeError("replay of %s read %d rows of a ledger of %d" % (policy, summary["total"], len(ledger["cases"])))
     if (entry["status"] == "mismatch") != (summary["mismatched"] > 0):
         raise RuntimeError("replay of %s reports status %s with %d mismatched" % (policy, entry["status"], summary["mismatched"]))
+    origins = {c.get("origin") for c in ledger["cases"]}
     return {"status": entry["status"], "rows": summary["total"], "mismatched": summary["mismatched"],
-            "caught": summary["mismatched"] > 0, "signature": signature(entry.get("profile"), summary["mismatched"], expected_thresholds(pack))}
+            "caught": summary["mismatched"] > 0, "signature": signature(entry.get("profile"), summary["mismatched"], expected_thresholds(pack), origins)}
 
 
 def main():

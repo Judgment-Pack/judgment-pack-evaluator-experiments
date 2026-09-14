@@ -725,7 +725,7 @@
     "allowsNoCaught": true
    },
    "structure": "S7",
-   "reason": "the same band, above the new guard",
+   "reason": "the changed cases lie in [187500, 250000): approving cases now refused by the guard moved to 187500, including a case exactly at it; the retained committee boundary at 250000 has every changed case strictly below it, which satisfies the one-side condition whatever sits at the new guard",
    "role": "endpoint",
    "n": 50
   },
@@ -741,7 +741,7 @@
     "allowsNoCaught": true
    },
    "structure": "S6",
-   "reason": "cases change on both sides of the line: below it every case not already escalated gains the exception's escalation, above it every case loses it -- and what it then decides is the rules' (approve, request-info, or reject where the sanctions exception forces it; unresolved where required evidence is absent); the case at 250000 is unchanged",
+   "reason": "cases change on both sides of the line: below it every case not already escalated gains the exception's escalation, above it every case loses it -- and what it then decides is the rules' (request-info, or reject where the sanctions exception forces it; unresolved where required evidence is absent; never approve, whose rule still requires spend strictly below 250000); the case at 250000 is unchanged",
    "role": "endpoint",
    "n": 50
   },

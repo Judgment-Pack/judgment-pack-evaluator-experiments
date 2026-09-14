@@ -306,17 +306,19 @@ finding), every valid instance has a cell against every ledger, and the ledger s
 the registered one (the literal ledger and seeds 101–130 at each n); (G3) the random ledgers
 are deterministic in the seed: the scorer rebuilds one per policy under the pinned runtime and
 compares bytes. Before any gate is read the scorer holds the records to be **the registered
-experiment's**: every retained mutant equal to the planter's document for its site, every
-literal ledger rebuilt byte for byte under the pinned runtime, every signature record complete
-— the profile present, its threshold entries as many as the replayed pack draws distinct
-(pointer, literal) ordered comparisons (none for a pack that draws no line, which the runtime
-reports by omitting the member), and where a threshold exists the bucket counts per pointer
-and literal, from which the recorded verdict is recomputed and must agree; a replay whose
-report carries no profile, or a threshold count that is not the pack's, fails the
-construction, as does one that does not run to a verdict,
-reads fewer rows than the ledger holds, or reports a status that disagrees with its count.
-Any shortfall in that validity is pipeline-invalid before anything is aggregated; only the
-executed controls (G1 as bound clean gate records, G3) can fail as control gates. The scorer
+experiment's**: every retained mutant equal to the planter's document for its site; **every**
+ledger — the literal one and every random one at its declared seed — rebuilt byte for byte
+under the pinned runtime; every signature record complete — the profile present, its
+threshold entries retained whole and exactly the replayed pack's distinct (pointer, literal)
+ordered comparisons (none for a pack that draws no line, which the runtime reports by omitting
+the member), each entry reporting exactly the ledger's origins with counts bounded by the
+ledger, zero counts included, from which the bucket sums and the recorded verdict are
+recomputed and must agree; a replay whose report carries no profile, a threshold set that is
+not the pack's, or an origin set that is not the ledger's, fails the construction, as does one
+that does not run to a verdict, reads fewer rows than the ledger holds, or reports a status
+that disagrees with its count. Any shortfall in that validity is pipeline-invalid before
+anything is aggregated; only the executed controls — G1 as a completed, bound unplanted replay
+that mismatched, G2 as a documented dropped instance, G3 — fail as control gates. The scorer
 refuses an existing adjudication, refuses an unpinned or mismatching runtime, writes each of
 its three files once and never over an existing one, and labels the attempt.
 

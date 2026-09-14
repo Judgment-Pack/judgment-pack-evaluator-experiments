@@ -38,7 +38,7 @@ HAVE_JPACK = pinned_runtime_present()
 
 
 def profile(entries):
-    """A profile carrying one threshold entry per (pointer, literal, below, at, above)."""
+    """A profile carrying one threshold entry per (pointer, literal, below, at, above), for origin "o"."""
     return {"thresholds": [{"pointer": p, "literal": l, "origins": [{"origin": "o", "below": {"rows": b, "disagreeing": b},
                                                                        "at": {"rows": a, "disagreeing": a},
                                                                        "above": {"rows": v, "disagreeing": v}}]}
@@ -82,6 +82,7 @@ class SignatureRule(unittest.TestCase):
     def test_expected_thresholds_counts_distinct_ordered_literals(self):
         packs = {f.name: json.loads(f.read_text()) for f in (STUDY / "fixtures" / "policies").glob("*.pack.json")}
         self.assertEqual(replay.expected_thresholds(packs["data-request-intake-triage.pack.json"]), 0)
+        self.assertEqual(replay.threshold_boundaries(packs["vendor-onboarding.pack.json"]), {("/engagement/annualSpendUsd", "250000")})
         self.assertEqual(replay.expected_thresholds(packs["vendor-onboarding.pack.json"]), 1)  # two sites, one literal
         self.assertEqual(replay.expected_thresholds(packs["expense-approval.pack.json"]), 1)
         self.assertEqual(replay.expected_thresholds(packs["sanctions-screening.pack.json"]), 1)
@@ -185,12 +186,18 @@ class SignatureEvidence(unittest.TestCase):
     def test_incomplete_signature_evidence_is_refused(self):
         self.assertFalse(score.signature_evidence_ok({"applicable": True}, 3))
         self.assertFalse(score.signature_evidence_ok({"applicable": False}, 3))
-        self.assertTrue(score.signature_evidence_ok({"applicable": False, "thresholdEntries": 0}, 3))
-        self.assertFalse(score.signature_evidence_ok({"applicable": False, "thresholdEntries": 0}, 3, expected_entries=1))
-        good = replay.signature(profile([("/x", "10", 3, 0, 0)]), 3)
-        self.assertTrue(score.signature_evidence_ok(good, 3))
-        forged = dict(good, lineMoved=False)
-        self.assertFalse(score.signature_evidence_ok(forged, 3), "a recorded verdict must agree with its own counts")
+        self.assertTrue(score.signature_evidence_ok({"applicable": False, "thresholdEntries": 0}, 3, boundaries=set()))
+        self.assertFalse(score.signature_evidence_ok({"applicable": False, "thresholdEntries": 0}, 3, boundaries={("/x", "10")}))
+        good = replay.signature(profile([("/x", "10", 3, 0, 0)]), 3, expected=1, origins={"o"})
+        self.assertTrue(score.signature_evidence_ok(good, 3, boundaries={("/x", "10")}, origins={"o"}, ledger_rows=3))
+        self.assertFalse(score.signature_evidence_ok(dict(good, lineMoved=False), 3, boundaries={("/x", "10")}, origins={"o"}, ledger_rows=3), "a recorded verdict must agree with its own counts")
+        # declared count without the retained entries; a foreign boundary; a foreign origin; counts beyond the ledger
+        self.assertFalse(score.signature_evidence_ok({"applicable": True, "thresholdEntries": 1, "lineMoved": False, "placed": False, "disagreeing": {}}, 3, boundaries={("/x", "10")}, origins={"o"}))
+        self.assertFalse(score.signature_evidence_ok(good, 3, boundaries={("/y", "999")}, origins={"o"}, ledger_rows=3))
+        self.assertFalse(score.signature_evidence_ok(good, 3, boundaries={("/x", "10")}, origins={"other"}, ledger_rows=3))
+        self.assertFalse(score.signature_evidence_ok(good, 3, boundaries={("/x", "10")}, origins={"o"}, ledger_rows=2))
+        with self.assertRaises(RuntimeError):
+            replay.signature({"thresholds": [{"pointer": "/x", "literal": "10", "origins": []}]}, 1, expected=1, origins={"o"})
 
     def test_a_missing_profile_fails_the_replay(self):
         with self.assertRaises(RuntimeError):
