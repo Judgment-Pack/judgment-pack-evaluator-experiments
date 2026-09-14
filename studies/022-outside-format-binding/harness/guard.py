@@ -14,7 +14,9 @@ and calls `establish(study)` before importing anything else:
   and no `.py` whose name is a module of the interpreter's library or a pinned package's top level;
 - the virtual environment's import roots hold nothing an installed distribution does not record: no
   unrecorded module or package directory (the import system prefers a package directory to a
-  same-named module), no path hook, no symbolic link;
+  same-named module), no path hook, no symbolic link; and no two metadata directories claim one
+  distribution name, so the distribution whose files are hashed is the one whose record grants
+  ownership;
 - no site customization module was imported at start-up;
 - the bytecode-cache prefix is set and holds no file, and bytecode writing is disabled.
 """
@@ -96,6 +98,24 @@ def _record_paths(record_file):
     return out
 
 
+def _declared_name(metadata_file):
+    """The normalized distribution name a METADATA file declares (PEP 503 normalization), or None."""
+    try:
+        with open(metadata_file, encoding="utf-8", errors="replace") as f:
+            for line in f:
+                if not line.strip():
+                    break  # the headers end at the first blank line
+                if line.lower().startswith("name:"):
+                    raw = line.split(":", 1)[1].strip().lower()
+                    out = ""
+                    for ch in raw:
+                        out += "-" if ch in "-_." and not out.endswith("-") else ch
+                    return out
+    except OSError:
+        return None
+    return None
+
+
 def environment_problems():
     """Every entry under the virtual environment's import roots is a file an installed distribution records (its RECORD)
     or a directory such files populate -- nothing else: no unrecorded module, no unrecorded package directory (which
@@ -108,9 +128,20 @@ def environment_problems():
     for root in roots:
         root = _real(root)
         owned_files, owned_dirs = set(), set()
+        claimed = {}
         for name in sorted(os.listdir(root)):
             record = os.path.join(root, name, "RECORD")
             if name.endswith(".dist-info") and os.path.isfile(record):
+                # one metadata directory per distribution name: a second directory claiming a name already claimed is refused,
+                # so the distribution whose files are hashed and the distribution whose RECORD grants ownership are the same
+                declared = _declared_name(os.path.join(root, name, "METADATA"))
+                if declared is None:
+                    out.append("%s declares no distribution name" % os.path.join(root, name))
+                    continue  # its record grants nothing
+                if declared in claimed:
+                    out.append("%s claims the distribution name %r that %s already claims" % (os.path.join(root, name), declared, claimed[declared]))
+                    continue  # its record grants nothing
+                claimed[declared] = os.path.join(root, name)
                 for rel in _record_paths(record):
                     full = os.path.normpath(os.path.join(root, rel))
                     if not _under(full, root):

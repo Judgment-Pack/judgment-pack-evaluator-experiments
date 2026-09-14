@@ -1245,3 +1245,169 @@ invocation.
 `pilots/r5` (harness validation, `--pilot`, locked stratum only, holdout not built): `R1 holds`
 over the nineteen locked cells, zero validity failures, zero gate failures.
 
+## Round 5 — reviewed `e1099309` — verdict: `not freezable as written`
+
+Reviewer: Codex (GPT-6 Astra), `codex exec -s read-only`, run 2026-09-14 over the study branch
+worktree at commit `e10993094db269c88db60350fed8a214dc67fcc7`. The read-only sandbox blocked
+`mktemp` and the test module's cache directory, so no test body ran for the reviewer; its
+probes ran in memory and over an in-memory file-system view, as its report says.
+
+### Prompt (verbatim)
+
+````text
+You are the pre-freeze cross-vendor reviewer for Study 022 in the judgment-pack-evaluator-experiments repository, under the interim review regime (a model from a different vendor than the one that drafted; Claude drafted). This is ROUND 5. Rounds 1–4 (60d6409f, c58fad05, 8cb96e1a, 46dc8ecb) were your own reviews; each returned `not freezable as written`; the maintainer accepted every finding of every round. The record of all four rounds — your prompts and findings verbatim, the maintainer's disposition tables naming what changed per finding, mutation tables, and the post-round pilots — is studies/022-outside-format-binding/PREREG-REVIEW.md. You are reviewing commit e10993094db269c88db60350fed8a214dc67fcc7 of the study branch (the worktree you are in).
+
+What changed in the round-4 application, in brief (verify each against the code, not this summary):
+- Finding 1 (non-module objects): the exception in `harness/pins.py` `execution_problems()` is exactly the two objects the library's `typing` module registers under `typing.io` and `typing.re`, by identity, after `typing` itself is verified as a library file; every other non-module object in `sys.modules` is refused, whatever its class or name. Your Mock-based stand-in is a regression test.
+- Finding 2 (unrecorded package code, late imports): `harness/guard.py` `environment_problems()` (os alone, before any other import) walks every import root of the virtual environment and refuses any entry an installed distribution's RECORD does not list — an unrecorded file, an unrecorded package directory (which the import system prefers to a same-named module), a path hook, a symbolic link — skipping `__pycache__` directories, which the empty cache prefix makes unreachable; `site_problems()` refuses a run in which `sitecustomize`/`usercustomize` was imported. `pins.execution_problems()` repeats the whole guard at check time, and the check now runs AGAIN after the layers have run: in the layer runner before observations are written (a failure raises, so no observations exist), in the scorer after the recomputation (a validity failure before adjudication), in the runner after the cells are built. A regression test builds a temporary site tree with a `descriptor_pb2`-style package directory shadowing a recorded module and asserts refusal; another asserts the layer runner refuses to write observations when the late check fails. PREREGISTRATION §2 states all of it; §7 adds site initialization to the stated trusted base and qualifies the claim as holding within that base.
+- Finding 3 (forged contexts): `harness/cells.py` `validate_registered_attempt(root, gateway)` is a module-level function (the complete pin check with `require_all=True` and the shared marker validation, from disk); `RegisteredContext.__init__` calls it; `build()` requires the exact type (no subclass), reads `root` and `gateway` from the object and calls `validate_registered_attempt` directly — trusting nothing the object holds, and not any method of it — before copying anything. Tests: a fieldless forged object, a populated forged object (root = the literal root, marker = {}), and a subclass overriding `check()` are each refused with nothing copied.
+
+Your job this round:
+1. Verify every round-4 disposition against the code; for each of findings 1–3 say closed or residue (with lines).
+2. Attack execution identity within the trusted computing base §7 names: with the environment scan (RECORD ownership of every entry under the environment's import roots), the module classification, the late re-check and the site check, what code could still run that is not the pinned code, and is §7 honest about what remains?
+3. Attack the holdout builder: can a holdout cell be built through `harness/cells.py` without a registered attempt at the literal root whose pins are all non-null and matching?
+4. The locked matrix and the adapter SPEC are unchanged this round; say so if you confirm it, or say what changed.
+5. The holdout: confirm harness/MATRIX-HOLDOUT.json is still your round-1 array byte for byte (SHA-256 10f87d02…) and the six constructions unchanged. Do not build a holdout cell.
+6. Anything new the round introduced.
+
+This round you MAY execute: the virtual environment holding the pinned packages is at /tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/intoto-venv (python: /tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/intoto-venv/bin/python) and the pinned gateway binary at /tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/bin/gateway-03582d9 (SHA-256 aaa16fec…; harness/PINS.json pins it). Run the harness tests from the study directory exactly as README.md states:
+    PYTHONPYCACHEPREFIX=$(mktemp -d) PYTHONDONTWRITEBYTECODE=1 GATEWAY_BIN=/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/bin/gateway-03582d9 /tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/intoto-venv/bin/python -W ignore -m unittest discover -s harness/tests
+Your sandbox is read-only and may block temporary-file writes (mktemp and the tests' temporary directories); if the tests cannot run, say so and reason from the code. Do NOT run the primary attempt, do NOT run a pilot, do NOT build a holdout cell. Do not modify any file.
+
+Output: findings numbered and severity-tagged (BLOCKER / MAJOR / MINOR) with file:line locations and the smallest sufficient edit, then per-finding verdicts on the round-4 dispositions (closed / residue), then any amendment to your holdout array (kept byte for byte), then a verdict: `freezable as written` or `not freezable as written`. A clean pass on an item is a finding only if you can defend it.
+
+The round-1 prompt follows for reference; its reading list and its standards apply unchanged.
+
+----- ROUND-1 PROMPT (reference) -----
+You are the pre-freeze cross-vendor reviewer for Study 022 in the judgment-pack-evaluator-experiments repository, under the interim review regime (a model from a different vendor than the one that drafted; Claude drafted). The study is NOT frozen; your job is to find where the preregistration or the binding specification overclaims, where a registered cell's expectation does not follow from the three specifications it rests on (the gateway's SPEC.md; DSSE and the in-toto Statement v1 as the pinned reference implementation realizes them; the adapter's own SPEC.md), where the harness could produce a result the registration would misread, and where the design lets a favourable outcome be reached for the wrong reason. A clean pass is a finding only if you can defend it. Do not run the primary attempt; you may read everything and run the harness tests (the virtual environment holding the pinned packages is not available to you; the gateway binary is not available to you; reason from the documents and say what you could not execute).
+
+Read, in the study directory studies/022-outside-format-binding/ of the current worktree:
+- PREREGISTRATION.md — the registration: question, R1 and R2, the two strata, apparatus and pins, the scenario and threat model, the cells and the structures their reasons rest on, the decision rule, validity and enforcement, limits.
+- adapter/SPEC.md — the binding: the attestation's shape (subjects, predicate type, predicate), the adapter's key, what the binding asserts (section 3), the three layers (4), the in-toto layer's ceremony (5), the reduced form the registration compares (6), the ownership map (7).
+- harness/MATRIX.json — nineteen registered cells with exact per-layer expectations, ownership and reasons. Verify EVERY cell against the sources: the gateway's SPEC.md at commit 03582d9 of /home/onword/repo/judgment-pack/judgment-pack-gateway (read with `git -C <path> show 03582d9:SPEC.md`; sections 1.2a, 1.4, 3, 4 including steps 5-7, and the status vocabulary), the DSSE and in-toto Statement v1 contracts as securesystemslib 1.3.1 and in-toto-attestation 0.9.3 implement them (reason from their documented behaviour: PAE over payload type and payload, key id matching, Statement validation), and adapter/SPEC.md. Say per cell whether the expected outcome of each layer follows, and name any cell whose expectation you can show does not.
+- adapter/bind.py, adapter/verify_attestation.py, adapter/verify_binding.py — the binding and the two non-gateway layers; check them against adapter/SPEC.md clause by clause (the ceremony's order, the codes, the subject re-digest rules, the binding's rules), and look for a way a layer could pass for the wrong reason.
+- harness/cells.py — the nineteen constructions; check each does what its registered cell says and nothing else, deterministically.
+- harness/run_layers.py, harness/score.py, harness/run_attempt.py, harness/pins.py, harness/make_manifest.py, harness/PINS.json, harness/tests/test_study.py — enforcement: pins held before a registered attempt and before adjudication; the exclusive root and the marker; cells rebuilt and compared; observations bound and complete; the reduction; the decision rule. Look for any path to "R1 holds" without the registered evidence.
+- fixtures/baseline/ — the corpus vector v3-action-valid materialized (compare with `git -C <gateway path> show 03582d9:corpus/v3/stores/v3-action-valid.json`) and the attestations the adapter bound from it.
+- README.md, DEVIATIONS.md, .gitignore — status banners and the freeze-set discipline (README.md and DEVIATIONS.md outside the manifest; tools/check_freeze_sets.py at the repository root says why).
+- For precedent, studies/014-openworkproof-binding/PREREGISTRATION.md and its adapter/SPEC.md (the same shape of study: an external receipt protocol, a binding layer, a locked stratum and a reviewer's holdout), and studies/021-history-replay-catch/PREREG-REVIEW.md rounds 1-3 (the enforcement standard this repository's reviews have held harnesses to).
+
+Then, as the reviewer's holdout stratum: propose at least four holdout cells — new constructions, each described precisely enough for the maintainer to implement as a function of the baseline in harness/cells.py before the freeze (you may name store edits, attestation edits with or without the adapter's key, and combinations) — each with YOUR expected outcome of all three layers in the reduced form of adapter/SPEC.md section 6 and your reason. Give them as a JSON array in the schema of harness/MATRIX.json (id, role "endpoint", attackerCapability, expected, ownership, structure, reason) plus a `construction` string per cell; the maintainer implements the constructions verbatim and keeps your array byte-for-byte as harness/MATRIX-HOLDOUT.json.
+
+For each finding give: severity (BLOCKER / MAJOR / MINOR), the exact sentence, cell or line, what the source says, and the smallest edit that would make the registration true. Then a verdict: `freezable as written`, `freezable after fixes` (list them), or `not freezable as written`.
+````
+
+### Findings (verbatim)
+
+````markdown
+Reviewed `e10993094db269c88db60350fed8a214dc67fcc7`. **Two BLOCKERs and one MAJOR remain.**
+
+The documented test command failed at `mktemp`, then at `test_study.py:16` during import because the filesystem is read-only. **No test bodies ran.** Verification below used source inspection and isolated probes without filesystem writes. No primary attempt, pilot, or holdout construction ran; no files changed.
+
+Paths below are relative to `studies/022-outside-format-binding/`.
+
+1. **BLOCKER — non-module stand-ins still bypass execution classification through two routes.**
+
+   **Locations:** [harness/pins.py:139](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/exp-022/studies/022-outside-format-binding/harness/pins.py:139), especially lines 139–155; `adapter/verify_attestation.py:28,92–97`; `PREREGISTRATION.md:61–62`.
+
+   The namespace-package and pinned-originless branches return **before** the non-module check. A Mock wrapping the genuine Statement module passes the namespace branch when given:
+
+   ```python
+   proxy.__file__ = None
+   proxy.__spec__ = ModuleSpec(genuine.__name__, loader=None, is_package=True)
+   proxy.__spec__.submodule_search_locations = [str(Path(genuine.__file__).parent)]
+   ```
+
+   **Reproduced:** installing that proxy under `in_toto_attestation.v1.statement`, with its validation replaced by a no-op, produced `[]` from both the complete non-freeze pin check and the late execution check. The consumer accepted a Statement with `predicate = {}`; the genuine validator rejected it with `Predicate object required`.
+
+   Independently, `Mock(spec=genuine, wraps=genuine)` satisfies `isinstance(proxy, type(sys))`. Giving it the genuine module’s origin, loader, spec and cache attributes also produced `[]` from both checks. Moving the existing `isinstance` check earlier therefore does not suffice.
+
+   **Smallest sufficient edit:** classify the object’s actual type before any namespace/originless acceptance, using a check that cannot be spoofed through `__class__`. Admit necessary non-module exceptions by verified-owner identity. This includes the genuine `_openssl.lib`: inspection shows it is a `_cffi_backend.Lib`, so the current “only two typing objects” claim is itself inaccurate. Add regressions for both demonstrated Mock routes and arbitrary objects under the originless names.
+
+2. **BLOCKER — duplicate distribution names separate RECORD ownership from the distribution whose bytes are hashed.**
+
+   **Locations:** [harness/guard.py:111](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/exp-022/studies/022-outside-format-binding/harness/guard.py:111), lines 111–136; `harness/pins.py:40–49,104–120`; `PREREGISTRATION.md:38–52,281–295`.
+
+   The guard trusts every discovered `.dist-info/RECORD`. Hashing selects `metadata.distribution(name)`, while execution classification builds a dictionary keyed by metadata `Name`, silently retaining the **last** distribution bearing that name.
+
+   A concrete filesystem arrangement is:
+
+   - Retain the genuine `protobuf-5.29.6.dist-info`.
+   - Add `zz_review_overlay-0.dist-info`, whose `METADATA` says `Name: protobuf`.
+   - Give its RECORD all genuine protobuf paths, its own metadata files, and `google/protobuf/descriptor_pb2/__init__.py`.
+   - Arrange discovery so this duplicate follows the genuine distribution.
+
+   Named lookup still selects the genuine protobuf metadata; unrestricted discovery selects the duplicate for ownership. The seven-name set remains unchanged. The additional package initializer can then take precedence over `descriptor_pb2.py` and run code absent from the checked digest.
+
+   **Reproduced through an in-memory filesystem view:** genuine metadata remained the hashing selection; two protobuf distribution instances were discovered; the environment scan returned `[]`; the protobuf digest remained pinned; and the complete non-freeze check accepted a module attributed to the additional initializer. No directory or initializer was actually created or executed.
+
+   **Smallest sufficient edit:** reject distinct metadata directories claiming the same normalized distribution name, and derive hashing and ownership from the same verified distribution inventory. Authenticate that inventory before verifier imports; a self-declared RECORD must not establish ownership by itself. Add the duplicate-distribution regression alongside the unrecorded-package test.
+
+3. **MAJOR — a JSON `null` marker bypasses the builder’s shared validation once pins are valid.**
+
+   **Locations:** [harness/cells.py:35](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/exp-022/studies/022-outside-format-binding/harness/cells.py:35), lines 35–42 and 337–349; `harness/marker.py:16–19`; `PREREGISTRATION.md:142–148`.
+
+   Reading a file containing `null` succeeds and produces `None`. The `if marker is not None` condition then skips shared marker validation without adding a problem.
+
+   **Reproduced without construction:** with passing pins simulated and only the marker read supplied as `"null"`, `validate_registered_attempt()` returned `None`. The actual shared marker validator returned `["no attempt marker"]` for that same value. The pin-check invocation retained `require_all=True`.
+
+   Consequently, after freeze with matching pins, an exact-type object created through `object.__new__(RegisteredContext)` and populated with the literal root and gateway reaches the builder’s copy and dispatch despite having no valid registered marker. The constructor’s later indexing of `marker["attemptId"]` does not protect this route: `build()` ignores the validator’s return value.
+
+   **Smallest sufficient edit:** invoke `marker_problems()` unconditionally after the read handling; it already rejects `None`. Add a `null` regression with otherwise passing pins and assert refusal before copying. The currently null freeze pins still prevent construction in this checkout.
+
+The round-4 dispositions resolve as follows:
+
+| Round-4 finding | Verdict | Code-based assessment |
+|---|---|---|
+| **1 — non-module objects** | **Residue** | The exact typing-identity condition and original Mock regressions are present (`pins.py:147–155`; tests:599–615). Earlier acceptance branches and spoofable `isinstance` leave finding 1 above. |
+| **2 — unrecorded code and late imports** | **Residue** | Recursive RECORD ownership checks, symlink refusals, cache skipping and site checks are implemented (`guard.py:99–164`). The full guard repeats at `pins.py:98`. Late checks occur before observation writing (`run_layers.py:93–99`), before adjudication (`score.py:366–377`), and after construction (`run_attempt.py:112–114`). The original unrecorded-package route is closed with genuine metadata; finding 2 defeats the ownership premise. |
+| **3 — forged contexts** | **Residue** | Module-level validation, `require_all=True`, exact context type and direct builder invocation are present (`cells.py:23–56,337–344`). Fieldless, populated and overriding stand-ins are covered by tests:109–137. The extracted validator’s `null` path leaves finding 3. |
+
+**§7 assessment:** the named environmental limits accurately identify the interpreter build, standard library/import machinery, native dependencies, OS/filesystem, startup initialization and non-atomic checks. They do not excuse the demonstrated acceptance paths. In particular, the duplicate-metadata arrangement uses ordinary trusted import machinery and requires no concurrent replacement. The claim that executing study/package code is held to pinned files remains false. Moreover, mutable module-origin attributes should not be described as authentication against arbitrary in-process replacement.
+
+The locked matrix and adapter SPEC are **byte-identical to round 4**. All nineteen locked construction functions are unchanged, and their expected tuples still follow. The baseline’s store files, decision book, registry and authority match the pinned corpus vector; the ordinary non-freeze pin check also confirms the package digests and current study manifest.
+
+**No amendment to the holdout array: kept byte for byte.** It is exactly equal, including whitespace and final newline, to the array extracted from the verbatim round-1 findings: **6,638 bytes**, SHA-256:
+
+```text
+10f87d02a06cb91e32ab47c9477331c90068b49dcc33711cea8a276ae951b9f1
+```
+
+All six holdout functions are source-identical to round 4 and faithfully implement their construction strings (`cells.py:285,290,297,302,307,315`). None was constructed.
+
+**Verdict: `not freezable as written`.**
+````
+
+### Disposition
+
+Every finding was accepted. Fixing commit: the commit that adds this record (round 6's prompt
+names it as the reviewed SHA). "Mutation" names the entries of the round-5 mutation table.
+
+| # | Severity | Disposition | What changed | Mutation |
+|---|---|---|---|---|
+| 1 | BLOCKER | accepted | `harness/pins.py` `execution_problems()` reads every object's real type with `type()` — never `isinstance()`, which a spoofed `__class__` satisfies — before any acceptance by namespace, origin or name; an object that is not exactly a module is refused unless it is one of the two objects the library's `typing` registers or the OpenSSL binding table, each admitted by identity to what a verified owner holds: `typing.io`/`typing.re` to the attributes of the verified library `typing`; `_openssl.lib` to the `lib` attribute of the `_openssl` module that the verified pinned extension `cryptography.hazmat.bindings._rust` holds as `_openssl`, and by exact type to the `Lib` type the verified pinned extension `_cffi_backend` exports (the reviewer is right that `_openssl.lib` is a `_cffi_backend.Lib`, and the earlier "two typing objects" statement was inaccurate: it is corrected in PREREGISTRATION §2 and `PINS.json`); the originless `_openssl` module is admitted only by identity to that extension's attribute. Both demonstrated Mock routes (a namespace-package pose; `Mock(spec=…)` with the genuine origin, loader, spec and cache) and arbitrary objects under the two originless names are regression tests. PREREGISTRATION §7 now states the exact scope of the execution checks: what code runs in a process the harness starts; not authentication against code already running in the process before the harness begins, which is inside the stated base — the regressions exercise the refusals of demonstrated routes and are not claimed to be more. | R1a–R1d |
+| 2 | BLOCKER | accepted | `harness/guard.py` reads each metadata directory's declared name (PEP 503-normalized) and refuses a second directory claiming a name already claimed, or one declaring none; such a directory's record grants nothing. `harness/pins.py` `inventory()` takes one inventory of the environment — one distribution per normalized name, a duplicated name refused and used for nothing — from which `package_digest()` (the hashed bytes) and the ownership of files both derive; `metadata.distribution(name)` is no longer used anywhere. The duplicate-metadata arrangement (an overlay directory declaring `Name: Pkg` with a record listing the genuine files plus a shadowing package) is a regression test at the guard and at check time. PREREGISTRATION §2 states the one-inventory rule. | R2a–R2c |
+| 3 | MAJOR | accepted | `validate_registered_attempt()` runs the shared marker validation unconditionally (it refuses `None`) and refuses a marker that is not an object; a marker file holding `null`, and a populated exact-type forged object over it, are regression tests with nothing copied. | R3 |
+| holdout | — | unchanged | `harness/MATRIX-HOLDOUT.json` untouched (SHA-256 `10f87d02…`); constructions unchanged. | — |
+
+### Mutation table (round 5; each breaks one fix; the suite must fail)
+
+| Mutation | Result |
+|---|---|
+| R1a the real type read after the namespace branch | FAILED (1) |
+| R1b `isinstance` instead of the real type | FAILED (1 + 2 errors) |
+| R1c `_openssl.lib` admitted by name | FAILED (1) |
+| R1d `_openssl` admitted by name | FAILED (1) |
+| R2a duplicate names allowed by the guard | FAILED (1) |
+| R2b duplicate names allowed at check time | FAILED (1) |
+| R2c a duplicated name still supplies a distribution | FAILED (1) |
+| R3 marker validation conditional on not-`None` | FAILED (1) |
+
+No mutation is labeled equivalent. Suite: 49 tests, all passing, under the documented
+invocation.
+
+### Pilot after the round
+
+`pilots/r6` (harness validation, `--pilot`, locked stratum only, holdout not built): `R1 holds`
+over the nineteen locked cells, zero validity failures, zero gate failures.
+

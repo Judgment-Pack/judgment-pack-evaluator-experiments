@@ -60,10 +60,10 @@
   "harnessPython": {
     "implementation": "CPython",
     "version": "3.8.20",
-    "note": "the interpreter of the virtual environment, enforced by implementation and exact version; its executable build, its standard library, its import machinery, the native libraries it links and the operating system are trusted and are a stated limit (PREREGISTRATION.md section 7)",
+    "note": "the interpreter of the virtual environment, enforced by implementation and exact version; its executable build, its standard library, its import machinery, the native libraries it links and the operating system are trusted and are a stated limit (PREREGISTRATION.md section 7). The execution checks establish what code runs in a process the harness starts; they are not authentication against code that already runs inside a process before the harness begins (section 7)",
     "originlessModules": {
-      "_openssl": "created in memory by cryptography's pinned Rust extension (cryptography.hazmat.bindings._rust): the OpenSSL binding table it exposes; no file of its own",
-      "_openssl.lib": "the same extension's binding namespace; no file of its own"
+      "_openssl": "created in memory by cryptography's pinned Rust extension (cryptography.hazmat.bindings._rust); admitted only by identity to the object that verified extension module holds as `_openssl`",
+      "_openssl.lib": "the binding table of that module, a `_cffi_backend.Lib` object; admitted only by identity to `_openssl.lib` and by exact type to the `Lib` type the verified `_cffi_backend` extension exports"
     }
   },
   "freeze": {

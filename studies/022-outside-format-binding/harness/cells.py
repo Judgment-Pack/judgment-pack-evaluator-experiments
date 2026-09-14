@@ -35,10 +35,12 @@ def validate_registered_attempt(root, gateway):
         marker = json.loads((root / "ATTEMPT.json").read_text())
     except (OSError, ValueError) as e:
         marker, problems = None, problems + ["no readable attempt marker at %s (%s)" % (root, type(e).__name__)]
-    if marker is not None:
-        problems += marking.marker_problems(marker, pinning.sha256_file(gateway) if gateway.is_file() else None, "REGISTERED", root)
+    # unconditionally: the shared validation refuses None (a file holding `null` reads as None) and every other shortfall
+    problems += marking.marker_problems(marker, pinning.sha256_file(gateway) if gateway.is_file() else None, "REGISTERED", root)
     if problems:
         raise RuntimeError("no validated registered attempt at %s:\n  %s" % (root, "\n  ".join(problems)))
+    if not isinstance(marker, dict):
+        raise RuntimeError("no validated registered attempt at %s: the marker is not an object" % root)
     return marker
 
 

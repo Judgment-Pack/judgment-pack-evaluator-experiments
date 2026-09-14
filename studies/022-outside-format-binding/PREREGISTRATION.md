@@ -49,8 +49,11 @@ the artifacts govern.
   of the interpreter's library or a pinned package; the virtual environment's import roots hold
   nothing an installed distribution does not record in its `RECORD` — no unrecorded module, no
   unrecorded package directory (which the import system would prefer to a same-named module),
-  no path hook, no symbolic link; and no site customization module was imported at start-up.
-  At check time `harness/pins.py` repeats all of that and classifies
+  no path hook, no symbolic link — and no two metadata directories claim one distribution name;
+  and no site customization module was imported at start-up. At check time `harness/pins.py`
+  repeats all of that, takes one inventory of the environment's distributions (one per
+  normalized name, a duplicated name refused and used for nothing) from which both the hashed
+  bytes and the ownership of files derive, and classifies
   every module in `sys.modules` by the file it was loaded from — built-in or frozen; the
   interpreter's own library; a file of a pinned distribution, under the source or extension
   loader by class identity with its cache path under the empty prefix (a namespace package only
@@ -58,8 +61,11 @@ the artifacts govern.
   to the module it holds); a registered study module from its `.py`; or one of two modules
   cryptography's pinned extension creates in memory with no file of their own (`_openssl`,
   `_openssl.lib`), pinned by name in `harness/PINS.json` — and refuses anything else, whatever
-  its name (a non-module object in the module table is refused unless it is one of the two
-  objects the library's `typing` registers, by identity). The check runs before the marker and
+  its name. The object's real type (`type()`, never `isinstance()`, which a spoofed `__class__`
+  satisfies) is read before any acceptance by namespace, origin or name; an object that is not
+  a module is refused unless it is one of the two objects the library's `typing` registers or
+  the OpenSSL binding table cryptography's verified extension exposes, each admitted by
+  identity to what its verified owner holds. The check runs before the marker and
   **again after the layers have run** — in the layer runner before the observations are
   written, in the scorer after the recomputation and before adjudication, in the runner after
   the cells are built — so a module imported late is classified too. The manifest covers every
@@ -293,6 +299,17 @@ the study or the environment controls, which is why every module the interpreter
 classified, every entry under the environment's import roots is held to a distribution's
 record, and anything outside the trusted places is refused — within this base, and not
 beyond it.
+
+**What the execution checks establish, and what they cannot.** They establish what code runs
+in a process the harness starts: a fresh interpreter over the environment's import roots as
+they are on disk, with no code of anyone else's running in it before the harness begins
+(site initialization excepted, as above). They are not authentication against code that
+already runs inside the process before the harness starts: such code can replace, wrap or
+spoof any object and any attribute the checks read — the module table, a module's origin,
+its loader, its type's name — and it is inside the trusted base by definition. The regression
+tests that install in-process stand-ins exercise the classification's refusals of the routes a
+reviewer demonstrated; they do not, and cannot, show that every in-process stand-in is
+refused, and the registration claims no such thing.
 
 ## 8. What this study cannot show
 

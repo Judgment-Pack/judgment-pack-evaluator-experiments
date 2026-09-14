@@ -190,6 +190,14 @@ class RegisteredContextValidation(unittest.TestCase):
                     (root / "ATTEMPT.json").write_text("{}")
                     with self.assertRaisesRegex(RuntimeError, "marker lacks"):
                         constructions.validate_registered_attempt(root, gateway)
+                    (root / "ATTEMPT.json").write_text("null")  # the round-5 route: a file that reads as None
+                    with self.assertRaisesRegex(RuntimeError, "no attempt marker"):
+                        constructions.validate_registered_attempt(root, gateway)
+                    forged = object.__new__(constructions.RegisteredContext)
+                    forged.root, forged.gateway = root, gateway
+                    with self.assertRaisesRegex(RuntimeError, "no attempt marker"):
+                        constructions.build(next(iter(constructions.HOLDOUT_CELLS)), a, registered=forged)
+                    self.assertFalse(any(p.is_dir() and p.name in constructions.HOLDOUT_CELLS for p in Path(a).iterdir()), "nothing copied")
                     (root / "ATTEMPT.json").write_text(json.dumps(dict(marker, cells=sorted(constructions.CELLS))))
                     with self.assertRaisesRegex(RuntimeError, "cell set"):
                         constructions.RegisteredContext(root, gateway)
@@ -554,6 +562,7 @@ class Pins(unittest.TestCase):
         self.assertTrue(any("gateway binary" in p for p in pinning.problems(pinning.load(), f.name)))
 
     def test_execution_identity_classifies_every_loaded_module(self):
+        import types
         pins = pinning.load()
         self.assertEqual(pinning.execution_problems(pins), [])
         self.assertIn("google._upb._message", sys.modules, "the protobuf backend in use is loaded and covered")
@@ -605,6 +614,29 @@ class Pins(unittest.TestCase):
             self.assertTrue(any("planted" in p and "not a module" in p for p in pinning.execution_problems(pins)), "a Mock under a pinned name is refused")
         finally:
             del sys.modules["in_toto_attestation.v1.planted"]
+        from importlib.machinery import ModuleSpec
+        route1 = Mock(wraps=genuine_statement)  # the round-5 route: a stand-in posing as a namespace package
+        route1.__file__ = None
+        route1.__spec__ = ModuleSpec(genuine_statement.__name__, loader=None, is_package=True)
+        route1.__spec__.submodule_search_locations = [str(Path(genuine_statement.__file__).parent)]
+        route2 = Mock(spec=genuine_statement, wraps=genuine_statement)  # the other: isinstance(module) true through __class__
+        route2.__file__, route2.__spec__, route2.__loader__, route2.__cached__ = (genuine_statement.__file__, genuine_statement.__spec__,
+                                                                                    genuine_statement.__loader__, genuine_statement.__cached__)
+        for stand_in in (route1, route2):
+            self.assertTrue(isinstance(stand_in, types.ModuleType) or stand_in.__spec__.submodule_search_locations)
+            sys.modules["in_toto_attestation.v1.planted"] = stand_in
+            try:
+                self.assertTrue(any("planted" in p and "not a module" in p for p in pinning.execution_problems(pins)), "a Mock is not a module by its real type")
+            finally:
+                del sys.modules["in_toto_attestation.v1.planted"]
+        genuine_openssl, genuine_lib = sys.modules["_openssl"], sys.modules["_openssl.lib"]
+        for name, stand_in in (("_openssl", types.ModuleType("_openssl")), ("_openssl.lib", object()), ("_openssl.lib", Mock(spec=genuine_lib))):
+            sys.modules[name] = stand_in
+            try:
+                self.assertTrue(any(p.startswith(name + " ") for p in pinning.execution_problems(pins)), "an object under an originless name is admitted by identity only")
+            finally:
+                sys.modules[name] = genuine_openssl if name == "_openssl" else genuine_lib
+        self.assertEqual(pinning.execution_problems(pins), [])
         import typing
         self.assertIs(sys.modules["typing.io"], typing.io)  # typing's own two objects pass, by identity
         self.assertEqual(pinning.execution_problems(pins), [])
@@ -684,7 +716,8 @@ class Pins(unittest.TestCase):
             (site / "pkg" / "__init__.py").write_text("")
             (site / "pkg" / "mod.py").write_text("")
             (site / "pkg-1.0.dist-info").mkdir()
-            (site / "pkg-1.0.dist-info" / "RECORD").write_text("pkg/__init__.py,sha256=x,0\npkg/mod.py,sha256=x,0\n"
+            (site / "pkg-1.0.dist-info" / "METADATA").write_text("Metadata-Version: 2.1\nName: pkg\nVersion: 1.0\n\n")
+            (site / "pkg-1.0.dist-info" / "RECORD").write_text("pkg/__init__.py,sha256=x,0\npkg/mod.py,sha256=x,0\npkg-1.0.dist-info/METADATA,,\n"
                                                                  "pkg-1.0.dist-info/RECORD,,\n\"pkg/odd,name.py\",sha256=x,0\n../../bin/tool,sha256=x,0\n")
             (site / "pkg" / "odd,name.py").write_text("")
             (site / "pkg" / "__pycache__").mkdir()
@@ -703,6 +736,16 @@ class Pins(unittest.TestCase):
                 (site / "hook.pth").write_text("")
                 (site / "loose.pyc").write_bytes(b"")
                 os.symlink("pkg", site / "alias")
+                (site / "zz_overlay-0.dist-info").mkdir()  # the round-5 route: a second metadata directory claiming the same name
+                (site / "zz_overlay-0.dist-info" / "METADATA").write_text("Metadata-Version: 2.1\nName: Pkg\nVersion: 0\n\n")
+                (site / "zz_overlay-0.dist-info" / "RECORD").write_text("pkg/__init__.py,sha256=x,0\npkg/mod/__init__.py,sha256=x,0\nzz_overlay-0.dist-info/RECORD,,\nzz_overlay-0.dist-info/METADATA,,\n")
+                problems = guard.environment_problems()
+                self.assertTrue(any("claims the distribution name 'pkg'" in p for p in problems), problems)
+                self.assertTrue(any("mod/__init__.py is not a file" in p for p in problems), "the overlay's record grants nothing")
+                dists, inventory_problems = pinning.inventory()
+                self.assertTrue(any("two metadata directories claim the distribution name 'pkg'" in p for p in inventory_problems), inventory_problems)
+                self.assertNotIn("pkg", dists, "a duplicated name supplies neither hashing nor ownership")
+                shutil.rmtree(site / "zz_overlay-0.dist-info")
                 os.unlink(site / "pkg" / "mod.py")
                 os.symlink("../hook.pth", site / "pkg" / "mod.py")  # a recorded path that is now a link elsewhere
                 problems = guard.environment_problems()

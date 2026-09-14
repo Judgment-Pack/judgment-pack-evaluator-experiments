@@ -37,10 +37,34 @@ def raw_sha256():
     return hashlib.sha256(PINS_PATH.read_bytes()).hexdigest()
 
 
-def package_digest(name):
-    """A digest over an installed distribution's files, in RECORD order, with each file's bytes."""
+def normalized(name):
+    """PEP 503 normalization of a distribution name."""
+    out = ""
+    for ch in name.lower():
+        out += "-" if ch in "-_." and not out.endswith("-") else ch
+    return out
+
+
+def inventory():
+    """Every distribution the environment holds, one per normalized name -- the same inventory grants ownership of files
+    and supplies the bytes that are hashed. Returns (distributions by normalized name, problems); a second metadata
+    directory claiming a name already claimed is a problem, and neither of the two is used."""
     from importlib import metadata
-    dist = metadata.distribution(name)
+    found, problems, duplicated = {}, [], set()
+    for dist in metadata.distributions():
+        name = normalized(dist.metadata["Name"] or "")
+        if name in found:
+            problems.append("two metadata directories claim the distribution name %r (%s and %s)" % (name, found[name]._path, dist._path))
+            duplicated.add(name)
+        else:
+            found[name] = dist
+    for name in duplicated:
+        del found[name]
+    return found, problems
+
+
+def package_digest(dist):
+    """A digest over an installed distribution's files, in RECORD order, with each file's bytes."""
     h = hashlib.sha256()
     for f in sorted(dist.files or [], key=lambda p: str(p)):
         p = dist.locate_file(f)
@@ -100,10 +124,9 @@ def execution_problems(pins):
         out.append("the interpreter is %s, not the pinned %s" % (platform.python_implementation(), pins["harnessPython"]["implementation"]))
     site = Path(sysconfig.get_paths()["purelib"]).resolve()
     library = Path(sysconfig.get_paths()["stdlib"]).resolve().parent  # the interpreter's lib/: its library, lib-dynload, its zip
-    pinned = set(pins["intoto"]["packages"])
-    installed = {}
-    for d in metadata.distributions():
-        installed[d.metadata["Name"]] = d
+    pinned = {normalized(n) for n in pins["intoto"]["packages"]}
+    installed, inventory_problems = inventory()
+    out += inventory_problems
     for extra in sorted(set(installed) - pinned):
         out.append("distribution %s is installed in the virtual environment and is not pinned" % extra)
     for hook in sorted(site.glob("*.pth")):
@@ -118,10 +141,28 @@ def execution_problems(pins):
                 top = path.relative_to(site).parts[0]
                 if not top.endswith(".dist-info"):
                     tops[top.split(".")[0]] = name
+    ModuleType = type(sys)  # the exact module type: type() is read, never isinstance(), which honours a spoofed __class__
+
+    def verified_module(name, loader_kind):
+        """A module in sys.modules that is a real module object loaded from a pinned file by the named loader class."""
+        m = sys.modules.get(name)
+        if m is None or type(m) is not ModuleType:
+            return None
+        o = Path(getattr(m, "__file__", "") or "/").resolve()
+        return m if o in owned and type(getattr(m, "__loader__", None)) is loader_kind else None
+
     proxy_type = None
-    utils = sys.modules.get("cryptography.utils")
-    if utils is not None and Path(getattr(utils, "__file__", "") or "/").resolve() in owned and type(getattr(utils, "__loader__", None)) is machinery.SourceFileLoader:
+    utils = verified_module("cryptography.utils", machinery.SourceFileLoader)
+    if utils is not None:
         proxy_type = getattr(utils, "_ModuleWithDeprecations", None)
+    # the two objects cryptography's pinned extension creates in memory, admitted by identity to what verified modules hold
+    rust = verified_module("cryptography.hazmat.bindings._rust", machinery.ExtensionFileLoader)
+    cffi_backend = verified_module("_cffi_backend", machinery.ExtensionFileLoader)
+    openssl_module = getattr(rust, "_openssl", None) if rust is not None else None
+    openssl_lib = getattr(openssl_module, "lib", None) if type(openssl_module) is ModuleType else None
+    lib_type = getattr(cffi_backend, "Lib", None) if cffi_backend is not None else None
+    typing_module = sys.modules.get("typing")
+    typing_ok = type(typing_module) is ModuleType and _under(Path(getattr(typing_module, "__file__", "") or "/").resolve(), library)
     prefix = sys.pycache_prefix
     study_roots = ((STUDY / "adapter").resolve(), (STUDY / "harness").resolve())
     for modname, mod in list(sys.modules.items()):
@@ -129,34 +170,34 @@ def execution_problems(pins):
             continue
         if proxy_type is not None and type(mod) is proxy_type:
             inner = mod.__dict__.get("_module")  # cryptography's own deprecation proxy: the real module is what ran
-            if isinstance(inner, type(sys)):
+            if type(inner) is ModuleType:
                 mod = inner
+        # the object's real type first, before any acceptance by namespace, origin or name
+        if type(mod) is not ModuleType:
+            # exactly: the two classes the library's typing module registers under typing.io and typing.re, and the OpenSSL
+            # binding table cryptography's extension exposes -- each by identity to what a verified owner holds
+            if modname in ("typing.io", "typing.re") and typing_ok and mod is getattr(typing_module, modname.split(".")[1], None):
+                continue
+            if modname == "_openssl.lib" and openssl_lib is not None and mod is openssl_lib and lib_type is not None and type(mod) is lib_type:
+                continue
+            out.append("%s is not a module (%s) and is not an object a verified owner holds" % (modname, type(mod).__name__))
+            continue
         spec = getattr(mod, "__spec__", None)
         loader = spec.loader if spec is not None and spec.loader is not None else getattr(mod, "__loader__", None)
         origin = spec.origin if spec is not None and spec.origin else getattr(mod, "__file__", None)
         cached = getattr(mod, "__cached__", None)
         top = modname.split(".")[0]
+        if modname == "_openssl" and openssl_module is not None and mod is openssl_module and not getattr(mod, "__file__", None) and not (spec is not None and spec.origin):
+            continue  # the module cryptography's verified extension created in memory, by identity
         if spec is not None and spec.origin is None and spec.submodule_search_locations is not None and not getattr(mod, "__file__", None):
             locations = [Path(loc).resolve() for loc in spec.submodule_search_locations]
             inside = (lambda loc: _under(loc, site)) if top in tops else (lambda loc: _under(loc, site) or _under(loc, library))
             if not locations or not all(inside(loc) for loc in locations):
                 out.append("%s is a namespace package with a search location outside the pinned distributions and the library" % modname)
             continue
-        if modname in pins["harnessPython"].get("originlessModules", {}) and not getattr(mod, "__file__", None) and not (spec is not None and spec.origin):
-            continue  # pinned by name: an object a pinned extension creates in memory with no file (PINS.json says which and why)
-        if not isinstance(mod, type(sys)):
-            # an object that is not a module: exactly the two classes the library's typing module registers under
-            # typing.io and typing.re, by identity, after typing itself is verified; any other stand-in is refused
-            typing_module = sys.modules.get("typing")
-            typing_origin = Path(getattr(typing_module, "__file__", "") or "/").resolve()
-            if modname in ("typing.io", "typing.re") and typing_module is not None and _under(typing_origin, library) \
-                    and mod is getattr(typing_module, modname.split(".")[1], None):
-                continue
-            out.append("%s is not a module (%s) and is not one of typing's own registered objects" % (modname, type(mod).__name__))
-            continue
         if origin in (None, "built-in", "frozen"):
             frozen = (machinery.BuiltinImporter, machinery.FrozenImporter)
-            if loader in frozen or isinstance(loader, frozen) or modname in sys.builtin_module_names:
+            if loader in frozen or type(loader) in frozen or modname in sys.builtin_module_names:
                 continue
             parent = sys.modules.get(modname.rpartition(".")[0]) if "." in modname else None
             parent_origin = Path(getattr(parent, "__file__", "") or "/").resolve()
@@ -197,12 +238,14 @@ def problems(pins, gateway_binary, require_all=False):
             out.append("the gateway binary is not pinned")
     if sha256_file(STUDY / "fixtures" / "baseline" / "gateway.pubkey") != pins["gateway"]["publicKeySha256"]:
         out.append("the corpus public key is not the pinned one")
+    dists, inventory_problems = inventory()
+    out += inventory_problems
     for name, pin in pins["intoto"]["packages"].items():
-        try:
-            version, digest = package_digest(name)
-        except Exception as e:  # noqa: BLE001
-            out.append("%s is not installed (%s)" % (name, type(e).__name__))
+        dist = dists.get(normalized(name))
+        if dist is None:
+            out.append("%s is not installed (or not uniquely)" % name)
             continue
+        version, digest = package_digest(dist)
         if version != pin["version"]:
             out.append("%s is %s, not the pinned %s" % (name, version, pin["version"]))
         if pin["installedDigest"] and pin["installedDigest"] != digest:
