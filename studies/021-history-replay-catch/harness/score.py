@@ -242,6 +242,12 @@ def signature_evidence_ok(sig, mismatched, boundaries=None, origins=None, ledger
     return line_moved == sig["lineMoved"] and placed == sig["placed"]
 
 
+def same_document(a, b):
+    """JSON equality that preserves types, as Core section 7.4 compares values: Python
+    would take true for 1 and 1.0 for 1; the canonical serializations must be identical."""
+    return json.dumps(a, sort_keys=True, separators=(",", ":")) == json.dumps(b, sort_keys=True, separators=(",", ":"))
+
+
 def registered_inputs_ok(root, marker, failures, dropped_by_policy=None):
     """The retained inputs are the registered ones: every mutant equals the
     planter's document for its site, and every ledger -- the literal one and
@@ -259,7 +265,7 @@ def registered_inputs_ok(root, marker, failures, dropped_by_policy=None):
                 if path.exists():
                     failures.append("%s: the dropped instance %s has a retained mutant" % (policy, path.name))
                 continue
-            if not path.exists() or json.loads(path.read_text()) != inst["pack"]:
+            if not path.exists() or not same_document(json.loads(path.read_text()), inst["pack"]):
                 failures.append("%s: the retained mutant %s is not the planter's document for its site" % (policy, path.name))
                 break
         with tempfile.TemporaryDirectory() as tmp:
@@ -361,7 +367,7 @@ def evidence(root, marker):
             if sorted(names) != sorted(expected_ledgers) or len(names) != len(set(names)):
                 failures.append("%s: the gate record does not cover every ledger exactly once" % policy)
             for g in gate.get("ledgers", []):
-                well_formed = (g.get("status") in ("passed", "mismatch") and g.get("rows") == ledger_rows.get(g.get("ledger"))
+                well_formed = (g.get("status") in ("passed", "mismatch") and replay.is_count(g.get("rows")) and g.get("rows") == ledger_rows.get(g.get("ledger"))
                                and g.get("ledgerSha256") == ledger_digest.get(g.get("ledger"))
                                and replay.is_count(g.get("mismatched"), g["rows"]) and (g["status"] == "mismatch") == (g["mismatched"] > 0))
                 if not well_formed:
@@ -393,7 +399,7 @@ def evidence(root, marker):
             ids = ledger_ids.get(c.get("ledger"), set())
             named = c.get("mismatchedRows")
             ok = (c.get("status") in ("passed", "mismatch") and rows is not None and replay.is_count(c.get("mismatched"), rows)
-                  and c.get("rows") == rows and c.get("caught") == (c["mismatched"] > 0)
+                  and replay.is_count(c.get("rows")) and c.get("rows") == rows and c.get("caught") == (c["mismatched"] > 0)
                   and (c["status"] == "mismatch") == (c["mismatched"] > 0)
                   and isinstance(named, list) and len(named) == c["mismatched"] and len(set(named)) == len(named) and set(named) <= ids
                   and c.get("ledgerSha256") == ledger_digest.get(c.get("ledger"))

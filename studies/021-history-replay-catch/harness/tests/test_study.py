@@ -252,6 +252,22 @@ class SignatureEvidence(unittest.TestCase):
         self.assertEqual(out[("/x", "10")]["o"], {"below": {"rows": 1, "disagreeing": 0}, "at": {"rows": 1, "disagreeing": 0}, "above": {"rows": 1, "disagreeing": 0}})
         self.assertEqual(out[("/x", "10")]["other"], {"below": {"rows": 0, "disagreeing": 0}, "at": {"rows": 0, "disagreeing": 0}, "above": {"rows": 0, "disagreeing": 0}})
 
+    def test_mutant_comparison_preserves_json_types(self):
+        self.assertTrue(score.same_document({"a": [1, True, "x"]}, {"a": [1, True, "x"]}))
+        self.assertFalse(score.same_document({"a": True}, {"a": 1}))
+        self.assertFalse(score.same_document({"a": False}, {"a": 0}))
+        self.assertFalse(score.same_document({"a": 1}, {"a": 1.0}))
+        # the planter's documents compare equal to themselves after a JSON round trip
+        for f in sorted((STUDY / "fixtures" / "policies").glob("*.pack.json")):
+            for inst in plant.instances(json.loads(f.read_text())):
+                self.assertTrue(score.same_document(json.loads(json.dumps(inst["pack"])), inst["pack"]))
+
+    def test_records_hold_row_counts_to_ints(self):
+        # a gate or cell record whose row count is a float or a Boolean is not a complete record
+        self.assertFalse(replay.is_count(1.0))
+        self.assertFalse(replay.is_count(False))
+        self.assertFalse(replay.is_count(50.0, 50))
+
     def test_counts_are_ints_never_bools(self):
         self.assertTrue(replay.is_count(3, 5))
         self.assertFalse(replay.is_count(True, 5))

@@ -206,7 +206,7 @@ def replay(policy, pack, ledger):
         report = jp.test(root)
     entry = report["packs"][0]
     summary = entry.get("summary") or {}
-    if not isinstance(summary.get("total"), int) or not isinstance(summary.get("mismatched"), int) or entry.get("status") not in ("passed", "mismatch"):
+    if not is_count(summary.get("total")) or not is_count(summary.get("mismatched"), summary.get("total") if is_count(summary.get("total")) else None) or entry.get("status") not in ("passed", "mismatch"):
         raise RuntimeError("replay of %s did not run to a verdict: status %r, summary %r" % (policy, entry.get("status"), summary))
     if summary["total"] != len(ledger["cases"]):
         raise RuntimeError("replay of %s read %d rows of a ledger of %d" % (policy, summary["total"], len(ledger["cases"])))
