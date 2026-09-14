@@ -31,21 +31,32 @@ the artifacts govern.
   tags stop at `v0.2.0`), which is why a commit and a build recipe are pinned rather than an
   asset.
 - **The external component**: the in-toto reference implementation — `securesystemslib` 1.3.1
-  (DSSE) and `in-toto-attestation` 0.9.3 (Statement v1 bindings) — with the two libraries
-  their checks run on, `cryptography` 47.0.0 (the Ed25519 primitive) and `protobuf` 5.29.6
-  (the message runtime the bindings validate with), installed with pip into a virtual
-  environment under CPython 3.8.20 and pinned by version and by a digest over each
-  distribution's installed files; a patched installation does not pass as the release. **The
-  executing code is held to the pinned code, not only the installed files**: before any study
-  or package import, every harness process sets an empty bytecode-cache prefix and disables
-  bytecode writing (`sys.pycache_prefix`, `sys.dont_write_bytecode`; the runner passes both to
-  its children), so no cached bytecode beside a source is ever read; then `harness/pins.py`
-  checks every loaded module of the four distributions — not only their roots — to be one of
-  the distribution's own files under a source or extension loader with its cache path under
-  the empty prefix, every study module to be from the study tree, the prefix to be empty, and
-  the interpreter to be the pinned implementation and version. The manifest covers every file
-  under `adapter/` and `harness/` recursively and refuses an unexpected directory or a symbolic
-  link there.
+  (DSSE) and `in-toto-attestation` 0.9.3 (Statement v1 bindings) — with the libraries their
+  checks run on, `cryptography` 47.0.0 (the Ed25519 primitive) and `protobuf` 5.29.6 (the
+  message runtime the bindings validate with), and cryptography's declared dependencies `cffi`
+  1.17.1, `pycparser` 2.23 and `typing_extensions` 4.13.2 — installed with pip into a virtual
+  environment under CPython 3.8.20 that then holds **exactly those seven distributions and no
+  path hook** (`pip` and `setuptools` removed after installation), each pinned by version and by
+  a digest over its installed files; a patched installation does not pass as the release, and a
+  distribution in the environment that is not pinned is refused. **The executing code is held
+  to the pinned code, not only the installed files.** Every harness process, with `os` and
+  `sys` alone and before any other import, disables bytecode writing and sets an empty
+  bytecode-cache prefix of its own (the runner passes both to its children and strips
+  `PYTHONPATH`), then `harness/guard.py` establishes trusted import resolution before anything
+  else is imported: the import path holds only the study roots, the interpreter's library and
+  the virtual environment; the study roots hold no importable file that is not a `.py` module,
+  no directory an import could resolve to, no symbolic link, and no `.py` named like a module
+  of the interpreter's library or a pinned package. At check time `harness/pins.py` classifies
+  every module in `sys.modules` by the file it was loaded from — built-in or frozen; the
+  interpreter's own library; a file of a pinned distribution, under the source or extension
+  loader by class identity with its cache path under the empty prefix (a namespace package only
+  inside the environment; cryptography's own deprecation proxy, and no other stand-in, unwrapped
+  to the module it holds); a registered study module from its `.py`; or one of two modules
+  cryptography's pinned extension creates in memory with no file of their own (`_openssl`,
+  `_openssl.lib`), pinned by name in `harness/PINS.json` — and refuses anything else, whatever
+  its name. The manifest covers every file under `adapter/` and `harness/` recursively
+  and refuses an unexpected directory, a symbolic link or an importable non-`.py` file there.
+  What this does not establish is a stated limit (§7).
 - **Primary attempt root**: `results/primary-attempt-001` — literal, must not exist at the
   freeze; the runner and the scorer refuse any other root for a registered attempt (the scorer
   refuses to read registered evidence from any other directory, and refuses a marker whose
@@ -55,13 +66,19 @@ the artifacts govern.
 
       python harness/run_attempt.py --attempt-root results/primary-attempt-001 --gateway <the pinned binary>
 
+  (the harness tests, which are not part of the attempt, run as
+  `PYTHONPYCACHEPREFIX=$(mktemp -d) PYTHONDONTWRITEBYTECODE=1 GATEWAY_BIN=<the pinned binary>
+  python -m unittest discover -s harness/tests` from the study root, so that the test module
+  itself is compiled from its source; the gateway path is resolved to one absolute file before
+  it is hashed or launched, in the runner, in each child and in the scorer's recomputation)
+
   The runner holds the pins first (every pin non-null and matching), creates the root
   exclusively, writes `ATTEMPT.json` before anything else — an attempt id, the root, the label,
   the gateway's digest, the raw digest of `harness/PINS.json`, the adapter key id, the
   interpreter version, the cell set (locked and holdout) — then builds every locked cell from
-  the baseline, then each holdout cell (their first construction anywhere: a holdout
-  construction that raises is recorded in `HOLDOUT-CONSTRUCTION.json`, its partial tree
-  removed, and the locked stratum is unaffected), runs the three layers over every cell, scores
+  the baseline, then each holdout cell (their first construction through the guarded holdout
+  builder — pretesting is disclosed in §1a; a holdout construction that raises is recorded in
+  `HOLDOUT-CONSTRUCTION.json`, its partial tree removed, and the locked stratum is unaffected), runs the three layers over every cell, scores
   the locked stratum and reports the holdout beside it. A crash after the marker leaves the
   marker: the root is spent, and the runner's terminal handler records `pipeline-invalid` in
   `ADJUDICATION.json` when the scorer wrote nothing (a failure to write even that is printed).
@@ -249,13 +266,25 @@ decision-record subject; a consumer that did less would see less (b04 says how).
 Statement v1 are the in-toto family's; OpenLineage, the plan's other example, is not bound
 here, and nothing about it follows.
 
+**The trusted computing base, stated.** The pins and the execution-identity checks (§2) hold
+the pinned distributions and the study's own code to their pinned files. They do not establish
+the identity of the interpreter's executable build (only its implementation and version), of
+its standard library and import machinery, of the native libraries it and the pinned
+extensions link, of the gateway binary's own dependencies beyond its digest, or of the
+operating system and file system; all of these are trusted, and the checks assume that files
+and the import machinery are not replaced concurrently with their being checked (no check here
+is an atomic snapshot). These assumptions are the environment's; they excuse no unchecked
+replacement under a study-controlled path, which is why every module the interpreter loaded is
+classified and anything outside the three trusted places is refused.
+
 ## 8. What this study cannot show
 
 No claim about any deployment, any real store, or any consumer but the one the ceremony
 describes. No claim that the binding is the right one — it is one the plan's rules admit (the
 signer never holds data credentials; the attestation's key is not the gateway's). No claim
 about a compromised gateway. No claim that a passing attestation means the receipt is true:
-byte-lineage, not truth, on both sides of the binding.
+byte-lineage, not truth, on both sides of the binding. No claim about the trusted computing base
+§7 names: the interpreter build, its library, the native libraries, the operating system.
 
 ## 9. Publication commitment
 

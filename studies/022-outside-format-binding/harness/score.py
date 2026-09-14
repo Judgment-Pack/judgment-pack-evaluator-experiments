@@ -18,13 +18,25 @@ reported in its own section; it decides nothing.
 
 Run: python harness/score.py --attempt-root DIR --gateway BIN [--include-holdout] [--pilot]
 """
+import os
 import sys
-import tempfile
 
-# before any study or pinned-package import: no bytecode read from beside the sources, none written (harness/pins.py)
+# the bytecode policy, with os and sys alone, before any other import (harness/guard.py, PREREGISTRATION.md section 2)
 sys.dont_write_bytecode = True
 if not sys.pycache_prefix:
-    sys.pycache_prefix = tempfile.mkdtemp(prefix="study022-pycache-")
+    for _attempt in range(10000):
+        _d = os.path.join(os.environ.get("TMPDIR") or "/tmp", "study022-pycache-%d-%d" % (os.getpid(), _attempt))
+        try:
+            os.mkdir(_d, 0o700)
+            sys.pycache_prefix = _d
+            break
+        except FileExistsError:
+            continue
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import guard  # noqa: E402
+guard.establish(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+import tempfile  # noqa: E402
 
 import argparse  # noqa: E402
 import json  # noqa: E402
@@ -35,6 +47,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import cells as constructions  # noqa: E402
 import pins as pinning  # noqa: E402
 import run_layers  # noqa: E402
+from marker import marker_problems  # noqa: E402,F401
 from trees import same_tree, tree_digest, typed_tree  # noqa: E402,F401
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "adapter"))
 import storewalk  # noqa: E402
@@ -84,38 +97,6 @@ def reduce_observation(o):
             "combined": o["combined"]}
 
 
-def marker_problems(marker, gateway_digest, label, actual_root):
-    problems = []
-    if marker is None:
-        return ["no attempt marker"]
-    for key in ("attemptId", "attemptRoot", "label", "gatewaySha256", "pinsRawSha256", "adapterKeyid", "python", "cells", "startedAt"):
-        if key not in marker:
-            problems.append("marker lacks %s" % key)
-    if problems:
-        return problems
-    if marker["label"] != label:
-        problems.append("marker label is %s, not %s" % (marker["label"], label))
-    if marker["python"] != sys.version.split()[0]:
-        problems.append("marker's interpreter %s is not this interpreter %s" % (marker["python"], sys.version.split()[0]))
-    # the marker's root is the directory the evidence is read from, and for a registered attempt the literal primary root
-    if Path(marker["attemptRoot"]).resolve() != Path(actual_root).resolve():
-        problems.append("marker's root %s is not the root being scored, %s" % (marker["attemptRoot"], Path(actual_root).resolve()))
-    if label == REGISTERED and Path(marker["attemptRoot"]).resolve() != PRIMARY_ROOT.resolve():
-        problems.append("a registered attempt's root is results/primary-attempt-001, not %s" % marker["attemptRoot"])
-    if marker["gatewaySha256"] != gateway_digest:
-        problems.append("marker's gateway digest is not this binary's")
-    if marker["pinsRawSha256"] != pinning.raw_sha256():
-        problems.append("marker's pins digest is not the current harness/PINS.json")
-    if marker["adapterKeyid"] != pinning.adapter_keyid():
-        problems.append("marker's adapter key id is not the pinned one")
-    expected_cells = sorted(constructions.ALL_CELLS) if label == REGISTERED else sorted(constructions.CELLS)
-    if sorted(marker["cells"]) != expected_cells:
-        problems.append("marker's cell set is not the registered constructions (%s)" % ("locked and holdout" if label == REGISTERED else "locked"))
-    if not isinstance(marker["attemptId"], str) or len(marker["attemptId"]) != 32:
-        problems.append("marker's attempt id is not a 32-character token")
-    return problems
-
-
 def rebuild_cells(root, failures, cell_ids, unconstructed, tmp, registered=None):
     """Every expected cell present and byte for byte the registered construction; no other cell present. Returns
     {cell id: (rebuilt path, typed-tree digest)}. A holdout cell the runner recorded as unconstructed is expected absent."""
@@ -154,7 +135,7 @@ def finding_problem(f):
         return "a finding outside the gateway's vocabulary"
     keys = set(f)
     if "recordDigest" in f:
-        if keys != {"recordDigest", "status"} or not isinstance(f["recordDigest"], str) or not SHA256_PREFIXED.match(f["recordDigest"]) \
+        if keys != {"recordDigest", "status"} or not isinstance(f["recordDigest"], str) or not SHA256_PREFIXED.fullmatch(f["recordDigest"]) \
                 or f["status"] not in RECORD_STATUSES:
             return "a record finding of the wrong shape"
         return None
@@ -318,9 +299,10 @@ def main():
         sys.exit("refusing: a registered adjudication scores %s, not %s" % (PRIMARY_ROOT, root))
     if (root / "ADJUDICATION.json").exists():
         sys.exit("refusing: %s already holds an adjudication" % root)
+    gateway = str(Path(args.gateway).resolve())  # the one file that is hashed and launched, here and in the recomputation
     pins = pinning.load()
-    problems = pinning.problems(pins, args.gateway, require_all=not args.pilot)
-    gateway_digest = pinning.sha256_file(args.gateway) if Path(args.gateway).is_file() else None
+    problems = pinning.problems(pins, gateway, require_all=not args.pilot)
+    gateway_digest = pinning.sha256_file(gateway) if Path(gateway).is_file() else None
     marker = json.loads((root / "ATTEMPT.json").read_text()) if (root / "ATTEMPT.json").exists() else None
     problems += marker_problems(marker, gateway_digest, label, root)
     if problems:
@@ -348,7 +330,12 @@ def main():
                 validity.append("cell %s is recorded unconstructed but is not a holdout cell" % cid)
     observed = {}
     with tempfile.TemporaryDirectory() as tmp:
-        registered = constructions.RegisteredContext(root) if holdout else None
+        registered = None
+        if holdout and any(cid not in unconstructed for cid in constructions.HOLDOUT_CELLS):
+            try:
+                registered = constructions.RegisteredContext(root, gateway)
+            except Exception as e:  # noqa: BLE001 -- the runner built holdout cells under a context this scorer cannot re-establish
+                validity.append("no registered context to rebuild the holdout cells: %s: %s" % (type(e).__name__, str(e)[:300]))
         rebuilt = rebuild_cells(root, validity, cell_ids, unconstructed, tmp, registered)
         obs_path = root / "OBSERVATIONS.json"
         if not obs_path.exists():
@@ -373,7 +360,7 @@ def main():
                     for p in observation_problems(o, cid, built, snapshot):
                         validity.append("observation of %s: %s" % (cid, p))
                     # the record must be what the pinned apparatus produces over the registered construction, run again here
-                    if run_layers.observe(args.gateway, built) != o:
+                    if run_layers.observe(gateway, built) != o:
                         validity.append("observation of %s is not what the pinned apparatus produces over the registered construction" % cid)
                 observed[cid] = o
     rows, holdout_rows = [], []

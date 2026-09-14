@@ -7,13 +7,23 @@ statuses; the in-toto layer (adapter/verify_attestation.py); the binding layer
 
 Run: python harness/run_layers.py --cells DIR --gateway BIN --out FILE
 """
+import os
 import sys
-import tempfile
 
-# before any study or pinned-package import: no bytecode read from beside the sources, none written (harness/pins.py)
+# the bytecode policy, with os and sys alone, before any other import (harness/guard.py, PREREGISTRATION.md section 2)
 sys.dont_write_bytecode = True
 if not sys.pycache_prefix:
-    sys.pycache_prefix = tempfile.mkdtemp(prefix="study022-pycache-")
+    for _attempt in range(10000):
+        _d = os.path.join(os.environ.get("TMPDIR") or "/tmp", "study022-pycache-%d-%d" % (os.getpid(), _attempt))
+        try:
+            os.mkdir(_d, 0o700)
+            sys.pycache_prefix = _d
+            break
+        except FileExistsError:
+            continue
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import guard  # noqa: E402
+guard.establish(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import argparse  # noqa: E402
 import hashlib  # noqa: E402
@@ -36,8 +46,17 @@ AUTHORITY = (STUDY / "fixtures" / "baseline" / "AUTHORITY").read_text().strip()
 TRUSTED_KEY = STUDY / "fixtures" / "baseline" / "attestations" / "adapter.pubkey.json"
 
 
+def resolved_gateway(binary):
+    """The one file that is hashed and launched: an absolute path, never a name for the shell or PATH to resolve."""
+    path = Path(binary).resolve()
+    if not path.is_file():
+        raise RuntimeError("the gateway verifier %s is not a file" % path)
+    return path
+
+
 def gateway_layer(binary, cell):
-    proc = subprocess.run([binary, "verify", str(cell / "store"), str(cell / "registry.jsonl"), AUTHORITY, "--decision-records", str(cell / "decisions")],
+    binary = resolved_gateway(binary)
+    proc = subprocess.run([str(binary), "verify", str(cell / "store"), str(cell / "registry.jsonl"), AUTHORITY, "--decision-records", str(cell / "decisions")],
                           input=PUBKEY.read_bytes(), capture_output=True)
     # SPEC.md section 4.1: a verifier that exits non-zero gave no verdict, whatever stdout holds
     if proc.returncode != 0 or not proc.stdout.strip():
@@ -68,10 +87,11 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--attempt-id", default=None)
     args = ap.parse_args()
+    gateway = resolved_gateway(args.gateway)
     cells = sorted(p for p in Path(args.cells).iterdir() if p.is_dir())
-    observations = [observe(args.gateway, c) for c in cells]
+    observations = [observe(gateway, c) for c in cells]
     with open(args.out, "x") as f:
-        f.write(json.dumps({"attemptId": args.attempt_id, "gatewaySha256": hashlib.sha256(Path(args.gateway).read_bytes()).hexdigest(),
+        f.write(json.dumps({"attemptId": args.attempt_id, "gatewaySha256": hashlib.sha256(gateway.read_bytes()).hexdigest(),
                             "python": sys.version.split()[0], "trustedKeySha256": hashlib.sha256(TRUSTED_KEY.read_bytes()).hexdigest(), "cells": observations}, indent=1))
     for o in observations:
         print("%-40s gateway ok=%-5s %s | intoto %s | binding %s | %s" % (o["cell"], o["gateway"]["ok"], o["gateway"]["statuses"], "pass" if o["intoto"]["pass"] else "FAIL", "pass" if o["binding"]["pass"] else "FAIL", o["combined"]))

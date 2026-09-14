@@ -40,7 +40,7 @@ def canonical_receipt_bytes(doc):
 
 def digest_after_prefix(value):
     """The hex of a `sha256:<hex>` string, or None when the value is not of that shape."""
-    if not isinstance(value, str) or not value.startswith("sha256:") or not HEX64.match(value[7:]):
+    if not isinstance(value, str) or not value.startswith("sha256:") or not HEX64.fullmatch(value[7:]):
         return None
     return value[7:]
 
@@ -59,7 +59,7 @@ def check_one(envelope_path, receipt_path):
     names = []
     for s in statement["subject"]:
         if not isinstance(s, dict) or not isinstance(s.get("name"), str) or not isinstance(s.get("digest"), dict) \
-                or not isinstance(s["digest"].get("sha256"), str) or not HEX64.match(s["digest"]["sha256"]):
+                or not isinstance(s["digest"].get("sha256"), str) or not HEX64.fullmatch(s["digest"]["sha256"]):
             return "fail:unreadable"
         names.append((s["name"], s["digest"]["sha256"]))
     predicate = statement.get("predicate")

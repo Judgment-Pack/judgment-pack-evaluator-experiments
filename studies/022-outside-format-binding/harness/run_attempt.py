@@ -6,19 +6,27 @@ baseline, runs the three layers over every cell, and scores with the holdout.
 
 Run: python harness/run_attempt.py --attempt-root results/primary-attempt-001 --gateway BIN
 """
+import os
 import sys
-import tempfile
 
-# before any study or pinned-package import: no bytecode read from beside the sources, none written (harness/pins.py);
-# the children inherit the same empty prefix through the environment
+# the bytecode policy, with os and sys alone, before any other import (harness/guard.py, PREREGISTRATION.md section 2)
 sys.dont_write_bytecode = True
 if not sys.pycache_prefix:
-    sys.pycache_prefix = tempfile.mkdtemp(prefix="study022-pycache-")
+    for _attempt in range(10000):
+        _d = os.path.join(os.environ.get("TMPDIR") or "/tmp", "study022-pycache-%d-%d" % (os.getpid(), _attempt))
+        try:
+            os.mkdir(_d, 0o700)
+            sys.pycache_prefix = _d
+            break
+        except FileExistsError:
+            continue
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import guard  # noqa: E402
+guard.establish(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import argparse  # noqa: E402
 import datetime  # noqa: E402
 import json  # noqa: E402
-import os  # noqa: E402
 import secrets  # noqa: E402
 import shutil  # noqa: E402
 import subprocess  # noqa: E402
@@ -33,7 +41,13 @@ HARNESS = STUDY / "harness"
 
 
 PRIMARY_ROOT = constructions.PRIMARY_ROOT
-CHILD_ENV = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", PYTHONPYCACHEPREFIX=sys.pycache_prefix)
+
+
+def child_env():
+    """The children's environment: this process's, without PYTHONPATH, with the bytecode policy and the empty prefix."""
+    env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
+    env.update(PYTHONDONTWRITEBYTECODE="1", PYTHONPYCACHEPREFIX=sys.pycache_prefix)
+    return env
 
 
 def terminal(root, payload):
@@ -54,8 +68,9 @@ def main():
     root = Path(args.attempt_root)
     if not args.pilot and root.resolve() != PRIMARY_ROOT.resolve():
         sys.exit("refusing: a registered attempt's root is %s" % PRIMARY_ROOT)
+    gateway = str(Path(args.gateway).resolve())  # the one file that is hashed and launched, here and in every child
     pins = pinning.load()
-    problems = pinning.problems(pins, args.gateway, require_all=not args.pilot)
+    problems = pinning.problems(pins, gateway, require_all=not args.pilot)
     if problems:
         sys.exit("refusing to start:\n  " + "\n  ".join(problems))
     try:
@@ -66,15 +81,23 @@ def main():
     cell_ids = sorted(constructions.ALL_CELLS) if not args.pilot else sorted(constructions.CELLS)
     attempt_id = secrets.token_hex(16)
     marker = {"attemptId": attempt_id, "attemptRoot": str(root.resolve()), "startedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-              "label": "PILOT" if args.pilot else "REGISTERED", "gatewaySha256": pinning.sha256_file(args.gateway), "pinsRawSha256": pinning.raw_sha256(),
+              "label": "PILOT" if args.pilot else "REGISTERED", "gatewaySha256": pinning.sha256_file(gateway), "pinsRawSha256": pinning.raw_sha256(),
               "adapterKeyid": pinning.adapter_keyid(), "python": sys.version.split()[0], "cells": cell_ids}
     (root / "ATTEMPT.json").write_text(json.dumps(marker, indent=1))
     unconstructed = {}
     try:
-        # the holdout's only construction context: the marker just written, at the literal root
-        registered = constructions.RegisteredContext(root) if not args.pilot else None
+        # the holdout's only construction context: the marker just written, at the literal root, validated whole; if the
+        # validation cannot be established, every holdout cell is recorded unconstructed and the locked stratum proceeds
+        registered = None
+        if not args.pilot:
+            try:
+                registered = constructions.RegisteredContext(root, gateway)
+            except Exception as e:  # noqa: BLE001
+                unconstructed = {cid: "no registered context: %s: %s" % (type(e).__name__, str(e)[:300]) for cid in constructions.HOLDOUT_CELLS}
         for cid in cell_ids:
             if cid in constructions.HOLDOUT_CELLS:
+                if cid in unconstructed:
+                    continue
                 # a holdout construction is first built here; one that raises is recorded and its partial tree removed,
                 # and the locked stratum is unaffected (PREREGISTRATION.md section 1a)
                 try:
@@ -86,14 +109,14 @@ def main():
                 constructions.build(cid, root / "cells")
         if not args.pilot:
             (root / "HOLDOUT-CONSTRUCTION.json").write_text(json.dumps({"failed": unconstructed}, indent=1))
-        subprocess.run([sys.executable, str(HARNESS / "run_layers.py"), "--cells", str(root / "cells"), "--gateway", args.gateway,
-                        "--out", str(root / "OBSERVATIONS.json"), "--attempt-id", attempt_id], check=True, env=CHILD_ENV)
-        score = [sys.executable, str(HARNESS / "score.py"), "--attempt-root", str(root), "--gateway", args.gateway]
+        subprocess.run([sys.executable, str(HARNESS / "run_layers.py"), "--cells", str(root / "cells"), "--gateway", gateway,
+                        "--out", str(root / "OBSERVATIONS.json"), "--attempt-id", attempt_id], check=True, env=child_env())
+        score = [sys.executable, str(HARNESS / "score.py"), "--attempt-root", str(root), "--gateway", gateway]
         if not args.pilot:
             score.append("--include-holdout")
         if args.pilot:
             score.append("--pilot")
-        subprocess.run(score, check=True, env=CHILD_ENV)
+        subprocess.run(score, check=True, env=child_env())
     except BaseException as e:  # noqa: BLE001 -- every terminal path after the marker is recorded
         terminal(root, {"label": marker["label"], "attemptId": attempt_id, "decision": "pipeline-invalid",
                         "validityFailures": ["the attempt failed after the marker: %s: %s" % (type(e).__name__, str(e)[:300])], "gateFailures": [], "cells": [],

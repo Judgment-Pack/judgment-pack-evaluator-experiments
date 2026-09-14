@@ -17,6 +17,11 @@ key covers (the seal, the chain, the count, the gateway's identity — a store r
 another key attests just as well), and what only the binding's own rules see (an attestation
 that verifies while vouching for the wrong artifact).
 
+The harness tests run from the study root, in the virtual environment holding the pinned
+packages, with the study's bytecode policy in force from the interpreter's start:
+
+    PYTHONPYCACHEPREFIX=$(mktemp -d) PYTHONDONTWRITEBYTECODE=1 GATEWAY_BIN=<the pinned binary> python -m unittest discover -s harness/tests
+
 Interoperability, in the sense of Studies 013–016, with one precision: the signature
 verification and the Statement validation are an independently developed implementation,
 consumed at a pinned version and never modified; the ceremony around them — which receipts to

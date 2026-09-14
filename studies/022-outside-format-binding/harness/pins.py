@@ -55,22 +55,6 @@ def adapter_keyid():
     return bind.adapter_signer().public_key.keyid
 
 
-def import_origin_problems(name, module_name):
-    """The module the harness imports must come from the pinned distribution's own files, not a shadow."""
-    import importlib
-    from importlib import metadata
-    try:
-        dist = metadata.distribution(name)
-        module = importlib.import_module(module_name)
-    except Exception as e:  # noqa: BLE001
-        return ["%s cannot be imported (%s)" % (module_name, type(e).__name__)]
-    origin = Path(getattr(module, "__file__", "") or "").resolve()
-    owned = {Path(dist.locate_file(f)).resolve() for f in (dist.files or [])}
-    if origin not in owned:
-        return ["%s is imported from %s, which is not a file of the pinned %s distribution" % (module_name, origin, name)]
-    return []
-
-
 TRUSTED_KEY_FILE = STUDY / "fixtures" / "baseline" / "attestations" / "adapter.pubkey.json"
 
 
@@ -89,83 +73,122 @@ def trusted_pubkey_problems(pins, path=None):
     return out
 
 
-PACKAGE_MODULES = (("securesystemslib", "securesystemslib"), ("in-toto-attestation", "in_toto_attestation"), ("cryptography", "cryptography"), ("protobuf", "google.protobuf"))
-STUDY_MODULES = ("bind", "verify_attestation", "verify_binding", "storewalk", "cells", "pins", "run_layers", "score", "run_attempt", "make_manifest", "trees")
+STUDY_MODULES = ("bind", "verify_attestation", "verify_binding", "storewalk", "cells", "pins", "run_layers", "score", "run_attempt",
+                 "make_manifest", "trees", "guard", "marker", "test_study")
 
 
-def module_problems(modname, mod, owned, location, prefix, label):
-    """One loaded module: from the pinned files, by a source or extension loader, with no bytecode read outside the empty cache prefix."""
-    # cryptography wraps a deprecated module in a proxy module object that keeps the real module under _module; inspect the real one
-    inner = mod.__dict__.get("_module") if hasattr(mod, "__dict__") else None
-    if isinstance(inner, type(sys)) and inner is not mod:
-        return module_problems(modname, inner, owned, location, prefix, label)
-    spec = getattr(mod, "__spec__", None)
-    loader = spec.loader if spec is not None and spec.loader is not None else getattr(mod, "__loader__", None)
-    origin = spec.origin if spec is not None and spec.origin else getattr(mod, "__file__", None)
-    kind = type(loader).__name__ if loader is not None else None
-    cached = getattr(mod, "__cached__", None)
-    search = list(getattr(spec, "submodule_search_locations", None) or []) if spec is not None else []
-    if origin is None and search:  # a namespace package: a directory with no __init__, allowed only inside the pinned location
-        if any(not str(Path(loc).resolve()).startswith(str(location)) for loc in search):
-            return ["%s is a namespace package with a search location outside %s" % (modname, label)]
-        return []
-    if origin in (None, "built-in", "frozen"):
-        return ["%s has no file origin" % modname]
-    o = Path(origin).resolve()
-    if owned is not None and o not in owned:
-        return ["%s is loaded from %s, which is not a file of %s" % (modname, o, label)]
-    if owned is None and not any(str(o).startswith(str((location / d).resolve()) + "/") for d in ("adapter", "harness")):
-        return ["%s is loaded from %s, outside %s" % (modname, o, label)]
-    if kind not in ("SourceFileLoader", "ExtensionFileLoader"):
-        return ["%s was loaded by %s, not from source or from a pinned extension" % (modname, kind)]
-    if cached and (not prefix or not str(cached).startswith(str(prefix))):
-        return ["%s's bytecode cache %s is not under the empty cache prefix" % (modname, cached)]
-    return []
+def _under(path, parent):
+    return path == parent or str(path).startswith(str(parent) + "/")
 
 
 def execution_problems(pins):
-    """The code that is running is the pinned code: bytecode is neither read from beside the sources nor written
-    (sys.pycache_prefix set to an empty directory, sys.dont_write_bytecode), every loaded module of the four pinned
-    distributions is one of their own files under a source or extension loader, every study module is from the study
-    tree, and the interpreter is the pinned implementation."""
+    """The code that is running is the pinned code. Every module in sys.modules is classified by the file it was loaded
+    from: a built-in or frozen module of the interpreter; a file of the interpreter's own library (trusted, a stated
+    limit); a file of a pinned distribution, loaded by the source or extension loader with its cache path under the
+    empty prefix; a registered study module from the study tree, loaded from its .py; anything else is refused --
+    a module of any name loaded from any other place, a cache read beside a source, a loader of another class, an
+    in-memory stand-in. The environment holds exactly the pinned distributions and no path hook; the import path,
+    the study roots and the cache prefix are as harness/guard.py requires; the interpreter is the pinned implementation."""
     import platform
-    from importlib import metadata
+    import sysconfig
+    from importlib import machinery, metadata
     out = []
-    if not sys.dont_write_bytecode:
-        out.append("bytecode writing is not disabled (sys.dont_write_bytecode is false)")
-    prefix = sys.pycache_prefix
-    if not prefix:
-        out.append("no bytecode cache prefix is set (sys.pycache_prefix): cached code beside the sources could run")
-    else:
-        held = [p for p in Path(prefix).rglob("*") if p.is_file()]
-        if held:
-            out.append("the bytecode cache prefix %s holds %d file(s); it must be empty" % (prefix, len(held)))
+    sys.path.insert(0, str(STUDY / "harness"))
+    import guard
+    out += guard.cache_problems() + guard.path_problems(str(STUDY)) + guard.shadow_problems(str(STUDY))
     if platform.python_implementation() != pins["harnessPython"]["implementation"]:
         out.append("the interpreter is %s, not the pinned %s" % (platform.python_implementation(), pins["harnessPython"]["implementation"]))
-    for name, top in PACKAGE_MODULES:
-        try:
-            dist = metadata.distribution(name)
-        except Exception as e:  # noqa: BLE001
-            out.append("%s is not installed (%s)" % (name, type(e).__name__))
+    site = Path(sysconfig.get_paths()["purelib"]).resolve()
+    library = Path(sysconfig.get_paths()["stdlib"]).resolve().parent  # the interpreter's lib/: its library, lib-dynload, its zip
+    pinned = set(pins["intoto"]["packages"])
+    installed = {}
+    for d in metadata.distributions():
+        installed[d.metadata["Name"]] = d
+    for extra in sorted(set(installed) - pinned):
+        out.append("distribution %s is installed in the virtual environment and is not pinned" % extra)
+    for hook in sorted(site.glob("*.pth")):
+        out.append("path hook %s is in the virtual environment; a .pth file runs code at startup" % hook.name)
+    owned, tops = {}, {}
+    for name in sorted(pinned & set(installed)):
+        dist = installed[name]
+        for f in dist.files or []:
+            path = Path(dist.locate_file(f)).resolve()
+            owned[path] = name
+            if _under(path, site):
+                top = path.relative_to(site).parts[0]
+                if not top.endswith(".dist-info"):
+                    tops[top.split(".")[0]] = name
+    proxy_type = None
+    utils = sys.modules.get("cryptography.utils")
+    if utils is not None and Path(getattr(utils, "__file__", "") or "/").resolve() in owned and type(getattr(utils, "__loader__", None)) is machinery.SourceFileLoader:
+        proxy_type = getattr(utils, "_ModuleWithDeprecations", None)
+    prefix = sys.pycache_prefix
+    study_roots = ((STUDY / "adapter").resolve(), (STUDY / "harness").resolve())
+    for modname, mod in list(sys.modules.items()):
+        if mod is None:
             continue
-        location = str(Path(dist.locate_file("")).resolve())
-        owned = {Path(dist.locate_file(f)).resolve() for f in (dist.files or [])}
-        for modname, mod in list(sys.modules.items()):
-            if mod is not None and (modname == top or modname.startswith(top + ".")):
-                out += module_problems(modname, mod, owned, location, prefix, "the pinned %s distribution" % name)
-    for modname in STUDY_MODULES:
-        mod = sys.modules.get(modname)
-        if mod is not None:
-            out += module_problems(modname, mod, None, STUDY, prefix, "the study tree")
+        if proxy_type is not None and type(mod) is proxy_type:
+            inner = mod.__dict__.get("_module")  # cryptography's own deprecation proxy: the real module is what ran
+            if isinstance(inner, type(sys)):
+                mod = inner
+        spec = getattr(mod, "__spec__", None)
+        loader = spec.loader if spec is not None and spec.loader is not None else getattr(mod, "__loader__", None)
+        origin = spec.origin if spec is not None and spec.origin else getattr(mod, "__file__", None)
+        cached = getattr(mod, "__cached__", None)
+        top = modname.split(".")[0]
+        if spec is not None and spec.origin is None and spec.submodule_search_locations is not None and not getattr(mod, "__file__", None):
+            locations = [Path(loc).resolve() for loc in spec.submodule_search_locations]
+            inside = (lambda loc: _under(loc, site)) if top in tops else (lambda loc: _under(loc, site) or _under(loc, library))
+            if not locations or not all(inside(loc) for loc in locations):
+                out.append("%s is a namespace package with a search location outside the pinned distributions and the library" % modname)
+            continue
+        if modname in pins["harnessPython"].get("originlessModules", {}) and not getattr(mod, "__file__", None) and not (spec is not None and spec.origin):
+            continue  # pinned by name: an object a pinned extension creates in memory with no file (PINS.json says which and why)
+        if not isinstance(mod, type(sys)):
+            # an object that is not a module (typing registers two classes of its own under typing.io and typing.re): allowed
+            # only when the class comes from a module of the interpreter's library
+            owner = sys.modules.get(getattr(mod, "__module__", None) or "")
+            owner_origin = Path(getattr(owner, "__file__", "") or "/").resolve()
+            if owner is None or not _under(owner_origin, library):
+                out.append("%s is not a module and does not come from the interpreter's library" % modname)
+            continue
+        if origin in (None, "built-in", "frozen"):
+            frozen = (machinery.BuiltinImporter, machinery.FrozenImporter)
+            if loader in frozen or isinstance(loader, frozen) or modname in sys.builtin_module_names:
+                continue
+            parent = sys.modules.get(modname.rpartition(".")[0]) if "." in modname else None
+            parent_origin = Path(getattr(parent, "__file__", "") or "/").resolve()
+            if parent is not None and parent_origin in owned and type(getattr(parent, "__loader__", None)) is machinery.ExtensionFileLoader:
+                continue  # a submodule a pinned extension module creates in memory
+            out.append("%s has no file origin and is not a built-in, frozen, pinned-extension or pinned originless module" % modname)
+            continue
+        o = Path(origin).resolve()
+        if o in owned:
+            if type(loader) not in (machinery.SourceFileLoader, machinery.ExtensionFileLoader):
+                out.append("%s (a file of %s) was loaded by %s, not by the source or the extension loader" % (modname, owned[o], type(loader).__name__))
+            if cached and (not prefix or not _under(Path(cached), Path(prefix))):
+                out.append("%s's bytecode cache %s is not under the empty cache prefix" % (modname, cached))
+        elif _under(o, library):
+            if top in tops:
+                out.append("%s carries a pinned distribution's name but was loaded from the interpreter's library (%s)" % (modname, o))
+        elif any(_under(o, root) for root in study_roots):
+            if not (modname in STUDY_MODULES or (modname == "__main__")):
+                out.append("%s was loaded from the study tree (%s) and is not a registered study module" % (modname, o))
+            if type(loader) is not machinery.SourceFileLoader or o.suffix != ".py":
+                out.append("%s (%s) was not loaded from its .py by the source loader" % (modname, o))
+            if cached and (not prefix or not _under(Path(cached), Path(prefix))):
+                out.append("%s's bytecode cache %s is not under the empty cache prefix" % (modname, cached))
+        else:
+            out.append("%s was loaded from %s: outside the interpreter's library, the pinned distributions and the study tree" % (modname, o))
     return out
 
 
 def problems(pins, gateway_binary, require_all=False):
     out = []
-    if gateway_binary is None or not Path(gateway_binary).is_file():
+    if gateway_binary is None or not Path(gateway_binary).resolve().is_file():
         out.append("the gateway verifier binary is not given or not a file")
     else:
-        digest = sha256_file(gateway_binary)
+        digest = sha256_file(Path(gateway_binary).resolve())  # the one file that is hashed is the one file that is launched (run_layers.resolved_gateway)
         if pins["gateway"]["binarySha256"] and pins["gateway"]["binarySha256"] != digest:
             out.append("the gateway binary's digest %s is not the pinned %s" % (digest, pins["gateway"]["binarySha256"]))
         if require_all and not pins["gateway"]["binarySha256"]:
@@ -187,8 +210,6 @@ def problems(pins, gateway_binary, require_all=False):
     if adapter_keyid() != pins["adapter"]["keyid"]:
         out.append("the adapter key is not the pinned one")
     out += trusted_pubkey_problems(pins)
-    for name, module_name in (("securesystemslib", "securesystemslib"), ("in-toto-attestation", "in_toto_attestation"), ("cryptography", "cryptography"), ("protobuf", "google.protobuf")):
-        out += import_origin_problems(name, module_name)
     if pins["harnessPython"].get("version") and pins["harnessPython"]["version"] != sys.version.split()[0]:
         out.append("the interpreter is %s, not the pinned %s" % (sys.version.split()[0], pins["harnessPython"]["version"]))
     if require_all and not pins["harnessPython"].get("version"):

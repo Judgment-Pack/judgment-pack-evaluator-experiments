@@ -21,17 +21,37 @@ PRIMARY_ROOT = HERE.parent / "results" / "primary-attempt-001"
 
 
 class RegisteredContext:
-    """The only context in which a holdout cell is constructed: the registered attempt's marker at the literal
-    primary root (PREREGISTRATION.md section 1a). Constructing one validates the marker; nothing else grants it."""
+    """The only context in which a holdout cell is constructed: a validated registered attempt at the literal primary
+    root (PREREGISTRATION.md section 1a) -- every pin non-null and matching (harness/pins.py, the executing code
+    included), the marker complete and matched (harness/marker.py) against the gateway binary given. Constructing one
+    runs the whole validation; `check()` re-reads the marker before any construction."""
 
-    def __init__(self, root):
-        root = Path(root).resolve()
+    def __init__(self, root, gateway):
+        import marker as marking
+        import pins as pinning
+        root, gateway = Path(root).resolve(), Path(gateway).resolve()
+        problems = []
         if root != PRIMARY_ROOT.resolve():
-            raise RuntimeError("a holdout cell is constructed only for the registered attempt at %s" % PRIMARY_ROOT)
-        marker = json.loads((root / "ATTEMPT.json").read_text())
-        if marker.get("label") != "REGISTERED" or not isinstance(marker.get("attemptId"), str) or marker.get("attemptRoot") != str(root):
-            raise RuntimeError("no registered attempt marker at %s" % root)
-        self.root, self.attempt_id = root, marker["attemptId"]
+            problems.append("a holdout cell is constructed only for the registered attempt at %s" % PRIMARY_ROOT)
+        problems += pinning.problems(pinning.load(), str(gateway), require_all=True)
+        try:
+            marker = json.loads((root / "ATTEMPT.json").read_text())
+        except (OSError, ValueError) as e:
+            marker, problems = None, problems + ["no readable attempt marker at %s (%s)" % (root, type(e).__name__)]
+        if marker is not None:
+            problems += marking.marker_problems(marker, pinning.sha256_file(gateway) if gateway.is_file() else None, "REGISTERED", root)
+        if problems:
+            raise RuntimeError("no validated registered attempt at %s:\n  %s" % (root, "\n  ".join(problems)))
+        self.root, self.gateway, self.marker, self.attempt_id = root, gateway, marker, marker["attemptId"]
+
+    def check(self):
+        """Before a construction: the context is whole, its root is the literal one, and the marker on disk is the one validated."""
+        try:
+            root, marker = self.root, self.marker
+        except AttributeError:
+            raise RuntimeError("not a validated registered context")
+        if root != PRIMARY_ROOT.resolve() or json.loads((root / "ATTEMPT.json").read_text()) != marker:
+            raise RuntimeError("the registered attempt's marker at %s is not the one validated" % root)
 
 
 def read_json(p):
@@ -310,9 +330,12 @@ ALL_CELLS = dict(CELLS, **HOLDOUT_CELLS)
 
 
 def build(cell_id, out_root, registered=None):
-    """Build one cell from the baseline. A holdout cell requires a RegisteredContext: the registered attempt is its first construction anywhere."""
-    if cell_id in HOLDOUT_CELLS and not isinstance(registered, RegisteredContext):
-        raise RuntimeError("holdout cell %s is constructed only inside the registered attempt (PREREGISTRATION.md section 1a)" % cell_id)
+    """Build one cell from the baseline. A holdout cell requires a validated RegisteredContext: the registered attempt is its
+    first construction through this guarded builder (pretesting at the adapter layer is disclosed in PREREGISTRATION.md section 1a)."""
+    if cell_id in HOLDOUT_CELLS:
+        if not isinstance(registered, RegisteredContext):
+            raise RuntimeError("holdout cell %s is constructed only inside the registered attempt (PREREGISTRATION.md section 1a)" % cell_id)
+        registered.check()
     cell = Path(out_root) / cell_id
     if cell.exists():
         raise FileExistsError(cell)

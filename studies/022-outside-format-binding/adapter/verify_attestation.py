@@ -68,7 +68,7 @@ def check_subject(subject, store, decisions):
     if not isinstance(subject, dict) or not isinstance(subject.get("digest"), dict):
         return "unknown-subject"
     name, digest = subject.get("name"), subject["digest"].get("sha256")
-    if not isinstance(name, str) or not isinstance(digest, str) or not HEX64.match(digest):
+    if not isinstance(name, str) or not isinstance(digest, str) or not HEX64.fullmatch(digest):
         return "unknown-subject"
     if name == "artifact":
         path = Path(store) / "artifacts" / digest

@@ -18,16 +18,18 @@ ALLOWED_DIRS = ("adapter", "harness", "harness/tests", "fixtures", "fixtures/bas
 EXCLUDED = ("harness/PINS.json", "harness/STUDY-MANIFEST.sha256", "README.md", "DEVIATIONS.md")
 
 
-def covered_paths():
+def covered_paths(study=STUDY):
     paths = set()
     for relative in DOCUMENTS:
-        if (STUDY / relative).is_file():
+        if (study / relative).is_file():
             paths.add(relative)
     for pattern in GLOBS:
-        for p in STUDY.glob(pattern):
-            rel = p.relative_to(STUDY).as_posix()
-            if "__pycache__" in rel or rel.endswith(".pyc"):
-                continue
+        for p in study.glob(pattern):
+            rel = p.relative_to(study).as_posix()
+            if "__pycache__" in rel.split("/"):
+                continue  # never consulted: every process sets an empty cache prefix (harness/guard.py)
+            if (rel.startswith("adapter/") or rel.startswith("harness/")) and rel.lower().endswith((".pyc", ".pyo", ".so", ".pyd", ".dll", ".dylib", ".pth", ".egg", ".zip", ".whl")):
+                raise SystemExit("refusing: %s is importable and is not a .py module" % rel)
             if p.is_dir():
                 # a directory under adapter/ or harness/ that is not the tests directory could shadow a pinned package on the import path
                 if not (rel in ALLOWED_DIRS or rel.startswith("fixtures/baseline/")):
@@ -39,8 +41,8 @@ def covered_paths():
     return sorted(p for p in paths if p not in EXCLUDED)
 
 
-def render():
-    return "".join("%s  %s\n" % (hashlib.sha256((STUDY / r).read_bytes()).hexdigest(), r) for r in covered_paths())
+def render(study=STUDY):
+    return "".join("%s  %s\n" % (hashlib.sha256((study / r).read_bytes()).hexdigest(), r) for r in covered_paths(study))
 
 
 def main():

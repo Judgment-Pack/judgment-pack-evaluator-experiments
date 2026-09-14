@@ -3,24 +3,35 @@
 The tests build the locked constructions only. Three tests in class Verifiers perform, on a copy of the baseline, the
 edits the reviewer's holdout cells h01, h02 and h06 specify and assert the adapter layers' outcomes (disclosed in
 PREREGISTRATION.md section 1a); no holdout cell is built through harness/cells.py here."""
+import os
 import sys
-import tempfile
 
-# the study's bytecode policy (PREREGISTRATION.md section 2), before any study or pinned-package import
+# the bytecode policy, with os and sys alone, before any other import (harness/guard.py, PREREGISTRATION.md section 2);
+# run with PYTHONPYCACHEPREFIX set (README) so that this module too is compiled from its source
 sys.dont_write_bytecode = True
 if not sys.pycache_prefix:
-    sys.pycache_prefix = tempfile.mkdtemp(prefix="study022-pycache-")
+    for _attempt in range(10000):
+        _d = os.path.join(os.environ.get("TMPDIR") or "/tmp", "study022-pycache-%d-%d" % (os.getpid(), _attempt))
+        try:
+            os.mkdir(_d, 0o700)
+            sys.pycache_prefix = _d
+            break
+        except FileExistsError:
+            continue
+_HARNESS = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, _HARNESS)
+import guard  # noqa: E402
+guard.establish(os.path.dirname(_HARNESS))
 
 import json  # noqa: E402
-import os  # noqa: E402
 import shutil  # noqa: E402
 import subprocess  # noqa: E402
+import tempfile  # noqa: E402
 import unittest  # noqa: E402
 from pathlib import Path  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 STUDY = HERE.parent.parent
-sys.path.insert(0, str(HERE.parent))
 sys.path.insert(0, str(STUDY / "adapter"))
 import cells as constructions  # noqa: E402
 import pins as pinning  # noqa: E402
@@ -104,7 +115,11 @@ class Constructions(unittest.TestCase):
                     constructions.build(cid, a, registered=object())
                 self.assertFalse((Path(a) / cid).exists(), "nothing is copied before the refusal")
             with self.assertRaises(RuntimeError):
-                constructions.RegisteredContext(a)  # not the literal root
+                constructions.RegisteredContext(a, GATEWAY or "/nonexistent")  # not the literal root
+            forged = object.__new__(constructions.RegisteredContext)
+            with self.assertRaises(RuntimeError):
+                constructions.build(next(iter(constructions.HOLDOUT_CELLS)), a, registered=forged)
+            self.assertEqual(os.listdir(a), [], "nothing is copied before the refusal")
             r = subprocess.run([sys.executable, str(STUDY / "harness" / "cells.py"), a, next(iter(constructions.HOLDOUT_CELLS))], capture_output=True, text=True)
             self.assertNotEqual(r.returncode, 0)
             self.assertIn("holdout cell", r.stderr)
@@ -124,6 +139,47 @@ class Constructions(unittest.TestCase):
             self.assertEqual(docs[1]["action"]["cites"][0]["signature"], docs[0]["signature"])
             self.assertEqual(docs[0]["keyId"], docs[1]["keyId"])
             self.assertEqual((cell / "registry.jsonl").read_bytes(), (BASE / "registry.jsonl").read_bytes())
+
+
+class RegisteredContextValidation(unittest.TestCase):
+    def test_the_context_requires_a_complete_marker_and_matching_pins(self):
+        saved = constructions.PRIMARY_ROOT
+        with tempfile.TemporaryDirectory() as a:
+            root = Path(a) / "primary-attempt-001"
+            root.mkdir()
+            constructions.PRIMARY_ROOT = root
+            try:
+                gateway = Path(a) / "gateway"
+                gateway.write_bytes(b"stand-in")
+                with self.assertRaisesRegex(RuntimeError, "no readable attempt marker"):
+                    constructions.RegisteredContext(root, gateway)
+                (root / "ATTEMPT.json").write_text(json.dumps({"label": "REGISTERED", "attemptId": "not-a-real-attempt", "attemptRoot": str(root)}))
+                with self.assertRaisesRegex(RuntimeError, "marker lacks") as cm:
+                    constructions.RegisteredContext(root, gateway)
+                self.assertIn("is not pinned", str(cm.exception), "null freeze pins refuse a registered context before the freeze")
+                self.assertIn("gateway binary's digest", str(cm.exception))
+                # the positive path, with the pins stood in for (they are null before the freeze): the marker must be whole and matched
+                original = pinning.problems
+                pinning.problems = lambda pins, gateway_binary, require_all=False: []
+                try:
+                    marker = {"attemptId": "a" * 32, "attemptRoot": str(root), "label": "REGISTERED", "gatewaySha256": pinning.sha256_file(gateway),
+                              "pinsRawSha256": pinning.raw_sha256(), "adapterKeyid": pinning.adapter_keyid(), "python": sys.version.split()[0],
+                              "cells": sorted(constructions.ALL_CELLS), "startedAt": "t"}
+                    (root / "ATTEMPT.json").write_text(json.dumps(marker))
+                    ctx = constructions.RegisteredContext(root, gateway)
+                    ctx.check()
+                    (root / "ATTEMPT.json").write_text(json.dumps(dict(marker, attemptId="b" * 32)))
+                    with self.assertRaisesRegex(RuntimeError, "not the one validated"):
+                        ctx.check()
+                    (root / "ATTEMPT.json").write_text(json.dumps(dict(marker, cells=sorted(constructions.CELLS))))
+                    with self.assertRaisesRegex(RuntimeError, "cell set"):
+                        constructions.RegisteredContext(root, gateway)
+                    with self.assertRaisesRegex(RuntimeError, "literal|constructed only"):
+                        constructions.RegisteredContext(Path(a), gateway)
+                finally:
+                    pinning.problems = original
+            finally:
+                constructions.PRIMARY_ROOT = saved
 
 
 class TreeComparison(unittest.TestCase):
@@ -269,6 +325,25 @@ class Verifiers(unittest.TestCase):
                 if subjects is not None:
                     self.assertEqual(r["subjects"], subjects, payload)
                 self.assertEqual(verify_binding.check_one(p, receipt), binding_code, payload)
+
+    def test_a_trailing_newline_is_not_a_digest_anywhere(self):
+        with tempfile.TemporaryDirectory() as a:
+            cell = constructions.build("pos-baseline", a)
+            p, receipt = constructions.envelope_path(cell, 1), constructions.receipt_path(cell, 1)
+            st = constructions.statement_of(cell, 1)
+            for name in ("artifact", "cites/s2/0"):
+                doc = json.loads(json.dumps(st))
+                for s in doc["subject"]:
+                    if s["name"] == name:
+                        s["digest"]["sha256"] += "\n"
+                p.write_text(signed_envelope(bind.serialize(doc)))
+                r = verify_attestation.verify_one(p, TRUSTED, cell / "store", cell / "decisions")
+                self.assertEqual(r["statement"], "valid")
+                self.assertEqual(verify_attestation.per_name(r["subjects"])[name], "unknown-subject", name)
+                self.assertEqual(verify_binding.check_one(p, receipt), "fail:unreadable", name)
+        self.assertIsNone(verify_binding.digest_after_prefix("sha256:" + "a" * 64 + "\n"))
+        self.assertIsNotNone(score.finding_problem({"recordDigest": "sha256:" + "a" * 64 + "\n", "status": "record-citation-malformed"}))
+        self.assertIsNone(score.finding_problem({"recordDigest": "sha256:" + "a" * 64, "status": "record-citation-malformed"}))
 
     def test_nested_predicate_shapes_get_a_code_in_the_binding_layer(self):
         with tempfile.TemporaryDirectory() as a:
@@ -459,28 +534,38 @@ class Pins(unittest.TestCase):
             f.write(b"not the gateway")
         self.assertTrue(any("gateway binary" in p for p in pinning.problems(pinning.load(), f.name)))
 
-    def test_import_origins_and_execution_identity_are_checked(self):
+    def test_execution_identity_classifies_every_loaded_module(self):
         pins = pinning.load()
         self.assertEqual(pinning.execution_problems(pins), [])
-        for name, module in pinning.PACKAGE_MODULES:
-            self.assertEqual(pinning.import_origin_problems(name, module), [], name)
-        self.assertTrue(pinning.import_origin_problems("securesystemslib", "json"), "a module outside the distribution's files is a problem")
-        # a module claiming to be part of a pinned package but loaded from elsewhere, from a cache, or by another loader
+        self.assertIn("google._upb._message", sys.modules, "the protobuf backend in use is loaded and covered")
         import types
+        genuine = sys.modules["securesystemslib.dsse"]
         fake = types.ModuleType("securesystemslib.planted")
         fake.__file__ = "/elsewhere/planted.py"
         sys.modules["securesystemslib.planted"] = fake
         try:
-            self.assertTrue(any("planted" in p for p in pinning.execution_problems(pins)))
-            genuine = sys.modules["securesystemslib.dsse"]
-            fake.__file__, fake.__spec__ = genuine.__file__, None
-            fake.__loader__ = object()
-            self.assertTrue(any("planted" in p and "loaded by" in p for p in pinning.execution_problems(pins)))
+            self.assertTrue(any("planted" in p and "outside" in p for p in pinning.execution_problems(pins)), "an outside origin under a pinned name")
+            fake.__file__, fake.__spec__, fake.__loader__ = genuine.__file__, None, object()
+            self.assertTrue(any("planted" in p and "loaded by" in p for p in pinning.execution_problems(pins)), "another loader class on a pinned file")
             fake.__loader__ = genuine.__loader__
             fake.__cached__ = "/elsewhere/__pycache__/dsse.cpython-38.pyc"
-            self.assertTrue(any("planted" in p and "cache" in p for p in pinning.execution_problems(pins)))
-        finally:
+            self.assertTrue(any("planted" in p and "cache" in p for p in pinning.execution_problems(pins)), "a cache read beside a source")
+            # a stand-in of another type carrying _module is not unwrapped: it is judged by its own origin
+            fake.__cached__, fake.__file__, fake.__loader__ = None, "/elsewhere/proxy.py", None
+            fake._module = genuine
+            self.assertTrue(any("planted" in p and "outside" in p for p in pinning.execution_problems(pins)))
             del sys.modules["securesystemslib.planted"]
+            shadow = types.ModuleType("json")  # an in-memory stand-in for a library module under a pinned name is refused too
+            shadow.__file__ = str(STUDY / "harness" / "json.py")
+            shadow.__loader__ = genuine.__loader__
+            saved_json = sys.modules["json"]
+            sys.modules["json"] = shadow
+            try:
+                self.assertTrue(any(p.startswith("json ") for p in pinning.execution_problems(pins)), "a study-tree origin that is not a registered module")
+            finally:
+                sys.modules["json"] = saved_json
+        finally:
+            sys.modules.pop("securesystemslib.planted", None)
         self.assertEqual(pinning.execution_problems(pins), [])
         with tempfile.TemporaryDirectory() as a:
             saved = sys.pycache_prefix
@@ -489,16 +574,92 @@ class Pins(unittest.TestCase):
                 (Path(a) / "x.pyc").write_bytes(b"")
                 self.assertTrue(any("must be empty" in p for p in pinning.execution_problems(pins)))
                 sys.pycache_prefix = None
-                self.assertTrue(any("no bytecode cache prefix" in p for p in pinning.execution_problems(pins)))
+                self.assertTrue(any("no bytecode-cache prefix" in p for p in pinning.execution_problems(pins)))
             finally:
                 sys.pycache_prefix = saved
+        class Carrier:  # an object that is not a module, of a class from outside the interpreter's library
+            __module__ = "securesystemslib.dsse"
+        sys.modules["securesystemslib.carried"] = Carrier()
+        ghost = types.ModuleType("securesystemslib.ghost")  # a module with no file and no loader, under a pinned name
+        sys.modules["securesystemslib.ghost"] = ghost
+        try:
+            problems = pinning.execution_problems(pins)
+            self.assertTrue(any("carried" in p and "not a module" in p for p in problems), problems)
+            self.assertTrue(any("ghost" in p and "no file origin" in p for p in problems), problems)
+        finally:
+            del sys.modules["securesystemslib.carried"], sys.modules["securesystemslib.ghost"]
+        library_shadow = types.ModuleType("cryptography.planted")  # a pinned name loaded from the interpreter's library
+        library_shadow.__file__ = os.path.join(os.path.dirname(os.__file__), "planted.py")
+        library_shadow.__loader__ = sys.modules["json"].__loader__
+        sys.modules["cryptography.planted"] = library_shadow
+        try:
+            self.assertTrue(any("planted" in p and "interpreter's library" in p for p in pinning.execution_problems(pins)))
+        finally:
+            del sys.modules["cryptography.planted"]
+        os.environ["PYTHONPATH"] = "/elsewhere"
+        try:
+            self.assertNotIn("PYTHONPATH", run_attempt.child_env())
+            self.assertEqual(run_attempt.child_env()["PYTHONPYCACHEPREFIX"], sys.pycache_prefix)
+        finally:
+            del os.environ["PYTHONPATH"]
         wrong = json.loads(json.dumps(pins))
         wrong["harnessPython"]["implementation"] = "PyPy"
         self.assertTrue(any("interpreter is CPython" in p for p in pinning.execution_problems(wrong)))
+        wrong = json.loads(json.dumps(pins))
+        del wrong["intoto"]["packages"]["cffi"]
+        self.assertTrue(any("cffi is installed" in p and "not pinned" in p for p in pinning.execution_problems(wrong)))
+
+    def test_the_guard_refuses_shadows_and_foreign_import_paths(self):
+        with tempfile.TemporaryDirectory() as a:
+            study = Path(a)
+            for d in ("adapter", "harness", "harness/tests"):
+                (study / d).mkdir(parents=True)
+            (study / "harness" / "cells.py").write_text("")
+            self.assertEqual(guard.shadow_problems(str(study)), [])
+            (study / "harness" / "json.pyc").write_bytes(b"")
+            (study / "adapter" / "fast.cpython-38-x86_64-linux-gnu.so").write_bytes(b"")
+            (study / "harness" / "os.py").write_text("")
+            (study / "harness" / "securesystemslib.py").write_text("")
+            (study / "adapter" / "pkg").mkdir()
+            os.symlink("cells.py", study / "harness" / "link.py")
+            problems = guard.shadow_problems(str(study))
+            for needle in ("json.pyc", "fast.cpython", "os.py shadows", "securesystemslib.py shadows", "adapter/pkg is a directory", "link.py is a symbolic link"):
+                self.assertTrue(any(needle in p for p in problems), (needle, problems))
+            self.assertEqual(guard.path_problems(str(STUDY)), [])
+            sys.path.append("/elsewhere/injected")
+            try:
+                self.assertTrue(any("injected" in p for p in guard.path_problems(str(STUDY))))
+            finally:
+                sys.path.remove("/elsewhere/injected")
+            os.environ["PYTHONPATH"] = "/elsewhere"
+            try:
+                self.assertTrue(any("PYTHONPATH" in p for p in guard.path_problems(str(STUDY))))
+            finally:
+                del os.environ["PYTHONPATH"]
+            with self.assertRaises(SystemExit):
+                guard.establish(str(study))
+
+    def test_the_manifest_refuses_an_importable_non_source_file(self):
+        import make_manifest
+        with tempfile.TemporaryDirectory() as a:
+            study = Path(a)
+            for d in ("adapter", "harness", "harness/tests", "fixtures/baseline"):
+                (study / d).mkdir(parents=True)
+            (study / "harness" / "cells.py").write_text("")
+            (study / "adapter" / "SPEC.md").write_text("")
+            self.assertIn("harness/cells.py", make_manifest.covered_paths(study))
+            (study / "harness" / "__pycache__").mkdir()
+            (study / "harness" / "__pycache__" / "cells.cpython-38.pyc").write_bytes(b"")  # never consulted; not covered, not refused
+            self.assertNotIn("harness/__pycache__/cells.cpython-38.pyc", make_manifest.covered_paths(study))
+            (study / "harness" / "json.pyc").write_bytes(b"")
+            with self.assertRaisesRegex(SystemExit, "importable"):
+                make_manifest.covered_paths(study)
 
     def test_the_dependency_and_interpreter_pins_are_enforced(self):
         pins = pinning.load()
-        self.assertEqual(sorted(pins["intoto"]["packages"]), ["cryptography", "in-toto-attestation", "protobuf", "securesystemslib"])
+        self.assertEqual(sorted(pins["intoto"]["packages"]), ["cffi", "cryptography", "in-toto-attestation", "protobuf", "pycparser", "securesystemslib", "typing_extensions"])
+        from importlib import metadata
+        self.assertEqual(sorted(d.metadata["Name"] for d in metadata.distributions()), sorted(pins["intoto"]["packages"]), "the environment holds exactly the pinned distributions")
         self.assertEqual(pins["harnessPython"]["version"], sys.version.split()[0])
         wrong = json.loads(json.dumps(pins))
         wrong["harnessPython"]["version"] = "0.0.0"
@@ -541,6 +702,29 @@ class Pins(unittest.TestCase):
 
 
 class GatewayExit(unittest.TestCase):
+    def test_the_gateway_argument_is_resolved_to_one_file_not_searched_on_path(self):
+        with tempfile.TemporaryDirectory() as a:
+            cell = constructions.build("pos-baseline", a)
+            here, elsewhere = Path(a) / "here", Path(a) / "elsewhere"
+            here.mkdir()
+            elsewhere.mkdir()
+            (here / "gateway").write_text('#!/bin/sh\nprintf \'{"ok":true,"findings":[{"callIndex":0,"sessionId":"s2","status":"ok"}]}\'\n')
+            (elsewhere / "gateway").write_text('#!/bin/sh\nprintf \'{"ok":false,"findings":[{"callIndex":0,"sessionId":"s2","status":"key-mismatch"}]}\'\n')
+            for p in (here / "gateway", elsewhere / "gateway"):
+                p.chmod(0o755)
+            cwd, path = os.getcwd(), os.environ.get("PATH", "")
+            os.chdir(here)
+            os.environ["PATH"] = str(elsewhere)
+            try:
+                self.assertEqual(run_layers.resolved_gateway("gateway"), here / "gateway")
+                self.assertTrue(run_layers.gateway_layer("gateway", cell)["ok"], "the file in the working directory, never the one PATH would find")
+                self.assertEqual(pinning.sha256_file(run_layers.resolved_gateway("gateway")), pinning.sha256_file(here / "gateway"))
+                with self.assertRaises(RuntimeError):
+                    run_layers.resolved_gateway("no-such-gateway")
+            finally:
+                os.chdir(cwd)
+                os.environ["PATH"] = path
+
     def test_a_nonzero_exit_is_no_verdict_even_with_a_verdict_on_stdout(self):
         with tempfile.TemporaryDirectory() as a:
             cell = constructions.build("pos-baseline", a)
@@ -578,20 +762,36 @@ class Layers(unittest.TestCase):
         with tempfile.TemporaryDirectory() as a:
             root = Path(a) / "pilot"
             subprocess.run([sys.executable, str(STUDY / "harness" / "run_attempt.py"), "--attempt-root", str(root), "--gateway", GATEWAY, "--pilot"],
-                           check=True, capture_output=True, env=run_attempt.CHILD_ENV)
+                           check=True, capture_output=True, env=run_attempt.child_env())
             first = json.loads((root / "ADJUDICATION.json").read_text())
             self.assertEqual(first["decision"], "R1 holds")
             (root / "ADJUDICATION.json").unlink()
             doc = json.loads((root / "OBSERVATIONS.json").read_text())
+            first_observations = json.loads(json.dumps(doc))
             target = [o for o in doc["cells"] if o["cell"] == "pos-baseline"][0]
             target["intoto"]["attestations"][1]["subjects"] = [["invented", "match"]]
             (root / "OBSERVATIONS.json").write_text(json.dumps(doc, indent=1))
             r = subprocess.run([sys.executable, str(STUDY / "harness" / "score.py"), "--attempt-root", str(root), "--gateway", GATEWAY, "--pilot"],
-                               capture_output=True, text=True, env=run_attempt.CHILD_ENV)
+                               capture_output=True, text=True, env=run_attempt.child_env())
             self.assertEqual(r.returncode, 0, r.stderr)
             second = json.loads((root / "ADJUDICATION.json").read_text())
             self.assertEqual(second["decision"], "pipeline-invalid")
             self.assertTrue(any("not what the pinned apparatus produces" in v for v in second["validityFailures"]), second["validityFailures"])
+            # the scorer resolves a relative gateway argument to one file in its working directory; a same-named decoy on PATH is never launched
+            (root / "ADJUDICATION.json").unlink()
+            (root / "OBSERVATIONS.json").write_text(json.dumps(first_observations, indent=1))
+            here, decoy = Path(a) / "here", Path(a) / "decoy"
+            here.mkdir()
+            decoy.mkdir()
+            shutil.copy2(GATEWAY, here / "gateway")
+            (decoy / "gateway").write_text('#!/bin/sh\nprintf \'{"ok":true,"findings":[]}\'\n')
+            (decoy / "gateway").chmod(0o755)
+            env = dict(run_attempt.child_env(), PATH=str(decoy))
+            r = subprocess.run([sys.executable, str(STUDY / "harness" / "score.py"), "--attempt-root", str(root), "--gateway", "gateway", "--pilot"],
+                               capture_output=True, text=True, env=env, cwd=str(here))
+            self.assertEqual(r.returncode, 0, r.stderr)
+            third = json.loads((root / "ADJUDICATION.json").read_text())
+            self.assertEqual(third["decision"], "R1 holds", third["validityFailures"][:3])
 
     def test_a_gateway_refusal_is_not_a_verdict(self):
         with tempfile.TemporaryDirectory() as a:
