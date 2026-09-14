@@ -2,7 +2,7 @@
 
 **Attempt**: `results/primary-attempt-001`, the first invocation of the governing command from
 the freeze commit (`1255f7aa`, the squash-merge of PR #105) plus the single post-freeze pin
-commit that `DEVIATIONS.md` names; CPython 3.12.11; the runtime the judgment-pack
+commit that `DEVIATIONS.md` names (`00ef5d7a` on `main`); CPython 3.12.11; the runtime the judgment-pack
 release **v0.21.0** as published for linux/amd64 (`jpack` digest
 `sha256:5e307176d22e350f6619b2f760fee843db115f2c9d7e4bb188168846e59d4f35`, verified against the
 release's checksums); label `REGISTERED`, attempt id `f2284e59b2f2e5e5c368bcf4a5f1b74f`. Fully offline: the
