@@ -1,0 +1,47 @@
+{
+  "pinsVersion": "1",
+  "note": "Every non-null member is ENFORCED by harness/pins.py before a registered attempt starts and before any adjudication; a registered attempt refuses to run under any null or mismatching pin, and a pilot is an explicit mode (--pilot) whose marker says PILOT. The manifest covers neither itself nor this file; this file pins the manifest; the freeze commit anchors this file.",
+  "gateway": {
+    "repo": "https://github.com/Judgment-Pack/judgment-pack-gateway",
+    "commit": "03582d9432a73d7d1f03f916e4ef58c7fc6c2773",
+    "build": "cd go && CGO_ENABLED=0 go build -trimpath -buildvcs=false -o gateway . (Go 1.26.5 linux/amd64; the build is reproducible: two builds gave the same digest)",
+    "binarySha256": "aaa16fecb3f7f4134bfe926c751cd77fba279e81d881759f4b265cb2316e238c",
+    "publicKeySha256": "91b19f5c213cadb74663f55f1281b15fac913a2862672264bb7f59b1e8b1c6ca",
+    "publicKeyNote": "corpus/TEST-PUBLIC-KEY of the gateway repository at the pinned commit: the key the corpus vectors are signed under, never a secret"
+  },
+  "baseline": {
+    "vector": "corpus/v3/stores/v3-action-valid.json at the pinned gateway commit",
+    "materializedAs": "fixtures/baseline/{store,registry.jsonl,decisions,AUTHORITY}; attestations bound by adapter/bind.py under the adapter key"
+  },
+  "intoto": {
+    "packages": {
+      "securesystemslib": {
+        "version": "1.3.1",
+        "installedDigest": "bcc3d799de6f29a3bd676dc3cdba640abe422dafe4a5abe9d1134014b31582b0",
+        "role": "the DSSE reference implementation (Envelope, CryptoSigner, SSlibKey)"
+      },
+      "in-toto-attestation": {
+        "version": "0.9.3",
+        "installedDigest": "32dad40034170c092da683e5a62122d66264bfb882557e7784dbdc0084577ee6",
+        "role": "the in-toto Statement v1 bindings (validation)"
+      }
+    },
+    "note": "installed with pip into a virtual environment; the digest is over the distribution's files in RECORD order, bytes included, so a patched installation does not pass as the release"
+  },
+  "adapter": {
+    "keyid": "96a15d62b0624e0b057d695eaaa592f249785dfe100c06c8d59b7b65a26f9b99",
+    "note": "the study-minted Ed25519 key derived from a fixed seed in adapter/bind.py; not a secret, not the gateway's key"
+  },
+  "harnessPython": {
+    "implementation": "CPython",
+    "series": "3.8",
+    "note": "the interpreter of the virtual environment the packages are installed in; the registered attempt records the exact version in its marker"
+  },
+  "freeze": {
+    "preregistration": null,
+    "matrix": null,
+    "matrixHoldout": null,
+    "adapterSpec": null,
+    "studyManifest": null
+  }
+}
