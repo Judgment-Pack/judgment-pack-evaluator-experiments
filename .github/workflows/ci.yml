@@ -493,6 +493,11 @@ jobs:
       run:
         working-directory: python
     steps:
+      - name: Allow long paths on Windows
+        if: runner.os == 'Windows'
+        working-directory: ${{ github.workspace }}  # the job's default directory does not exist before the checkout
+        # the retained attempts hold cells named by construction and artifacts named by digest; the paths exceed 260 characters
+        run: git config --global core.longpaths true
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up Python

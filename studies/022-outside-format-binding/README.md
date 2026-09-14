@@ -1,9 +1,10 @@
 # Study 022 — a gateway receipt bound into an in-toto attestation: what each verifier sees, and what neither does
 
-**Status: preregistration through nine pre-freeze cross-vendor review rounds, the last
-`freezable as written` (`PREREG-REVIEW.md`); FROZEN at the squash-merge of the pull request
-that record names. Nothing has run under the freeze; `results/` is absent until the registered
-primary attempt; everything under `pilots/` is harness validation that supports no claim.**
+**Status: RUN. Frozen at the squash-merge of PR #106 after nine pre-freeze cross-vendor review
+rounds (`PREREG-REVIEW.md`); the registered primary attempt `results/primary-attempt-001` ran
+once: `R1 holds` — 19 locked cells, 0 divergent; the reviewer's holdout 6/6; every control gate
+green (`ANALYSIS.md`, with the ownership map). Everything under `pilots/` is harness validation
+that supports no claim.**
 
 Every receipt of a gateway store is bound into one in-toto Statement in a DSSE envelope: the
 subjects are what the receipt's own verifier resolves by digest (the retained artifact, and for
