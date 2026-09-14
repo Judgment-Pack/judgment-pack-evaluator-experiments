@@ -1,0 +1,76 @@
+{
+  "pinsVersion": "1",
+  "note": "Every non-null member is ENFORCED by harness/pins.py before a registered attempt starts and before any adjudication; a registered attempt refuses to run under any null or mismatching pin, and a pilot is an explicit mode (--pilot) whose marker says PILOT. The manifest covers neither itself nor this file; this file pins the manifest; the freeze commit anchors this file.",
+  "gateway": {
+    "repo": "https://github.com/Judgment-Pack/judgment-pack-gateway",
+    "commit": "03582d9432a73d7d1f03f916e4ef58c7fc6c2773",
+    "build": "cd go && CGO_ENABLED=0 go build -trimpath -buildvcs=false -o gateway . (Go 1.26.5 linux/amd64; the build is reproducible: two builds gave the same digest)",
+    "binarySha256": "aaa16fecb3f7f4134bfe926c751cd77fba279e81d881759f4b265cb2316e238c",
+    "publicKeySha256": "91b19f5c213cadb74663f55f1281b15fac913a2862672264bb7f59b1e8b1c6ca",
+    "publicKeyNote": "corpus/TEST-PUBLIC-KEY of the gateway repository at the pinned commit: the key the corpus vectors are signed under, never a secret"
+  },
+  "baseline": {
+    "vector": "corpus/v3/stores/v3-action-valid.json at the pinned gateway commit",
+    "materializedAs": "fixtures/baseline/{store,registry.jsonl,decisions,AUTHORITY}; attestations bound by adapter/bind.py under the adapter key"
+  },
+  "intoto": {
+    "packages": {
+      "securesystemslib": {
+        "version": "1.3.1",
+        "installedDigest": "bcc3d799de6f29a3bd676dc3cdba640abe422dafe4a5abe9d1134014b31582b0",
+        "role": "the DSSE reference implementation (Envelope, CryptoSigner, SSlibKey)"
+      },
+      "in-toto-attestation": {
+        "version": "0.9.3",
+        "installedDigest": "32dad40034170c092da683e5a62122d66264bfb882557e7784dbdc0084577ee6",
+        "role": "the in-toto Statement v1 bindings (validation)"
+      },
+      "cryptography": {
+        "version": "47.0.0",
+        "installedDigest": "a5fb9c9b73d6858e69969d8d8f0926dee5616f794d2e054c34fc5888035cffba",
+        "role": "the Ed25519 primitive securesystemslib verifies with"
+      },
+      "protobuf": {
+        "version": "5.29.6",
+        "installedDigest": "32340637fbeb1d76d165ae459856f249d730661e49792fc54f2b2852198dd59d",
+        "role": "the message runtime the in-toto-attestation bindings validate with"
+      },
+      "cffi": {
+        "version": "1.17.1",
+        "installedDigest": "d2eea602f38cfcf7be7c902e4c4220035b853392f9e25181e927c5ba9a3f7ad2",
+        "role": "a declared dependency of cryptography (C FFI); pinned because it is in the environment, whether or not the ceremony loads it"
+      },
+      "pycparser": {
+        "version": "2.23",
+        "installedDigest": "81b08bd2cbf40f2da9518fffd26e00c7c2ae4b98fbb9d47f00ab1eae783b57ee",
+        "role": "a declared dependency of cffi; pinned because it is in the environment"
+      },
+      "typing_extensions": {
+        "version": "4.13.2",
+        "installedDigest": "e1d257513efc765da8c375d9c67a7d69f9ceac898a2d089cd59ca6a96affd1fd",
+        "role": "a declared dependency of cryptography; pinned because it is in the environment"
+      }
+    },
+    "note": "installed with pip into a virtual environment that then holds exactly these distributions and no path hook (.pth): `python -m venv`, `pip install` the four with their declared dependencies, `pip uninstall -y pip setuptools`; the digest is over the distribution's files in RECORD order, bytes included, so a patched installation does not pass as the release; the module each loaded module comes from must be a file of one of these distributions (or of the interpreter's own library, or the study tree), loaded from source or from a pinned extension, with no bytecode read from beside the sources; a distribution in the environment that is not pinned here is refused"
+  },
+  "adapter": {
+    "keyid": "96a15d62b0624e0b057d695eaaa592f249785dfe100c06c8d59b7b65a26f9b99",
+    "note": "the study-minted Ed25519 key derived from a fixed seed in adapter/bind.py; not a secret, not the gateway's key"
+  },
+  "harnessPython": {
+    "implementation": "CPython",
+    "version": "3.8.20",
+    "note": "the interpreter of the virtual environment, enforced by implementation and exact version; its executable build, its standard library, its import machinery, the native libraries it links and the operating system are trusted and are a stated limit (PREREGISTRATION.md section 7). The execution checks establish what code runs in a process the harness starts; they are not authentication against code that already runs inside a process before the harness begins (section 7)",
+    "originlessModules": {
+      "_openssl": "created in memory by cryptography's pinned Rust extension (cryptography.hazmat.bindings._rust); admitted only by identity to the object that verified extension module holds as `_openssl`",
+      "_openssl.lib": "the binding table of that module, a `_cffi_backend.Lib` object; admitted only by identity to `_openssl.lib` and by exact type to the `Lib` type the verified `_cffi_backend` extension exports"
+    }
+  },
+  "freeze": {
+    "preregistration": "d2a538c7c1de491e360ca8d1e58b60fa79a3889e0c7c8cc19e53e8f9053d8de1",
+    "matrix": "3f71d0bc440ee14ad71393ba93f74a3e72f51ca5f8ef1f65adc7dce5a689b487",
+    "matrixHoldout": "10f87d02a06cb91e32ab47c9477331c90068b49dcc33711cea8a276ae951b9f1",
+    "adapterSpec": "50f02a09782eae46751428015e64fa3fc8993f853fd557eed85d3eee044de1e6",
+    "studyManifest": "d9e0b7d945e7e8782496145b40c2244dcf1c7b4bf3cea77c1eebcef7e90d05eb"
+  }
+}

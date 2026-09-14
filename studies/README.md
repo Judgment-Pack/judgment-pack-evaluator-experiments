@@ -31,6 +31,7 @@ and agreement tracks are kept separate and why.
 | [018](018-transition-rules/) | What does a cited registry head buy a stated transition rule — and where does the evidence stop? | Currency governance | — | Frozen + run — R1 holds; reviewer holdout diverged on three preregistered cells |
 | [019](019-authorship-across-representations/) | Does a constrained judgment representation change how reliably a model authors an executable policy, compared with a general policy language? | Blinded authorship | Open Policy Agent; codex-cli (author) | **Frozen + run — R1 inconclusive (control gate failed: E1 floor)** |
 | [021](021-history-replay-catch/) | Does replaying a ledger of decisions made under a pack catch a mechanical defect planted in it — and can the runtime's history profile tell a moved line from any other defect? | History replay | — | Preregistered (eight review rounds; freeze on merge) — not yet run |
+| [022](022-outside-format-binding/) | Can a gateway receipt be bound into an in-toto attestation so that a consumer of either format reads the other — and what does each of three verifiers (the gateway's own, a consumer ceremony over the unmodified in-toto reference implementation, the binding's rules) see of a tampered store or attestation, and what does none? | Outside-format binding | — | Preregistered (nine review rounds; freeze on merge) — not yet run |
 
 
 Study 012 is the only study here whose registered prediction **failed**. No longer

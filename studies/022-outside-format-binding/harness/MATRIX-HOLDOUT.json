@@ -1,0 +1,124 @@
+[
+  {
+    "id": "h01-foreign-key-file-and-envelopes",
+    "role": "endpoint",
+    "attackerCapability": "selective-keys",
+    "expected": {
+      "gateway": {"ok": true, "statuses": ["ok"]},
+      "intoto": {
+        "pass": false,
+        "failures": {
+          "s2/0.dsse.json": "fail:untrusted-key",
+          "s2/1.dsse.json": "fail:untrusted-key"
+        }
+      },
+      "binding": {"pass": true, "failures": {}},
+      "combined": "fail"
+    },
+    "ownership": "in-toto ceremony: the independently pinned adapter key; gateway and binding are silent",
+    "structure": "foreign attestation key substituted together with both envelopes",
+    "reason": "Adapter SPEC section 5 step 3 requires the pinned adapter key. Replacing a public-key file beside the envelopes cannot replace that trust anchor. Both foreign key ids are untrusted. Gateway inputs, predicates and subjects remain the baseline.",
+    "construction": "Call bind.bind(cell / 'store', cell / 'attestations', signer=foreign_signer()). This overwrites adapter.pubkey.json and both envelopes using the existing deterministic foreign_signer(), without changing any gateway input."
+  },
+  {
+    "id": "h02-duplicate-citation-subject-bad-first",
+    "role": "endpoint",
+    "attackerCapability": "full-keys",
+    "expected": {
+      "gateway": {"ok": true, "statuses": ["ok"]},
+      "intoto": {
+        "pass": false,
+        "failures": {
+          "s2/1.dsse.json": {"cites/s2/0": "mismatch"}
+        }
+      },
+      "binding": {
+        "pass": false,
+        "failures": {
+          "s2/1.dsse.json": "fail:cites-subject-set"
+        }
+      },
+      "combined": "fail"
+    },
+    "ownership": "in-toto subject re-digest and binding citation multiplicity; gateway is silent",
+    "structure": "two subjects with the same citation name, with the incorrect digest first",
+    "reason": "Both descriptors have valid Statement shapes and the DSSE signature is valid. Adapter SPEC section 5 step 5 checks every subject, so the first cites/s2/0 digest mismatches even though the later one matches. Section 3 rule 3 requires exactly one citation subject for the baseline's one citation; two violate cites-subject-set. A map overwrite must not erase either failure.",
+    "construction": "Load st = statement_of(cell, 1). Insert {'name': 'cites/s2/0', 'digest': {'sha256': '0' * 64}} at index 0 of st['subject'], retaining all original subjects in their original order. Call resign(cell, 1, st). Change nothing else."
+  },
+  {
+    "id": "h03-unreferenced-record-malformed-cites",
+    "role": "endpoint",
+    "attackerCapability": "tamper",
+    "expected": {
+      "gateway": {
+        "ok": false,
+        "statuses": ["ok", "record-citation-malformed"]
+      },
+      "intoto": {"pass": true, "failures": {}},
+      "binding": {"pass": true, "failures": {}},
+      "combined": "fail"
+    },
+    "ownership": "gateway decision-record join only",
+    "structure": "a new unreferenced decision record with malformed citations",
+    "reason": "Gateway SPEC section 4 step 7 examines every citing record independently of whether an action names it. A top-level cites value of null is malformed. The baseline decision record remains available, all existing subjects still match, and no predicate or receipt changes.",
+    "construction": "Write exactly b'{\"cites\":null}\\n' to the new regular file cell / 'decisions' / 'audit' / 'h03.json'. Retain every baseline file unchanged."
+  },
+  {
+    "id": "h04-action-tail-removed-orphan-kept",
+    "role": "endpoint",
+    "attackerCapability": "tamper",
+    "expected": {
+      "gateway": {
+        "ok": false,
+        "statuses": ["ok", "tail-rollback"]
+      },
+      "intoto": {"pass": true, "failures": {}},
+      "binding": {"pass": true, "failures": {}},
+      "combined": "fail"
+    },
+    "ownership": "gateway seal count only",
+    "structure": "valid acquisition prefix retained, action receipt removed, orphan attestation kept",
+    "reason": "The remaining receipt 0 verifies and its sequence is a complete prefix, but one stored receipt is below the sealed count of two. No action remains for gateway steps 5 and 6, and the baseline record has no cites member for step 7. Both adapter layers enumerate stored receipts, so only attestation 0 is checked and passes.",
+    "construction": "Delete only receipt_path(cell, 1). Retain attestation s2/1.dsse.json, both artifacts, the registry and the decision book unchanged."
+  },
+  {
+    "id": "h05-jsonl-crlf-and-empty-lines",
+    "role": "endpoint",
+    "attackerCapability": "tamper",
+    "expected": {
+      "gateway": {"ok": true, "statuses": ["ok"]},
+      "intoto": {"pass": true, "failures": {}},
+      "binding": {"pass": true, "failures": {}},
+      "combined": "pass"
+    },
+    "ownership": "none: the registered decision-record candidate remains present",
+    "structure": "decision-book bytes change while its nonempty record candidate is preserved",
+    "reason": "Gateway SPEC section 4 step 6 and adapter SPEC section 5 step 5 split on LF, remove one trailing CR and ignore empty pieces. The original record candidate therefore remains byte-identical despite changed whole-file bytes. No whole-file digest is required by this baseline's action, and all other checks remain unchanged.",
+    "construction": "Let p = cell / 'decisions' / 'audit' / 'evaluations.jsonl' and data = p.read_bytes(). Assert data.endswith(b'\\n') and data.count(b'\\n') == 1. Write b'\\r\\n' + data[:-1] + b'\\r\\n\\r\\n' to p. Change nothing else."
+  },
+  {
+    "id": "h06-empty-subject-list-resigned",
+    "role": "endpoint",
+    "attackerCapability": "full-keys",
+    "expected": {
+      "gateway": {"ok": true, "statuses": ["ok"]},
+      "intoto": {
+        "pass": false,
+        "failures": {
+          "s2/1.dsse.json": "invalid:bindings"
+        }
+      },
+      "binding": {
+        "pass": false,
+        "failures": {
+          "s2/1.dsse.json": "fail:artifact-subject-mismatch"
+        }
+      },
+      "combined": "fail"
+    },
+    "ownership": "in-toto Statement validation and binding artifact requirement; gateway is silent",
+    "structure": "validly signed statement with no subjects",
+    "reason": "The payload and predicate types remain pinned and the DSSE signature verifies, but Statement validation requires at least one subject, producing invalid:bindings at adapter SPEC section 5 step 4. The binding first compares the unchanged predicate successfully, then fails section 3 rule 2 because no artifact subject exists.",
+    "construction": "Load st = statement_of(cell, 1), set st['subject'] = [], and call resign(cell, 1, st). Change nothing else."
+  }
+]

@@ -1,0 +1,541 @@
+{
+ "matrixVersion": "1",
+ "study": "022",
+ "note": "Registered cells: each a construction of harness/cells.py applied once to the committed baseline, with the expected outcome of each layer in the reduced form adapter/SPEC.md section 6 defines -- the gateway's ok and its set of finding statuses; the in-toto layer's pass and, per attestation, its first failure (a DSSE code, a statement code, or the subjects that did not match); the binding layer's pass and, per attestation, its code; the combined verdict. Roles: control-gate rows are validity gates evaluated first; endpoint rows decide R1. attackerCapability: none / tamper (bytes changed without any key) / selective-keys (a key that is not the adapter's) / full-keys (the adapter's key). ownership names which layer's own check sees the construction, and which layers are registered undetected.",
+ "cells": [
+  {
+   "id": "pos-baseline",
+   "role": "control-gate",
+   "attackerCapability": "none",
+   "expected": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": true,
+     "failures": {}
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "pass"
+   },
+   "ownership": "none: everything passes",
+   "structure": "positive control",
+   "reason": "the corpus vector v3-action-valid verifies under the pinned gateway (both receipts ok, the citation and the record resolve); its two attestations verify under the reference DSSE implementation with the adapter's key, both statements validate, every subject re-digests, and the binding's rules hold"
+  },
+  {
+   "id": "neg-dsse-signature-flipped",
+   "role": "control-gate",
+   "attackerCapability": "tamper",
+   "expected": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:signature"
+     }
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   },
+   "ownership": "in-toto (signature)",
+   "structure": "negative control",
+   "reason": "one byte of the action attestation's signature is changed: the reference implementation must refuse it (the check is exercised); the store is untouched, so the gateway sees nothing; the binding compares documents, not signatures"
+  },
+  {
+   "id": "a01-artifact-edited",
+   "role": "endpoint",
+   "attackerCapability": "tamper",
+   "expected": {
+    "gateway": {
+     "ok": false,
+     "statuses": [
+      "artifact-mismatch",
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": {
+       "artifact": "mismatch"
+      }
+     }
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   },
+   "ownership": "gateway and in-toto (by re-digest), not the binding",
+   "structure": "store tampering, attestations untouched",
+   "reason": "the action's retained response bytes change: the gateway's ladder re-digests the artifact (\u00a71.4 order 8, artifact-mismatch on receipt 1; receipt 0 ok); the in-toto layer's subject re-digest fails for the artifact subject of attestation 1 while its DSSE and statement pass; the binding compares the predicate with the stored receipt, which did not change"
+  },
+  {
+   "id": "a02-cited-receipt-member-edited",
+   "role": "endpoint",
+   "attackerCapability": "tamper",
+   "expected": {
+    "gateway": {
+     "ok": false,
+     "statuses": [
+      "ok",
+      "sequence-broken",
+      "signature-mismatch"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": {
+       "cites/s2/0": "mismatch"
+      }
+     }
+    },
+    "binding": {
+     "pass": false,
+     "failures": {
+      "s2/0.dsse.json": "fail:predicate-differs-from-store"
+     }
+    },
+    "combined": "fail"
+   },
+   "ownership": "all three, each differently; the acquisition's own attestation is silent",
+   "structure": "store tampering, attestations untouched",
+   "reason": "a signed member of the cited acquisition receipt changes in the store: the gateway reports signature-mismatch on receipt 0 (\u00a71.4 order 4) and sequence-broken on the session, receipt 1 itself ok since the citation's signature string is unchanged; the in-toto layer sees it only through the ACTION's attestation, whose cites/s2/0 subject re-digests the cited receipt's file -- the acquisition's own attestation passes, since its subject is the artifact; the binding sees attestation 0's predicate differ from the store"
+  },
+  {
+   "id": "a03-cited-receipt-removed",
+   "role": "endpoint",
+   "attackerCapability": "tamper",
+   "expected": {
+    "gateway": {
+     "ok": false,
+     "statuses": [
+      "citation-unresolved",
+      "ok",
+      "sequence-broken",
+      "tail-rollback"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": {
+       "cites/s2/0": "missing"
+      }
+     }
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   },
+   "ownership": "gateway and in-toto; the binding is silent about an orphaned attestation",
+   "structure": "store tampering, attestations untouched",
+   "reason": "the cited receipt is deleted: the gateway's session checks report sequence-broken and tail-rollback (the seal registered two) and step 5 reports citation-unresolved on the action; the in-toto layer's cites/s2/0 subject is missing; the binding, which checks per stored receipt, finds attestation 1 consistent and examines no attestation for a receipt that is gone -- the orphaned attestation 0 is outside its rule"
+  },
+  {
+   "id": "a04-decision-record-rewritten",
+   "role": "endpoint",
+   "attackerCapability": "tamper",
+   "expected": {
+    "gateway": {
+     "ok": false,
+     "statuses": [
+      "decision-record-mismatch",
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": {
+       "decision-record": "missing"
+      }
+     }
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   },
+   "ownership": "gateway and in-toto (with the gateway's candidate rule)",
+   "structure": "store tampering, attestations untouched",
+   "reason": "the book's line is rewritten: the gateway's step 6 finds no candidate with the claimed digest (decision-record-mismatch); the in-toto layer's decision-record subject finds no candidate either, by the same candidate rule the ceremony adopts from the gateway (a consumer needs that rule to place the subject); the binding is untouched"
+  },
+  {
+   "id": "a05-registry-seal-removed",
+   "role": "endpoint",
+   "attackerCapability": "tamper",
+   "expected": {
+    "gateway": {
+     "ok": false,
+     "statuses": [
+      "ok",
+      "unregistered-session"
+     ]
+    },
+    "intoto": {
+     "pass": true,
+     "failures": {}
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   },
+   "ownership": "gateway only: registered undetected for in-toto and the binding",
+   "structure": "store tampering, attestations untouched",
+   "reason": "the seal registry is emptied: the gateway reports the session unregistered (§4 step 3); the attestation's predicate carries the receipt's `sessionId` as copied bytes but no seal and no count, and neither the in-toto layer nor the binding consults the registry -- both pass"
+  },
+  {
+   "id": "a06-receipt-appended-after-seal",
+   "role": "endpoint",
+   "attackerCapability": "tamper",
+   "expected": {
+    "gateway": {
+     "ok": false,
+     "statuses": [
+      "count-exceeds-seal",
+      "misfiled",
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/2.dsse.json": "fail:missing-attestation"
+     }
+    },
+    "binding": {
+     "pass": false,
+     "failures": {
+      "s2/2.dsse.json": "fail:missing-attestation"
+     }
+    },
+    "combined": "fail"
+   },
+   "ownership": "all three; the non-gateway layers by the one-attestation-per-receipt rule",
+   "structure": "store tampering, attestations untouched",
+   "reason": "a copy of the action receipt is appended at index 2: the gateway reports it misfiled (its callIndex says 1) and the session's count over the seal; the in-toto and binding layers, which expect one attestation per stored receipt, report the third receipt's attestation missing -- they see the appended receipt only because the ceremony requires an attestation per receipt, not because they read the seal"
+  },
+  {
+   "id": "a07-action-member-edited",
+   "role": "endpoint",
+   "attackerCapability": "tamper",
+   "expected": {
+    "gateway": {
+     "ok": false,
+     "statuses": [
+      "ok",
+      "signature-mismatch"
+     ]
+    },
+    "intoto": {
+     "pass": true,
+     "failures": {}
+    },
+    "binding": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:predicate-differs-from-store"
+     }
+    },
+    "combined": "fail"
+   },
+   "ownership": "gateway and the binding; registered undetected for in-toto",
+   "structure": "store tampering, attestations untouched",
+   "reason": "a signed member of the action receipt (decision.packDigest) changes in the store while the attestation keeps the original: the gateway reports signature-mismatch on receipt 1; the in-toto layer passes -- the envelope is self-consistent and its subjects still re-digest; only the binding, comparing the predicate with the stored receipt, sees the difference"
+  },
+  {
+   "id": "b01-envelope-payload-edited",
+   "role": "endpoint",
+   "attackerCapability": "tamper",
+   "expected": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:signature"
+     }
+    },
+    "binding": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:predicate-differs-from-store"
+     }
+    },
+    "combined": "fail"
+   },
+   "ownership": "in-toto and the binding; the gateway cannot see attestations",
+   "structure": "attestation tampering, store untouched",
+   "reason": "the attestation's payload is altered (the predicate's authority) without re-signing: the reference implementation refuses the signature; the binding, reading the altered payload, finds the predicate differs from the store; the gateway reads no attestation and reports ok"
+  },
+  {
+   "id": "b02-envelope-resigned-foreign-key",
+   "role": "endpoint",
+   "attackerCapability": "selective-keys",
+   "expected": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:untrusted-key"
+     }
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   },
+   "ownership": "in-toto only: the ceremony's key-selection rule (consumer, §5 step 3), before upstream verification runs",
+   "structure": "attestation tampering, store untouched",
+   "reason": "the action's attestation is rebuilt and signed with a key that is not the adapter's: the envelope carries no signature under the pinned key id, so the ceremony's key-selection rule refuses it (untrusted-key) before the reference implementation verifies anything -- a consumer check, not an upstream one; the binding, which verifies no signature, finds the statement consistent; the gateway sees nothing"
+  },
+  {
+   "id": "b03-subject-swapped-resigned",
+   "role": "endpoint",
+   "attackerCapability": "full-keys",
+   "expected": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": true,
+     "failures": {}
+    },
+    "binding": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:artifact-subject-mismatch"
+     }
+    },
+    "combined": "fail"
+   },
+   "ownership": "the binding only: registered undetected for in-toto and the gateway",
+   "structure": "attestation tampering with the adapter's key, store untouched",
+   "reason": "holding the adapter's key, the action's artifact subject is pointed at the acquisition's artifact and the statement re-signed: the reference implementation verifies the envelope, the statement validates, and the subject re-digests -- that artifact exists in the store -- so the in-toto layer passes; only the binding, which holds the artifact subject to the predicate's resultDigest, sees it; the gateway sees nothing. This is the binding's sharpest limit: a valid attestation vouching for the wrong artifact"
+  },
+  {
+   "id": "b04-predicate-type-changed-resigned",
+   "role": "endpoint",
+   "attackerCapability": "full-keys",
+   "expected": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "invalid:predicate-type"
+     }
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   },
+   "ownership": "in-toto (by the pinned predicate type)",
+   "structure": "attestation tampering with the adapter's key, store untouched",
+   "reason": "the predicate type is changed and the statement re-signed: the ceremony pins the registered predicate type (a consumer that did not would pass); the binding checks subjects against the predicate, which is unchanged"
+  },
+  {
+   "id": "b05-statement-type-changed-resigned",
+   "role": "endpoint",
+   "attackerCapability": "full-keys",
+   "expected": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "invalid:statement-type"
+     }
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   },
+   "ownership": "in-toto",
+   "structure": "attestation tampering with the adapter's key, store untouched",
+   "reason": "the statement's _type is changed to an older Statement version and re-signed: the ceremony pins Statement v1"
+  },
+  {
+   "id": "b06-attestation-deleted",
+   "role": "endpoint",
+   "attackerCapability": "tamper",
+   "expected": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:missing-attestation"
+     }
+    },
+    "binding": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:missing-attestation"
+     }
+    },
+    "combined": "fail"
+   },
+   "ownership": "in-toto and the binding",
+   "structure": "attestation tampering, store untouched",
+   "reason": "the action's attestation is deleted: both non-gateway layers require one attestation per stored receipt; the gateway sees nothing"
+  },
+  {
+   "id": "b07-payload-type-changed",
+   "role": "endpoint",
+   "attackerCapability": "tamper",
+   "expected": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:payload-type"
+     }
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   },
+   "ownership": "in-toto",
+   "structure": "attestation tampering, store untouched",
+   "reason": "the envelope's payloadType is changed: the ceremony holds it to the in-toto type before verifying (the PAE would differ anyway); the binding still reads a consistent statement"
+  },
+  {
+   "id": "b08-predicate-receipt-edited-resigned",
+   "role": "endpoint",
+   "attackerCapability": "full-keys",
+   "expected": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": true,
+     "failures": {}
+    },
+    "binding": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:predicate-differs-from-store"
+     }
+    },
+    "combined": "fail"
+   },
+   "ownership": "the binding only: registered undetected for in-toto and the gateway",
+   "structure": "attestation tampering with the adapter's key, store untouched",
+   "reason": "holding the adapter's key, the predicate's copy of the action receipt is altered (decision.packDigest) and re-signed: the envelope verifies, the statement validates, every subject still re-digests -- the in-toto layer passes; the binding compares the predicate with the stored receipt and sees the difference; the gateway sees nothing"
+  },
+  {
+   "id": "b09-cited-subject-dropped-resigned",
+   "role": "endpoint",
+   "attackerCapability": "full-keys",
+   "expected": {
+    "gateway": {
+     "ok": true,
+     "statuses": [
+      "ok"
+     ]
+    },
+    "intoto": {
+     "pass": true,
+     "failures": {}
+    },
+    "binding": {
+     "pass": false,
+     "failures": {
+      "s2/1.dsse.json": "fail:cites-subject-set"
+     }
+    },
+    "combined": "fail"
+   },
+   "ownership": "the binding only",
+   "structure": "attestation tampering with the adapter's key, store untouched",
+   "reason": "holding the adapter's key, the action's cited-receipt subject is removed and the statement re-signed: a statement with fewer subjects is still a valid, verifying statement to the in-toto layer; the binding requires one cites subject per citation in the predicate"
+  },
+  {
+   "id": "c01-store-reminted-other-gateway-key",
+   "role": "endpoint",
+   "attackerCapability": "full-keys",
+   "expected": {
+    "gateway": {
+     "ok": false,
+     "statuses": [
+      "key-mismatch"
+     ]
+    },
+    "intoto": {
+     "pass": true,
+     "failures": {}
+    },
+    "binding": {
+     "pass": true,
+     "failures": {}
+    },
+    "combined": "fail"
+   },
+   "ownership": "gateway only: registered undetected for in-toto and the binding",
+   "structure": "a coherent receipt chain under another gateway key, presented against the unchanged trusted registry, bound afresh",
+   "reason": "both receipts are re-signed under another Ed25519 key as a chain of that key's own: its keyId on both, the action's prevSignature and the signature its citation names both the foreign acquisition's, each signature over the gateway's canonical form under the gateway's signing prefix (§1.1, §1.2a) and verified during construction; the trusted corpus registry is unchanged and the attestations are bound afresh by the adapter. The gateway, verifying under the corpus key, reports key-mismatch on both (§1.4 order 3: the key id is not the trusted one, before any signature is checked, so the joins never run and the unchanged seal still matches the count); the attestations verify under the adapter's key and every subject re-digests; the binding holds. The binding carries no trust in the gateway's key: an in-toto consumer cannot tell this store from the genuine one"
+  }
+ ]
+}
