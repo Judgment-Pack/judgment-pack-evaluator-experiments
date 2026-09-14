@@ -1158,3 +1158,29 @@ The intentionally null runtime digest is **not a blocker**. Nothing depends on r
 Two maintainer additions after this round, each stated in the registration and both checked by the merge review of the pull request: the freeze pins in `harness/PINS.json` are filled with the digests of the preregistration, the matrix, the holdout matrix and the manifest as merged; and the runtime pin is stated to be filled after the freeze by a single commit made when v0.21.0 publishes, touching nothing else, named in `DEVIATIONS.md`, with the runner refusing to start a registered attempt until then (§ The freeze and the primary attempt).
 
 The verdict `freezable as written` stands; the freeze is the squash-merge of the pull request named at the top of this record.
+
+## Round 9 — confirmation, 2026-09-14
+
+Reviewer: codex-cli 0.153.4, model gpt-6-astra (OpenAI), read-only sandbox, on the freeze candidate `8d6a975a` (pull request #105); different vendor than the model that drafted (Claude). Verdict: **freezable as written** — the additions after round 8 are exactly those the round-8 disposition names, the freeze pins equal the files, the manifest matches the tree, and the deferred runtime pin is enforceable as stated. No disposition needed; this record is the last change before the freeze, and the freeze pins are refilled over it.
+
+### Round 9 — prompt (verbatim)
+
+```
+You are the pre-freeze cross-vendor reviewer for Study 021 in the judgment-pack-evaluator-experiments repository, under the interim review regime (a model from a different vendor than the one that drafted; Claude drafted). This is ROUND 9, a confirmation round on commit 8d6a975a (`git log -1`), the freeze candidate on pull request #105. Round 8 (recorded in studies/021-history-replay-catch/PREREG-REVIEW.md) returned `freezable as written` with one documentation note, applied. Since round 8 the maintainer made only the additions the round-8 disposition names: the comparator's wording; the freeze pins in harness/PINS.json filled with the digests of the preregistration, the matrix, the holdout matrix and the manifest; the pull request named in PREREG-REVIEW.md and in the registration's freeze section; the registration's freeze section stating that the runtime pin is filled after the freeze by a single commit made when runtime v0.21.0 publishes, touching nothing else, named in DEVIATIONS.md, with the runner refusing to start a registered attempt until then; the status banners in README.md and PREREGISTRATION.md; and two index rows (studies/README.md, README.md).
+
+Verify, from the study directory studies/021-history-replay-catch/: `git diff c8535804 -- .` shows exactly those changes and nothing else; the filled freeze pins equal the current files' SHA-256 digests (`sha256sum PREREGISTRATION.md harness/MATRIX.json harness/MATRIX-HOLDOUT.json harness/STUDY-MANIFEST.sha256`) and the manifest matches the tree (`python harness/make_manifest.py --check`); the harness tests pass apart from the two runtime-dependent skips (and any temporary-directory errors of your sandbox); the deferred runtime pin is enforceable as stated — that no code path starts a registered attempt or adjudicates one as REGISTERED while jpack.sha256 is null; and that the post-freeze fill of that one member cannot alter anything the freeze pins cover. Say whether any of this changes the round-8 verdict. Return `freezable as written` or the finding that prevents it.
+```
+
+### Round 9 — verdict (verbatim)
+
+**freezable as written**
+
+Confirmed commit `8d6a975a79e5f2aafa37089f072bda136a300fef`. Nothing changes the round-8 verdict.
+
+- The diff from `c8535804` contains only the stated changes, the round-8 review record, and corresponding manifest updates. Comparator behavior and tests are unchanged.
+- All four freeze pins equal the current files’ SHA-256 digests. `make_manifest.py --check` matches all 22 files; the freeze-set checker reports zero problems.
+- Harness tests: **36 total — 30 passed, 2 runtime-dependent skips, 4 temporary-directory errors** from the read-only sandbox. Interpreter: Python 3.8.20.
+- The null runtime pin blocks the runner before root/marker creation, the reserved-seed builder before construction, and the scorer before evidence loading or any `REGISTERED` adjudication. Source inspection and in-memory probes with mocked runtime identity confirmed these refusals. Explicit pilot mode cannot produce a `REGISTERED` label.
+- Filling only `jpack.sha256` preserves all four freeze pins and every covered artifact. `PINS.json` and `DEVIATIONS.md` are outside the manifest; the freeze commit anchors the remaining pin contents. Attempt markers bind the complete PINS file, so a marker from before the fill cannot pass afterward.
+
+No files changed and no registered attempt ran.
