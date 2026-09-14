@@ -853,3 +853,130 @@ Every finding is applied.
 | 1 | BLOCKER | **Applied.** `replay.reconcile` holds every retained entry to the ledger: its per-origin bucket rows are exactly the ledger's comparable rows at that boundary (`replay.expected_buckets`: decimal strings placed below, at or above by mathematical value; anything else in no bucket), and its disagreement total D over R placed rows of N with M mismatched lies in [max(0, M − (N − R)), min(M, R)] — D = M for a fully placed ledger. The replay raises on any inconsistency and the scorer (`signature_evidence_ok` with the ledger's cases) refuses it; zero-disagreement entries participate, since the check runs before the reduction. Tests hold zeroed disagreements against a mismatching replay, and bucket rows that are not the ledger's, to refusal at both stages. §7 says so. |
 | 2 | MAJOR | **Applied.** `registered_inputs_ok` requires a retained mutant only for a valid instance and refuses one for a dropped instance; `adjudicate` records a dropped instance's registered cells as `dropped`, which the unobserved rule does not count, so a documented G2 drop reaches `control-gate-failed` after validity passes. |
 | 3 | MINOR | **Applied.** A G1 record's mismatch count must lie within its rows; a dropped instance must carry a Boolean validation result and a non-empty note, or the index is a validity failure. |
+
+## Round 6 — 2026-09-14
+
+Reviewer: codex-cli 0.153.4, model gpt-6-astra (OpenAI), read-only sandbox, on worktree commit `3c567483`; different vendor than the model that drafted (Claude). Verdict: **not freezable as written** (1 BLOCKER, 2 MINOR); the round-5 fixes audited, one closed, two partial; the holdout confirmed byte-for-byte.
+
+> Note: the reviewer's worktree paths are normalized here. The finding prose is otherwise verbatim.
+
+### Round 6 — prompt (verbatim)
+
+```
+You are the pre-freeze cross-vendor reviewer for Study 021 in the judgment-pack-evaluator-experiments repository, under the interim review regime (a model from a different vendor than the one that drafted; Claude drafted). This is ROUND 6 on commit 3c567483 (`git log -1`). Rounds 1 to 5 (recorded verbatim with the maintainer's dispositions in studies/021-history-replay-catch/PREREG-REVIEW.md) returned eleven blockers, thirteen majors and seven minors in all, every one applied; round 1 authored eight holdout cells, placed byte-for-byte as a top-level array in harness/MATRIX-HOLDOUT.json.
+
+First, verify each round-5 fix against the harness and the registration — in particular replay.reconcile and replay.expected_buckets (bucket rows equal to the ledger's comparable rows per boundary and origin; disagreements reconciled with the replay's mismatches) and their use at replay and in score.signature_evidence_ok; the handling of documented G2 drops (registered_inputs_ok, adjudicate's `dropped` verdict, control-gate-failed); and the malformed-control checks. Say per round-5 finding whether the edit makes the registration true and enforceable, and whether it introduced a new defect. Then say per finding whether the edit makes the registration true and enforceable, and whether it introduced a new defect. In particular: run `python -m unittest discover -s harness/tests` from the study directory (the pinned runtime is not available to you, so the two ledger tests skip; say so); read harness/score.py end to end for any path that still reaches "R1 holds" without complete observations, executed gates, matching pins and the reserved ledger set; read harness/run_attempt.py for the exclusive root and the marker; read harness/build_ledgers.py for the discrete-uniform draw, the not-applicable drop, the refusal-exhaustion failure and the reserved-seed guard; read harness/replay.py for the placement condition and the verdict check. re-read PREREGISTRATION.md and harness/MATRIX.json whole for anything the earlier rounds missed. If nothing that would let a favourable outcome be reached for the wrong reason remains, say so plainly and return `freezable as written`; note that the runtime pin (harness/PINS.json jpack.sha256) is null by design until the runtime's v0.21.0 release publishes, and the freeze pins are filled at the freeze commit — say whether anything in the design depends on their being filled earlier. Verify your own holdout cells still fit the schema the scorer loads and that their reasons survive the corrected generator (discrete-uniform: sanctions {0,1,2} at one third each; expense lattice of 151 values; vendor lattice of 500001).
+
+The study directory is studies/021-history-replay-catch/ of the current worktree; the spec and runtime checkouts are at /home/onword/repo/judgment-pack/judgment-pack-spec and /home/onword/repo/judgment-pack/judgment-pack-runtime, read via `git -C <path> show origin/main:<file>`.
+
+For each finding give: severity (BLOCKER / MAJOR / MINOR), the exact sentence, cell or line, what the source says, and the smallest edit. Then a verdict: `freezable as written`, `freezable after fixes` (list them), or `not freezable as written`.
+```
+
+### Round 6 — findings (verbatim)
+
+**Verdict: `not freezable as written`.** One blocker remains: mutually impossible threshold reports still pass validation and allow all 131 endpoints to hold. Two minor validation defects also remain.
+
+Reviewed HEAD `3c567483e399e55ff82eedc8552333e84caf4822`, the complete registration, both matrices and every harness source. Source comparisons used the requested `git show origin/main:<file>` commands: spec `587ebc5e…`, runtime `0c8a4b63…`.
+
+The requested unittest command ran from the study directory: **28 passed, 2 skipped, 4 errored**. The two ledger tests skipped because the pinned runtime is unavailable. The four errors were temporary-directory creation failures in the read-only sandbox. The interpreter is CPython 3.8.20, rather than the registered 3.12. The 22-file manifest matches, and the freeze-set checker reports zero problems. No primary attempt or reserved-seed draw ran; files remain unchanged.
+
+| Round-5 finding | Does the edit make the registration true and enforceable? | New defect introduced? |
+|---|---|---|
+| **1 — BLOCKER: threshold reconciliation** | **Partial.** Both replay and scorer check ledger bucket sizes and reconcile each boundary’s disagreement total before discarding zero-disagreement entries. However, different boundaries can still describe incompatible mismatched rows. | **Yes:** the new comparability helper mishandles some noncomparable inputs. Finding 2 below. The blocker is a remaining consistency gap. |
+| **2 — MAJOR: documented G2 drops** | **Closed.** Dropped mutants need no retained file; their endpoints become `dropped`; the documented failure reaches `control-gate-failed`. | None found. |
+| **3 — MINOR: malformed controls** | **Partial.** Out-of-range G1 counts, non-Boolean G2 results and missing/blank drop notes are rejected. Boolean G1 mismatch counts remain accepted as integers. | No new regression identified; the typing gap remains. |
+
+1. **BLOCKER — individually reconciled boundaries can describe impossible mismatched rows.**
+
+   **Exact commitment:** `PREREGISTRATION.md:192–195` says the profile lists separate literals “while the rows that disagree are the same rows.” Section 7 requires complete, reconciled signature evidence.
+
+   **Location:** `harness/replay.py:94–116`, used by replay at line 167 and `harness/score.py:238`.
+
+   **What the source says:** runtime `internal/project/profile.go:181–195` places each row at every boundary using that row’s same replay status. A row cannot simultaneously be below 187500 and above 250000.
+
+   **Reproduction:** I changed only threshold disagreements and their nearest values in the retained `vendor-onboarding/D2-17/literal` pilot record, then recomputed its signature. Its ledger, input digests, boundaries, origins, bucket row counts and **one** replay mismatch remained unchanged:
+
+   | Boundary | Below: rows / disagreements | At | Above |
+   |---|---:|---:|---:|
+   | 187500 | 18 / **1** | 0 / 0 | 3 / 0 |
+   | 250000 | 19 / 0 | 1 / 0 | 1 / **1** |
+
+   Each boundary satisfies `D = M = 1`, but they cannot describe the same mismatch. Nevertheless:
+
+   ```text
+   reconcile(): None
+   replay.signature(): lineMoved=true, placed=true
+   score.signature_evidence_ok(): true
+   evidence(): 0 validity failures, 0 control failures
+   adjudicate(): 131 holds
+   ```
+
+   This was an in-memory evidence probe, not a registered execution.
+
+   **Smallest edit:** reconcile boundaries jointly per pointer and origin. Require constant total disagreements and validate adjacent-boundary cumulative differences against the ledger’s intervening row counts. For adjacent literals `a < b`:
+
+   ```text
+   0 ≤ Dbelow(b) − Dbelow(a) − Dat(a)
+     ≤ Rbelow(b) − Rbelow(a) − Rat(a)
+   ```
+
+   Apply this before signature reduction at both validation stages.
+
+2. **MINOR — `expected_buckets` does not implement the documented comparability rule.**
+
+   **Exact commitment:** `PREREGISTRATION.md:197–199` says an absent or nondecimal fact “sits in no bucket”; line 314 requires every ledger origin.
+
+   **Location:** `harness/replay.py:79–89` and `104–107`.
+
+   **What the source says:** Core §§2.2 and 7.4 reject exponent notation, leading plus signs, leading zeroes, infinities and NaN. Runtime `profile.go:178–218` retains an origin’s zero buckets even when none of its rows is comparable.
+
+   **Reproduction:** `expected_buckets` places `"1e1"`, `"+10"` and `"010"` at 10, accepts `"Infinity"`, and raises on `"NaN"`. For an origin containing only `"abc"`, it omits that origin; `reconcile` then rejects the runtime’s correct zero-bucket entry as an origin the ledger does not contain.
+
+   **Smallest edit:** initialize zero buckets for every ledger origin before examining its values, and require a full match of Core’s decimal grammar before calling `Decimal`.
+
+   The current registered constructions contain comparable threshold facts, so this defect did not invalidate their retained pilot evidence.
+
+3. **MINOR — Boolean mismatch counts still qualify as completed G1 evidence.**
+
+   **Exact commitment:** `PREREGISTRATION.md:323–324` permits only a “completed, bound unplanted replay” with its count within its rows.
+
+   **Location:** `harness/score.py:365–367`, specifically `isinstance(g.get("mismatched"), int)`.
+
+   **What the source says:** the runtime reports a numeric mismatch count. Python treats `bool` as a subclass of `int`.
+
+   **Reproduction:** substituting JSON `false` for a 50-row gate’s mismatch count produced **no validity or control failures**. Substituting `true` produced an executed G1 failure, rather than malformed-evidence invalidity. The formerly accepted value 51 is now correctly rejected.
+
+   **Smallest edit:** require `type(value) is int` for counts, including corresponding replay and threshold-count checks.
+
+The G2 control-flow probe returned `control-gate-failed`, zero validity failures, **128 holds and three dropped endpoints**. Runtime-dependent reconstruction was mocked for that probe; the input/drop handling and adjudication code executed.
+
+The remaining requested safeguards hold on inspection: pins precede exclusive root creation; the marker precedes construction; outputs refuse overwrites; reserved draws require a valid registered context; the scorer requires the complete ledger/instance product and reconstructs every ledger. Not-applicable redraw, refusal exhaustion, incomplete replay and inconsistent status/count probes behaved correctly. With consistent evidence, the placement and existential-literal signature rule matches §5.
+
+The eight holdouts remain **byte-for-byte identical** to the round-1 array, load through `score.load_matrix()`, reference canonical defects, and yield **131 unique IDs and combinations** with the main matrix. Their reasons survive the corrected generator:
+
+| Holdout | Reason check |
+|---|---|
+| h01 | Deny → fallback review below 75; signature present. |
+| h02 | Removing the amount guard removes the only threshold. |
+| h03 | The changed at-250000 row prevents the signature. |
+| h04 | The retained 250000 boundary supplies one-sidedness. |
+| h05 | Embargo disposition changes; no threshold exists. |
+| h06 | Changed zero and two occupy opposite sides. |
+| h07 | Per-row probability `1/30`; n=20 catch probability **0.492385**. |
+| h08 | Per-row probability `(1/108) × (250000/500001)`; n=20 catch probability **0.088631**. |
+
+The draws are inclusive discrete-uniform over **0–2, 0–150 and 0–500000**. I found no additional matrix expectation requiring correction, and no retained pilot ledger using seeds 101–130.
+
+The intentionally null runtime digest is **not a blocker**. Nothing requires runtime or freeze pins before their stated release/freeze milestones. They must be complete and matching before registered construction; current null pins correctly fail preflight.
+
+**Final verdict: `not freezable as written`.** Fix joint boundary consistency, comparability/zero-origin handling, and Boolean count acceptance.
+
+### Round 6 — maintainer disposition
+
+Every finding is applied.
+
+| # | Severity | Disposition |
+|---|---|---|
+| 1 | BLOCKER | **Applied, by a stronger rule than the one suggested.** The replay now names the rows that mismatched (`mismatchedRows`, read from the runtime's per-row report and held to the summary's count and the ledger's ids), and every threshold entry is recomputed from the ledger and those rows (`replay.expected_entries`) — for every boundary of the pack and every origin of the ledger, the placed rows and among them the mismatched ones — and must equal the retained entry bucket by bucket (`replay.reconcile`), at replay and again in the scorer. Boundaries therefore describe the same mismatched rows jointly by construction, which subsumes the cumulative-difference inequality; a test holds two individually reconciled boundaries that name different rows to refusal. §5 and §7 say so. |
+| 2 | MINOR | **Applied.** Placement requires a full match of Core §2.2's grammar (`-?(0|[1-9][0-9]*)(\.[0-9]+)?`) before any comparison — exponent notation, a leading plus, leading zeroes, infinities and NaN place nothing — and every origin of the ledger reports its buckets, zero where none of its rows is comparable; a test covers each. |
+| 3 | MINOR | **Applied.** Every count — mismatches, rows, threshold entries, bucket rows and disagreements — is held to `type(value) is int`, never a Boolean, by `replay.is_count`, in the replay records, the gate records and the signature evidence. |

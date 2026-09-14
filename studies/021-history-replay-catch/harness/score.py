@@ -190,13 +190,13 @@ def adjudicate(cells, cells_by_policy, dropped_by_policy=None):
     return rows
 
 
-def signature_evidence_ok(sig, mismatched, boundaries=None, origins=None, ledger_rows=None, cases=None):
+def signature_evidence_ok(sig, mismatched, boundaries=None, origins=None, ledger_rows=None, cases=None, mismatched_ids=None):
     """A signature record is complete evidence: the threshold count, and when a
     threshold exists the profile's entries retained whole -- exactly the pack's
     boundaries, each reporting exactly the ledger's origins with bounded
     counts -- from which the bucket sums, the recorded lineMoved and placed are
     all recomputed and must agree."""
-    if not isinstance(sig, dict) or not isinstance(sig.get("applicable"), bool) or not isinstance(sig.get("thresholdEntries"), int):
+    if not isinstance(sig, dict) or not isinstance(sig.get("applicable"), bool) or not replay.is_count(sig.get("thresholdEntries")):
         return False
     if boundaries is not None and sig["thresholdEntries"] != len(boundaries):
         return False
@@ -219,9 +219,7 @@ def signature_evidence_ok(sig, mismatched, boundaries=None, origins=None, ledger
             total_rows = 0
             for side in ("below", "at", "above"):
                 b = o.get(side)
-                if not isinstance(b, dict) or not isinstance(b.get("rows"), int) or not isinstance(b.get("disagreeing"), int):
-                    return False
-                if not 0 <= b["disagreeing"] <= b["rows"]:
+                if not isinstance(b, dict) or not replay.is_count(b.get("rows")) or not replay.is_count(b.get("disagreeing"), b["rows"]):
                     return False
                 total_rows += b["rows"]
             if ledger_rows is not None and total_rows > ledger_rows:
@@ -235,7 +233,7 @@ def signature_evidence_ok(sig, mismatched, boundaries=None, origins=None, ledger
     # the entries must agree with the ledger they describe: bucket rows are
     # the ledger's comparable rows, and disagreements reconcile with the
     # replay's mismatches (zero-disagreement entries included)
-    if cases is not None and replay.reconcile(entries, cases, mismatched) is not None:
+    if cases is not None and mismatched_ids is not None and replay.reconcile(entries, cases, mismatched_ids, boundaries) is not None:
         return False
     per_pointer = replay.buckets_per_pointer(entries)
     if per_pointer != sig["disagreeing"]:
@@ -330,7 +328,7 @@ def evidence(root, marker):
             controls.append("%s: G2 -- instances dropped as invalid: %s" % (policy, ", ".join(map(str, dropped))))
         dropped_by_policy[policy] = set(dropped)
         valid_ids = [c["id"] for c in canon if c["id"] not in dropped]
-        ledger_digest, ledger_rows, ledger_origins, ledger_cases = {}, {}, {}, {}
+        ledger_digest, ledger_rows, ledger_origins, ledger_cases, ledger_ids = {}, {}, {}, {}, {}
         for name in expected_ledgers:
             path = pdir / (name + ".matrix.json")
             if not path.exists():
@@ -340,6 +338,7 @@ def evidence(root, marker):
             rows = len(cases)
             ledger_origins[name] = {c.get("origin") for c in cases}
             ledger_cases[name] = cases
+            ledger_ids[name] = {c.get("id") for c in cases}
             if name != "literal" and rows != int(name.split("-")[1]):
                 failures.append("%s: ledger %s holds %d rows" % (policy, name, rows))
             if name == "literal" and rows == 0:
@@ -362,9 +361,9 @@ def evidence(root, marker):
             if sorted(names) != sorted(expected_ledgers) or len(names) != len(set(names)):
                 failures.append("%s: the gate record does not cover every ledger exactly once" % policy)
             for g in gate.get("ledgers", []):
-                well_formed = (g.get("status") in ("passed", "mismatch") and isinstance(g.get("mismatched"), int)
-                               and g.get("rows") == ledger_rows.get(g.get("ledger")) and g.get("ledgerSha256") == ledger_digest.get(g.get("ledger"))
-                               and 0 <= g["mismatched"] <= (g.get("rows") or -1) and (g["status"] == "mismatch") == (g["mismatched"] > 0))
+                well_formed = (g.get("status") in ("passed", "mismatch") and g.get("rows") == ledger_rows.get(g.get("ledger"))
+                               and g.get("ledgerSha256") == ledger_digest.get(g.get("ledger"))
+                               and replay.is_count(g.get("mismatched"), g["rows"]) and (g["status"] == "mismatch") == (g["mismatched"] > 0))
                 if not well_formed:
                     failures.append("%s: the gate record for %s is not a complete, bound replay record" % (policy, g.get("ledger")))
                 elif g["mismatched"]:
@@ -391,14 +390,17 @@ def evidence(root, marker):
             defect_path = pdir / "defects" / (str(c.get("defect")) + ".pack.json")
             if defect_path.exists() and c.get("defect") not in boundaries:
                 boundaries[c["defect"]] = replay.threshold_boundaries(json.loads(defect_path.read_text()))
-            ok = (c.get("status") in ("passed", "mismatch") and isinstance(c.get("mismatched"), int) and rows is not None
-                  and c.get("rows") == rows and 0 <= c["mismatched"] <= rows and c.get("caught") == (c["mismatched"] > 0)
+            ids = ledger_ids.get(c.get("ledger"), set())
+            named = c.get("mismatchedRows")
+            ok = (c.get("status") in ("passed", "mismatch") and rows is not None and replay.is_count(c.get("mismatched"), rows)
+                  and c.get("rows") == rows and c.get("caught") == (c["mismatched"] > 0)
                   and (c["status"] == "mismatch") == (c["mismatched"] > 0)
+                  and isinstance(named, list) and len(named) == c["mismatched"] and len(set(named)) == len(named) and set(named) <= ids
                   and c.get("ledgerSha256") == ledger_digest.get(c.get("ledger"))
                   and defect_path.exists() and c.get("defectSha256") == attempt.sha256_file(defect_path)
                   and site_of.get(c.get("defect")) == (c.get("class"), c.get("site"))
-                  and signature_evidence_ok(c.get("signature"), c["mismatched"] if isinstance(c.get("mismatched"), int) else None,
-                                            boundaries.get(c.get("defect")), ledger_origins.get(c.get("ledger")), rows, ledger_cases.get(c.get("ledger"))))
+                  and signature_evidence_ok(c.get("signature"), c["mismatched"] if replay.is_count(c.get("mismatched")) else None,
+                                            boundaries.get(c.get("defect")), ledger_origins.get(c.get("ledger")), rows, ledger_cases.get(c.get("ledger")), named))
             if not ok:
                 failures.append("%s: cell %s x %s is not a complete, bound replay record" % (policy, c.get("defect"), c.get("ledger")))
                 break

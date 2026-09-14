@@ -195,8 +195,8 @@ while the rows that disagree are the same rows; and the one-side condition is **
 over the pointer's literals**, so a retained literal that every changed case lies on one side
 of satisfies it even where a moved literal has a changed case at it. The placement condition
 is there because the profile places only rows whose value it can compare (runtime ADR-0034): a
-mismatched row with the pointer absent or not a decimal sits in no bucket, and a signature over
-the placed rows alone would say nothing about it. A cell whose pack draws no threshold carries
+mismatched row with the pointer absent, or whose value is not a decimal of Core §2.2's grammar,
+sits in no bucket, and a signature over the placed rows alone would say nothing about it. A cell whose pack draws no threshold carries
 no signature; a caught cell with mismatched rows and no threshold disagreeing is *caught
 off-threshold*, and carries none.
 
@@ -311,12 +311,13 @@ ledger — the literal one and every random one at its declared seed — rebuilt
 under the pinned runtime; every signature record complete — the profile present, its
 threshold entries retained whole and exactly the replayed pack's distinct (pointer, literal)
 ordered comparisons (none for a pack that draws no line, which the runtime reports by omitting
-the member), each entry reporting exactly the ledger's origins, its bucket rows exactly the ledger's
-comparable rows at that boundary per origin, and its disagreements reconciled with the
-replay's mismatches (D placed-row disagreements over R placed rows of N with M mismatched
-lies in [max(0, M − (N − R)), min(M, R)]; for a ledger every row of which is placed, D = M),
-zero counts included, from which the bucket sums and the recorded verdict are recomputed and
-must agree; a replay whose report carries no profile, a threshold set that is
+the member), every replay naming the rows that mismatched, and every entry exactly what the ledger and
+those rows imply — for every boundary of the pack and every origin of the ledger, the rows
+whose value at the pointer is a decimal of Core §2.2's grammar placed below, at or above the
+literal by mathematical value, and among them the rows that mismatched, zero counts included
+— so that the pack's boundaries describe the same mismatched rows jointly, not each on its
+own; from those entries the bucket sums and the recorded verdict are recomputed and must
+agree; a replay whose report carries no profile, a threshold set that is
 not the pack's, or an origin set that is not the ledger's, fails the construction, as does one
 that does not run to a verdict, reads fewer rows than the ledger holds, or reports a status
 that disagrees with its count. Any shortfall in that validity is pipeline-invalid before

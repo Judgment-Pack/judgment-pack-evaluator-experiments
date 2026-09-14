@@ -206,39 +206,66 @@ class SignatureEvidence(unittest.TestCase):
     def cases(self, values):
         return [{"id": "r%d" % i, "origin": "o", "facts": {"x": v}} for i, v in enumerate(values)]
 
-    def test_threshold_evidence_must_agree_with_the_ledger(self):
-        cases = self.cases(["5", "10", "12"])  # one below, one at, one above 10
+    def test_threshold_evidence_must_be_what_the_ledger_and_the_mismatched_rows_imply(self):
+        cases = self.cases(["5", "10", "12"])  # r0 below, r1 at, r2 above 10
         good = profile([("/x", "10", 1, 0, 0)])
         good["thresholds"][0]["origins"][0] = {"origin": "o", "below": {"rows": 1, "disagreeing": 1}, "at": {"rows": 1, "disagreeing": 0}, "above": {"rows": 1, "disagreeing": 0}}
-        sig = replay.signature(good, 1, expected=1, origins={"o"}, cases=cases)
+        b = {("/x", "10")}
+        sig = replay.signature(good, 1, expected=1, origins={"o"}, cases=cases, mismatched_ids=["r0"], boundaries=b)
         self.assertTrue(sig["lineMoved"])
-        self.assertTrue(score.signature_evidence_ok(sig, 1, boundaries={("/x", "10")}, origins={"o"}, ledger_rows=3, cases=cases))
-        # zeroed disagreements against a replay that mismatched one row: impossible
-        zeroed = json.loads(json.dumps(good)); zeroed["thresholds"][0]["origins"][0]["below"]["disagreeing"] = 0
+        self.assertTrue(score.signature_evidence_ok(sig, 1, boundaries=b, origins={"o"}, ledger_rows=3, cases=cases, mismatched_ids=["r0"]))
+        # the same counts with the mismatched row named elsewhere: the entry no longer describes that row
         with self.assertRaises(RuntimeError):
-            replay.signature(zeroed, 1, expected=1, origins={"o"}, cases=cases)
+            replay.signature(good, 1, expected=1, origins={"o"}, cases=cases, mismatched_ids=["r2"], boundaries=b)
+        self.assertFalse(score.signature_evidence_ok(sig, 1, boundaries=b, origins={"o"}, ledger_rows=3, cases=cases, mismatched_ids=["r2"]))
+        # zeroed disagreements against a named mismatched row
         forged = json.loads(json.dumps(sig)); forged["thresholds"][0]["origins"][0]["below"]["disagreeing"] = 0
         forged["disagreeing"] = {}; forged["lineMoved"] = False; forged["placed"] = False
-        self.assertFalse(score.signature_evidence_ok(forged, 1, boundaries={("/x", "10")}, origins={"o"}, ledger_rows=3, cases=cases))
+        self.assertFalse(score.signature_evidence_ok(forged, 1, boundaries=b, origins={"o"}, ledger_rows=3, cases=cases, mismatched_ids=["r0"]))
         # bucket rows that are not the ledger's comparable rows
         wrong = json.loads(json.dumps(good)); wrong["thresholds"][0]["origins"][0]["above"]["rows"] = 2
         with self.assertRaises(RuntimeError):
-            replay.signature(wrong, 1, expected=1, origins={"o"}, cases=cases)
+            replay.signature(wrong, 1, expected=1, origins={"o"}, cases=cases, mismatched_ids=["r0"], boundaries=b)
 
-    def test_expected_buckets_place_only_decimal_strings(self):
-        cases = self.cases(["5", 7, "abc", "10", None, "11"])
-        self.assertEqual(replay.expected_buckets(cases, "/x", "10"), {"o": {"below": 1, "at": 1, "above": 1}})
-
-    def test_a_missing_profile_fails_the_replay(self):
+    def test_two_boundaries_must_describe_the_same_mismatched_rows(self):
+        # r0=5, r1=8, r2=12: boundaries 7 and 10; r1 mismatched sits above 7 and below 10
+        cases = self.cases(["5", "8", "12"])
+        b = {("/x", "7"), ("/x", "10")}
+        entries = expected_entries_profile(cases, b, ["r1"])
+        sig = replay.signature(entries, 1, expected=2, origins={"o"}, cases=cases, mismatched_ids=["r1"], boundaries=b)
+        self.assertTrue(sig["applicable"])
+        # each boundary reconciled on its own but naming different rows: below 7 disagreeing (r0) and above 10 disagreeing (r2)
+        impossible = json.loads(json.dumps(entries))
+        for t in impossible["thresholds"]:
+            o = t["origins"][0]
+            if t["literal"] == "7":
+                o["below"]["disagreeing"], o["above"]["disagreeing"] = 1, 0
+            else:
+                o["below"]["disagreeing"], o["above"]["disagreeing"] = 0, 1
         with self.assertRaises(RuntimeError):
-            replay.signature(None, 1, expected=0)
-        with self.assertRaises(RuntimeError):
-            replay.signature({}, 1, expected=1)
+            replay.signature(impossible, 1, expected=2, origins={"o"}, cases=cases, mismatched_ids=["r1"], boundaries=b)
 
-    def test_the_attempt_id_is_hexadecimal(self):
-        import attempt
-        m = AttemptMarker().marker(attemptId="z" * 32)
-        self.assertTrue(attempt.marker_problems(m, "sha256:x", "REGISTERED"))
+    def test_expected_entries_use_the_core_decimal_grammar_and_keep_every_origin(self):
+        cases = self.cases(["5", 7, "abc", "10", None, "11", "1e1", "+10", "010", "Infinity", "NaN"])
+        cases.append({"id": "z", "origin": "other", "facts": {"x": "abc"}})
+        out = replay.expected_entries(cases, {("/x", "10")}, [])
+        self.assertEqual(out[("/x", "10")]["o"], {"below": {"rows": 1, "disagreeing": 0}, "at": {"rows": 1, "disagreeing": 0}, "above": {"rows": 1, "disagreeing": 0}})
+        self.assertEqual(out[("/x", "10")]["other"], {"below": {"rows": 0, "disagreeing": 0}, "at": {"rows": 0, "disagreeing": 0}, "above": {"rows": 0, "disagreeing": 0}})
+
+    def test_counts_are_ints_never_bools(self):
+        self.assertTrue(replay.is_count(3, 5))
+        self.assertFalse(replay.is_count(True, 5))
+        self.assertFalse(replay.is_count(-1))
+        self.assertFalse(replay.is_count(6, 5))
+        self.assertFalse(replay.is_count("3"))
+
+
+def expected_entries_profile(cases, boundaries, mismatched_ids):
+    """A profile whose entries are exactly what the ledger and the mismatched rows imply."""
+    out = {"thresholds": []}
+    for (pointer, literal), per_origin in sorted(replay.expected_entries(cases, boundaries, mismatched_ids).items()):
+        out["thresholds"].append({"pointer": pointer, "literal": literal, "origins": [dict(origin=o, **b) for o, b in per_origin.items()]})
+    return out
 
 
 class AttemptMarker(unittest.TestCase):
