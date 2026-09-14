@@ -1,0 +1,15 @@
+{
+  "baseRow": "clarify-incomplete",
+  "facts": {
+    "request": {
+      "type": "data-access",
+      "completeness": "incomplete",
+      "appropriateness": "pass",
+      "embargoedInformationToUnauthorizedRecipients": false
+    }
+  },
+  "evidenceAvailability": {
+    "intake-form": "present",
+    "sponsor-endorsement": "present"
+  }
+}

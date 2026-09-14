@@ -1,0 +1,1826 @@
+{
+ "matrixVersion": "1",
+ "study": "021",
+ "note": "Registered cells. Endpoints: caught = the fraction of a defect instance's ledgers in the stratum (the one literal ledger, or the thirty random ledgers at n) in which the replay mismatched at least one row; lineMovedWhenCaught = among the caught ledgers, the fraction whose profile carries the line-moved signature (PREREGISTRATION.md section 5), allowsNoCaught where a registration expects no catch. Every expectation is derived from the pack's text and the runtime's documented semantics under the structures named in section 6; the structure and the reason are recorded per cell. Cells not registered here are reported descriptively (R2) and decide nothing.",
+ "cells": [
+  {
+   "id": "vendor-onboarding/D7-00/literal/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D7-00",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "S2",
+   "reason": "the rule request-info-incomplete decides what the fallback decides, and no other rule can fire with it (its conditions exclude approve-standard's), so a replay of dispositions cannot see it stop firing",
+   "role": "endpoint"
+  },
+  {
+   "id": "vendor-onboarding/D7-00/random-50/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D7-00",
+   "stratum": "random",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "S2",
+   "reason": "the rule request-info-incomplete decides what the fallback decides, and no other rule can fire with it (its conditions exclude approve-standard's), so a replay of dispositions cannot see it stop firing",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "vendor-onboarding/D7-01/literal/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D7-01",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "S2",
+   "reason": "the rule request-info-incomplete decides what the fallback decides, and no other rule can fire with it (its conditions exclude approve-standard's), so a replay of dispositions cannot see it stop firing",
+   "role": "endpoint"
+  },
+  {
+   "id": "vendor-onboarding/D7-01/random-50/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D7-01",
+   "stratum": "random",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "S2",
+   "reason": "the rule request-info-incomplete decides what the fallback decides, and no other rule can fire with it (its conditions exclude approve-standard's), so a replay of dispositions cannot see it stop firing",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "vendor-onboarding/D6-02/literal/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D6-02",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S6/S5",
+   "reason": "dropping completeness=complete lets approve-standard fire beside request-info-incomplete on the incomplete row: a conflict where the pack decided request-info",
+   "role": "endpoint"
+  },
+  {
+   "id": "vendor-onboarding/D6-03/literal/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D6-03",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S6/S5",
+   "reason": "dropping taxFormStatus=received: the pending row becomes a conflict",
+   "role": "endpoint"
+  },
+  {
+   "id": "vendor-onboarding/D6-04/literal/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D6-04",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "E0 mask",
+   "reason": "the literal stratum's only off-clear status is match, which the sanctions exception forces to reject in both packs",
+   "role": "endpoint"
+  },
+  {
+   "id": "vendor-onboarding/D6-05/literal/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D6-05",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "S4",
+   "reason": "evidence sanctions-screening is required: a case without it escalates before any rule; with it the rule fires either way",
+   "role": "endpoint"
+  },
+  {
+   "id": "vendor-onboarding/D6-06/literal/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D6-06",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "S4",
+   "reason": "evidence tax-form is required: the same",
+   "role": "endpoint"
+  },
+  {
+   "id": "vendor-onboarding/D6-07/literal/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D6-07",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "S1",
+   "reason": "dropping approve-standard's spend guard admits the cases at and above 250000 that the committee exception escalates in both packs",
+   "role": "endpoint"
+  },
+  {
+   "id": "vendor-onboarding/D6-05/random-50/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D6-05",
+   "stratum": "random",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "S4/S1",
+   "reason": "the same masking holds for every case a random draw can produce",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "vendor-onboarding/D6-06/random-50/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D6-06",
+   "stratum": "random",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "S4/S1",
+   "reason": "the same masking holds for every case a random draw can produce",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "vendor-onboarding/D6-07/random-50/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D6-07",
+   "stratum": "random",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "S4/S1",
+   "reason": "the same masking holds for every case a random draw can produce",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "vendor-onboarding/D7-08/literal/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D7-08",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S5",
+   "reason": "approve-standard never fires: every approving case falls to request-info",
+   "role": "endpoint"
+  },
+  {
+   "id": "vendor-onboarding/D7-09/literal/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D7-09",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S5",
+   "reason": "approve-standard never fires: every approving case falls to request-info",
+   "role": "endpoint"
+  },
+  {
+   "id": "vendor-onboarding/D7-10/literal/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D7-10",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S5",
+   "reason": "approve-standard never fires: every approving case falls to request-info",
+   "role": "endpoint"
+  },
+  {
+   "id": "vendor-onboarding/D1-11/literal/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D1-11",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "S1",
+   "reason": "approve-standard's guard moved to 312500 admits only cases the committee exception at 250000 escalates in both packs",
+   "role": "endpoint"
+  },
+  {
+   "id": "vendor-onboarding/D1-11/random-50/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D1-11",
+   "stratum": "random",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "S1",
+   "reason": "the same on every random case",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "vendor-onboarding/D2-12/literal/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D2-12",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S7",
+   "reason": "the row at 249999 approved under the pack and falls to request-info under a guard at 187500",
+   "role": "endpoint"
+  },
+  {
+   "id": "vendor-onboarding/D3-13/literal/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D3-13",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "S1",
+   "reason": "the only case the flip changes, 250000, is escalated by the exception in both packs",
+   "role": "endpoint"
+  },
+  {
+   "id": "vendor-onboarding/D3-13/random-50/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D3-13",
+   "stratum": "random",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "S1",
+   "reason": "the same",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "vendor-onboarding/D4-14/literal/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D4-14",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S5",
+   "reason": "the reversed guard fires only strictly above 250000, where the exception escalates first: approve-standard never decides, and every approving row falls to request-info",
+   "role": "endpoint"
+  },
+  {
+   "id": "vendor-onboarding/D7-15/literal/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D7-15",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S5",
+   "reason": "the match row is no longer forced to reject and falls to request-info",
+   "role": "endpoint"
+  },
+  {
+   "id": "vendor-onboarding/D1-16/literal/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D1-16",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S7",
+   "reason": "the rows at 250000 and 250001 escalated under the pack and fall to request-info under an exception at 312500",
+   "role": "endpoint"
+  },
+  {
+   "id": "vendor-onboarding/D2-17/literal/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D2-17",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S7",
+   "reason": "the row at 249999 approved and now escalates",
+   "role": "endpoint"
+  },
+  {
+   "id": "vendor-onboarding/D3-18/literal/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D3-18",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S3",
+   "reason": "the row at 250000 escalated and now falls to request-info",
+   "role": "endpoint"
+  },
+  {
+   "id": "vendor-onboarding/D3-18/random-50/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D3-18",
+   "stratum": "random",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0.1
+   },
+   "structure": "S3",
+   "reason": "a random draw at precision 0 over [0, 500000] sits at 250000 with probability 1/500001 per row",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "vendor-onboarding/D4-19/literal/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D4-19",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S6",
+   "reason": "cases below 250000 now escalate and cases above it fall to request-info, while the case at 250000 satisfies both comparisons and is escalated in both packs: both sides change, the at-row does not",
+   "role": "endpoint"
+  },
+  {
+   "id": "vendor-onboarding/D5-20/literal/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D5-20",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S5",
+   "reason": "the incomplete and pending rows now approve",
+   "role": "endpoint"
+  },
+  {
+   "id": "vendor-onboarding/D5-21/literal/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D5-21",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S5",
+   "reason": "every approving row now requests information",
+   "role": "endpoint"
+  },
+  {
+   "id": "vendor-onboarding/D8-22/literal/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D8-22",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S5",
+   "reason": "the match row escalates instead of being forced to reject",
+   "role": "endpoint"
+  },
+  {
+   "id": "vendor-onboarding/D8-23/literal/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D8-23",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S5",
+   "reason": "the rows at 250000 and 250001 are forced to approve instead of escalating",
+   "role": "endpoint"
+  },
+  {
+   "id": "vendor-onboarding/D9-24/literal/caught",
+   "policy": "vendor-onboarding",
+   "defect": "D9-24",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "fallback unreached",
+   "reason": "no literal-adjacent row reaches the fallback: a varied status is match (forced), varied evidence escalates, varied completeness or tax status fires request-info-incomplete",
+   "role": "endpoint"
+  },
+  {
+   "id": "vendor-onboarding/D6-02/random-50/lineMovedWhenCaught",
+   "policy": "vendor-onboarding",
+   "defect": "D6-02",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S5",
+   "reason": "approve-standard fires only below 250000, so every conflict it newly joins is below the line",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "vendor-onboarding/D6-03/random-50/lineMovedWhenCaught",
+   "policy": "vendor-onboarding",
+   "defect": "D6-03",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S5",
+   "reason": "the same",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "vendor-onboarding/D6-04/random-50/lineMovedWhenCaught",
+   "policy": "vendor-onboarding",
+   "defect": "D6-04",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S5",
+   "reason": "an out-of-domain status admits approve-standard only below the line",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "vendor-onboarding/D7-08/random-50/lineMovedWhenCaught",
+   "policy": "vendor-onboarding",
+   "defect": "D7-08",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S5",
+   "reason": "every approving case is below the line",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "vendor-onboarding/D7-09/random-50/lineMovedWhenCaught",
+   "policy": "vendor-onboarding",
+   "defect": "D7-09",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S5",
+   "reason": "the same",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "vendor-onboarding/D7-10/random-50/lineMovedWhenCaught",
+   "policy": "vendor-onboarding",
+   "defect": "D7-10",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S5",
+   "reason": "the same",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "vendor-onboarding/D4-14/random-50/lineMovedWhenCaught",
+   "policy": "vendor-onboarding",
+   "defect": "D4-14",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S5",
+   "reason": "the reversed guard's own side is escalated by the exception: only approving cases below the line change",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "vendor-onboarding/D7-15/random-50/lineMovedWhenCaught",
+   "policy": "vendor-onboarding",
+   "defect": "D7-15",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S5",
+   "reason": "above the line a match case escalates in both packs (a true escalating exception blocks the forced outcome, \u00a78.3), so only cases below it change",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "vendor-onboarding/D5-20/random-50/lineMovedWhenCaught",
+   "policy": "vendor-onboarding",
+   "defect": "D5-20",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S5",
+   "reason": "above the line the exception escalates either way",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "vendor-onboarding/D5-21/random-50/lineMovedWhenCaught",
+   "policy": "vendor-onboarding",
+   "defect": "D5-21",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S5",
+   "reason": "approving cases are below the line",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "vendor-onboarding/D8-22/random-50/lineMovedWhenCaught",
+   "policy": "vendor-onboarding",
+   "defect": "D8-22",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S5",
+   "reason": "the same blocking above the line",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "vendor-onboarding/D8-23/random-50/lineMovedWhenCaught",
+   "policy": "vendor-onboarding",
+   "defect": "D8-23",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 0.95,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S5",
+   "reason": "only cases at or above 250000 change; a draw exactly at 250000 changes too and sits AT the literal, with probability 1/500001 per row -- about one ledger of 50 in ten thousand, so about 0.003 over thirty ledgers",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "vendor-onboarding/D9-24/random-50/lineMovedWhenCaught",
+   "policy": "vendor-onboarding",
+   "defect": "D9-24",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S5",
+   "reason": "the fallback is reached only below the line; above it the exception escalates",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "vendor-onboarding/D1-16/random-50/lineMovedWhenCaught",
+   "policy": "vendor-onboarding",
+   "defect": "D1-16",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S7",
+   "reason": "the changed cases lie between 250000 and 312500, below the new literal; a draw exactly at 312500 has probability 1/500001",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "vendor-onboarding/D2-17/random-50/lineMovedWhenCaught",
+   "policy": "vendor-onboarding",
+   "defect": "D2-17",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S7",
+   "reason": "the changed cases lie between 187500 and 250000: above the new literal 187500 and below the retained guard 250000, either of which satisfies the signature's one-literal condition; a draw exactly at 187500 (1/500001 per row) changes and sits at the new literal but not at the retained one",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "vendor-onboarding/D2-12/random-50/lineMovedWhenCaught",
+   "policy": "vendor-onboarding",
+   "defect": "D2-12",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S7",
+   "reason": "the changed cases lie in [187500, 250000): approving cases now refused by the guard moved to 187500, including a case exactly at it; the retained committee boundary at 250000 has every changed case strictly below it, which satisfies the one-side condition whatever sits at the new guard",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "vendor-onboarding/D4-19/random-50/lineMovedWhenCaught",
+   "policy": "vendor-onboarding",
+   "defect": "D4-19",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 0,
+    "max": 0.1,
+    "allowsNoCaught": true
+   },
+   "structure": "S6",
+   "reason": "cases change on both sides of the line: below it every case not already escalated gains the exception's escalation, above it every case loses it -- and what it then decides is the rules' (request-info, or reject where the sanctions exception forces it; unresolved where required evidence is absent; never approve, whose rule still requires spend strictly below 250000); the case at 250000 is unchanged",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "expense-approval/D7-00/literal/caught",
+   "policy": "expense-approval",
+   "defect": "D7-00",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S6",
+   "reason": "the row with that category was denied by the category rule; with the member gone neither rule fires (the reimbursement rule's own exclusion still holds) and the case falls to the fallback review",
+   "role": "endpoint"
+  },
+  {
+   "id": "expense-approval/D7-00/random-50/lineMovedWhenCaught",
+   "policy": "expense-approval",
+   "defect": "D7-00",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 0,
+    "max": 0.35,
+    "allowsNoCaught": true
+   },
+   "structure": "S6",
+   "reason": "cases with that category change (deny to review) at every amount, so the changed cases sit on both sides of 75 -- but only a receipted case changes (without a receipt both packs escalate), so a ledger of 50 changes about six rows (binomial, 1/8 per row), and with few rows all on one side happens by chance: the probability a caught ledger carries the signature is about 0.08, so the observed fraction over thirty ledgers is registered at most 0.35",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "expense-approval/D7-01/literal/caught",
+   "policy": "expense-approval",
+   "defect": "D7-01",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S6",
+   "reason": "the row with that category was denied by the category rule; with the member gone neither rule fires (the reimbursement rule's own exclusion still holds) and the case falls to the fallback review",
+   "role": "endpoint"
+  },
+  {
+   "id": "expense-approval/D7-01/random-50/lineMovedWhenCaught",
+   "policy": "expense-approval",
+   "defect": "D7-01",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 0,
+    "max": 0.35,
+    "allowsNoCaught": true
+   },
+   "structure": "S6",
+   "reason": "cases with that category change (deny to review) at every amount, so the changed cases sit on both sides of 75 -- but only a receipted case changes (without a receipt both packs escalate), so a ledger of 50 changes about six rows (binomial, 1/8 per row), and with few rows all on one side happens by chance: the probability a caught ledger carries the signature is about 0.08, so the observed fraction over thirty ledgers is registered at most 0.35",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "expense-approval/D7-02/literal/caught",
+   "policy": "expense-approval",
+   "defect": "D7-02",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S6",
+   "reason": "the row with that category was denied by the category rule; with the member gone neither rule fires (the reimbursement rule's own exclusion still holds) and the case falls to the fallback review",
+   "role": "endpoint"
+  },
+  {
+   "id": "expense-approval/D7-02/random-50/lineMovedWhenCaught",
+   "policy": "expense-approval",
+   "defect": "D7-02",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 0,
+    "max": 0.35,
+    "allowsNoCaught": true
+   },
+   "structure": "S6",
+   "reason": "cases with that category change (deny to review) at every amount, so the changed cases sit on both sides of 75 -- but only a receipted case changes (without a receipt both packs escalate), so a ledger of 50 changes about six rows (binomial, 1/8 per row), and with few rows all on one side happens by chance: the probability a caught ledger carries the signature is about 0.08, so the observed fraction over thirty ledgers is registered at most 0.35",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "expense-approval/D6-03/literal/caught",
+   "policy": "expense-approval",
+   "defect": "D6-03",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "line removed",
+   "reason": "the rows at 75 and 76 were reviewed and are now reimbursed; the edit removed the pack's only ordered comparison, so no signature exists",
+   "role": "endpoint"
+  },
+  {
+   "id": "expense-approval/D6-03/random-50/caught",
+   "policy": "expense-approval",
+   "defect": "D6-03",
+   "stratum": "random",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0.8,
+    "max": 1
+   },
+   "structure": "line removed",
+   "reason": "a changed case is permitted (the one value outside the three prohibited members: 1/4), receipted (1/2) and at or above 75 (76 of the 151 lattice values): about 0.063 per row, so a ledger of 50 holds one with probability about 0.96",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "expense-approval/D6-04/literal/caught",
+   "policy": "expense-approval",
+   "defect": "D6-04",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S5",
+   "reason": "a prohibited small receipted case now fires both rules: a conflict where the pack denied",
+   "role": "endpoint"
+  },
+  {
+   "id": "expense-approval/D6-04/random-50/lineMovedWhenCaught",
+   "policy": "expense-approval",
+   "defect": "D6-04",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S5",
+   "reason": "reimburse-small-documented fires only below 75",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "expense-approval/D6-05/literal/caught",
+   "policy": "expense-approval",
+   "defect": "D6-05",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "S4",
+   "reason": "itemised-receipt is required: a case without it escalates before any rule",
+   "role": "endpoint"
+  },
+  {
+   "id": "expense-approval/D6-05/random-50/caught",
+   "policy": "expense-approval",
+   "defect": "D6-05",
+   "stratum": "random",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "S4",
+   "reason": "the same on every random case",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "expense-approval/D1-06/literal/caught",
+   "policy": "expense-approval",
+   "defect": "D1-06",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S7",
+   "reason": "the rows at 75 and 76 were reviewed and are now reimbursed under a guard at 94",
+   "role": "endpoint"
+  },
+  {
+   "id": "expense-approval/D1-06/random-50/lineMovedWhenCaught",
+   "policy": "expense-approval",
+   "defect": "D1-06",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S7",
+   "reason": "the changed cases lie in [75, 94), below the new literal, and a case exactly at 94 is reviewed in both packs",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "expense-approval/D2-07/literal/caught",
+   "policy": "expense-approval",
+   "defect": "D2-07",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S7",
+   "reason": "the row at 74 was reimbursed and is now reviewed under a guard at 56",
+   "role": "endpoint"
+  },
+  {
+   "id": "expense-approval/D2-07/random-50/lineMovedWhenCaught",
+   "policy": "expense-approval",
+   "defect": "D2-07",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 0.5,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S7 with an at-row",
+   "reason": "the changed cases lie in [56, 75); a draw exactly at 56 (1/151 per row) that is also permitted (1/4) and receipted (1/2) -- 1/1208 per row, about 0.04 of ledgers of 50 -- changes and sits AT the new literal, and no other literal remains to satisfy the one-side condition, so about 0.93 of caught ledgers carry the signature; registered at least 0.5",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "expense-approval/D3-08/literal/caught",
+   "policy": "expense-approval",
+   "defect": "D3-08",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S3",
+   "reason": "the row at 75 was reviewed and is now reimbursed",
+   "role": "endpoint"
+  },
+  {
+   "id": "expense-approval/D3-08/random-50/caught",
+   "policy": "expense-approval",
+   "defect": "D3-08",
+   "stratum": "random",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0.25
+   },
+   "structure": "S3",
+   "reason": "a draw sits exactly at 75 with probability 1/151 per row, and must also be permitted and receipted (about one in eight)",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "expense-approval/D4-09/literal/caught",
+   "policy": "expense-approval",
+   "defect": "D4-09",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S6",
+   "reason": "the row at 74 is now reviewed and the row at 76 reimbursed: both sides",
+   "role": "endpoint"
+  },
+  {
+   "id": "expense-approval/D4-09/random-50/lineMovedWhenCaught",
+   "policy": "expense-approval",
+   "defect": "D4-09",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 0,
+    "max": 0.35,
+    "allowsNoCaught": true
+   },
+   "structure": "S6",
+   "reason": "permitted receipted cases change on both sides of 75 (below: reimburse to review; above: review to reimburse); only about six rows of a ledger of 50 are permitted and receipted (1/8 per row), so all on one side happens by chance with probability about 0.08 per caught ledger; registered at most 0.35",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "expense-approval/D7-10/literal/caught",
+   "policy": "expense-approval",
+   "defect": "D7-10",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S5",
+   "reason": "a small receipted case of the prohibited category no longer excluded fires both rules: a conflict where the pack denied",
+   "role": "endpoint"
+  },
+  {
+   "id": "expense-approval/D7-10/random-50/lineMovedWhenCaught",
+   "policy": "expense-approval",
+   "defect": "D7-10",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S5",
+   "reason": "reimburse-small-documented fires only below 75",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "expense-approval/D7-11/literal/caught",
+   "policy": "expense-approval",
+   "defect": "D7-11",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S5",
+   "reason": "a small receipted case of the prohibited category no longer excluded fires both rules: a conflict where the pack denied",
+   "role": "endpoint"
+  },
+  {
+   "id": "expense-approval/D7-11/random-50/lineMovedWhenCaught",
+   "policy": "expense-approval",
+   "defect": "D7-11",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S5",
+   "reason": "reimburse-small-documented fires only below 75",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "expense-approval/D7-12/literal/caught",
+   "policy": "expense-approval",
+   "defect": "D7-12",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S5",
+   "reason": "a small receipted case of the prohibited category no longer excluded fires both rules: a conflict where the pack denied",
+   "role": "endpoint"
+  },
+  {
+   "id": "expense-approval/D7-12/random-50/lineMovedWhenCaught",
+   "policy": "expense-approval",
+   "defect": "D7-12",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S5",
+   "reason": "reimburse-small-documented fires only below 75",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "expense-approval/D5-13/literal/caught",
+   "policy": "expense-approval",
+   "defect": "D5-13",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S6",
+   "reason": "the denied row is now reimbursed by the category rule",
+   "role": "endpoint"
+  },
+  {
+   "id": "expense-approval/D5-13/random-50/lineMovedWhenCaught",
+   "policy": "expense-approval",
+   "defect": "D5-13",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 0,
+    "max": 0.1,
+    "allowsNoCaught": true
+   },
+   "structure": "S6",
+   "reason": "prohibited receipted cases change (deny to reimburse) at every amount, about nineteen rows of a ledger of 50 (3/8 per row), so all on one side has probability under 0.001 per ledger",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "expense-approval/D5-14/literal/caught",
+   "policy": "expense-approval",
+   "defect": "D5-14",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S5",
+   "reason": "every reimbursed row is now denied",
+   "role": "endpoint"
+  },
+  {
+   "id": "expense-approval/D5-14/random-50/lineMovedWhenCaught",
+   "policy": "expense-approval",
+   "defect": "D5-14",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S5",
+   "reason": "reimburse-small-documented fires only below 75",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "expense-approval/D9-15/literal/caught",
+   "policy": "expense-approval",
+   "defect": "D9-15",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S5",
+   "reason": "the rows at 75 and 76 fell to review and are now reimbursed by the fallback",
+   "role": "endpoint"
+  },
+  {
+   "id": "expense-approval/D9-15/random-50/lineMovedWhenCaught",
+   "policy": "expense-approval",
+   "defect": "D9-15",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 0.8,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S5 with an at-row",
+   "reason": "the fallback is reached only at or above 75 (below it the rule fires; without a receipt the case escalates); a draw exactly at 75 that reaches it sits AT the literal and breaks the signature, about one ledger in twenty-five",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "sanctions-screening/D7-00/literal/caught",
+   "policy": "sanctions-screening",
+   "defect": "D7-00",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S5",
+   "reason": "the zero-match row no longer clears and no rule decides it",
+   "role": "endpoint"
+  },
+  {
+   "id": "sanctions-screening/D7-00/random-50/lineMovedWhenCaught",
+   "policy": "sanctions-screening",
+   "defect": "D7-00",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S5",
+   "reason": "only cases at 0, below the literal 1",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "sanctions-screening/D1-01/literal/caught",
+   "policy": "sanctions-screening",
+   "defect": "D1-01",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S7",
+   "reason": "the one-match row no longer matches under a guard at 2",
+   "role": "endpoint"
+  },
+  {
+   "id": "sanctions-screening/D1-01/random-50/lineMovedWhenCaught",
+   "policy": "sanctions-screening",
+   "defect": "D1-01",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S7",
+   "reason": "only cases at 1 change, below the new literal 2, and cases at 2 match in both packs",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "sanctions-screening/D2-02/literal/caught",
+   "policy": "sanctions-screening",
+   "defect": "D2-02",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S7 at the floor",
+   "reason": "the zero-match row now fires both rules: a conflict",
+   "role": "endpoint"
+  },
+  {
+   "id": "sanctions-screening/D2-02/random-50/lineMovedWhenCaught",
+   "policy": "sanctions-screening",
+   "defect": "D2-02",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 0,
+    "max": 0,
+    "allowsNoCaught": true
+   },
+   "structure": "S7 at the floor",
+   "reason": "the moved literal is 0, the floor of the domain: every changed case sits AT it",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "sanctions-screening/D3-03/literal/caught",
+   "policy": "sanctions-screening",
+   "defect": "D3-03",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S3",
+   "reason": "the one-match row no longer matches",
+   "role": "endpoint"
+  },
+  {
+   "id": "sanctions-screening/D3-03/random-50/caught",
+   "policy": "sanctions-screening",
+   "defect": "D3-03",
+   "stratum": "random",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0.9,
+    "max": 1
+   },
+   "structure": "S3 on a small domain",
+   "reason": "a draw over {0, 1, 2} sits at 1 with probability one third per row and must carry the required evidence (one half): one sixth per row, so a ledger of 50 holds one with probability 1 - (5/6)^50",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "sanctions-screening/D3-03/random-50/lineMovedWhenCaught",
+   "policy": "sanctions-screening",
+   "defect": "D3-03",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 0,
+    "max": 0,
+    "allowsNoCaught": true
+   },
+   "structure": "S3",
+   "reason": "every changed case sits AT the literal",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "sanctions-screening/D4-04/literal/caught",
+   "policy": "sanctions-screening",
+   "defect": "D4-04",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S6",
+   "reason": "the zero-match row becomes a conflict and the two-match row is decided by no rule: both sides",
+   "role": "endpoint"
+  },
+  {
+   "id": "sanctions-screening/D4-04/random-50/lineMovedWhenCaught",
+   "policy": "sanctions-screening",
+   "defect": "D4-04",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 0,
+    "max": 0.1,
+    "allowsNoCaught": true
+   },
+   "structure": "S6",
+   "reason": "cases at 0 (below) and at 2 (above) change, the case at 1 matches in both packs; a caught ledger carries the signature only if every changed case it holds is on one side -- no changed two, or no changed zero -- which for a ledger of 50 with evidence present half the time has probability about 2 x (5/6)^50, under 0.001, so at most a ledger or two in thirty",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "sanctions-screening/D5-05/literal/caught",
+   "policy": "sanctions-screening",
+   "defect": "D5-05",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S5",
+   "reason": "the zero-match row now matches",
+   "role": "endpoint"
+  },
+  {
+   "id": "sanctions-screening/D5-05/random-50/lineMovedWhenCaught",
+   "policy": "sanctions-screening",
+   "defect": "D5-05",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "structure": "S5",
+   "reason": "only cases at 0, below the literal",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "sanctions-screening/D5-06/literal/caught",
+   "policy": "sanctions-screening",
+   "defect": "D5-06",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "at-rows",
+   "reason": "the one- and two-match rows now clear",
+   "role": "endpoint"
+  },
+  {
+   "id": "sanctions-screening/D5-06/random-50/lineMovedWhenCaught",
+   "policy": "sanctions-screening",
+   "defect": "D5-06",
+   "stratum": "random",
+   "endpoint": "lineMovedWhenCaught",
+   "expected": {
+    "min": 0,
+    "max": 0.1,
+    "allowsNoCaught": true
+   },
+   "structure": "at-rows",
+   "reason": "cases at 1 (AT the literal) and at 2 (above) change; a caught ledger carries the signature only if it holds a changed two and no changed one, probability about (5/6)^50 per ledger",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "sanctions-screening/D7-00/random-50/caught",
+   "policy": "sanctions-screening",
+   "defect": "D7-00",
+   "stratum": "random",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0.9,
+    "max": 1
+   },
+   "structure": "small domain",
+   "reason": "every changed value is drawn with probability one third per row and the required evidence is present half the time: one sixth per row, and a ledger of 50 holds a changed case with probability 1 - (5/6)^50",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "sanctions-screening/D1-01/random-50/caught",
+   "policy": "sanctions-screening",
+   "defect": "D1-01",
+   "stratum": "random",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0.9,
+    "max": 1
+   },
+   "structure": "small domain",
+   "reason": "every changed value is drawn with probability one third per row and the required evidence is present half the time: one sixth per row, and a ledger of 50 holds a changed case with probability 1 - (5/6)^50",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "sanctions-screening/D2-02/random-50/caught",
+   "policy": "sanctions-screening",
+   "defect": "D2-02",
+   "stratum": "random",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0.9,
+    "max": 1
+   },
+   "structure": "small domain",
+   "reason": "every changed value is drawn with probability one third per row and the required evidence is present half the time: one sixth per row, and a ledger of 50 holds a changed case with probability 1 - (5/6)^50",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "sanctions-screening/D4-04/random-50/caught",
+   "policy": "sanctions-screening",
+   "defect": "D4-04",
+   "stratum": "random",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0.9,
+    "max": 1
+   },
+   "structure": "small domain",
+   "reason": "two of the three lattice values change (0 and 2), each drawn with probability one third, and the required evidence is present half the time: one third per row in all, so a ledger of 50 holds a changed case with probability 1 - (2/3)^50",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "sanctions-screening/D5-05/random-50/caught",
+   "policy": "sanctions-screening",
+   "defect": "D5-05",
+   "stratum": "random",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0.9,
+    "max": 1
+   },
+   "structure": "small domain",
+   "reason": "every changed value is drawn with probability one third per row and the required evidence is present half the time: one sixth per row, and a ledger of 50 holds a changed case with probability 1 - (5/6)^50",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "sanctions-screening/D5-06/random-50/caught",
+   "policy": "sanctions-screening",
+   "defect": "D5-06",
+   "stratum": "random",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0.9,
+    "max": 1
+   },
+   "structure": "small domain",
+   "reason": "two of the three lattice values change (1 and 2), each drawn with probability one third, and the required evidence is present half the time: one third per row in all, so a ledger of 50 holds a changed case with probability 1 - (2/3)^50",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "data-request-intake-triage/D7-00/literal/caught",
+   "policy": "data-request-intake-triage",
+   "defect": "D7-00",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "conflict partner",
+   "reason": "the hard-fail row (incomplete base) fired decline and clarify together, a conflict; with decline's literal gone only clarify fires",
+   "role": "endpoint"
+  },
+  {
+   "id": "data-request-intake-triage/D7-01/literal/caught",
+   "policy": "data-request-intake-triage",
+   "defect": "D7-01",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "conflict partner",
+   "reason": "the same row seen from the other rule: with clarify's completeness literal gone only decline fires",
+   "role": "endpoint"
+  },
+  {
+   "id": "data-request-intake-triage/D7-02/literal/caught",
+   "policy": "data-request-intake-triage",
+   "defect": "D7-02",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "S2",
+   "reason": "clarify-incomplete-or-not-evaluable decides what the fallback decides, and the pending and not-evaluable rows fire no other rule with it",
+   "role": "endpoint"
+  },
+  {
+   "id": "data-request-intake-triage/D7-02/random-50/caught",
+   "policy": "data-request-intake-triage",
+   "defect": "D7-02",
+   "stratum": "random",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "S2",
+   "reason": "the same on every random case",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "data-request-intake-triage/D7-03/literal/caught",
+   "policy": "data-request-intake-triage",
+   "defect": "D7-03",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "S2",
+   "reason": "clarify-incomplete-or-not-evaluable decides what the fallback decides, and the pending and not-evaluable rows fire no other rule with it",
+   "role": "endpoint"
+  },
+  {
+   "id": "data-request-intake-triage/D7-03/random-50/caught",
+   "policy": "data-request-intake-triage",
+   "defect": "D7-03",
+   "stratum": "random",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "S2",
+   "reason": "the same on every random case",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "data-request-intake-triage/D6-04/literal/caught",
+   "policy": "data-request-intake-triage",
+   "defect": "D6-04",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "conflict partner",
+   "reason": "dropping completeness=complete lets proceed fire beside clarify on the base row: a conflict",
+   "role": "endpoint"
+  },
+  {
+   "id": "data-request-intake-triage/D6-05/literal/caught",
+   "policy": "data-request-intake-triage",
+   "defect": "D6-05",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "stratum reach",
+   "reason": "no literal-adjacent row is both complete and hard-fail: the base is incomplete, and one pointer moves at a time",
+   "role": "endpoint"
+  },
+  {
+   "id": "data-request-intake-triage/D6-06/literal/caught",
+   "policy": "data-request-intake-triage",
+   "defect": "D6-06",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "S4",
+   "reason": "intake-form and sponsor-endorsement are required: a case without one escalates before any rule",
+   "role": "endpoint"
+  },
+  {
+   "id": "data-request-intake-triage/D6-06/random-50/caught",
+   "policy": "data-request-intake-triage",
+   "defect": "D6-06",
+   "stratum": "random",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "S4",
+   "reason": "the same on every random case",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "data-request-intake-triage/D6-07/literal/caught",
+   "policy": "data-request-intake-triage",
+   "defect": "D6-07",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "S4",
+   "reason": "intake-form and sponsor-endorsement are required: a case without one escalates before any rule",
+   "role": "endpoint"
+  },
+  {
+   "id": "data-request-intake-triage/D6-07/random-50/caught",
+   "policy": "data-request-intake-triage",
+   "defect": "D6-07",
+   "stratum": "random",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "S4",
+   "reason": "the same on every random case",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "data-request-intake-triage/D7-08/literal/caught",
+   "policy": "data-request-intake-triage",
+   "defect": "D7-08",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S5-like",
+   "reason": "the complete-and-pass row proceeded and now falls to clarify-return",
+   "role": "endpoint"
+  },
+  {
+   "id": "data-request-intake-triage/D7-09/literal/caught",
+   "policy": "data-request-intake-triage",
+   "defect": "D7-09",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "S5-like",
+   "reason": "the complete-and-pass row proceeded and now falls to clarify-return",
+   "role": "endpoint"
+  },
+  {
+   "id": "data-request-intake-triage/D5-10/literal/caught",
+   "policy": "data-request-intake-triage",
+   "defect": "D5-10",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "conflict either way",
+   "reason": "the only row where decline fires in the literal stratum also fires clarify, a conflict under both outcomes",
+   "role": "endpoint"
+  },
+  {
+   "id": "data-request-intake-triage/D5-11/literal/caught",
+   "policy": "data-request-intake-triage",
+   "defect": "D5-11",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "outcome",
+   "reason": "the base row's clarify-return becomes proceed",
+   "role": "endpoint"
+  },
+  {
+   "id": "data-request-intake-triage/D5-12/literal/caught",
+   "policy": "data-request-intake-triage",
+   "defect": "D5-12",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "outcome",
+   "reason": "the complete-and-pass row's proceed becomes clarify-return",
+   "role": "endpoint"
+  },
+  {
+   "id": "data-request-intake-triage/D8-13/literal/caught",
+   "policy": "data-request-intake-triage",
+   "defect": "D8-13",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "structure": "exception",
+   "reason": "the embargoed row is escalated instead of forced to decline",
+   "role": "endpoint"
+  },
+  {
+   "id": "data-request-intake-triage/D8-13/random-50/caught",
+   "policy": "data-request-intake-triage",
+   "defect": "D8-13",
+   "stratum": "random",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0.9,
+    "max": 1
+   },
+   "structure": "exception",
+   "reason": "half of all draws are embargoed, and every one of them changes",
+   "role": "endpoint",
+   "n": 50
+  },
+  {
+   "id": "data-request-intake-triage/D9-14/literal/caught",
+   "policy": "data-request-intake-triage",
+   "defect": "D9-14",
+   "stratum": "literal",
+   "endpoint": "caught",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "structure": "fallback unreached",
+   "reason": "no literal-adjacent row reaches the fallback",
+   "role": "endpoint"
+  }
+ ]
+}
