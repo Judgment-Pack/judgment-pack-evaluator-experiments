@@ -1,0 +1,206 @@
+{
+ "matrixVersion": "3",
+ "cases": [
+  {
+   "id": "r5-130-000",
+   "origin": "random-5-130",
+   "facts": {
+    "request": {
+     "type": "vendor-reactivation"
+    },
+    "submission": {
+     "completeness": "incomplete"
+    },
+    "vendor": {
+     "taxFormStatus": "received",
+     "sanctionsScreening": {
+      "status": "other-734"
+     }
+    },
+    "engagement": {
+     "annualSpendUsd": "316840"
+    }
+   },
+   "evidenceAvailability": {
+    "sanctions-screening": "absent",
+    "tax-form": "present",
+    "business-justification": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "exception-escalation",
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "exception-escalation",
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r5-130-001",
+   "origin": "random-5-130",
+   "facts": {
+    "request": {
+     "type": "new-vendor-onboarding"
+    },
+    "submission": {
+     "completeness": "incomplete"
+    },
+    "vendor": {
+     "taxFormStatus": "pending",
+     "sanctionsScreening": {
+      "status": "match"
+     }
+    },
+    "engagement": {
+     "annualSpendUsd": "320768"
+    }
+   },
+   "evidenceAvailability": {
+    "sanctions-screening": "absent",
+    "tax-form": "absent",
+    "business-justification": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "exception-escalation",
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "exception-escalation",
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r5-130-002",
+   "origin": "random-5-130",
+   "facts": {
+    "request": {
+     "type": "new-vendor-onboarding"
+    },
+    "submission": {
+     "completeness": "other-149"
+    },
+    "vendor": {
+     "taxFormStatus": "other-196",
+     "sanctionsScreening": {
+      "status": "match"
+     }
+    },
+    "engagement": {
+     "annualSpendUsd": "121912"
+    }
+   },
+   "evidenceAvailability": {
+    "sanctions-screening": "absent",
+    "tax-form": "present",
+    "business-justification": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r5-130-003",
+   "origin": "random-5-130",
+   "facts": {
+    "request": {
+     "type": "vendor-reactivation"
+    },
+    "submission": {
+     "completeness": "incomplete"
+    },
+    "vendor": {
+     "taxFormStatus": "received",
+     "sanctionsScreening": {
+      "status": "clear"
+     }
+    },
+    "engagement": {
+     "annualSpendUsd": "164926"
+    }
+   },
+   "evidenceAvailability": {
+    "sanctions-screening": "present",
+    "tax-form": "absent",
+    "business-justification": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r5-130-004",
+   "origin": "random-5-130",
+   "facts": {
+    "request": {
+     "type": "new-vendor-onboarding"
+    },
+    "submission": {
+     "completeness": "other-176"
+    },
+    "vendor": {
+     "taxFormStatus": "received",
+     "sanctionsScreening": {
+      "status": "other-961"
+     }
+    },
+    "engagement": {
+     "annualSpendUsd": "443044"
+    }
+   },
+   "evidenceAvailability": {
+    "sanctions-screening": "absent",
+    "tax-form": "absent",
+    "business-justification": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "exception-escalation",
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "exception-escalation",
+     "missing-required-evidence"
+    ]
+   }
+  }
+ ]
+}

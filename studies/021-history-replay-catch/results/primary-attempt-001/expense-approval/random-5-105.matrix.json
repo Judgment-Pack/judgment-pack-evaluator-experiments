@@ -1,0 +1,140 @@
+{
+ "matrixVersion": "3",
+ "cases": [
+  {
+   "id": "r5-105-000",
+   "origin": "random-5-105",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "alcohol",
+     "amountUsd": "61"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r5-105-001",
+   "origin": "random-5-105",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "other-35",
+     "amountUsd": "33"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r5-105-002",
+   "origin": "random-5-105",
+   "facts": {
+    "expense": {
+     "kind": "travel",
+     "category": "alcohol",
+     "amountUsd": "1"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r5-105-003",
+   "origin": "random-5-105",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "alcohol",
+     "amountUsd": "71"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r5-105-004",
+   "origin": "random-5-105",
+   "facts": {
+    "expense": {
+     "kind": "software",
+     "category": "gift-cards",
+     "amountUsd": "67"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  }
+ ]
+}

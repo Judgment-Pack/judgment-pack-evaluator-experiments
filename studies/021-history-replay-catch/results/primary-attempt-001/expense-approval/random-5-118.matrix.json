@@ -1,0 +1,128 @@
+{
+ "matrixVersion": "3",
+ "cases": [
+  {
+   "id": "r5-118-000",
+   "origin": "random-5-118",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "fines",
+     "amountUsd": "84"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "deny",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r5-118-001",
+   "origin": "random-5-118",
+   "facts": {
+    "expense": {
+     "kind": "supplies",
+     "category": "fines",
+     "amountUsd": "34"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "deny",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r5-118-002",
+   "origin": "random-5-118",
+   "facts": {
+    "expense": {
+     "kind": "travel",
+     "category": "other-872",
+     "amountUsd": "23"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "reimburse",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r5-118-003",
+   "origin": "random-5-118",
+   "facts": {
+    "expense": {
+     "kind": "supplies",
+     "category": "alcohol",
+     "amountUsd": "98"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r5-118-004",
+   "origin": "random-5-118",
+   "facts": {
+    "expense": {
+     "kind": "supplies",
+     "category": "fines",
+     "amountUsd": "50"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  }
+ ]
+}

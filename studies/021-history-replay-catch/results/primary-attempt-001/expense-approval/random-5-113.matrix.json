@@ -1,0 +1,136 @@
+{
+ "matrixVersion": "3",
+ "cases": [
+  {
+   "id": "r5-113-000",
+   "origin": "random-5-113",
+   "facts": {
+    "expense": {
+     "kind": "supplies",
+     "category": "gift-cards",
+     "amountUsd": "121"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r5-113-001",
+   "origin": "random-5-113",
+   "facts": {
+    "expense": {
+     "kind": "travel",
+     "category": "alcohol",
+     "amountUsd": "2"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "deny",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r5-113-002",
+   "origin": "random-5-113",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "alcohol",
+     "amountUsd": "37"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r5-113-003",
+   "origin": "random-5-113",
+   "facts": {
+    "expense": {
+     "kind": "software",
+     "category": "fines",
+     "amountUsd": "41"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r5-113-004",
+   "origin": "random-5-113",
+   "facts": {
+    "expense": {
+     "kind": "travel",
+     "category": "fines",
+     "amountUsd": "24"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  }
+ ]
+}

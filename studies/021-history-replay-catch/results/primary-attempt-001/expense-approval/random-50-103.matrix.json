@@ -1,0 +1,1283 @@
+{
+ "matrixVersion": "3",
+ "cases": [
+  {
+   "id": "r50-103-000",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "gift-cards",
+     "amountUsd": "44"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "deny",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r50-103-001",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "supplies",
+     "category": "fines",
+     "amountUsd": "141"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-002",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "supplies",
+     "category": "fines",
+     "amountUsd": "118"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "deny",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r50-103-003",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "software",
+     "category": "alcohol",
+     "amountUsd": "46"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-004",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "travel",
+     "category": "alcohol",
+     "amountUsd": "79"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "deny",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r50-103-005",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "travel",
+     "category": "alcohol",
+     "amountUsd": "112"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "deny",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r50-103-006",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "supplies",
+     "category": "alcohol",
+     "amountUsd": "99"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "deny",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r50-103-007",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "travel",
+     "category": "gift-cards",
+     "amountUsd": "54"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-008",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "other-920",
+     "amountUsd": "133"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-009",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "travel",
+     "category": "fines",
+     "amountUsd": "53"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-010",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "travel",
+     "category": "alcohol",
+     "amountUsd": "146"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-011",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "fines",
+     "amountUsd": "27"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-012",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "software",
+     "category": "fines",
+     "amountUsd": "87"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "deny",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r50-103-013",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "software",
+     "category": "alcohol",
+     "amountUsd": "87"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-014",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "travel",
+     "category": "alcohol",
+     "amountUsd": "24"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-015",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "travel",
+     "category": "other-727",
+     "amountUsd": "37"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-016",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "fines",
+     "amountUsd": "103"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-017",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "software",
+     "category": "fines",
+     "amountUsd": "20"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-018",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "software",
+     "category": "fines",
+     "amountUsd": "64"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-019",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "supplies",
+     "category": "other-117",
+     "amountUsd": "129"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-020",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "gift-cards",
+     "amountUsd": "66"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-021",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "software",
+     "category": "other-273",
+     "amountUsd": "105"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "review",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r50-103-022",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "supplies",
+     "category": "gift-cards",
+     "amountUsd": "39"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-023",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "software",
+     "category": "other-774",
+     "amountUsd": "9"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "reimburse",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r50-103-024",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "other-548",
+     "amountUsd": "106"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-025",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "software",
+     "category": "alcohol",
+     "amountUsd": "18"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-026",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "software",
+     "category": "other-747",
+     "amountUsd": "37"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-027",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "supplies",
+     "category": "gift-cards",
+     "amountUsd": "24"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-028",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "supplies",
+     "category": "fines",
+     "amountUsd": "63"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "deny",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r50-103-029",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "software",
+     "category": "gift-cards",
+     "amountUsd": "142"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-030",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "travel",
+     "category": "alcohol",
+     "amountUsd": "39"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "deny",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r50-103-031",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "travel",
+     "category": "gift-cards",
+     "amountUsd": "28"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-032",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "supplies",
+     "category": "fines",
+     "amountUsd": "15"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "deny",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r50-103-033",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "gift-cards",
+     "amountUsd": "31"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "deny",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r50-103-034",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "supplies",
+     "category": "other-31",
+     "amountUsd": "1"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-035",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "supplies",
+     "category": "other-82",
+     "amountUsd": "35"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "reimburse",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r50-103-036",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "travel",
+     "category": "fines",
+     "amountUsd": "8"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-037",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "travel",
+     "category": "other-457",
+     "amountUsd": "82"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-038",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "travel",
+     "category": "gift-cards",
+     "amountUsd": "11"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-039",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "supplies",
+     "category": "fines",
+     "amountUsd": "16"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "deny",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r50-103-040",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "travel",
+     "category": "gift-cards",
+     "amountUsd": "110"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-041",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "gift-cards",
+     "amountUsd": "31"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-042",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "supplies",
+     "category": "alcohol",
+     "amountUsd": "63"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "deny",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r50-103-043",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "supplies",
+     "category": "gift-cards",
+     "amountUsd": "133"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-044",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "travel",
+     "category": "gift-cards",
+     "amountUsd": "43"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "deny",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r50-103-045",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "travel",
+     "category": "alcohol",
+     "amountUsd": "10"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "deny",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r50-103-046",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "supplies",
+     "category": "gift-cards",
+     "amountUsd": "123"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "deny",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r50-103-047",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "software",
+     "category": "fines",
+     "amountUsd": "38"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-048",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "supplies",
+     "category": "alcohol",
+     "amountUsd": "136"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r50-103-049",
+   "origin": "random-50-103",
+   "facts": {
+    "expense": {
+     "kind": "software",
+     "category": "other-303",
+     "amountUsd": "6"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  }
+ ]
+}

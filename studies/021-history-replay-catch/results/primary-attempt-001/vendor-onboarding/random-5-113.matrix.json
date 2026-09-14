@@ -1,0 +1,200 @@
+{
+ "matrixVersion": "3",
+ "cases": [
+  {
+   "id": "r5-113-000",
+   "origin": "random-5-113",
+   "facts": {
+    "request": {
+     "type": "new-vendor-onboarding"
+    },
+    "submission": {
+     "completeness": "other-435"
+    },
+    "vendor": {
+     "taxFormStatus": "received",
+     "sanctionsScreening": {
+      "status": "match"
+     }
+    },
+    "engagement": {
+     "annualSpendUsd": "317148"
+    }
+   },
+   "evidenceAvailability": {
+    "sanctions-screening": "present",
+    "tax-form": "absent",
+    "business-justification": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "exception-escalation",
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "exception-escalation",
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r5-113-001",
+   "origin": "random-5-113",
+   "facts": {
+    "request": {
+     "type": "new-vendor-onboarding"
+    },
+    "submission": {
+     "completeness": "other-614"
+    },
+    "vendor": {
+     "taxFormStatus": "received",
+     "sanctionsScreening": {
+      "status": "other-218"
+     }
+    },
+    "engagement": {
+     "annualSpendUsd": "90362"
+    }
+   },
+   "evidenceAvailability": {
+    "sanctions-screening": "absent",
+    "tax-form": "absent",
+    "business-justification": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r5-113-002",
+   "origin": "random-5-113",
+   "facts": {
+    "request": {
+     "type": "vendor-reactivation"
+    },
+    "submission": {
+     "completeness": "other-96"
+    },
+    "vendor": {
+     "taxFormStatus": "other-292",
+     "sanctionsScreening": {
+      "status": "clear"
+     }
+    },
+    "engagement": {
+     "annualSpendUsd": "240965"
+    }
+   },
+   "evidenceAvailability": {
+    "sanctions-screening": "absent",
+    "tax-form": "present",
+    "business-justification": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r5-113-003",
+   "origin": "random-5-113",
+   "facts": {
+    "request": {
+     "type": "new-vendor-onboarding"
+    },
+    "submission": {
+     "completeness": "other-911"
+    },
+    "vendor": {
+     "taxFormStatus": "other-280",
+     "sanctionsScreening": {
+      "status": "clear"
+     }
+    },
+    "engagement": {
+     "annualSpendUsd": "467636"
+    }
+   },
+   "evidenceAvailability": {
+    "sanctions-screening": "present",
+    "tax-form": "absent",
+    "business-justification": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "exception-escalation",
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "exception-escalation",
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r5-113-004",
+   "origin": "random-5-113",
+   "facts": {
+    "request": {
+     "type": "new-vendor-onboarding"
+    },
+    "submission": {
+     "completeness": "complete"
+    },
+    "vendor": {
+     "taxFormStatus": "received",
+     "sanctionsScreening": {
+      "status": "other-735"
+     }
+    },
+    "engagement": {
+     "annualSpendUsd": "113150"
+    }
+   },
+   "evidenceAvailability": {
+    "sanctions-screening": "present",
+    "tax-form": "present",
+    "business-justification": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "request-info",
+    "reasons": []
+   }
+  }
+ ]
+}

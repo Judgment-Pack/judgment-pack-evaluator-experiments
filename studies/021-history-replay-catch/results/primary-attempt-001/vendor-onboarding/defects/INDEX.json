@@ -1,0 +1,155 @@
+{
+ "attemptId": "f2284e59b2f2e5e5c368bcf4a5f1b74f",
+ "instances": [
+  {
+   "id": "D7-00",
+   "class": "D7",
+   "site": "rules/0/when/conditions/0",
+   "valid": true
+  },
+  {
+   "id": "D7-01",
+   "class": "D7",
+   "site": "rules/0/when/conditions/1",
+   "valid": true
+  },
+  {
+   "id": "D6-02",
+   "class": "D6",
+   "site": "rules/1/when[0]",
+   "valid": true
+  },
+  {
+   "id": "D6-03",
+   "class": "D6",
+   "site": "rules/1/when[1]",
+   "valid": true
+  },
+  {
+   "id": "D6-04",
+   "class": "D6",
+   "site": "rules/1/when[2]",
+   "valid": true
+  },
+  {
+   "id": "D6-05",
+   "class": "D6",
+   "site": "rules/1/when[3]",
+   "valid": true
+  },
+  {
+   "id": "D6-06",
+   "class": "D6",
+   "site": "rules/1/when[4]",
+   "valid": true
+  },
+  {
+   "id": "D6-07",
+   "class": "D6",
+   "site": "rules/1/when[5]",
+   "valid": true
+  },
+  {
+   "id": "D7-08",
+   "class": "D7",
+   "site": "rules/1/when/conditions/0",
+   "valid": true
+  },
+  {
+   "id": "D7-09",
+   "class": "D7",
+   "site": "rules/1/when/conditions/1",
+   "valid": true
+  },
+  {
+   "id": "D7-10",
+   "class": "D7",
+   "site": "rules/1/when/conditions/2",
+   "valid": true
+  },
+  {
+   "id": "D1-11",
+   "class": "D1",
+   "site": "rules/1/when/conditions/5",
+   "valid": true
+  },
+  {
+   "id": "D2-12",
+   "class": "D2",
+   "site": "rules/1/when/conditions/5",
+   "valid": true
+  },
+  {
+   "id": "D3-13",
+   "class": "D3",
+   "site": "rules/1/when/conditions/5",
+   "valid": true
+  },
+  {
+   "id": "D4-14",
+   "class": "D4",
+   "site": "rules/1/when/conditions/5",
+   "valid": true
+  },
+  {
+   "id": "D7-15",
+   "class": "D7",
+   "site": "exceptions/0/when",
+   "valid": true
+  },
+  {
+   "id": "D1-16",
+   "class": "D1",
+   "site": "exceptions/1/when",
+   "valid": true
+  },
+  {
+   "id": "D2-17",
+   "class": "D2",
+   "site": "exceptions/1/when",
+   "valid": true
+  },
+  {
+   "id": "D3-18",
+   "class": "D3",
+   "site": "exceptions/1/when",
+   "valid": true
+  },
+  {
+   "id": "D4-19",
+   "class": "D4",
+   "site": "exceptions/1/when",
+   "valid": true
+  },
+  {
+   "id": "D5-20",
+   "class": "D5",
+   "site": "rules/0:request-info->approve",
+   "valid": true
+  },
+  {
+   "id": "D5-21",
+   "class": "D5",
+   "site": "rules/1:approve->request-info",
+   "valid": true
+  },
+  {
+   "id": "D8-22",
+   "class": "D8",
+   "site": "exceptions/0:force->escalate",
+   "valid": true
+  },
+  {
+   "id": "D8-23",
+   "class": "D8",
+   "site": "exceptions/1:escalate->force",
+   "valid": true
+  },
+  {
+   "id": "D9-24",
+   "class": "D9",
+   "site": "fallbackOutcome:request-info->approve",
+   "valid": true
+  }
+ ]
+}

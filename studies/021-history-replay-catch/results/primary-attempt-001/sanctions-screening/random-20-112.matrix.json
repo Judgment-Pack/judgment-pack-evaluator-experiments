@@ -1,0 +1,469 @@
+{
+ "matrixVersion": "3",
+ "cases": [
+  {
+   "id": "r20-112-000",
+   "origin": "random-20-112",
+   "facts": {
+    "screening": {
+     "matchCount": "1"
+    }
+   },
+   "evidenceAvailability": {
+    "screening-record": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "match",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r20-112-001",
+   "origin": "random-20-112",
+   "facts": {
+    "screening": {
+     "matchCount": "0"
+    }
+   },
+   "evidenceAvailability": {
+    "screening-record": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "clear",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r20-112-002",
+   "origin": "random-20-112",
+   "facts": {
+    "screening": {
+     "matchCount": "1"
+    }
+   },
+   "evidenceAvailability": {
+    "screening-record": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "match",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r20-112-003",
+   "origin": "random-20-112",
+   "facts": {
+    "screening": {
+     "matchCount": "1"
+    }
+   },
+   "evidenceAvailability": {
+    "screening-record": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r20-112-004",
+   "origin": "random-20-112",
+   "facts": {
+    "screening": {
+     "matchCount": "0"
+    }
+   },
+   "evidenceAvailability": {
+    "screening-record": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r20-112-005",
+   "origin": "random-20-112",
+   "facts": {
+    "screening": {
+     "matchCount": "2"
+    }
+   },
+   "evidenceAvailability": {
+    "screening-record": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r20-112-006",
+   "origin": "random-20-112",
+   "facts": {
+    "screening": {
+     "matchCount": "1"
+    }
+   },
+   "evidenceAvailability": {
+    "screening-record": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "match",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r20-112-007",
+   "origin": "random-20-112",
+   "facts": {
+    "screening": {
+     "matchCount": "0"
+    }
+   },
+   "evidenceAvailability": {
+    "screening-record": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "clear",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r20-112-008",
+   "origin": "random-20-112",
+   "facts": {
+    "screening": {
+     "matchCount": "0"
+    }
+   },
+   "evidenceAvailability": {
+    "screening-record": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "clear",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r20-112-009",
+   "origin": "random-20-112",
+   "facts": {
+    "screening": {
+     "matchCount": "1"
+    }
+   },
+   "evidenceAvailability": {
+    "screening-record": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r20-112-010",
+   "origin": "random-20-112",
+   "facts": {
+    "screening": {
+     "matchCount": "2"
+    }
+   },
+   "evidenceAvailability": {
+    "screening-record": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r20-112-011",
+   "origin": "random-20-112",
+   "facts": {
+    "screening": {
+     "matchCount": "2"
+    }
+   },
+   "evidenceAvailability": {
+    "screening-record": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r20-112-012",
+   "origin": "random-20-112",
+   "facts": {
+    "screening": {
+     "matchCount": "0"
+    }
+   },
+   "evidenceAvailability": {
+    "screening-record": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r20-112-013",
+   "origin": "random-20-112",
+   "facts": {
+    "screening": {
+     "matchCount": "2"
+    }
+   },
+   "evidenceAvailability": {
+    "screening-record": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r20-112-014",
+   "origin": "random-20-112",
+   "facts": {
+    "screening": {
+     "matchCount": "2"
+    }
+   },
+   "evidenceAvailability": {
+    "screening-record": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r20-112-015",
+   "origin": "random-20-112",
+   "facts": {
+    "screening": {
+     "matchCount": "1"
+    }
+   },
+   "evidenceAvailability": {
+    "screening-record": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "match",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r20-112-016",
+   "origin": "random-20-112",
+   "facts": {
+    "screening": {
+     "matchCount": "0"
+    }
+   },
+   "evidenceAvailability": {
+    "screening-record": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "clear",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r20-112-017",
+   "origin": "random-20-112",
+   "facts": {
+    "screening": {
+     "matchCount": "2"
+    }
+   },
+   "evidenceAvailability": {
+    "screening-record": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "match",
+    "reasons": []
+   }
+  },
+  {
+   "id": "r20-112-018",
+   "origin": "random-20-112",
+   "facts": {
+    "screening": {
+     "matchCount": "1"
+    }
+   },
+   "evidenceAvailability": {
+    "screening-record": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r20-112-019",
+   "origin": "random-20-112",
+   "facts": {
+    "screening": {
+     "matchCount": "0"
+    }
+   },
+   "evidenceAvailability": {
+    "screening-record": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  }
+ ]
+}

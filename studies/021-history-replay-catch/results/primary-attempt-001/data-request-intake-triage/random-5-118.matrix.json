@@ -1,0 +1,151 @@
+{
+ "matrixVersion": "3",
+ "cases": [
+  {
+   "id": "r5-118-000",
+   "origin": "random-5-118",
+   "facts": {
+    "request": {
+     "type": "one-time-extract",
+     "completeness": "other-251",
+     "appropriateness": "not-evaluable",
+     "embargoedInformationToUnauthorizedRecipients": false
+    }
+   },
+   "evidenceAvailability": {
+    "intake-form": "absent",
+    "sponsor-endorsement": "absent",
+    "sensitive-data-approvals": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r5-118-001",
+   "origin": "random-5-118",
+   "facts": {
+    "request": {
+     "type": "data-access",
+     "completeness": "complete",
+     "appropriateness": "not-evaluable",
+     "embargoedInformationToUnauthorizedRecipients": true
+    }
+   },
+   "evidenceAvailability": {
+    "intake-form": "absent",
+    "sponsor-endorsement": "absent",
+    "sensitive-data-approvals": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r5-118-002",
+   "origin": "random-5-118",
+   "facts": {
+    "request": {
+     "type": "one-time-extract",
+     "completeness": "other-360",
+     "appropriateness": "pending",
+     "embargoedInformationToUnauthorizedRecipients": true
+    }
+   },
+   "evidenceAvailability": {
+    "intake-form": "absent",
+    "sponsor-endorsement": "present",
+    "sensitive-data-approvals": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r5-118-003",
+   "origin": "random-5-118",
+   "facts": {
+    "request": {
+     "type": "pipeline-change",
+     "completeness": "incomplete",
+     "appropriateness": "pass",
+     "embargoedInformationToUnauthorizedRecipients": true
+    }
+   },
+   "evidenceAvailability": {
+    "intake-form": "absent",
+    "sponsor-endorsement": "absent",
+    "sensitive-data-approvals": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "r5-118-004",
+   "origin": "random-5-118",
+   "facts": {
+    "request": {
+     "type": "data-access",
+     "completeness": "other-465",
+     "appropriateness": "hard-fail",
+     "embargoedInformationToUnauthorizedRecipients": true
+    }
+   },
+   "evidenceAvailability": {
+    "intake-form": "present",
+    "sponsor-endorsement": "present",
+    "sensitive-data-approvals": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "decline-redirect",
+    "reasons": []
+   }
+  }
+ ]
+}

@@ -1,0 +1,6617 @@
+[
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-10",
+  "site": "rules/0:decline-redirect->proceed",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-10",
+  "site": "rules/0:decline-redirect->proceed",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 3,
+  "rate": 0.1,
+  "ci95exact": [
+   0.0211,
+   0.2653
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-10",
+  "site": "rules/0:decline-redirect->proceed",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 3,
+  "rate": 0.1,
+  "ci95exact": [
+   0.0211,
+   0.2653
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-10",
+  "site": "rules/0:decline-redirect->proceed",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 12,
+  "rate": 0.4,
+  "ci95exact": [
+   0.2266,
+   0.594
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-10",
+  "site": "rules/0:decline-redirect->proceed",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 16,
+  "rate": 0.5333,
+  "ci95exact": [
+   0.3433,
+   0.7166
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-11",
+  "site": "rules/1:clarify-return->proceed",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-11",
+  "site": "rules/1:clarify-return->proceed",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 13,
+  "rate": 0.4333,
+  "ci95exact": [
+   0.2546,
+   0.6257
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-11",
+  "site": "rules/1:clarify-return->proceed",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 17,
+  "rate": 0.5667,
+  "ci95exact": [
+   0.3743,
+   0.7454
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-11",
+  "site": "rules/1:clarify-return->proceed",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 25,
+  "rate": 0.8333,
+  "ci95exact": [
+   0.6528,
+   0.9436
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-11",
+  "site": "rules/1:clarify-return->proceed",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-12",
+  "site": "rules/2:proceed->clarify-return",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-12",
+  "site": "rules/2:proceed->clarify-return",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 2,
+  "rate": 0.0667,
+  "ci95exact": [
+   0.0082,
+   0.2207
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-12",
+  "site": "rules/2:proceed->clarify-return",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 1,
+  "rate": 0.0333,
+  "ci95exact": [
+   0.0008,
+   0.1722
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-12",
+  "site": "rules/2:proceed->clarify-return",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 6,
+  "rate": 0.2,
+  "ci95exact": [
+   0.0771,
+   0.3857
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-12",
+  "site": "rules/2:proceed->clarify-return",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 13,
+  "rate": 0.4333,
+  "ci95exact": [
+   0.2546,
+   0.6257
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-04",
+  "site": "rules/2/when[0]",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-04",
+  "site": "rules/2/when[0]",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 2,
+  "rate": 0.0667,
+  "ci95exact": [
+   0.0082,
+   0.2207
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-04",
+  "site": "rules/2/when[0]",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 5,
+  "rate": 0.1667,
+  "ci95exact": [
+   0.0564,
+   0.3472
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-04",
+  "site": "rules/2/when[0]",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 10,
+  "rate": 0.3333,
+  "ci95exact": [
+   0.1729,
+   0.5281
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-04",
+  "site": "rules/2/when[0]",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 17,
+  "rate": 0.5667,
+  "ci95exact": [
+   0.3743,
+   0.7454
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-05",
+  "site": "rules/2/when[1]",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-05",
+  "site": "rules/2/when[1]",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 5,
+  "rate": 0.1667,
+  "ci95exact": [
+   0.0564,
+   0.3472
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-05",
+  "site": "rules/2/when[1]",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 7,
+  "rate": 0.2333,
+  "ci95exact": [
+   0.0993,
+   0.4228
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-05",
+  "site": "rules/2/when[1]",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 14,
+  "rate": 0.4667,
+  "ci95exact": [
+   0.2834,
+   0.6567
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-05",
+  "site": "rules/2/when[1]",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 25,
+  "rate": 0.8333,
+  "ci95exact": [
+   0.6528,
+   0.9436
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-06",
+  "site": "rules/2/when[2]",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-06",
+  "site": "rules/2/when[2]",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-06",
+  "site": "rules/2/when[2]",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-06",
+  "site": "rules/2/when[2]",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-06",
+  "site": "rules/2/when[2]",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-07",
+  "site": "rules/2/when[3]",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-07",
+  "site": "rules/2/when[3]",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-07",
+  "site": "rules/2/when[3]",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-07",
+  "site": "rules/2/when[3]",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-07",
+  "site": "rules/2/when[3]",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-00",
+  "site": "rules/0/when",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-00",
+  "site": "rules/0/when",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 8,
+  "rate": 0.2667,
+  "ci95exact": [
+   0.1228,
+   0.4589
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-00",
+  "site": "rules/0/when",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 5,
+  "rate": 0.1667,
+  "ci95exact": [
+   0.0564,
+   0.3472
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-00",
+  "site": "rules/0/when",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 15,
+  "rate": 0.5,
+  "ci95exact": [
+   0.313,
+   0.687
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-00",
+  "site": "rules/0/when",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 18,
+  "rate": 0.6,
+  "ci95exact": [
+   0.406,
+   0.7734
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-01",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-01",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 5,
+  "rate": 0.1667,
+  "ci95exact": [
+   0.0564,
+   0.3472
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-01",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 2,
+  "rate": 0.0667,
+  "ci95exact": [
+   0.0082,
+   0.2207
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-01",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 5,
+  "rate": 0.1667,
+  "ci95exact": [
+   0.0564,
+   0.3472
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-01",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 7,
+  "rate": 0.2333,
+  "ci95exact": [
+   0.0993,
+   0.4228
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-02",
+  "site": "rules/1/when/conditions/1[0]",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-02",
+  "site": "rules/1/when/conditions/1[0]",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-02",
+  "site": "rules/1/when/conditions/1[0]",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-02",
+  "site": "rules/1/when/conditions/1[0]",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-02",
+  "site": "rules/1/when/conditions/1[0]",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-03",
+  "site": "rules/1/when/conditions/1[1]",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-03",
+  "site": "rules/1/when/conditions/1[1]",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-03",
+  "site": "rules/1/when/conditions/1[1]",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-03",
+  "site": "rules/1/when/conditions/1[1]",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-03",
+  "site": "rules/1/when/conditions/1[1]",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-08",
+  "site": "rules/2/when/conditions/0",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-08",
+  "site": "rules/2/when/conditions/0",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 2,
+  "rate": 0.0667,
+  "ci95exact": [
+   0.0082,
+   0.2207
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-08",
+  "site": "rules/2/when/conditions/0",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 1,
+  "rate": 0.0333,
+  "ci95exact": [
+   0.0008,
+   0.1722
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-08",
+  "site": "rules/2/when/conditions/0",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 6,
+  "rate": 0.2,
+  "ci95exact": [
+   0.0771,
+   0.3857
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-08",
+  "site": "rules/2/when/conditions/0",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 13,
+  "rate": 0.4333,
+  "ci95exact": [
+   0.2546,
+   0.6257
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-09",
+  "site": "rules/2/when/conditions/1",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-09",
+  "site": "rules/2/when/conditions/1",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 2,
+  "rate": 0.0667,
+  "ci95exact": [
+   0.0082,
+   0.2207
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-09",
+  "site": "rules/2/when/conditions/1",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 1,
+  "rate": 0.0333,
+  "ci95exact": [
+   0.0008,
+   0.1722
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-09",
+  "site": "rules/2/when/conditions/1",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 6,
+  "rate": 0.2,
+  "ci95exact": [
+   0.0771,
+   0.3857
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-09",
+  "site": "rules/2/when/conditions/1",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 13,
+  "rate": 0.4333,
+  "ci95exact": [
+   0.2546,
+   0.6257
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D8",
+  "defect": "D8-13",
+  "site": "exceptions/0:force->escalate",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D8",
+  "defect": "D8-13",
+  "site": "exceptions/0:force->escalate",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D8",
+  "defect": "D8-13",
+  "site": "exceptions/0:force->escalate",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D8",
+  "defect": "D8-13",
+  "site": "exceptions/0:force->escalate",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D8",
+  "defect": "D8-13",
+  "site": "exceptions/0:force->escalate",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D9",
+  "defect": "D9-14",
+  "site": "fallbackOutcome:clarify-return->proceed",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D9",
+  "defect": "D9-14",
+  "site": "fallbackOutcome:clarify-return->proceed",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 1,
+  "rate": 0.0333,
+  "ci95exact": [
+   0.0008,
+   0.1722
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D9",
+  "defect": "D9-14",
+  "site": "fallbackOutcome:clarify-return->proceed",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 6,
+  "rate": 0.2,
+  "ci95exact": [
+   0.0771,
+   0.3857
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D9",
+  "defect": "D9-14",
+  "site": "fallbackOutcome:clarify-return->proceed",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 10,
+  "rate": 0.3333,
+  "ci95exact": [
+   0.1729,
+   0.5281
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D9",
+  "defect": "D9-14",
+  "site": "fallbackOutcome:clarify-return->proceed",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 19,
+  "rate": 0.6333,
+  "ci95exact": [
+   0.4386,
+   0.8007
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 3,
+  "caught": 2,
+  "rate": 0.6667,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 90,
+  "caught": 18,
+  "rate": 0.2,
+  "referenceInterval": [
+   0.1231,
+   0.2975
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 90,
+  "caught": 21,
+  "rate": 0.2333,
+  "referenceInterval": [
+   0.1506,
+   0.3343
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 90,
+  "caught": 43,
+  "rate": 0.4778,
+  "referenceInterval": [
+   0.3713,
+   0.5857
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 90,
+  "caught": 59,
+  "rate": 0.6556,
+  "referenceInterval": [
+   0.548,
+   0.7526
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 4,
+  "caught": 1,
+  "rate": 0.25,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 120,
+  "caught": 7,
+  "rate": 0.0583,
+  "referenceInterval": [
+   0.0238,
+   0.1165
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 120,
+  "caught": 12,
+  "rate": 0.1,
+  "referenceInterval": [
+   0.0527,
+   0.1682
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 120,
+  "caught": 24,
+  "rate": 0.2,
+  "referenceInterval": [
+   0.1325,
+   0.2828
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 120,
+  "caught": 42,
+  "rate": 0.35,
+  "referenceInterval": [
+   0.2652,
+   0.4424
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 6,
+  "caught": 4,
+  "rate": 0.6667,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 180,
+  "caught": 17,
+  "rate": 0.0944,
+  "referenceInterval": [
+   0.056,
+   0.1469
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 180,
+  "caught": 9,
+  "rate": 0.05,
+  "referenceInterval": [
+   0.0231,
+   0.0928
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 180,
+  "caught": 32,
+  "rate": 0.1778,
+  "referenceInterval": [
+   0.1249,
+   0.2416
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 180,
+  "caught": 51,
+  "rate": 0.2833,
+  "referenceInterval": [
+   0.2188,
+   0.3552
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D8",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D8",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8843,
+   1.0
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D8",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8843,
+   1.0
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D8",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8843,
+   1.0
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D8",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8843,
+   1.0
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 0,
+  "rate": 0.0,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 1,
+  "rate": 0.0333,
+  "referenceInterval": [
+   0.0008,
+   0.1722
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 6,
+  "rate": 0.2,
+  "referenceInterval": [
+   0.0771,
+   0.3857
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 10,
+  "rate": 0.3333,
+  "referenceInterval": [
+   0.1729,
+   0.5281
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 19,
+  "rate": 0.6333,
+  "referenceInterval": [
+   0.4386,
+   0.8007
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D1",
+  "defect": "D1-06",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D1",
+  "defect": "D1-06",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D1",
+  "defect": "D1-06",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 4,
+  "rate": 0.1333,
+  "ci95exact": [
+   0.0376,
+   0.3072
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D1",
+  "defect": "D1-06",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 6,
+  "rate": 0.2,
+  "ci95exact": [
+   0.0771,
+   0.3857
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D1",
+  "defect": "D1-06",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 16,
+  "rate": 0.5333,
+  "ci95exact": [
+   0.3433,
+   0.7166
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D2",
+  "defect": "D2-07",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D2",
+  "defect": "D2-07",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D2",
+  "defect": "D2-07",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 6,
+  "rate": 0.2,
+  "ci95exact": [
+   0.0771,
+   0.3857
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D2",
+  "defect": "D2-07",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 10,
+  "rate": 0.3333,
+  "ci95exact": [
+   0.1729,
+   0.5281
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D2",
+  "defect": "D2-07",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 22,
+  "rate": 0.7333,
+  "ci95exact": [
+   0.5411,
+   0.8772
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D3",
+  "defect": "D3-08",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D3",
+  "defect": "D3-08",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D3",
+  "defect": "D3-08",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D3",
+  "defect": "D3-08",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 2,
+  "rate": 0.0667,
+  "ci95exact": [
+   0.0082,
+   0.2207
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D3",
+  "defect": "D3-08",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D4",
+  "defect": "D4-09",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D4",
+  "defect": "D4-09",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 12,
+  "rate": 0.4,
+  "ci95exact": [
+   0.2266,
+   0.594
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D4",
+  "defect": "D4-09",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 24,
+  "rate": 0.8,
+  "ci95exact": [
+   0.6143,
+   0.9229
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D4",
+  "defect": "D4-09",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 27,
+  "rate": 0.9,
+  "ci95exact": [
+   0.7347,
+   0.9789
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D4",
+  "defect": "D4-09",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "D5-13",
+  "site": "rules/0:deny->reimburse",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "D5-13",
+  "site": "rules/0:deny->reimburse",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 26,
+  "rate": 0.8667,
+  "ci95exact": [
+   0.6928,
+   0.9624
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "D5-13",
+  "site": "rules/0:deny->reimburse",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 29,
+  "rate": 0.9667,
+  "ci95exact": [
+   0.8278,
+   0.9992
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "D5-13",
+  "site": "rules/0:deny->reimburse",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "D5-13",
+  "site": "rules/0:deny->reimburse",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "D5-14",
+  "site": "rules/1:reimburse->deny",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "D5-14",
+  "site": "rules/1:reimburse->deny",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 7,
+  "rate": 0.2333,
+  "ci95exact": [
+   0.0993,
+   0.4228
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "D5-14",
+  "site": "rules/1:reimburse->deny",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 16,
+  "rate": 0.5333,
+  "ci95exact": [
+   0.3433,
+   0.7166
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "D5-14",
+  "site": "rules/1:reimburse->deny",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 23,
+  "rate": 0.7667,
+  "ci95exact": [
+   0.5772,
+   0.9007
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "D5-14",
+  "site": "rules/1:reimburse->deny",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 29,
+  "rate": 0.9667,
+  "ci95exact": [
+   0.8278,
+   0.9992
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-03",
+  "site": "rules/1/when[0]",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-03",
+  "site": "rules/1/when[0]",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 5,
+  "rate": 0.1667,
+  "ci95exact": [
+   0.0564,
+   0.3472
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-03",
+  "site": "rules/1/when[0]",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 14,
+  "rate": 0.4667,
+  "ci95exact": [
+   0.2834,
+   0.6567
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-03",
+  "site": "rules/1/when[0]",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 21,
+  "rate": 0.7,
+  "ci95exact": [
+   0.506,
+   0.8527
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-03",
+  "site": "rules/1/when[0]",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 29,
+  "rate": 0.9667,
+  "ci95exact": [
+   0.8278,
+   0.9992
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-04",
+  "site": "rules/1/when[1]",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-04",
+  "site": "rules/1/when[1]",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 17,
+  "rate": 0.5667,
+  "ci95exact": [
+   0.3743,
+   0.7454
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-04",
+  "site": "rules/1/when[1]",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 25,
+  "rate": 0.8333,
+  "ci95exact": [
+   0.6528,
+   0.9436
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-04",
+  "site": "rules/1/when[1]",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-04",
+  "site": "rules/1/when[1]",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-05",
+  "site": "rules/1/when[2]",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-05",
+  "site": "rules/1/when[2]",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-05",
+  "site": "rules/1/when[2]",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-05",
+  "site": "rules/1/when[2]",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-05",
+  "site": "rules/1/when[2]",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-00",
+  "site": "rules/0/when[0]",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-00",
+  "site": "rules/0/when[0]",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 11,
+  "rate": 0.3667,
+  "ci95exact": [
+   0.1993,
+   0.5614
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-00",
+  "site": "rules/0/when[0]",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 19,
+  "rate": 0.6333,
+  "ci95exact": [
+   0.4386,
+   0.8007
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-00",
+  "site": "rules/0/when[0]",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-00",
+  "site": "rules/0/when[0]",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-01",
+  "site": "rules/0/when[1]",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-01",
+  "site": "rules/0/when[1]",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 13,
+  "rate": 0.4333,
+  "ci95exact": [
+   0.2546,
+   0.6257
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-01",
+  "site": "rules/0/when[1]",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 20,
+  "rate": 0.6667,
+  "ci95exact": [
+   0.4719,
+   0.8271
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-01",
+  "site": "rules/0/when[1]",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 28,
+  "rate": 0.9333,
+  "ci95exact": [
+   0.7793,
+   0.9918
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-01",
+  "site": "rules/0/when[1]",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-02",
+  "site": "rules/0/when[2]",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-02",
+  "site": "rules/0/when[2]",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 16,
+  "rate": 0.5333,
+  "ci95exact": [
+   0.3433,
+   0.7166
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-02",
+  "site": "rules/0/when[2]",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 25,
+  "rate": 0.8333,
+  "ci95exact": [
+   0.6528,
+   0.9436
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-02",
+  "site": "rules/0/when[2]",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 27,
+  "rate": 0.9,
+  "ci95exact": [
+   0.7347,
+   0.9789
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-02",
+  "site": "rules/0/when[2]",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-10",
+  "site": "rules/1/when/conditions/1/condition[0]",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-10",
+  "site": "rules/1/when/conditions/1/condition[0]",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 6,
+  "rate": 0.2,
+  "ci95exact": [
+   0.0771,
+   0.3857
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-10",
+  "site": "rules/1/when/conditions/1/condition[0]",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 13,
+  "rate": 0.4333,
+  "ci95exact": [
+   0.2546,
+   0.6257
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-10",
+  "site": "rules/1/when/conditions/1/condition[0]",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 23,
+  "rate": 0.7667,
+  "ci95exact": [
+   0.5772,
+   0.9007
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-10",
+  "site": "rules/1/when/conditions/1/condition[0]",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 29,
+  "rate": 0.9667,
+  "ci95exact": [
+   0.8278,
+   0.9992
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-11",
+  "site": "rules/1/when/conditions/1/condition[1]",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-11",
+  "site": "rules/1/when/conditions/1/condition[1]",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 7,
+  "rate": 0.2333,
+  "ci95exact": [
+   0.0993,
+   0.4228
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-11",
+  "site": "rules/1/when/conditions/1/condition[1]",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 13,
+  "rate": 0.4333,
+  "ci95exact": [
+   0.2546,
+   0.6257
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-11",
+  "site": "rules/1/when/conditions/1/condition[1]",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 20,
+  "rate": 0.6667,
+  "ci95exact": [
+   0.4719,
+   0.8271
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-11",
+  "site": "rules/1/when/conditions/1/condition[1]",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 28,
+  "rate": 0.9333,
+  "ci95exact": [
+   0.7793,
+   0.9918
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-12",
+  "site": "rules/1/when/conditions/1/condition[2]",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-12",
+  "site": "rules/1/when/conditions/1/condition[2]",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 9,
+  "rate": 0.3,
+  "ci95exact": [
+   0.1473,
+   0.494
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-12",
+  "site": "rules/1/when/conditions/1/condition[2]",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 14,
+  "rate": 0.4667,
+  "ci95exact": [
+   0.2834,
+   0.6567
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-12",
+  "site": "rules/1/when/conditions/1/condition[2]",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 20,
+  "rate": 0.6667,
+  "ci95exact": [
+   0.4719,
+   0.8271
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-12",
+  "site": "rules/1/when/conditions/1/condition[2]",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D9",
+  "defect": "D9-15",
+  "site": "fallbackOutcome:review->reimburse",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D9",
+  "defect": "D9-15",
+  "site": "fallbackOutcome:review->reimburse",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 5,
+  "rate": 0.1667,
+  "ci95exact": [
+   0.0564,
+   0.3472
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D9",
+  "defect": "D9-15",
+  "site": "fallbackOutcome:review->reimburse",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 14,
+  "rate": 0.4667,
+  "ci95exact": [
+   0.2834,
+   0.6567
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D9",
+  "defect": "D9-15",
+  "site": "fallbackOutcome:review->reimburse",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 21,
+  "rate": 0.7,
+  "ci95exact": [
+   0.506,
+   0.8527
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D9",
+  "defect": "D9-15",
+  "site": "fallbackOutcome:review->reimburse",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 29,
+  "rate": 0.9667,
+  "ci95exact": [
+   0.8278,
+   0.9992
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.1157
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 4,
+  "rate": 0.1333,
+  "referenceInterval": [
+   0.0376,
+   0.3072
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 6,
+  "rate": 0.2,
+  "referenceInterval": [
+   0.0771,
+   0.3857
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 16,
+  "rate": 0.5333,
+  "referenceInterval": [
+   0.3433,
+   0.7166
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.1157
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 6,
+  "rate": 0.2,
+  "referenceInterval": [
+   0.0771,
+   0.3857
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 10,
+  "rate": 0.3333,
+  "referenceInterval": [
+   0.1729,
+   0.5281
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 22,
+  "rate": 0.7333,
+  "referenceInterval": [
+   0.5411,
+   0.8772
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.1157
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.1157
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 2,
+  "rate": 0.0667,
+  "referenceInterval": [
+   0.0082,
+   0.2207
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.1157
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 12,
+  "rate": 0.4,
+  "referenceInterval": [
+   0.2266,
+   0.594
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 24,
+  "rate": 0.8,
+  "referenceInterval": [
+   0.6143,
+   0.9229
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 27,
+  "rate": 0.9,
+  "referenceInterval": [
+   0.7347,
+   0.9789
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8843,
+   1.0
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 2,
+  "caught": 2,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 60,
+  "caught": 33,
+  "rate": 0.55,
+  "referenceInterval": [
+   0.4161,
+   0.6788
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 60,
+  "caught": 45,
+  "rate": 0.75,
+  "referenceInterval": [
+   0.6214,
+   0.8528
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 60,
+  "caught": 53,
+  "rate": 0.8833,
+  "referenceInterval": [
+   0.7743,
+   0.9518
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 60,
+  "caught": 59,
+  "rate": 0.9833,
+  "referenceInterval": [
+   0.9106,
+   0.9996
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 3,
+  "caught": 2,
+  "rate": 0.6667,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 90,
+  "caught": 22,
+  "rate": 0.2444,
+  "referenceInterval": [
+   0.16,
+   0.3464
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 90,
+  "caught": 39,
+  "rate": 0.4333,
+  "referenceInterval": [
+   0.3292,
+   0.542
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 90,
+  "caught": 51,
+  "rate": 0.5667,
+  "referenceInterval": [
+   0.458,
+   0.6708
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 90,
+  "caught": 59,
+  "rate": 0.6556,
+  "referenceInterval": [
+   0.548,
+   0.7526
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 6,
+  "caught": 6,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 180,
+  "caught": 62,
+  "rate": 0.3444,
+  "referenceInterval": [
+   0.2753,
+   0.4188
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 180,
+  "caught": 104,
+  "rate": 0.5778,
+  "referenceInterval": [
+   0.5021,
+   0.6509
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 180,
+  "caught": 148,
+  "rate": 0.8222,
+  "referenceInterval": [
+   0.7584,
+   0.8751
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 180,
+  "caught": 177,
+  "rate": 0.9833,
+  "referenceInterval": [
+   0.9521,
+   0.9965
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 5,
+  "rate": 0.1667,
+  "referenceInterval": [
+   0.0564,
+   0.3472
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 14,
+  "rate": 0.4667,
+  "referenceInterval": [
+   0.2834,
+   0.6567
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 21,
+  "rate": 0.7,
+  "referenceInterval": [
+   0.506,
+   0.8527
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 29,
+  "rate": 0.9667,
+  "referenceInterval": [
+   0.8278,
+   0.9992
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D1",
+  "defect": "D1-01",
+  "site": "rules/1/when",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D1",
+  "defect": "D1-01",
+  "site": "rules/1/when",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 17,
+  "rate": 0.5667,
+  "ci95exact": [
+   0.3743,
+   0.7454
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D1",
+  "defect": "D1-01",
+  "site": "rules/1/when",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 26,
+  "rate": 0.8667,
+  "ci95exact": [
+   0.6928,
+   0.9624
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D1",
+  "defect": "D1-01",
+  "site": "rules/1/when",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 29,
+  "rate": 0.9667,
+  "ci95exact": [
+   0.8278,
+   0.9992
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D1",
+  "defect": "D1-01",
+  "site": "rules/1/when",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D2",
+  "defect": "D2-02",
+  "site": "rules/1/when",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D2",
+  "defect": "D2-02",
+  "site": "rules/1/when",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 15,
+  "rate": 0.5,
+  "ci95exact": [
+   0.313,
+   0.687
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D2",
+  "defect": "D2-02",
+  "site": "rules/1/when",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 28,
+  "rate": 0.9333,
+  "ci95exact": [
+   0.7793,
+   0.9918
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D2",
+  "defect": "D2-02",
+  "site": "rules/1/when",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D2",
+  "defect": "D2-02",
+  "site": "rules/1/when",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D3",
+  "defect": "D3-03",
+  "site": "rules/1/when",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D3",
+  "defect": "D3-03",
+  "site": "rules/1/when",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 17,
+  "rate": 0.5667,
+  "ci95exact": [
+   0.3743,
+   0.7454
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D3",
+  "defect": "D3-03",
+  "site": "rules/1/when",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 26,
+  "rate": 0.8667,
+  "ci95exact": [
+   0.6928,
+   0.9624
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D3",
+  "defect": "D3-03",
+  "site": "rules/1/when",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 29,
+  "rate": 0.9667,
+  "ci95exact": [
+   0.8278,
+   0.9992
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D3",
+  "defect": "D3-03",
+  "site": "rules/1/when",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D4",
+  "defect": "D4-04",
+  "site": "rules/1/when",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D4",
+  "defect": "D4-04",
+  "site": "rules/1/when",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 25,
+  "rate": 0.8333,
+  "ci95exact": [
+   0.6528,
+   0.9436
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D4",
+  "defect": "D4-04",
+  "site": "rules/1/when",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D4",
+  "defect": "D4-04",
+  "site": "rules/1/when",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D4",
+  "defect": "D4-04",
+  "site": "rules/1/when",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "D5-05",
+  "site": "rules/0:clear->match",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "D5-05",
+  "site": "rules/0:clear->match",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 15,
+  "rate": 0.5,
+  "ci95exact": [
+   0.313,
+   0.687
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "D5-05",
+  "site": "rules/0:clear->match",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 28,
+  "rate": 0.9333,
+  "ci95exact": [
+   0.7793,
+   0.9918
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "D5-05",
+  "site": "rules/0:clear->match",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "D5-05",
+  "site": "rules/0:clear->match",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "D5-06",
+  "site": "rules/1:match->clear",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "D5-06",
+  "site": "rules/1:match->clear",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 27,
+  "rate": 0.9,
+  "ci95exact": [
+   0.7347,
+   0.9789
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "D5-06",
+  "site": "rules/1:match->clear",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "D5-06",
+  "site": "rules/1:match->clear",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "D5-06",
+  "site": "rules/1:match->clear",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D7",
+  "defect": "D7-00",
+  "site": "rules/0/when",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D7",
+  "defect": "D7-00",
+  "site": "rules/0/when",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 15,
+  "rate": 0.5,
+  "ci95exact": [
+   0.313,
+   0.687
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D7",
+  "defect": "D7-00",
+  "site": "rules/0/when",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 28,
+  "rate": 0.9333,
+  "ci95exact": [
+   0.7793,
+   0.9918
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D7",
+  "defect": "D7-00",
+  "site": "rules/0/when",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D7",
+  "defect": "D7-00",
+  "site": "rules/0/when",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 17,
+  "rate": 0.5667,
+  "referenceInterval": [
+   0.3743,
+   0.7454
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 26,
+  "rate": 0.8667,
+  "referenceInterval": [
+   0.6928,
+   0.9624
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 29,
+  "rate": 0.9667,
+  "referenceInterval": [
+   0.8278,
+   0.9992
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8843,
+   1.0
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 15,
+  "rate": 0.5,
+  "referenceInterval": [
+   0.313,
+   0.687
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 28,
+  "rate": 0.9333,
+  "referenceInterval": [
+   0.7793,
+   0.9918
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8843,
+   1.0
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8843,
+   1.0
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 17,
+  "rate": 0.5667,
+  "referenceInterval": [
+   0.3743,
+   0.7454
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 26,
+  "rate": 0.8667,
+  "referenceInterval": [
+   0.6928,
+   0.9624
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 29,
+  "rate": 0.9667,
+  "referenceInterval": [
+   0.8278,
+   0.9992
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8843,
+   1.0
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 25,
+  "rate": 0.8333,
+  "referenceInterval": [
+   0.6528,
+   0.9436
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8843,
+   1.0
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8843,
+   1.0
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8843,
+   1.0
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 2,
+  "caught": 2,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 60,
+  "caught": 42,
+  "rate": 0.7,
+  "referenceInterval": [
+   0.5679,
+   0.8115
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 60,
+  "caught": 58,
+  "rate": 0.9667,
+  "referenceInterval": [
+   0.8847,
+   0.9959
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 60,
+  "caught": 60,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.9404,
+   1.0
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 60,
+  "caught": 60,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.9404,
+   1.0
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 15,
+  "rate": 0.5,
+  "referenceInterval": [
+   0.313,
+   0.687
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 28,
+  "rate": 0.9333,
+  "referenceInterval": [
+   0.7793,
+   0.9918
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8843,
+   1.0
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8843,
+   1.0
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "D1-11",
+  "site": "rules/1/when/conditions/5",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "D1-11",
+  "site": "rules/1/when/conditions/5",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "D1-11",
+  "site": "rules/1/when/conditions/5",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "D1-11",
+  "site": "rules/1/when/conditions/5",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "D1-11",
+  "site": "rules/1/when/conditions/5",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "D1-16",
+  "site": "exceptions/1/when",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "D1-16",
+  "site": "exceptions/1/when",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 12,
+  "rate": 0.4,
+  "ci95exact": [
+   0.2266,
+   0.594
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "D1-16",
+  "site": "exceptions/1/when",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 22,
+  "rate": 0.7333,
+  "ci95exact": [
+   0.5411,
+   0.8772
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "D1-16",
+  "site": "exceptions/1/when",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 26,
+  "rate": 0.8667,
+  "ci95exact": [
+   0.6928,
+   0.9624
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "D1-16",
+  "site": "exceptions/1/when",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "D2-12",
+  "site": "rules/1/when/conditions/5",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "D2-12",
+  "site": "rules/1/when/conditions/5",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "D2-12",
+  "site": "rules/1/when/conditions/5",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "D2-12",
+  "site": "rules/1/when/conditions/5",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 2,
+  "rate": 0.0667,
+  "ci95exact": [
+   0.0082,
+   0.2207
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "D2-12",
+  "site": "rules/1/when/conditions/5",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 1,
+  "rate": 0.0333,
+  "ci95exact": [
+   0.0008,
+   0.1722
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "D2-17",
+  "site": "exceptions/1/when",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "D2-17",
+  "site": "exceptions/1/when",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 15,
+  "rate": 0.5,
+  "ci95exact": [
+   0.313,
+   0.687
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "D2-17",
+  "site": "exceptions/1/when",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 21,
+  "rate": 0.7,
+  "ci95exact": [
+   0.506,
+   0.8527
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "D2-17",
+  "site": "exceptions/1/when",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 28,
+  "rate": 0.9333,
+  "ci95exact": [
+   0.7793,
+   0.9918
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "D2-17",
+  "site": "exceptions/1/when",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "D3-13",
+  "site": "rules/1/when/conditions/5",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "D3-13",
+  "site": "rules/1/when/conditions/5",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "D3-13",
+  "site": "rules/1/when/conditions/5",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "D3-13",
+  "site": "rules/1/when/conditions/5",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "D3-13",
+  "site": "rules/1/when/conditions/5",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "D3-18",
+  "site": "exceptions/1/when",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "D3-18",
+  "site": "exceptions/1/when",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "D3-18",
+  "site": "exceptions/1/when",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "D3-18",
+  "site": "exceptions/1/when",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "D3-18",
+  "site": "exceptions/1/when",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "D4-14",
+  "site": "rules/1/when/conditions/5",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "D4-14",
+  "site": "rules/1/when/conditions/5",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 1,
+  "rate": 0.0333,
+  "ci95exact": [
+   0.0008,
+   0.1722
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "D4-14",
+  "site": "rules/1/when/conditions/5",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 1,
+  "rate": 0.0333,
+  "ci95exact": [
+   0.0008,
+   0.1722
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "D4-14",
+  "site": "rules/1/when/conditions/5",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 5,
+  "rate": 0.1667,
+  "ci95exact": [
+   0.0564,
+   0.3472
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "D4-14",
+  "site": "rules/1/when/conditions/5",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 6,
+  "rate": 0.2,
+  "ci95exact": [
+   0.0771,
+   0.3857
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "D4-19",
+  "site": "exceptions/1/when",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "D4-19",
+  "site": "exceptions/1/when",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "D4-19",
+  "site": "exceptions/1/when",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "D4-19",
+  "site": "exceptions/1/when",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "D4-19",
+  "site": "exceptions/1/when",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "D5-20",
+  "site": "rules/0:request-info->approve",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "D5-20",
+  "site": "rules/0:request-info->approve",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 5,
+  "rate": 0.1667,
+  "ci95exact": [
+   0.0564,
+   0.3472
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "D5-20",
+  "site": "rules/0:request-info->approve",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 8,
+  "rate": 0.2667,
+  "ci95exact": [
+   0.1228,
+   0.4589
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "D5-20",
+  "site": "rules/0:request-info->approve",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 22,
+  "rate": 0.7333,
+  "ci95exact": [
+   0.5411,
+   0.8772
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "D5-20",
+  "site": "rules/0:request-info->approve",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 27,
+  "rate": 0.9,
+  "ci95exact": [
+   0.7347,
+   0.9789
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "D5-21",
+  "site": "rules/1:approve->request-info",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "D5-21",
+  "site": "rules/1:approve->request-info",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 1,
+  "rate": 0.0333,
+  "ci95exact": [
+   0.0008,
+   0.1722
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "D5-21",
+  "site": "rules/1:approve->request-info",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 1,
+  "rate": 0.0333,
+  "ci95exact": [
+   0.0008,
+   0.1722
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "D5-21",
+  "site": "rules/1:approve->request-info",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 5,
+  "rate": 0.1667,
+  "ci95exact": [
+   0.0564,
+   0.3472
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "D5-21",
+  "site": "rules/1:approve->request-info",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 6,
+  "rate": 0.2,
+  "ci95exact": [
+   0.0771,
+   0.3857
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-02",
+  "site": "rules/1/when[0]",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-02",
+  "site": "rules/1/when[0]",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-02",
+  "site": "rules/1/when[0]",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 3,
+  "rate": 0.1,
+  "ci95exact": [
+   0.0211,
+   0.2653
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-02",
+  "site": "rules/1/when[0]",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 8,
+  "rate": 0.2667,
+  "ci95exact": [
+   0.1228,
+   0.4589
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-02",
+  "site": "rules/1/when[0]",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 9,
+  "rate": 0.3,
+  "ci95exact": [
+   0.1473,
+   0.494
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-03",
+  "site": "rules/1/when[1]",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-03",
+  "site": "rules/1/when[1]",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 2,
+  "rate": 0.0667,
+  "ci95exact": [
+   0.0082,
+   0.2207
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-03",
+  "site": "rules/1/when[1]",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 2,
+  "rate": 0.0667,
+  "ci95exact": [
+   0.0082,
+   0.2207
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-03",
+  "site": "rules/1/when[1]",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 8,
+  "rate": 0.2667,
+  "ci95exact": [
+   0.1228,
+   0.4589
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-03",
+  "site": "rules/1/when[1]",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 13,
+  "rate": 0.4333,
+  "ci95exact": [
+   0.2546,
+   0.6257
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-04",
+  "site": "rules/1/when[2]",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-04",
+  "site": "rules/1/when[2]",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 1,
+  "rate": 0.0333,
+  "ci95exact": [
+   0.0008,
+   0.1722
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-04",
+  "site": "rules/1/when[2]",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 3,
+  "rate": 0.1,
+  "ci95exact": [
+   0.0211,
+   0.2653
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-04",
+  "site": "rules/1/when[2]",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 2,
+  "rate": 0.0667,
+  "ci95exact": [
+   0.0082,
+   0.2207
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-04",
+  "site": "rules/1/when[2]",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 9,
+  "rate": 0.3,
+  "ci95exact": [
+   0.1473,
+   0.494
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-05",
+  "site": "rules/1/when[3]",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-05",
+  "site": "rules/1/when[3]",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-05",
+  "site": "rules/1/when[3]",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-05",
+  "site": "rules/1/when[3]",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-05",
+  "site": "rules/1/when[3]",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-06",
+  "site": "rules/1/when[4]",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-06",
+  "site": "rules/1/when[4]",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-06",
+  "site": "rules/1/when[4]",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-06",
+  "site": "rules/1/when[4]",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-06",
+  "site": "rules/1/when[4]",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-07",
+  "site": "rules/1/when[5]",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-07",
+  "site": "rules/1/when[5]",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-07",
+  "site": "rules/1/when[5]",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-07",
+  "site": "rules/1/when[5]",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-07",
+  "site": "rules/1/when[5]",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-00",
+  "site": "rules/0/when/conditions/0",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-00",
+  "site": "rules/0/when/conditions/0",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-00",
+  "site": "rules/0/when/conditions/0",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-00",
+  "site": "rules/0/when/conditions/0",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-00",
+  "site": "rules/0/when/conditions/0",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-01",
+  "site": "rules/0/when/conditions/1",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-01",
+  "site": "rules/0/when/conditions/1",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-01",
+  "site": "rules/0/when/conditions/1",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-01",
+  "site": "rules/0/when/conditions/1",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-01",
+  "site": "rules/0/when/conditions/1",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-08",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-08",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 1,
+  "rate": 0.0333,
+  "ci95exact": [
+   0.0008,
+   0.1722
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-08",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 1,
+  "rate": 0.0333,
+  "ci95exact": [
+   0.0008,
+   0.1722
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-08",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 5,
+  "rate": 0.1667,
+  "ci95exact": [
+   0.0564,
+   0.3472
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-08",
+  "site": "rules/1/when/conditions/0",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 6,
+  "rate": 0.2,
+  "ci95exact": [
+   0.0771,
+   0.3857
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-09",
+  "site": "rules/1/when/conditions/1",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-09",
+  "site": "rules/1/when/conditions/1",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 1,
+  "rate": 0.0333,
+  "ci95exact": [
+   0.0008,
+   0.1722
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-09",
+  "site": "rules/1/when/conditions/1",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 1,
+  "rate": 0.0333,
+  "ci95exact": [
+   0.0008,
+   0.1722
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-09",
+  "site": "rules/1/when/conditions/1",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 5,
+  "rate": 0.1667,
+  "ci95exact": [
+   0.0564,
+   0.3472
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-09",
+  "site": "rules/1/when/conditions/1",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 6,
+  "rate": 0.2,
+  "ci95exact": [
+   0.0771,
+   0.3857
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-10",
+  "site": "rules/1/when/conditions/2",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-10",
+  "site": "rules/1/when/conditions/2",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 1,
+  "rate": 0.0333,
+  "ci95exact": [
+   0.0008,
+   0.1722
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-10",
+  "site": "rules/1/when/conditions/2",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 1,
+  "rate": 0.0333,
+  "ci95exact": [
+   0.0008,
+   0.1722
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-10",
+  "site": "rules/1/when/conditions/2",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 5,
+  "rate": 0.1667,
+  "ci95exact": [
+   0.0564,
+   0.3472
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-10",
+  "site": "rules/1/when/conditions/2",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 6,
+  "rate": 0.2,
+  "ci95exact": [
+   0.0771,
+   0.3857
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-15",
+  "site": "exceptions/0/when",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-15",
+  "site": "exceptions/0/when",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 4,
+  "rate": 0.1333,
+  "ci95exact": [
+   0.0376,
+   0.3072
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-15",
+  "site": "exceptions/0/when",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 13,
+  "rate": 0.4333,
+  "ci95exact": [
+   0.2546,
+   0.6257
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-15",
+  "site": "exceptions/0/when",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 13,
+  "rate": 0.4333,
+  "ci95exact": [
+   0.2546,
+   0.6257
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-15",
+  "site": "exceptions/0/when",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 27,
+  "rate": 0.9,
+  "ci95exact": [
+   0.7347,
+   0.9789
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "D8-22",
+  "site": "exceptions/0:force->escalate",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "D8-22",
+  "site": "exceptions/0:force->escalate",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 20,
+  "rate": 0.6667,
+  "ci95exact": [
+   0.4719,
+   0.8271
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "D8-22",
+  "site": "exceptions/0:force->escalate",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 22,
+  "rate": 0.7333,
+  "ci95exact": [
+   0.5411,
+   0.8772
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "D8-22",
+  "site": "exceptions/0:force->escalate",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "D8-22",
+  "site": "exceptions/0:force->escalate",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "D8-23",
+  "site": "exceptions/1:escalate->force",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 1,
+  "rate": 1.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "D8-23",
+  "site": "exceptions/1:escalate->force",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 28,
+  "rate": 0.9333,
+  "ci95exact": [
+   0.7793,
+   0.9918
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "D8-23",
+  "site": "exceptions/1:escalate->force",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "D8-23",
+  "site": "exceptions/1:escalate->force",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "D8-23",
+  "site": "exceptions/1:escalate->force",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 30,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D9",
+  "defect": "D9-24",
+  "site": "fallbackOutcome:request-info->approve",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 0,
+  "rate": 0.0,
+  "ci95exact": null,
+  "note": "one deterministic ledger: a count, not a sample; no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D9",
+  "defect": "D9-24",
+  "site": "fallbackOutcome:request-info->approve",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 4,
+  "rate": 0.1333,
+  "ci95exact": [
+   0.0376,
+   0.3072
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D9",
+  "defect": "D9-24",
+  "site": "fallbackOutcome:request-info->approve",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 10,
+  "rate": 0.3333,
+  "ci95exact": [
+   0.1729,
+   0.5281
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D9",
+  "defect": "D9-24",
+  "site": "fallbackOutcome:request-info->approve",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 19,
+  "rate": 0.6333,
+  "ci95exact": [
+   0.4386,
+   0.8007
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D9",
+  "defect": "D9-24",
+  "site": "fallbackOutcome:request-info->approve",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 23,
+  "rate": 0.7667,
+  "ci95exact": [
+   0.5772,
+   0.9007
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 2,
+  "caught": 1,
+  "rate": 0.5,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 60,
+  "caught": 12,
+  "rate": 0.2,
+  "referenceInterval": [
+   0.1078,
+   0.3233
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 60,
+  "caught": 22,
+  "rate": 0.3667,
+  "referenceInterval": [
+   0.2459,
+   0.501
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 60,
+  "caught": 26,
+  "rate": 0.4333,
+  "referenceInterval": [
+   0.3059,
+   0.5676
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 60,
+  "caught": 30,
+  "rate": 0.5,
+  "referenceInterval": [
+   0.3681,
+   0.6319
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 2,
+  "caught": 2,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 60,
+  "caught": 15,
+  "rate": 0.25,
+  "referenceInterval": [
+   0.1472,
+   0.3786
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 60,
+  "caught": 21,
+  "rate": 0.35,
+  "referenceInterval": [
+   0.2313,
+   0.484
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 60,
+  "caught": 30,
+  "rate": 0.5,
+  "referenceInterval": [
+   0.3681,
+   0.6319
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 60,
+  "caught": 31,
+  "rate": 0.5167,
+  "referenceInterval": [
+   0.3839,
+   0.6477
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 2,
+  "caught": 1,
+  "rate": 0.5,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 60,
+  "caught": 0,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.0596
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 60,
+  "caught": 0,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.0596
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 60,
+  "caught": 0,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.0596
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 60,
+  "caught": 0,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.0596
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 2,
+  "caught": 2,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 60,
+  "caught": 31,
+  "rate": 0.5167,
+  "referenceInterval": [
+   0.3839,
+   0.6477
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 60,
+  "caught": 31,
+  "rate": 0.5167,
+  "referenceInterval": [
+   0.3839,
+   0.6477
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 60,
+  "caught": 35,
+  "rate": 0.5833,
+  "referenceInterval": [
+   0.4488,
+   0.7093
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 60,
+  "caught": 36,
+  "rate": 0.6,
+  "referenceInterval": [
+   0.4654,
+   0.7244
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 2,
+  "caught": 2,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 60,
+  "caught": 6,
+  "rate": 0.1,
+  "referenceInterval": [
+   0.0376,
+   0.2051
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 60,
+  "caught": 9,
+  "rate": 0.15,
+  "referenceInterval": [
+   0.071,
+   0.2657
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 60,
+  "caught": 27,
+  "rate": 0.45,
+  "referenceInterval": [
+   0.3212,
+   0.5839
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 60,
+  "caught": 33,
+  "rate": 0.55,
+  "referenceInterval": [
+   0.4161,
+   0.6788
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 6,
+  "caught": 2,
+  "rate": 0.3333,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 180,
+  "caught": 3,
+  "rate": 0.0167,
+  "referenceInterval": [
+   0.0035,
+   0.0479
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 180,
+  "caught": 8,
+  "rate": 0.0444,
+  "referenceInterval": [
+   0.0194,
+   0.0857
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 180,
+  "caught": 18,
+  "rate": 0.1,
+  "referenceInterval": [
+   0.0604,
+   0.1534
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 180,
+  "caught": 31,
+  "rate": 0.1722,
+  "referenceInterval": [
+   0.1201,
+   0.2355
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 6,
+  "caught": 4,
+  "rate": 0.6667,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 180,
+  "caught": 7,
+  "rate": 0.0389,
+  "referenceInterval": [
+   0.0158,
+   0.0785
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 180,
+  "caught": 16,
+  "rate": 0.0889,
+  "referenceInterval": [
+   0.0517,
+   0.1403
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 180,
+  "caught": 28,
+  "rate": 0.1556,
+  "referenceInterval": [
+   0.1059,
+   0.2169
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 180,
+  "caught": 45,
+  "rate": 0.25,
+  "referenceInterval": [
+   0.1886,
+   0.3199
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 2,
+  "caught": 2,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 60,
+  "caught": 48,
+  "rate": 0.8,
+  "referenceInterval": [
+   0.6767,
+   0.8922
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 60,
+  "caught": 52,
+  "rate": 0.8667,
+  "referenceInterval": [
+   0.7541,
+   0.9406
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 60,
+  "caught": 60,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.9404,
+   1.0
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 60,
+  "caught": 60,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.9404,
+   1.0
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "cells": 1,
+  "caught": 0,
+  "rate": 0.0,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances on the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "cells": 30,
+  "caught": 4,
+  "rate": 0.1333,
+  "referenceInterval": [
+   0.0376,
+   0.3072
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "cells": 30,
+  "caught": 10,
+  "rate": 0.3333,
+  "referenceInterval": [
+   0.1729,
+   0.5281
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "cells": 30,
+  "caught": 19,
+  "rate": 0.6333,
+  "referenceInterval": [
+   0.4386,
+   0.8007
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "cells": 30,
+  "caught": 23,
+  "rate": 0.7667,
+  "referenceInterval": [
+   0.5772,
+   0.9007
+  ],
+  "note": "pooled over the class's instances, which share ledgers: a binomial reference interval with no nominal coverage"
+ }
+]

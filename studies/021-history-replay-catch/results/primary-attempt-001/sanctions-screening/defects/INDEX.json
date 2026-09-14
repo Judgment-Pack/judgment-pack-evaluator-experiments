@@ -1,0 +1,47 @@
+{
+ "attemptId": "f2284e59b2f2e5e5c368bcf4a5f1b74f",
+ "instances": [
+  {
+   "id": "D7-00",
+   "class": "D7",
+   "site": "rules/0/when",
+   "valid": true
+  },
+  {
+   "id": "D1-01",
+   "class": "D1",
+   "site": "rules/1/when",
+   "valid": true
+  },
+  {
+   "id": "D2-02",
+   "class": "D2",
+   "site": "rules/1/when",
+   "valid": true
+  },
+  {
+   "id": "D3-03",
+   "class": "D3",
+   "site": "rules/1/when",
+   "valid": true
+  },
+  {
+   "id": "D4-04",
+   "class": "D4",
+   "site": "rules/1/when",
+   "valid": true
+  },
+  {
+   "id": "D5-05",
+   "class": "D5",
+   "site": "rules/0:clear->match",
+   "valid": true
+  },
+  {
+   "id": "D5-06",
+   "class": "D5",
+   "site": "rules/1:match->clear",
+   "valid": true
+  }
+ ]
+}

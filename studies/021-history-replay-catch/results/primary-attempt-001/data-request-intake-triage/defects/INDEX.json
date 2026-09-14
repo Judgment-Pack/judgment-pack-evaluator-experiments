@@ -1,0 +1,95 @@
+{
+ "attemptId": "f2284e59b2f2e5e5c368bcf4a5f1b74f",
+ "instances": [
+  {
+   "id": "D7-00",
+   "class": "D7",
+   "site": "rules/0/when",
+   "valid": true
+  },
+  {
+   "id": "D7-01",
+   "class": "D7",
+   "site": "rules/1/when/conditions/0",
+   "valid": true
+  },
+  {
+   "id": "D7-02",
+   "class": "D7",
+   "site": "rules/1/when/conditions/1[0]",
+   "valid": true
+  },
+  {
+   "id": "D7-03",
+   "class": "D7",
+   "site": "rules/1/when/conditions/1[1]",
+   "valid": true
+  },
+  {
+   "id": "D6-04",
+   "class": "D6",
+   "site": "rules/2/when[0]",
+   "valid": true
+  },
+  {
+   "id": "D6-05",
+   "class": "D6",
+   "site": "rules/2/when[1]",
+   "valid": true
+  },
+  {
+   "id": "D6-06",
+   "class": "D6",
+   "site": "rules/2/when[2]",
+   "valid": true
+  },
+  {
+   "id": "D6-07",
+   "class": "D6",
+   "site": "rules/2/when[3]",
+   "valid": true
+  },
+  {
+   "id": "D7-08",
+   "class": "D7",
+   "site": "rules/2/when/conditions/0",
+   "valid": true
+  },
+  {
+   "id": "D7-09",
+   "class": "D7",
+   "site": "rules/2/when/conditions/1",
+   "valid": true
+  },
+  {
+   "id": "D5-10",
+   "class": "D5",
+   "site": "rules/0:decline-redirect->proceed",
+   "valid": true
+  },
+  {
+   "id": "D5-11",
+   "class": "D5",
+   "site": "rules/1:clarify-return->proceed",
+   "valid": true
+  },
+  {
+   "id": "D5-12",
+   "class": "D5",
+   "site": "rules/2:proceed->clarify-return",
+   "valid": true
+  },
+  {
+   "id": "D8-13",
+   "class": "D8",
+   "site": "exceptions/0:force->escalate",
+   "valid": true
+  },
+  {
+   "id": "D9-14",
+   "class": "D9",
+   "site": "fallbackOutcome:clarify-return->proceed",
+   "valid": true
+  }
+ ]
+}
