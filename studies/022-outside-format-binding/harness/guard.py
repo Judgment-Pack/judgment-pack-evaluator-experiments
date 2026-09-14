@@ -1,11 +1,15 @@
 """Trusted import resolution, established before any other study or package import (PREREGISTRATION.md section 2).
 
-This module uses only `os`, `sys`, `json` and `hashlib` from the interpreter's own library, so nothing
-it refuses has run when it refuses it. Every entry script sets the bytecode policy with `os` and `sys`
-alone, then imports this module (compiled from its source, as every module after that point is) and
-calls `establish(study)` before importing anything else. The trust anchor is the entry script, this
-module and those four library modules (PREREGISTRATION.md section 7); everything imported afterwards
--- every pinned distribution's files, every other study module -- is hashed here before it is imported:
+This module uses only `os`, `sys`, `json` and `hashlib` from the interpreter's own library (and their
+dependency closure, which is the interpreter's library too), so nothing it refuses has run when it
+refuses it. Every entry script, with `os` and `sys` alone: makes a fresh empty bytecode-cache prefix of
+its own (whatever the environment inherited) and disables bytecode writing; restricts import resolution
+to the interpreter's library and the virtual environment; then compiles this module from its bytes by
+exact path -- no module-name resolution, no cache -- and calls `establish(study, original_path)` before
+importing anything else. The trust anchor is the entry script's bootstrap block, this module, the
+interpreter's library and `harness/PINS.json` (PREREGISTRATION.md section 7); every study module and
+every distribution file imported afterwards is hashed here before it is imported. `establish` puts the
+study roots on the import path when every check has passed:
 
 - the import path (`sys.path`) holds only the study's own roots (the script's directory, the study root
   as the working directory), the interpreter's own library and the virtual environment; any other entry
@@ -16,7 +20,9 @@ module and those four library modules (PREREGISTRATION.md section 7); everything
   and no `.py` whose name is a module of the interpreter's library or a pinned package's top level;
 - the virtual environment's import roots hold nothing an installed distribution does not record: no
   unrecorded module or package directory (the import system prefers a package directory to a
-  same-named module), no path hook, no symbolic link; and no two metadata directories claim one
+  same-named module), no path hook, no symbolic link; no standalone bytecode file outside a
+  `__pycache__` directory and no path hook even when recorded (the import system would load the one
+  without its source, and the digests skip bytecode); and no two metadata directories claim one
   distribution name, so the distribution whose files are hashed is the one whose record grants
   ownership;
 - no site customization module was imported at start-up;
@@ -47,11 +53,11 @@ def _under(path, parent):
     return path == parent or path.startswith(parent + os.sep)
 
 
-def path_problems(study):
-    """Every sys.path entry is a study root, the interpreter's library, or the virtual environment."""
+def path_problems(study, original_path=None):
+    """Every entry of the import path the process started with is a study root, the interpreter's library, or the virtual environment."""
     out = []
     allowed_roots = [_real(os.path.join(study, r)) for r in ROOTS] + [_real(study)]
-    for entry in sys.path:
+    for entry in (sys.path if original_path is None else original_path):
         e = _real(entry) if entry else _real(os.getcwd())
         if e in allowed_roots or _under(e, sys.base_prefix) or _under(e, sys.prefix):
             continue
@@ -65,6 +71,9 @@ def shadow_problems(study):
     """Nothing importable under the study roots but registered .py modules."""
     out = []
     stdlib = os.path.dirname(os.__file__)
+    # the interpreter's extension modules (lib-dynload) shadowable by name too
+    dynload = os.path.join(stdlib, "lib-dynload")
+    extension_names = {n.split(".")[0] for n in os.listdir(dynload)} if os.path.isdir(dynload) else set()
     for rel in ROOTS:
         root = os.path.join(study, rel)
         for name in sorted(os.listdir(root)):
@@ -83,8 +92,8 @@ def shadow_problems(study):
                 continue
             if lower.endswith(".py"):
                 stem = name[:-3]
-                if stem in sys.builtin_module_names or stem in PINNED_TOP_LEVEL or os.path.exists(os.path.join(stdlib, stem + ".py")) \
-                        or os.path.isdir(os.path.join(stdlib, stem)):
+                if stem in sys.builtin_module_names or stem in PINNED_TOP_LEVEL or stem in extension_names \
+                        or os.path.exists(os.path.join(stdlib, stem + ".py")) or os.path.isdir(os.path.join(stdlib, stem)):
                     out.append("%s/%s shadows a module of the interpreter's library or a pinned package" % (rel, name))
     return out
 
@@ -276,6 +285,10 @@ def environment_problems():
                 full = os.path.join(dirpath, f)
                 if os.path.islink(full):
                     out.append("%s is a symbolic link" % full)
+                elif f.lower().endswith((".pyc", ".pyo")):
+                    out.append("%s is a standalone bytecode file outside a __pycache__ directory: the import system would load it without its source" % full)
+                elif f.lower().endswith(".pth"):
+                    out.append("%s is a path hook: it runs code at start-up" % full)
                 elif full not in owned_files:
                     out.append("%s is not a file any installed distribution records" % full)
     return out
@@ -303,18 +316,20 @@ def cache_problems():
     return out
 
 
-def establish(study):
-    """Refuse to run unless trusted import resolution holds; returns None."""
-    problems = cache_problems() + site_problems() + path_problems(study) + shadow_problems(study) + environment_problems()
+def establish(study, original_path=None):
+    """Refuse to run unless trusted import resolution holds; on success, put the study roots on the import path."""
+    problems = cache_problems() + site_problems() + path_problems(study, original_path) + shadow_problems(study) + environment_problems()
     if not problems:
         # only over an environment whose layout passed: the bytes of every pinned distribution, then of every study module
         problems = package_problems(study) + study_module_problems(study)
     if problems:
         raise SystemExit("refusing to start: trusted import resolution is not established:\n  " + "\n  ".join(problems))
+    roots = [_real(os.path.join(study, "harness")), _real(os.path.join(study, "adapter"))]
+    sys.path[:] = roots + [e for e in sys.path if _real(e) not in roots]
 
 
 def fresh_cache_prefix():
-    """For an entry script, before importing this module: an empty directory of this process's own, made with os alone."""
+    """An empty directory of this process's own, made with os alone (the entry scripts inline this before importing anything)."""
     base = os.environ.get("TMPDIR") or "/tmp"
     for attempt in range(10000):
         d = os.path.join(base, "study022-pycache-%d-%d" % (os.getpid(), attempt))

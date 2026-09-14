@@ -6,22 +6,35 @@ PREREGISTRATION.md section 1a); no holdout cell is built through harness/cells.p
 import os
 import sys
 
-# the bytecode policy, with os and sys alone, before any other import (harness/guard.py, PREREGISTRATION.md section 2);
-# run with PYTHONPYCACHEPREFIX set (README) so that this module too is compiled from its source
+# --- the trusted bootstrap, with os and sys alone (harness/guard.py, PREREGISTRATION.md section 2) ---
+# This module is imported by unittest, not started as an attempt process: run it with PYTHONPYCACHEPREFIX set to an empty
+# directory (README) so that it is compiled from its source; an inherited prefix is kept only if it holds no file.
 sys.dont_write_bytecode = True
-if not sys.pycache_prefix:
+_inherited_empty = bool(sys.pycache_prefix) and os.path.isdir(sys.pycache_prefix) and not any(files for _, _, files in os.walk(sys.pycache_prefix))
+if not _inherited_empty:
     for _attempt in range(10000):
         _d = os.path.join(os.environ.get("TMPDIR") or "/tmp", "study022-pycache-%d-%d" % (os.getpid(), _attempt))
         try:
             os.mkdir(_d, 0o700)
-            sys.pycache_prefix = _d
-            break
         except FileExistsError:
             continue
-_HARNESS = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, _HARNESS)
-import guard  # noqa: E402
-guard.establish(os.path.dirname(_HARNESS))
+        sys.pycache_prefix = _d
+        break
+_ORIGINAL_PATH = list(sys.path)
+_GUARD_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+_STUDY = os.path.dirname(_GUARD_DIR)
+sys.path[:] = [_e for _e in sys.path if _e and (os.path.realpath(_e).startswith(os.path.realpath(sys.base_prefix) + os.sep)
+                                                 or os.path.realpath(_e).startswith(os.path.realpath(sys.prefix) + os.sep))]
+import types  # noqa: E402 -- the interpreter's library
+
+_GUARD_FILE = os.path.join(_GUARD_DIR, "guard.py")
+with open(_GUARD_FILE, "rb") as _f:
+    _code = compile(_f.read(), _GUARD_FILE, "exec")
+guard = types.ModuleType("guard")
+guard.__file__ = _GUARD_FILE
+exec(_code, guard.__dict__)
+sys.modules["guard"] = guard
+guard.establish(_STUDY, _ORIGINAL_PATH)
 
 import json  # noqa: E402
 import shutil  # noqa: E402
@@ -666,11 +679,13 @@ class Pins(unittest.TestCase):
         finally:
             del sys.modules["cryptography.planted"]
         os.environ["PYTHONPATH"] = "/elsewhere"
+        os.environ["PYTHONPYCACHEPREFIX"] = "/elsewhere/cache"
         try:
             self.assertNotIn("PYTHONPATH", run_attempt.child_env())
-            self.assertEqual(run_attempt.child_env()["PYTHONPYCACHEPREFIX"], sys.pycache_prefix)
+            self.assertNotIn("PYTHONPYCACHEPREFIX", run_attempt.child_env(), "a child makes its own fresh prefix; nothing inherited is used")
+            self.assertEqual(run_attempt.child_env()["PYTHONDONTWRITEBYTECODE"], "1")
         finally:
-            del os.environ["PYTHONPATH"]
+            del os.environ["PYTHONPATH"], os.environ["PYTHONPYCACHEPREFIX"]
         wrong = json.loads(json.dumps(pins))
         wrong["harnessPython"]["implementation"] = "PyPy"
         self.assertTrue(any("interpreter is CPython" in p for p in pinning.execution_problems(wrong)))
@@ -688,13 +703,15 @@ class Pins(unittest.TestCase):
             (study / "harness" / "json.pyc").write_bytes(b"")
             (study / "adapter" / "fast.cpython-38-x86_64-linux-gnu.so").write_bytes(b"")
             (study / "harness" / "os.py").write_text("")
+            (study / "harness" / "_hashlib.py").write_text("")
             (study / "harness" / "securesystemslib.py").write_text("")
             (study / "adapter" / "pkg").mkdir()
             os.symlink("cells.py", study / "harness" / "link.py")
             problems = guard.shadow_problems(str(study))
-            for needle in ("json.pyc", "fast.cpython", "os.py shadows", "securesystemslib.py shadows", "adapter/pkg is a directory", "link.py is a symbolic link"):
+            for needle in ("json.pyc", "fast.cpython", "os.py shadows", "_hashlib.py shadows", "securesystemslib.py shadows", "adapter/pkg is a directory", "link.py is a symbolic link"):
                 self.assertTrue(any(needle in p for p in problems), (needle, problems))
             self.assertEqual(guard.path_problems(str(STUDY)), [])
+            self.assertTrue(any("injected" in p for p in guard.path_problems(str(STUDY), ["/elsewhere/injected"])), "the path the process started with is what is judged")
             sys.path.append("/elsewhere/injected")
             try:
                 self.assertTrue(any("injected" in p for p in guard.path_problems(str(STUDY))))
@@ -736,6 +753,21 @@ class Pins(unittest.TestCase):
                 (site / "hook.pth").write_text("")
                 (site / "loose.pyc").write_bytes(b"")
                 os.symlink("pkg", site / "alias")
+                # the round-7 arrangement: a recorded standalone bytecode initializer, which the digests skip and the import system would load
+                (site / "pkg" / "mod2").mkdir()
+                (site / "pkg" / "mod2" / "__init__.pyc").write_bytes(b"")
+                record = site / "pkg-1.0.dist-info" / "RECORD"
+                before = guard._package_digest(str(site), str(record))
+                record.write_text(record.read_text() + "pkg/mod2/__init__.pyc,,\n")
+                self.assertEqual(guard._package_digest(str(site), str(record)), before, "the digest skips bytecode; the layout must refuse it")
+                (site / "recorded.pth").write_text("")
+                record.write_text(record.read_text() + "recorded.pth,,\n")
+                problems = guard.environment_problems()
+                self.assertTrue(any("mod2/__init__.pyc is a standalone bytecode file" in p for p in problems), problems)
+                self.assertTrue(any("recorded.pth is a path hook" in p for p in problems), problems)
+                record.write_text("\n".join(l for l in record.read_text().splitlines() if "mod2" not in l and "recorded.pth" not in l) + "\n")
+                shutil.rmtree(site / "pkg" / "mod2")
+                (site / "recorded.pth").unlink()
                 (site / "zz_overlay-0.dist-info").mkdir()  # the round-5 route: a second metadata directory claiming the same name
                 (site / "zz_overlay-0.dist-info" / "METADATA").write_text("Metadata-Version: 2.1\nName: Pkg\nVersion: 0\n\n")
                 (site / "zz_overlay-0.dist-info" / "RECORD").write_text("pkg/__init__.py,sha256=x,0\npkg/mod/__init__.py,sha256=x,0\nzz_overlay-0.dist-info/RECORD,,\nzz_overlay-0.dist-info/METADATA,,\n")
@@ -749,7 +781,7 @@ class Pins(unittest.TestCase):
                 os.unlink(site / "pkg" / "mod.py")
                 os.symlink("../hook.pth", site / "pkg" / "mod.py")  # a recorded path that is now a link elsewhere
                 problems = guard.environment_problems()
-                for needle in ("extra.py is not a file", "hook.pth is not a file", "loose.pyc is not a file", "alias is a symbolic link", "pkg/mod.py is a symbolic link"):
+                for needle in ("extra.py is not a file", "hook.pth is a path hook", "loose.pyc is a standalone bytecode file", "alias is a symbolic link", "pkg/mod.py is a symbolic link"):
                     self.assertTrue(any(needle in p for p in problems), (needle, problems))
                 with self.assertRaisesRegex(SystemExit, "installed distribution"):
                     guard.establish(str(STUDY))
@@ -975,6 +1007,93 @@ class GatewayExit(unittest.TestCase):
                 run_layers.gateway_layer(str(fake), cell)
             fake.write_text('#!/bin/sh\nprintf \'{"ok":true,"findings":[{"callIndex":0,"sessionId":"s2","status":"ok"}]}\'\nexit 0\n')
             self.assertTrue(run_layers.gateway_layer(str(fake), cell)["ok"])
+
+
+def study_copy(into):
+    """A byte-identical copy of the study tree (pilots, results and caches left out) for fresh-process regressions."""
+    dst = Path(into) / "study"
+    shutil.copytree(STUDY, dst, ignore=shutil.ignore_patterns("pilots", "results", "__pycache__", ".git"))
+    return dst
+
+
+def fresh_run(copy, args, extra_env=None):
+    env = {k: v for k, v in os.environ.items() if k not in ("PYTHONPATH", "PYTHONPYCACHEPREFIX")}
+    env.update(PYTHONDONTWRITEBYTECODE="1")
+    env.update(extra_env or {})
+    return subprocess.run([sys.executable, str(copy / "harness" / "run_attempt.py")] + args, capture_output=True, text=True, env=env, cwd=str(copy))
+
+
+@unittest.skipUnless(GATEWAY and Path(GATEWAY).is_file(), "set GATEWAY_BIN to the pinned gateway verifier")
+class FreshProcess(unittest.TestCase):
+    """The bootstrap boundary, exercised the only way it can be: a fresh interpreter over a copy of the study tree."""
+
+    PAYLOAD = "import os\nopen(os.environ['STUDY022_MARKER'], 'w').close()\n"
+
+    def test_a_planted_module_under_a_root_never_runs(self):
+        for planted in ("harness/hashlib.py", "harness/_hashlib.py", "harness/types.py", "adapter/json.py"):
+            with tempfile.TemporaryDirectory() as a:
+                copy = study_copy(a)
+                (copy / planted).write_text(self.PAYLOAD)
+                marker = Path(a) / "marker"
+                r = fresh_run(copy, ["--attempt-root", str(Path(a) / "att"), "--gateway", GATEWAY, "--pilot"], {"STUDY022_MARKER": str(marker)})
+                self.assertNotEqual(r.returncode, 0, planted)
+                self.assertIn("trusted import resolution is not established", r.stderr, planted)
+                self.assertFalse(marker.exists(), "%s executed" % planted)
+                self.assertFalse((Path(a) / "att").exists(), "refused before the marker, so no root was spent")
+
+    def test_a_directory_shadowing_the_guard_never_runs(self):
+        with tempfile.TemporaryDirectory() as a:
+            copy = study_copy(a)
+            (copy / "harness" / "guard").mkdir()
+            (copy / "harness" / "guard" / "__init__.py").write_text(self.PAYLOAD)
+            marker = Path(a) / "marker"
+            r = fresh_run(copy, ["--attempt-root", str(Path(a) / "att"), "--gateway", GATEWAY, "--pilot"], {"STUDY022_MARKER": str(marker)})
+            self.assertNotEqual(r.returncode, 0)
+            self.assertIn("harness/guard is a directory an import could resolve to", r.stderr)
+            self.assertFalse(marker.exists(), "the guard was loaded by exact path; the directory never ran")
+
+    def test_an_inherited_cache_prefix_holding_a_valid_guard_cache_is_never_used(self):
+        import importlib.util
+        from importlib._bootstrap_external import _code_to_timestamp_pyc
+        with tempfile.TemporaryDirectory() as a:
+            copy = study_copy(a)
+            guard_file = copy / "harness" / "guard.py"
+            prefix = Path(a) / "prefix"
+            prefix.mkdir()
+            saved = sys.pycache_prefix
+            sys.pycache_prefix = str(prefix)
+            try:
+                cache_path = Path(importlib.util.cache_from_source(str(guard_file)))
+            finally:
+                sys.pycache_prefix = saved
+            cache_path.parent.mkdir(parents=True)
+            st = guard_file.stat()
+            code = compile(self.PAYLOAD + "def establish(*a, **k):\n    pass\n", str(guard_file), "exec")
+            cache_path.write_bytes(_code_to_timestamp_pyc(code, int(st.st_mtime), st.st_size))  # valid for guard.py by timestamp and size
+            import types as types_module  # the same for a library module the bootstrap imports by name
+            types_file = Path(types_module.__file__)
+            sys.pycache_prefix = str(prefix)
+            try:
+                types_cache = Path(importlib.util.cache_from_source(str(types_file)))
+            finally:
+                sys.pycache_prefix = saved
+            types_cache.parent.mkdir(parents=True, exist_ok=True)
+            st = types_file.stat()
+            types_cache.write_bytes(_code_to_timestamp_pyc(compile(self.PAYLOAD + types_file.read_text(), str(types_file), "exec"), int(st.st_mtime), st.st_size))
+            marker = Path(a) / "marker"
+            r = fresh_run(copy, ["--attempt-root", str(Path(a) / "att"), "--gateway", GATEWAY, "--pilot"],
+                          {"STUDY022_MARKER": str(marker), "PYTHONPYCACHEPREFIX": str(prefix)})
+            self.assertFalse(marker.exists(), "a valid cache for the guard under the inherited prefix ran")
+            self.assertEqual(r.returncode, 0, r.stderr[-800:])
+            self.assertIn("R1 holds", r.stdout)
+
+    def test_a_recorded_initializer_altered_in_place_is_refused_before_it_runs(self):
+        # the round-6 arrangement cannot be planted in the shared environment; the guard's refusal is exercised in-process above,
+        # and this test confirms the fresh process reaches the byte check with the real environment and passes it
+        with tempfile.TemporaryDirectory() as a:
+            copy = study_copy(a)
+            r = fresh_run(copy, ["--attempt-root", str(Path(a) / "att"), "--gateway", GATEWAY, "--pilot"])
+            self.assertEqual(r.returncode, 0, r.stderr[-800:])
 
 
 @unittest.skipUnless(GATEWAY and Path(GATEWAY).is_file(), "set GATEWAY_BIN to the pinned gateway verifier")

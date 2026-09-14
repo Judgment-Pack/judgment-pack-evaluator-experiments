@@ -1577,3 +1577,168 @@ invocation.
 `pilots/r7` (harness validation, `--pilot`, locked stratum only, holdout not built): `R1 holds`
 over the nineteen locked cells, zero validity failures, zero gate failures.
 
+## Round 7 — reviewed `5d2afb3a` — verdict: `not freezable as written`
+
+Reviewer: Codex (GPT-6 Astra), `codex exec -s read-only`, run 2026-09-14 over the study branch
+worktree at commit `5d2afb3a8cb1624e78a515737774ade239728480`. The read-only sandbox blocked
+`mktemp` and the test module's cache directory, so no test body ran for the reviewer; its
+counterexamples are static arrangements inferred from the harness and the interpreter's
+source, as its report says.
+
+### Prompt (verbatim)
+
+````text
+You are the pre-freeze cross-vendor reviewer for Study 022 in the judgment-pack-evaluator-experiments repository, under the interim review regime (a model from a different vendor than the one that drafted; Claude drafted). This is ROUND 7. Rounds 1–6 (60d6409f, c58fad05, 8cb96e1a, 46dc8ecb, e1099309, a2786b18) were your own reviews; each returned `not freezable as written`; the maintainer accepted every finding of every round. The record of all six rounds — your prompts and findings verbatim, the maintainer's disposition tables naming what changed per finding, mutation tables, and the post-round pilots — is studies/022-outside-format-binding/PREREG-REVIEW.md. You are reviewing commit 5d2afb3a8cb1624e78a515737774ade239728480 of the study branch (the worktree you are in). This is a methodological review of a preregistered software study's harness: the question throughout is whether the harness's validity checks are complete and whether the registration states honestly what they establish.
+
+What changed in the round-6 application, in brief (verify each against the code, not this summary):
+- Finding 1 (package bytes authenticated before import): `harness/guard.py` — now using `os`, `sys`, `json` and `hashlib` from the interpreter's library and nothing else — authenticates, before any pinned distribution or any other study module is imported: (a) `package_problems()`: the environment holds exactly the distributions `harness/PINS.json` pins, and each one's recorded files hash to the pinned digest, by the guard's own computation of the digest `harness/pins.py` computes (RECORD paths in string order, path, NUL, bytes, NUL; `.pyc` and RECORD skipped) — a test asserts the two computations agree for every real distribution, and the round-6 arrangement (a recorded initializer altered in place, metadata and RECORD unchanged) is a regression at the function and through `establish`; (b) `study_module_problems()`: every file `harness/STUDY-MANIFEST.sha256` lists hashes to its listed digest, every `.py` under the study roots is listed, and, once the freeze pin is set, the manifest itself hashes to the pin. `establish()` runs the layout checks first and the byte checks only over an environment whose layout passed. PREREGISTRATION §2 states it; §7 now names the trust anchor explicitly: the entry script, `harness/guard.py`, the four library modules, and `harness/PINS.json` (anchored by the freeze commit, verifiable from inside by nothing). At check time `harness/pins.py` computes the inventory once and hands the same object to `execution_problems()`.
+- Finding 2 (normalization, empty names): both normalizers collapse every run of `-`, `_` and `.` to one hyphen (PEP 503); an absent or empty name is refused and grants nothing, in the guard and in `pins.inventory()`; equivalent-name and empty-name regressions are present.
+
+Your job this round:
+1. Verify both round-6 dispositions against the code; say closed or residue (with lines).
+2. Judge whether the trust anchor §7 names is the minimal one and is stated honestly, and whether the fresh-process claim is now supported by the bootstrap order (what runs before what). If code other than the pinned code could run in a process the harness starts before the guard has refused it, report it; a way that requires code already running in the process before the harness begins is inside the stated base.
+3. The locked matrix and the adapter SPEC are unchanged this round; say so if you confirm it.
+4. The holdout: confirm harness/MATRIX-HOLDOUT.json is still your round-1 array byte for byte (SHA-256 10f87d02…) and the six constructions unchanged. Do not build a holdout cell.
+5. Anything new the round introduced.
+
+This round you MAY execute: the virtual environment holding the pinned packages is at /tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/intoto-venv (python: /tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/intoto-venv/bin/python) and the pinned gateway binary at /tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/bin/gateway-03582d9 (SHA-256 aaa16fec…; harness/PINS.json pins it). Run the harness tests from the study directory exactly as README.md states:
+    PYTHONPYCACHEPREFIX=$(mktemp -d) PYTHONDONTWRITEBYTECODE=1 GATEWAY_BIN=/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/bin/gateway-03582d9 /tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/intoto-venv/bin/python -W ignore -m unittest discover -s harness/tests
+Your sandbox is read-only and may block temporary-file writes (mktemp and the tests' temporary directories); if the tests cannot run, say so and reason from the code. Do NOT run the primary attempt, do NOT run a pilot, do NOT build a holdout cell. Do not modify any file.
+
+Output: findings numbered and severity-tagged (BLOCKER / MAJOR / MINOR) with file:line locations and the smallest sufficient edit, then per-finding verdicts on the round-6 dispositions (closed / residue), then any amendment to your holdout array (kept byte for byte), then a verdict: `freezable as written` or `not freezable as written`. A clean pass on an item is a finding only if you can defend it.
+
+The round-1 prompt follows for reference; its reading list and its standards apply unchanged.
+
+----- ROUND-1 PROMPT (reference) -----
+You are the pre-freeze cross-vendor reviewer for Study 022 in the judgment-pack-evaluator-experiments repository, under the interim review regime (a model from a different vendor than the one that drafted; Claude drafted). The study is NOT frozen; your job is to find where the preregistration or the binding specification overclaims, where a registered cell's expectation does not follow from the three specifications it rests on (the gateway's SPEC.md; DSSE and the in-toto Statement v1 as the pinned reference implementation realizes them; the adapter's own SPEC.md), where the harness could produce a result the registration would misread, and where the design lets a favourable outcome be reached for the wrong reason. A clean pass is a finding only if you can defend it. Do not run the primary attempt; you may read everything and run the harness tests (the virtual environment holding the pinned packages is not available to you; the gateway binary is not available to you; reason from the documents and say what you could not execute).
+
+Read, in the study directory studies/022-outside-format-binding/ of the current worktree:
+- PREREGISTRATION.md — the registration: question, R1 and R2, the two strata, apparatus and pins, the scenario and threat model, the cells and the structures their reasons rest on, the decision rule, validity and enforcement, limits.
+- adapter/SPEC.md — the binding: the attestation's shape (subjects, predicate type, predicate), the adapter's key, what the binding asserts (section 3), the three layers (4), the in-toto layer's ceremony (5), the reduced form the registration compares (6), the ownership map (7).
+- harness/MATRIX.json — nineteen registered cells with exact per-layer expectations, ownership and reasons. Verify EVERY cell against the sources: the gateway's SPEC.md at commit 03582d9 of /home/onword/repo/judgment-pack/judgment-pack-gateway (read with `git -C <path> show 03582d9:SPEC.md`; sections 1.2a, 1.4, 3, 4 including steps 5-7, and the status vocabulary), the DSSE and in-toto Statement v1 contracts as securesystemslib 1.3.1 and in-toto-attestation 0.9.3 implement them (reason from their documented behaviour: PAE over payload type and payload, key id matching, Statement validation), and adapter/SPEC.md. Say per cell whether the expected outcome of each layer follows, and name any cell whose expectation you can show does not.
+- adapter/bind.py, adapter/verify_attestation.py, adapter/verify_binding.py — the binding and the two non-gateway layers; check them against adapter/SPEC.md clause by clause (the ceremony's order, the codes, the subject re-digest rules, the binding's rules), and look for a way a layer could pass for the wrong reason.
+- harness/cells.py — the nineteen constructions; check each does what its registered cell says and nothing else, deterministically.
+- harness/run_layers.py, harness/score.py, harness/run_attempt.py, harness/pins.py, harness/make_manifest.py, harness/PINS.json, harness/tests/test_study.py — enforcement: pins held before a registered attempt and before adjudication; the exclusive root and the marker; cells rebuilt and compared; observations bound and complete; the reduction; the decision rule. Look for any path to "R1 holds" without the registered evidence.
+- fixtures/baseline/ — the corpus vector v3-action-valid materialized (compare with `git -C <gateway path> show 03582d9:corpus/v3/stores/v3-action-valid.json`) and the attestations the adapter bound from it.
+- README.md, DEVIATIONS.md, .gitignore — status banners and the freeze-set discipline (README.md and DEVIATIONS.md outside the manifest; tools/check_freeze_sets.py at the repository root says why).
+- For precedent, studies/014-openworkproof-binding/PREREGISTRATION.md and its adapter/SPEC.md (the same shape of study: an external receipt protocol, a binding layer, a locked stratum and a reviewer's holdout), and studies/021-history-replay-catch/PREREG-REVIEW.md rounds 1-3 (the enforcement standard this repository's reviews have held harnesses to).
+
+Then, as the reviewer's holdout stratum: propose at least four holdout cells — new constructions, each described precisely enough for the maintainer to implement as a function of the baseline in harness/cells.py before the freeze (you may name store edits, attestation edits with or without the adapter's key, and combinations) — each with YOUR expected outcome of all three layers in the reduced form of adapter/SPEC.md section 6 and your reason. Give them as a JSON array in the schema of harness/MATRIX.json (id, role "endpoint", attackerCapability, expected, ownership, structure, reason) plus a `construction` string per cell; the maintainer implements the constructions verbatim and keeps your array byte-for-byte as harness/MATRIX-HOLDOUT.json.
+
+For each finding give: severity (BLOCKER / MAJOR / MINOR), the exact sentence, cell or line, what the source says, and the smallest edit that would make the registration true. Then a verdict: `freezable as written`, `freezable after fixes` (list them), or `not freezable as written`.
+````
+
+### Findings (verbatim)
+
+````markdown
+Reviewed `5d2afb3a8cb1624e78a515737774ade239728480`. **Three BLOCKER findings remain.**
+
+The prescribed test command failed at `mktemp`, then during test-module import because the sandbox is read-only. **No test bodies ran.** Read-only checks confirmed the seven package digests, agreement between both digest implementations, the manifest’s listed hashes, and the gateway digest. No primary attempt, pilot, or holdout construction ran; no files changed.
+
+Paths below are relative to `studies/022-outside-format-binding/`. The counterexamples are static filesystem arrangements inferred from the harness and the installed CPython source; I did not plant or execute them.
+
+1. **BLOCKER — the guard’s new imports execute before import resolution is protected.**
+
+   **Locations:** `harness/guard.py:31–34,306–313`; `harness/run_attempt.py:23–25`; `harness/run_layers.py:24–26`; `harness/score.py:35–37`; `PREREGISTRATION.md:309–317`.
+
+   The actual order is: prepend `harness/` → import `guard` → import `hashlib` and `json`, including their dependencies → call `establish()` → check layout and bytes.
+
+   Consequently, a planted `harness/hashlib.py` executes before `shadow_problems()` can refuse it. Even leaving all four named library modules untouched, a planted `harness/_hashlib.py` executes through the genuine standard-library `hashlib.py:167`. A fresh-interpreter read-only probe confirmed that neither `hashlib` nor `_hashlib` was already loaded at entry.
+
+   There is also an earlier resolution gap: `harness/guard/__init__.py` takes precedence over `harness/guard.py`. The named trust anchor is therefore not necessarily the file executed.
+
+   These arrangements first execute foreign code **after the harness begins**. They are outside §7’s exception for code already running beforehand.
+
+   **Smallest sufficient edit:** load the exact trusted `guard.py` source without ordinary module-name resolution, and restrict bootstrap dependency imports—including transitive imports—to the trusted interpreter library before loading them. Preserve the original search path for subsequent validation. Add fresh-process regressions asserting refusal before a planted initializer or dependency payload executes.
+
+   The new regression at `harness/tests/test_study.py:845–853` does not exercise this boundary: the guard is already imported. It also uses the real study pins against an unpinned synthetic `pkg`, allowing the asserted refusal for reasons independent of altered bytes.
+
+2. **BLOCKER — recorded sourceless bytecode passes the new pre-import authentication.**
+
+   **Locations:** `harness/guard.py:158–168,256–280`; `harness/pins.py:73–80,218–222`; `adapter/verify_attestation.py:27`; `PREREGISTRATION.md:54–59,317`.
+
+   Add this file beneath the virtual environment’s `site-packages`:
+
+   ```text
+   in_toto_attestation/v1/statement_pb2/__init__.pyc
+   ```
+
+   Add its relative path to the existing in-toto-attestation distribution’s RECORD, leaving all previously hashed files unchanged.
+
+   The layout check grants ownership to both the new file and its directory. Both digest implementations skip `.pyc` entries and RECORD itself, so every package digest remains unchanged. The study manifest is unaffected.
+
+   CPython checks package initializers before same-named module files. Its `SourcelessFileLoader` therefore loads this initializer instead of the pinned `statement_pb2.py`. **An empty `sys.pycache_prefix` does not prevent standalone `.pyc` imports.** The installed implementation establishes this at `importlib/_bootstrap_external.py:1111–1125,1519–1540,1627–1635`.
+
+   The later loader check can report the substitution, but only after its code has executed and could disable that check. Thus authenticating the current digest does not establish the claimed execution identity.
+
+   **Smallest sufficient edit:** reject standalone `.pyc` files outside the ignored ordinary cache directories during the environment layout check, even when RECORD lists them. Add a regression with a recorded bytecode package initializer, unchanged package digests, and refusal before payload execution.
+
+3. **BLOCKER — an inherited cache prefix is checked only after potentially executing its contents.**
+
+   **Locations:** `harness/run_attempt.py:13–25`; `harness/run_layers.py:14–26`; `harness/score.py:25–37`; `harness/guard.py:289–311`; `PREREGISTRATION.md:42–45,313–315`.
+
+   Each entry script creates a fresh prefix only when `sys.pycache_prefix` is unset. An existing `PYTHONPYCACHEPREFIX` is used immediately; its emptiness is checked later, inside the imported guard.
+
+   A prefix containing a valid timestamp-and-size-matching cache for the unchanged `guard.py` can therefore execute substituted bytecode before `cache_problems()` runs. The attacker need not provide caches for startup modules or execute anything before the entry script.
+
+   CPython reads matching bytecode before considering `dont_write_bytecode`; that flag controls writes (`importlib/_bootstrap_external.py:923–973,978`). The registration’s assertion that the guard is compiled from its source is consequently unsupported.
+
+   **Smallest sufficient edit:** establish or validate an empty cache prefix using the already loaded `os` and `sys` **before any further import**. Do this in every entry point, and explicitly prevent cache use when loading the trusted guard source. Add a fresh-process regression with a prepopulated guard cache.
+
+The round-6 dispositions resolve as follows:
+
+| Round-6 finding | Verdict | Assessment |
+|---|---|---|
+| **1 — authenticate bytes before import** | **Residue** | The original altered recorded `.py` initializer is now covered: layout precedes byte checks (`guard.py:306–311`), distribution hashing is implemented (`158–196`), and manifest/file/module coverage is implemented (`199–239`). Both digest computations agree for all seven real distributions. `pins.problems()` now passes the same inventory object to `execution_problems()` (`pins.py:250–271`). Findings 1–3 above prevent closure of the broader guarantee. |
+| **2 — normalization and empty names** | **Closed** | Both normalizers correctly collapse separator runs (`guard.py:111–120`; `pins.py:40–49`). Absent/empty names grant nothing (`guard.py:123–155`; `pins.py:58–69`). The requested equivalent-name and empty-name regressions are present (`tests/test_study.py:788–814`). |
+
+**Trust-anchor assessment:** the entry source, guard source, and externally anchored `PINS.json` are appropriate study-specific trust anchors. The exclusion of arbitrary code already executing before entry is honest. However, the four-module description is not the executable dependency closure: genuine `hashlib` and `json` import additional modules, and `sys` is not compiled from a source file. Those dependencies belong to the already stated interpreter-library base. Qualify §7’s “Everything imported afterwards” to mean study and distribution code, and enforce the bootstrap boundary above. The fresh-process claim is presently unsupported.
+
+The locked matrix and adapter SPEC are **byte-identical to round 6**. All nineteen locked constructions are unchanged; their registered layer outcomes remain supported by the three specifications. All eight baseline gateway-input files match the pinned corpus materialization.
+
+**Holdout amendment: none; kept byte for byte.** The file matches the JSON array extracted from the verbatim round-1 findings, including whitespace and final newline: **6,638 bytes**, SHA-256:
+
+```text
+10f87d02a06cb91e32ab47c9477331c90068b49dcc33711cea8a276ae951b9f1
+```
+
+All six construction functions (`harness/cells.py:287–321`) remain source-identical to their round-1 implementation and implement the unchanged construction strings. None was built.
+
+**Verdict: `not freezable as written`.**
+````
+
+### Disposition
+
+Every finding was accepted. Fixing commit: the commit that adds this record (round 8's prompt
+names it as the reviewed SHA). "Mutation" names the entries of the round-7 mutation table.
+
+| # | Severity | Disposition | What changed | Mutation |
+|---|---|---|---|---|
+| 1 | BLOCKER | accepted | Every entry script begins, only when it is the entry point of a process (`__name__ == "__main__"`; imported as a module by another harness process it does not re-bootstrap), with a bootstrap block using `os` and `sys` alone: a fresh, empty cache prefix of its own, bytecode writing disabled, the import path the process started with recorded, `sys.path` restricted to the interpreter's library and the virtual environment (nothing under the study roots resolvable by name), `types` imported from the library, `harness/guard.py` compiled from its bytes by exact path (`compile` + `exec` into a fresh module object: no module-name resolution, no cache) and `guard.establish(study, original_path)` called; the guard judges the original path and refuses foreign entries, then the roots (the shadow rule now knows the interpreter's extension modules too), the environment and the bytes, and only then puts the study roots on `sys.path`. `pins.execution_problems()` recognises the bootstrap-loaded guard by its exact file and manner of loading and refuses to run under any other. Fresh-process regressions run the runner from a copy of the study tree with a payload-writing module planted at `harness/hashlib.py`, `harness/_hashlib.py`, `harness/types.py` and `adapter/json.py`, and with a `harness/guard/__init__.py` directory, and assert refusal with the payload never executed and no root spent. The earlier in-process regression the reviewer judged weak is superseded by these. PREREGISTRATION §2 states the order; §7 qualifies the trust anchor (the bootstrap block and the guard compiled from their bytes; the interpreter's library, the bootstrap's dependency closure inside it; `PINS.json`) and the claim ("every study module and every distribution file imported afterwards" — the interpreter's own modules are trusted as the base says). | T2, T3, T6, T8, T10 (T7, the roots not restored, is fatal to every import and was not run) |
+| 2 | BLOCKER | accepted | The environment layout check refuses any standalone `.pyc`/`.pyo` outside a `__pycache__` directory and any `.pth`, recorded or not (the import system would load the one without its source; the digests skip bytecode). A regression records a `pkg/mod2/__init__.pyc` in a temporary distribution, asserts the package digest is unchanged by it, and asserts the layout refuses it and a recorded `.pth`. PREREGISTRATION §2 says so. | T4, T5 |
+| 3 | BLOCKER | accepted | The bootstrap never uses an inherited prefix: a fresh one is made before any further import, whatever `PYTHONPYCACHEPREFIX` says; the runner strips `PYTHONPYCACHEPREFIX` from its children, which make their own. A fresh-process regression prepopulates an inherited prefix with timestamp-and-size-valid caches for `guard.py` and for the library's `types.py`, both carrying a payload, runs the runner with that prefix inherited, and asserts the payload never executed and the pilot completed. The test module — imported by unittest, not an attempt process — keeps an inherited prefix only if it holds no file (README's invocation supplies an empty one so that the module itself is compiled from source), which §2 states. | T1, T9 |
+| holdout | — | unchanged | `harness/MATRIX-HOLDOUT.json` untouched (SHA-256 `10f87d02…`); constructions unchanged. | — |
+
+### Mutation table (round 7; each breaks one fix; the suite must fail)
+
+| Mutation | Result |
+|---|---|
+| T1 an inherited cache prefix used when set | FAILED (1) |
+| T2 the import path not restricted before the bootstrap's imports | FAILED (1) |
+| T3 the guard imported by name | FAILED (2) |
+| T4 recorded standalone bytecode allowed | FAILED (1 error) |
+| T5 a recorded path hook allowed | FAILED (1 error) |
+| T6 extension-module names not treated as shadows | FAILED (1) |
+| T8 the current path judged instead of the original | FAILED (1) |
+| T9 children inherit the cache prefix | FAILED (1) |
+| T10 the pins do not recognise the bootstrap-loaded guard | FAILED (3 + 2 errors) |
+
+No mutation is labeled equivalent (T7 — the study roots never put back on the path — makes
+every harness import fail and was not run). Suite: 56 tests, all passing, under the documented
+invocation.
+
+### Pilot after the round
+
+`pilots/r8` (harness validation, `--pilot`, locked stratum only, holdout not built): `R1 holds`
+over the nineteen locked cells, zero validity failures, zero gate failures.
+

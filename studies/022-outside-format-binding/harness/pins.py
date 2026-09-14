@@ -124,8 +124,9 @@ def execution_problems(pins, dists=None):
     import sysconfig
     from importlib import machinery, metadata
     out = []
-    sys.path.insert(0, str(STUDY / "harness"))
-    import guard
+    guard = sys.modules.get("guard")
+    if guard is None or Path(getattr(guard, "__file__", "") or "/").resolve() != (STUDY / "harness" / "guard.py").resolve():
+        return ["the trusted guard was not established by this process's bootstrap"]
     out += guard.cache_problems() + guard.site_problems() + guard.path_problems(str(STUDY)) + guard.shadow_problems(str(STUDY)) + guard.environment_problems()
     if platform.python_implementation() != pins["harnessPython"]["implementation"]:
         out.append("the interpreter is %s, not the pinned %s" % (platform.python_implementation(), pins["harnessPython"]["implementation"]))
@@ -223,6 +224,8 @@ def execution_problems(pins, dists=None):
         elif _under(o, library):
             if top in tops:
                 out.append("%s carries a pinned distribution's name but was loaded from the interpreter's library (%s)" % (modname, o))
+        elif modname == "guard" and o == (STUDY / "harness" / "guard.py").resolve() and spec is None and loader is None:
+            continue  # the trusted guard: compiled from its bytes by exact path by the entry script's bootstrap, with no loader
         elif any(_under(o, root) for root in study_roots):
             if not (modname in STUDY_MODULES or (modname == "__main__")):
                 out.append("%s was loaded from the study tree (%s) and is not a registered study module" % (modname, o))

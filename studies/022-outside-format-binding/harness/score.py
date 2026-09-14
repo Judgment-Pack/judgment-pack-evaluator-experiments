@@ -21,20 +21,37 @@ Run: python harness/score.py --attempt-root DIR --gateway BIN [--include-holdout
 import os
 import sys
 
-# the bytecode policy, with os and sys alone, before any other import (harness/guard.py, PREREGISTRATION.md section 2)
-sys.dont_write_bytecode = True
-if not sys.pycache_prefix:
+# --- the trusted bootstrap, run only when this file is the entry point of a process (harness/guard.py, PREREGISTRATION.md
+# section 2); imported as a module by another harness process, this file inherits that process's established resolution ---
+if __name__ == "__main__":
+    # --- the trusted bootstrap, with os and sys alone (harness/guard.py, PREREGISTRATION.md section 2) ---
+    # a fresh, empty bytecode-cache prefix of this process's own, whatever the environment inherited, and no writes
+    sys.dont_write_bytecode = True
     for _attempt in range(10000):
         _d = os.path.join(os.environ.get("TMPDIR") or "/tmp", "study022-pycache-%d-%d" % (os.getpid(), _attempt))
         try:
             os.mkdir(_d, 0o700)
-            sys.pycache_prefix = _d
-            break
         except FileExistsError:
             continue
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import guard  # noqa: E402
-guard.establish(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        sys.pycache_prefix = _d
+        break
+    _ORIGINAL_PATH = list(sys.path)
+    _GUARD_DIR = os.path.dirname(os.path.realpath(__file__))
+    _STUDY = os.path.dirname(_GUARD_DIR)
+    # import resolution restricted to the interpreter's library and the virtual environment until the guard has verified the study roots
+    sys.path[:] = [_e for _e in sys.path if _e and (os.path.realpath(_e).startswith(os.path.realpath(sys.base_prefix) + os.sep)
+                                                     or os.path.realpath(_e).startswith(os.path.realpath(sys.prefix) + os.sep))]
+    import types  # noqa: E402 -- the interpreter's library
+
+    # the trusted guard, compiled from its bytes by exact path: no module-name resolution, no cache
+    _GUARD_FILE = os.path.join(_GUARD_DIR, "guard.py")
+    with open(_GUARD_FILE, "rb") as _f:
+        _code = compile(_f.read(), _GUARD_FILE, "exec")
+    guard = types.ModuleType("guard")
+    guard.__file__ = _GUARD_FILE
+    exec(_code, guard.__dict__)
+    sys.modules["guard"] = guard
+    guard.establish(_STUDY, _ORIGINAL_PATH)  # puts the study roots on the import path when every check has passed
 
 import tempfile  # noqa: E402
 
