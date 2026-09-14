@@ -9,12 +9,16 @@ subjects are what the receipt's own verifier resolves by digest (the retained ar
 an action the decision record it claims and each receipt it cites), the predicate is the
 receipt verbatim, the envelope is signed with a study-minted key that is not the gateway's.
 Nineteen constructions tamper with the store or with the attestations, and three verifiers look
-— the gateway's own, the in-toto reference implementation (`securesystemslib`,
-`in-toto-attestation`, unmodified), and the binding's rules. The registered result is the
+— the gateway's own; a study-written consumer ceremony using the unmodified in-toto reference
+implementation for its signature verification (`securesystemslib`) and its Statement validation
+(`in-toto-attestation`); and the binding's rules. The registered result is the
 ownership map: what an in-toto consumer sees of a receipt by re-digest, what only the gateway's
 key covers (the seal, the chain, the count, the gateway's identity — a store re-minted under
 another key attests just as well), and what only the binding's own rules see (an attestation
 that verifies while vouching for the wrong artifact).
 
-Interoperability, in the sense of Studies 013–016: an independently developed verifier,
-consumed at a pinned version, never modified. Not a study of any deployment.
+Interoperability, in the sense of Studies 013–016, with one precision: the signature
+verification and the Statement validation are an independently developed implementation,
+consumed at a pinned version and never modified; the ceremony around them — which receipts to
+expect attestations for, which types to pin, how to resolve a subject — is this study's own
+consumer policy, and the specification marks which step is whose. Not a study of any deployment.

@@ -78,18 +78,28 @@ the wrong thing (cells `b03`, `b08`, `b09`).
 `adapter/verify_binding.py` checks the rules in this order per stored receipt and reports the
 first broken as the attestation's code; `pass` when none is:
 
-1. `fail:missing-attestation` — no attestation at the receipt's path;
+1. `fail:missing-attestation` — no directory entry at the receipt's attestation path. A path
+   that is present but not a plain file — a directory, a symbolic link, a device — is not
+   absence and not an outcome: it is an I/O failure on the validity channel. Receipts are
+   enumerated as the gateway enumerates them (its `SPEC.md` §3a): per session directory,
+   every non-directory `.json` entry, by name;
 2. `fail:unreadable` — the envelope does not parse, its payload is not a JSON object, its
    `subject` is not a list, a subject is not an object with a string `name` and a `digest`
-   object holding a string `sha256`, or the stored receipt is not a JSON object. Shapes are
-   checked before any member is read, so a malformed input gets this code and never an
-   exception;
+   object holding a string `sha256` of 64 lowercase hex characters, the stored receipt is
+   not a JSON object, the predicate is not an object, or — for a predicate whose `kind` is
+   `action` — its `action` is not an object, its `action.decision` is not an object, or its
+   `action.cites` is not a list of objects each with a string `sessionId` and an integer
+   `callIndex`. Shapes are checked before any member is read, so a malformed input gets this
+   code and never an exception;
 3. `fail:predicate-differs-from-store` — rule 1;
 4. `fail:artifact-subject-mismatch` — rule 2 (the `artifact` subjects are not exactly one, or
    its digest is not the predicate's `resultDigest`);
 5. `fail:decision-subject-mismatch` — rule 3, the record subject (an action only);
 6. `fail:cites-subject-set` — rule 3, the citation subjects (an action only);
-7. `fail:foreign-subject` — rule 4.
+7. `fail:foreign-subject` — rule 4, a check of names only: multiplicities were settled by
+   rules 2 and 3, so a predicate that cites the same receipt twice, with two matching
+   subjects, passes (the gateway imposes no uniqueness on citations and neither does the
+   binding).
 
 The layer verifies no signature and reads no key: an attestation signed by anyone, or by no
 one, is held to the same rules. A file the layer cannot read for an I/O reason is not an
@@ -122,7 +132,9 @@ For every receipt the store holds, in this order, the first failure ending the a
 verification. Each step says whose check it is: **[consumer]** is this study's policy,
 **[upstream]** is the pinned implementation's own code, called as shipped.
 
-1. **[consumer]** an attestation is present at its path, or `fail:missing-attestation`;
+1. **[consumer]** an attestation is present at its path, or `fail:missing-attestation` —
+   presence and enumeration exactly as §3a item 1 states them (absence is no directory
+   entry; a present non-file is an I/O failure);
 2. **[upstream parse, consumer pin]** the envelope parses as a DSSE envelope
    (`Envelope.from_dict`), or `fail:unparseable`; its `payloadType` is
    `application/vnd.in-toto+json`, or `fail:payload-type`;
@@ -133,10 +145,12 @@ verification. Each step says whose check it is: **[consumer]** is this study's p
 4. **[consumer pins, upstream validation]** the payload is JSON, or `invalid:not-json`; it is a
    JSON object, or `invalid:not-object`; its `_type` is Statement v1, or
    `invalid:statement-type`; its `predicateType` is the registered one, or
-   `invalid:predicate-type`; the `in-toto-attestation` bindings validate the Statement **as
-   supplied** — every descriptor with every member it carries (a descriptor member the
-   bindings define no field for, or a `subject` that is not a list, fails validation), the
-   predicate type, the predicate — or `invalid:bindings`; then `statement` is `valid`;
+   `invalid:predicate-type`; the Statement **as supplied** is converted by the pinned
+   protobuf JSON mapping (`google.protobuf.json_format.ParseDict` into the bindings'
+   `Statement` message: every member as the mapping defines it, `content` as base64 text
+   included; a member the message defines no field for, or a member of the wrong type, is
+   refused by the mapping) and the `in-toto-attestation` bindings' own `validate()` runs on
+   the result; either refusal is `invalid:bindings`; then `statement` is `valid`;
 5. **[consumer]** every subject is re-digested against what it names and every outcome is
    retained, in the statement's order: `artifact` against the file under the store's
    `artifacts/` at that digest (`match`, `mismatch`, or `missing`); `decision-record` against
@@ -145,7 +159,8 @@ verification. Each step says whose check it is: **[consumer]** is this study's p
    a consumer needs that rule to place the subject, and this ceremony adopts it);
    `cites/<session>/<index>` — exactly three path segments, the index digits — against that
    receipt file's bytes (`match`, `mismatch`, or `missing`); any other name, or a subject whose
-   name or digest is not of the shape §1 gives, is `unknown-subject`. A later subject under
+   name is not a string or whose `digest.sha256` is not 64 lowercase hex characters, is
+   `unknown-subject` — the digest's syntax is checked before any path is formed from it. A later subject under
    the same name does not replace an earlier outcome: the per-name rule is §6's.
 
 The layer passes when every attestation reaches step 5 with at least one subject and every

@@ -437,3 +437,320 @@ over the nineteen locked cells, zero validity failures, zero gate failures — t
 tuples as before the round for every cell; the round changed what the harness can accept, not
 what the layers see.
 
+## Round 2 — reviewed `c58fad05` — verdict: `not freezable as written`
+
+Reviewer: Codex (GPT-6 Astra), `codex exec -s read-only`, run 2026-09-14 over the study branch
+worktree at commit `c58fad05b9647891429bb7a14219cc445889b802`, with the virtual environment and
+the pinned gateway binary named in the prompt. The read-only sandbox blocked temporary-file
+creation, so 21 of the 31 tests errored for the reviewer and no cell was built; its probes ran
+in memory over retained files, as its report says.
+
+### Prompt (verbatim)
+
+````text
+You are the pre-freeze cross-vendor reviewer for Study 022 in the judgment-pack-evaluator-experiments repository, under the interim review regime (a model from a different vendor than the one that drafted; Claude drafted). This is ROUND 2. Round 1 (your own review of commit 60d6409f) returned `not freezable as written` with five BLOCKER and five MAJOR findings, three minor wording corrections and a six-cell holdout array; the maintainer accepted every finding. The round-1 record — your prompt and findings verbatim, the maintainer's disposition table naming what changed per finding, a mutation table, and the post-round pilot — is studies/022-outside-format-binding/PREREG-REVIEW.md. You are reviewing commit c58fad05b9647891429bb7a14219cc445889b802 of the study branch (the worktree you are in).
+
+Your job this round:
+1. Verify every disposition against the code, not the table: for each of findings 1–10, decide whether the change closes the finding as you stated it, or leaves a residue (say which lines). Pay particular attention to: finding 1 (does `observation_problems()` in harness/score.py now refuse every record that is not a complete, self-consistent, snapshot-bound observation of the rebuilt cell? try to construct one it accepts wrongly); finding 2 (is the trusted key really handed in from outside the cell everywhere, and held to key material, not only key id?); finding 3 (duplicate-name retention and citation multiplicity in both adapter layers, and the per-name rule in adapter/SPEC.md §6); finding 4 (import-origin checks, the cryptography/protobuf/interpreter pins, and manifest coverage of nested directories — can a shadow package still slip in?); finding 6 (is R1 locked-only in every place — preregistration, scorer, runner, tests — and is the holdout guarded from pilots and tests as §1a claims? judge the disclosed function-level tests of the round-1 fixes: is the disclosure sufficient, or does it pretest the holdout?); finding 7 (is c01 now a coherent foreign chain under the specified prefix with the citation updated, and does the expected tuple still follow, registry unchanged?); finding 8 (the literal root, the marker root check, the terminal handler); finding 9 (shape checks and I/O on the validity channel in both verifiers; the binding codes and precedence in SPEC §3a).
+2. Confirm that harness/MATRIX-HOLDOUT.json is your round-1 array byte for byte (a bare JSON array), and that the six constructions in harness/cells.py `HOLDOUT_CELLS` implement your construction strings faithfully — by reading, not by running: the preregistration commits that no holdout cell is built before the freeze, so do not build one. If a construction does not implement your string, say exactly how.
+3. Re-audit the locked matrix where the round changed anything (c01's structure and reason; the SPEC wording on ownership, the per-name rule, the binding codes) and say whether every expectation still follows from the three specifications.
+4. Read the mutation table critically: where a mutation's claimed detection is cheap to check by reading the test, check it; flag any test that would pass under a plausible breakage of its fix.
+5. Anything new the round introduced (a regression, an overclaim, an inconsistency between the preregistration, the SPEC, the matrices and the code).
+
+This round you MAY execute: the virtual environment holding the pinned packages is at /tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/intoto-venv (python: /tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/intoto-venv/bin/python) and the pinned gateway binary at /tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/bin/gateway-03582d9 (SHA-256 aaa16fec…; harness/PINS.json pins it). Run the harness tests from the study directory:
+    GATEWAY_BIN=/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/bin/gateway-03582d9 /tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/intoto-venv/bin/python -W ignore -m unittest discover -s harness/tests
+Your sandbox is read-only and may block temporary-file writes; if the tests cannot run, say so and reason from the code. Do NOT run the primary attempt, do NOT run a pilot, do NOT build a holdout cell. Do not modify any file.
+
+Output: findings numbered and severity-tagged (BLOCKER / MAJOR / MINOR) with file:line locations and the smallest sufficient edit, then per-finding verdicts on the round-1 dispositions (closed / residue), then an audit line per changed locked cell, then any amendment to your holdout array (an amended or added cell is kept byte for byte, as the original was), then a verdict: `freezable as written` or `not freezable as written`. A clean pass on an item is a finding only if you can defend it.
+
+The round-1 prompt follows for reference; its reading list and its standards apply unchanged.
+
+----- ROUND-1 PROMPT (reference) -----
+You are the pre-freeze cross-vendor reviewer for Study 022 in the judgment-pack-evaluator-experiments repository, under the interim review regime (a model from a different vendor than the one that drafted; Claude drafted). The study is NOT frozen; your job is to find where the preregistration or the binding specification overclaims, where a registered cell's expectation does not follow from the three specifications it rests on (the gateway's SPEC.md; DSSE and the in-toto Statement v1 as the pinned reference implementation realizes them; the adapter's own SPEC.md), where the harness could produce a result the registration would misread, and where the design lets a favourable outcome be reached for the wrong reason. A clean pass is a finding only if you can defend it. Do not run the primary attempt; you may read everything and run the harness tests (the virtual environment holding the pinned packages is not available to you; the gateway binary is not available to you; reason from the documents and say what you could not execute).
+
+Read, in the study directory studies/022-outside-format-binding/ of the current worktree:
+- PREREGISTRATION.md — the registration: question, R1 and R2, the two strata, apparatus and pins, the scenario and threat model, the cells and the structures their reasons rest on, the decision rule, validity and enforcement, limits.
+- adapter/SPEC.md — the binding: the attestation's shape (subjects, predicate type, predicate), the adapter's key, what the binding asserts (section 3), the three layers (4), the in-toto layer's ceremony (5), the reduced form the registration compares (6), the ownership map (7).
+- harness/MATRIX.json — nineteen registered cells with exact per-layer expectations, ownership and reasons. Verify EVERY cell against the sources: the gateway's SPEC.md at commit 03582d9 of /home/onword/repo/judgment-pack/judgment-pack-gateway (read with `git -C <path> show 03582d9:SPEC.md`; sections 1.2a, 1.4, 3, 4 including steps 5-7, and the status vocabulary), the DSSE and in-toto Statement v1 contracts as securesystemslib 1.3.1 and in-toto-attestation 0.9.3 implement them (reason from their documented behaviour: PAE over payload type and payload, key id matching, Statement validation), and adapter/SPEC.md. Say per cell whether the expected outcome of each layer follows, and name any cell whose expectation you can show does not.
+- adapter/bind.py, adapter/verify_attestation.py, adapter/verify_binding.py — the binding and the two non-gateway layers; check them against adapter/SPEC.md clause by clause (the ceremony's order, the codes, the subject re-digest rules, the binding's rules), and look for a way a layer could pass for the wrong reason.
+- harness/cells.py — the nineteen constructions; check each does what its registered cell says and nothing else, deterministically.
+- harness/run_layers.py, harness/score.py, harness/run_attempt.py, harness/pins.py, harness/make_manifest.py, harness/PINS.json, harness/tests/test_study.py — enforcement: pins held before a registered attempt and before adjudication; the exclusive root and the marker; cells rebuilt and compared; observations bound and complete; the reduction; the decision rule. Look for any path to "R1 holds" without the registered evidence.
+- fixtures/baseline/ — the corpus vector v3-action-valid materialized (compare with `git -C <gateway path> show 03582d9:corpus/v3/stores/v3-action-valid.json`) and the attestations the adapter bound from it.
+- README.md, DEVIATIONS.md, .gitignore — status banners and the freeze-set discipline (README.md and DEVIATIONS.md outside the manifest; tools/check_freeze_sets.py at the repository root says why).
+- For precedent, studies/014-openworkproof-binding/PREREGISTRATION.md and its adapter/SPEC.md (the same shape of study: an external receipt protocol, a binding layer, a locked stratum and a reviewer's holdout), and studies/021-history-replay-catch/PREREG-REVIEW.md rounds 1-3 (the enforcement standard this repository's reviews have held harnesses to).
+
+Then, as the reviewer's holdout stratum: propose at least four holdout cells — new constructions, each described precisely enough for the maintainer to implement as a function of the baseline in harness/cells.py before the freeze (you may name store edits, attestation edits with or without the adapter's key, and combinations) — each with YOUR expected outcome of all three layers in the reduced form of adapter/SPEC.md section 6 and your reason. Give them as a JSON array in the schema of harness/MATRIX.json (id, role "endpoint", attackerCapability, expected, ownership, structure, reason) plus a `construction` string per cell; the maintainer implements the constructions verbatim and keeps your array byte-for-byte as harness/MATRIX-HOLDOUT.json.
+
+For each finding give: severity (BLOCKER / MAJOR / MINOR), the exact sentence, cell or line, what the source says, and the smallest edit that would make the registration true. Then a verdict: `freezable as written`, `freezable after fixes` (list them), or `not freezable as written`.
+````
+
+### Findings (verbatim)
+
+````markdown
+Reviewed commit `c58fad05b9647891429bb7a14219cc445889b802`. The scorer still accepts incomplete evidence for **19/19 locked cells**, and a new validation rule would reject h03’s correctly specified gateway finding.
+
+The authorized suite attempted **31 tests: 10 passed, 21 errored** because the read-only sandbox could not create temporary directories. No cell was built. No primary attempt or pilot ran, and no files changed. Subsequent probes used memory and existing files only.
+
+Paths below are relative to `studies/022-outside-format-binding/`.
+
+1. **BLOCKER — observation completeness remains unenforced.**
+
+   **Locations:** [harness/score.py:143](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/exp-022/studies/022-outside-format-binding/harness/score.py:143), especially lines 164–185.
+
+   Gateway coverage is a count of findings containing `callIndex` or `file`. Duplicate findings, findings naming nonexistent receipts, and additional join findings can satisfy that count. Gateway statuses have no vocabulary check.
+
+   Subject validation checks the format of recorded pairs without comparing their names, order or multiplicity with the snapshot’s Statement. Consequently, replacing the action’s three subject results with either `[["artifact","match"]]` or `[["invented","match"]]` is accepted. Integer `1` also satisfies the supposedly Boolean adapter summaries.
+
+   **Reproduction:** I modified in-memory copies of the retained round-2 locked observations: successful subject evidence became invented names, unsuccessful attestations retained only their failing subjects, and receipt findings were duplicated while preserving status sets. The actual validator accepted **19 records**, and the actual adjudicator returned **19 holds**. This was a scorer probe, not registered scoring.
+
+   **Smallest sufficient edit:** validate gateway finding identities and categories against the reconstructed inputs; require each Statement’s complete ordered subject-result sequence, including duplicates; enforce field types, phase-dependent members and vocabularies before reduction. Matching summaries and snapshot stamps cannot substitute for that coverage.
+
+2. **BLOCKER — legitimate decision-record findings invalidate the pipeline, including h03’s expected result.**
+
+   **Location:** `harness/score.py:158–159`.
+
+   The validator requires a string `sessionId` on **every** gateway finding. Gateway `SPEC.md@03582d9`, §4 step 7, lines 440–463, specifies record findings as `{recordDigest, status}`, without `sessionId`.
+
+   Therefore, if h03 produces its registered `record-citation-malformed` finding, scoring rejects it as “a gateway finding is not a finding.” This prevents ordinary adjudication of the whole attempt. A generic, specification-shaped `record-citation-unresolved` record reproduced the rejection in memory; h03 itself was neither built nor observed.
+
+   **Smallest edit:** validate receipt, session and decision-record findings using their respective schemas. Require `recordDigest` for record findings and validate their applicable status vocabulary.
+
+3. **BLOCKER — execution identity can still differ from the pinned source identity.**
+
+   **Locations:** [harness/pins.py:36](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/exp-022/studies/022-outside-format-binding/harness/pins.py:36), lines 54–67 and 108–109; `harness/make_manifest.py:29–30`.
+
+   The four checks examine package roots, not the loaded DSSE, Statement, cryptography and protobuf implementation modules. An authentic parent does not establish an authentic child.
+
+   More directly, installed-package hashing excludes `.pyc`, and the manifest excludes bytecode caches. CPython can execute cached code while reporting the genuine source path as `__file__`. The source hash and origin-membership check then both pass.
+
+   **Reproduction:** a read-only `SourceFileLoader` probe supplied replacement cached code with matching source metadata. That code executed under the genuine installed `statement.py` origin; `import_origin_problems()` returned `[]`, and the installed-source digest remained pinned. No installed file or production module was replaced.
+
+   Ordinary new source-package directories under `adapter/` or `harness/` are now rejected. That closes the original example, but not the claimed execution-integrity boundary.
+
+   **Smallest sufficient edit:** establish trusted import locations before study imports, check the implementation modules actually loaded, and prevent execution from unpinned caches or sourceless code. `-B` alone only prevents cache writes. Also enforce the declared interpreter implementation; lines 110–113 currently enforce its version only.
+
+4. **MAJOR — three holdouts are pretested, and construction still has an unrestricted route.**
+
+   **Locations:** [PREREGISTRATION.md:107](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/exp-022/studies/022-outside-format-binding/PREREGISTRATION.md:107); `harness/tests/test_study.py:142–170,205–213`; `harness/cells.py:297–308`.
+
+   The disclosure says the tests touch boundaries “without building or observing those cells.” That distinction is not supported:
+
+   - The h01 test produces the same foreign key file and both foreign envelopes against the baseline store, then checks both adapter layers.
+   - The h02 test copies the baseline, performs the exact insertion and re-signing specified by h02, and asserts its decisive outcomes.
+   - The h06 test performs the exact empty-subject construction and asserts both expected adapter codes.
+
+   Naming the directory `pos-baseline` does not make those different constructions. The disclosure acknowledges related testing but understates its equivalence.
+
+   Separately, `build()` dispatches through `ALL_CELLS` without a freeze or attempt check. The command-line route accepts an explicit holdout ID before freeze. The pilot runner’s locked-only default is correctly implemented, but it is not the claimed prospective guard.
+
+   **Smallest edit:** describe h01, h02 and h06 explicitly as pretested reviewer challenge cells. Preserve prospectivity claims only for untested constructions, and require a validated registered-attempt context at holdout construction entry points. Remove the unrestricted holdout CLI route.
+
+5. **MAJOR — the scorer checks the marker’s claimed root, not the root being scored.**
+
+   **Locations:** [harness/score.py:226](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/exp-022/studies/022-outside-format-binding/harness/score.py:226), lines 232–233; `marker_problems():74–75`.
+
+   The runner correctly rejects another registered root. The scorer accepts `--attempt-root` elsewhere provided its marker **claims** the literal primary root. No comparison connects the marker’s root with the directory supplying the evidence.
+
+   A copied, otherwise admissible attempt with no adjudication can therefore be scored elsewhere as registered.
+
+   **Smallest edit:** require the actual resolved scoring root to equal the literal primary root, and require `marker.attemptRoot` to equal that actual root. The terminal handler is otherwise a substantive repair: it catches construction/subprocess exceptions and interruptions, writes exclusively, and re-raises.
+
+6. **MAJOR — malformed nested inputs still escape as exceptions, and outer verifiers misclassify unreadable paths.**
+
+   **Locations:** [adapter/verify_binding.py:59](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/exp-022/studies/022-outside-format-binding/adapter/verify_binding.py:59), lines 61–64 and 82; `adapter/verify_attestation.py:173–174`; SPEC §3a and §5.
+
+   When predicate and stored receipt agree, an action with `decision: "x"` raises `AttributeError` at line 61. An action with `cites: [null]` raises at line 64. Both were reproduced using memory-backed inputs. These shape accesses remain outside the malformed-input handler.
+
+   The helper functions now propagate read errors correctly. However, both outer `verify()` functions use `is_file()` to decide absence. An envelope path occupied by a directory becomes `fail:missing-attestation`, instead of reaching the promised validity-channel read failure. The I/O test exercises only the helpers.
+
+   Subject digest shape is also checked only for string type: a SHA-256 value `"x"` produces `missing`, despite §5’s reference to the registered digest shape.
+
+   **Smallest edit:** validate nested members before access and specify their malformed-input code in §3a. Distinguish genuine absence from a present nonregular/unreadable path in the outer verifiers. Validate digest syntax before using it in a path.
+
+7. **MAJOR — the final binding check undoes legitimate citation multiplicity.**
+
+   **Location:** `adapter/verify_binding.py:64–71`; SPEC §3 rule 3.
+
+   The new multiset comparison correctly catches an extra citation subject. But after it succeeds, `expected |= set(cited)` discards citation multiplicity, and line 70 compares the complete subject list with that set.
+
+   A predicate containing the same citation twice, accompanied by exactly two corresponding subjects, satisfies “one per entry.” The gateway specification imposes no citation-uniqueness requirement. Nevertheless, the binding returns `fail:foreign-subject`. I reproduced this using memory-backed inputs.
+
+   **Smallest edit:** after enforcing artifact, decision and citation cardinalities, make rule 4 check only whether any subject name is outside the allowed names. Preserve the citation multiset check.
+
+8. **MAJOR — valid supplied descriptor fields can be rejected by the new conversion.**
+
+   **Location:** [adapter/verify_attestation.py:85](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/exp-022/studies/022-outside-format-binding/adapter/verify_attestation.py:85), particularly line 94; SPEC §5 step 4.
+
+   JSON descriptor `content` is base64 text. `descriptor()` passes that string directly to the Python constructor’s bytes-valued `content` parameter, producing `TypeError` and then `invalid:bindings`.
+
+   I added `content` containing the actual artifact’s base64 bytes to an in-memory baseline descriptor. The pinned protobuf JSON conversion and complete upstream Statement validation accepted it; the adapter conversion rejected it. Thus validation “as supplied” is still inaccurate.
+
+   **Smallest edit:** use the pinned protobuf JSON conversion, or implement its field conversions explicitly before calling the bindings. Retain the declared unknown-field policy.
+
+9. **MAJOR — the snapshot and tree checks still do not establish the promised exact path/type identity.**
+
+   **Locations:** [harness/run_layers.py:31](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/exp-022/studies/022-outside-format-binding/harness/run_layers.py:31); `harness/score.py:90–103,122–124`.
+
+   `tree_digest()` omits directories. An empty receipt-session directory changes gateway enumeration and can produce `unregistered-session` without changing that digest.
+
+   `tree_map()` rejects descendant symlinks, but does not inspect its root itself. A retained cell root that is a symlink is followed by `kept.is_dir()` and then compared successfully with its target. It also treats every nondirectory entry as a file without requiring a regular-file type.
+
+   **Smallest edit:** use one strict typed-tree representation for reconstruction and observation digests, including directory entries; reject root symlinks and nonregular entries before reading bytes.
+
+10. **MINOR — the mutation tests discriminate the listed edits more narrowly than the disposition suggests.**
+
+    **Locations:** [harness/tests/test_study.py:133](/tmp/claude-1000/-home-onword-repo-judgment-pack-judgment-pack-runtime/da38d36e-3eb2-4207-88ac-9dbd20248df1/scratchpad/exp-022/studies/022-outside-format-binding/harness/tests/test_study.py:133), lines 176–224, 266–305 and 315–345.
+
+    Reading supports the claimed detection of the listed mutations as described, including the corrected consistent-summary, literal-prefix and gateway-exit tests. I could not reproduce their reported execution results.
+
+    Plausible breakages still survive:
+
+    - Removing the trusted-key **material** comparison leaves the current genuine-key assertions passing.
+    - Dropping unknown descriptor members survives the “extra member” case because its empty predicate independently causes `invalid:bindings`.
+    - Returning the wrong binding failure code for malformed payloads survives assertions that merely require membership in `CODES` and a nonpass result.
+    - Counting duplicate receipt findings or dropping subject coverage survives the observation tests.
+    - Including holdout divergences in R1, or removing terminal recording, is not exercised by the current suite.
+
+    **Smallest edit:** add targeted assertions isolating these properties. Use synthetic records for stratum and terminal-handler checks so they require no holdout construction.
+
+11. **MINOR — residual ownership wording still misattributes a check and denies carried data.**
+
+    **Locations:** `PREREGISTRATION.md:181–185`; `harness/MATRIX.json:207`; `harness/score.py:9–11`; `README.md:11–20`.
+
+    `b02` is grouped with upstream signature verification, but `verify_one()` returns `fail:untrusted-key` at lines 108–110, before calling upstream verification. This is the consumer’s key-selection rule.
+
+    `a05` still says an attestation has “no session,” although its predicate carries `sessionId`. The scorer’s introductory docstring still says any registered divergence falsifies R1. README retains the older unqualified verifier description.
+
+    **Smallest edit:** attribute b02 to consumer key selection; describe a05 as carrying session identity without validating registry membership; make the scorer docstring locked-only and align README with the revised consumer-ceremony description.
+
+The round-1 dispositions resolve as follows:
+
+| Round-1 finding | Verdict | Code-based assessment |
+|---|---|---|
+| **1 — observations** | **Residue** | Attestation membership and summary checks improved; findings 1, 2 and 9 remain. |
+| **2 — trusted key** | **Closed** | `run_layers.py:28,60` supplies the external fixture key; `pins.py:74–77` compares both ID and actual public material. The cell key is not consulted. |
+| **3 — duplicate subjects** | **Residue** | Ordered retention, first-nonmatch reduction and rejection of an extra citation subject are correct. Legitimate repeated citations fail the final check: finding 7. |
+| **4 — implementation pins** | **Residue** | All four package/version/digest checks and interpreter-version enforcement are present and currently match. Executed-code provenance remains incomplete: finding 3. |
+| **5 — byte comparison** | **Residue** | Shallow comparison is removed; file contents are hashed. Root/type and snapshot-directory gaps remain: finding 9. |
+| **6 — strata** | **Residue** | The actual R1 decision uses locked rows only; holdout results report separately. Prospectivity and construction guarding remain defective: finding 4. |
+| **7 — c01** | **Closed** | Correct prefix, foreign key ID, chain, citation update and unchanged registry are implemented. Independent checks of retained r2 signatures passed. |
+| **8 — root/terminal record** | **Residue** | Runner root restriction and terminal handling are repaired. Actual scoring-root identity is unchecked: finding 5. |
+| **9 — shapes/I/O/codes** | **Residue** | Top-level shapes and helper read handling improved; nested shapes, outer presence handling and descriptor conversion remain defective: findings 6 and 8. |
+| **10 — ownership** | **Residue** | The main ceremony description is corrected. The narrower wording defects in finding 11 remain. |
+
+The three separately listed round-1 wording corrections are closed: expected repeatability, corpus-only authorship, and a06’s detection through the presence rule.
+
+I re-audited the locked matrix. **Only c01’s construction and matrix text changed directly; every locked expected tuple still follows for its concrete construction.** Below, `0`, `1`, and `2` denote the corresponding `s2/<index>.dsse.json`. Gateway `ok` is true exactly for rows listing only `ok`; combined is `fail` except for the positive control.
+
+| Locked cell | Gateway statuses | In-toto | Binding | Audit |
+|---|---|---|---|---|
+| `pos-baseline` | `ok` | pass | pass | Valid baseline, complete matching subjects. |
+| `neg-dsse-signature-flipped` | `ok` | 1: `fail:signature` | pass | Signature check owns detection. |
+| `a01-artifact-edited` | `artifact-mismatch, ok` | 1/artifact: `mismatch` | pass | Both re-digests detect changed bytes. |
+| `a02-cited-receipt-member-edited` | `ok, sequence-broken, signature-mismatch` | 1/citation: `mismatch` | 0: predicate differs | Each layer’s distinct check still applies. |
+| `a03-cited-receipt-removed` | `citation-unresolved, ok, sequence-broken, tail-rollback` | 1/citation: `missing` | pass | Orphan attestation remains outside enumeration. |
+| `a04-decision-record-rewritten` | `decision-record-mismatch, ok` | 1/record: `missing` | pass | Original record candidate disappears. |
+| `a05-registry-seal-removed` | `ok, unregistered-session` | pass | pass | Tuple correct; reason needs finding 11’s edit. |
+| `a06-receipt-appended-after-seal` | `count-exceeds-seal, misfiled, ok` | 2: missing attestation | 2: missing attestation | Presence policy detects the extra file. |
+| `a07-action-member-edited` | `ok, signature-mismatch` | pass | 1: predicate differs | Subjects remain unchanged. |
+| `b01-envelope-payload-edited` | `ok` | 1: `fail:signature` | 1: predicate differs | PAE and document comparison detect alteration. |
+| `b02-envelope-resigned-foreign-key` | `ok` | 1: `fail:untrusted-key` | pass | External key selection rejects it before verification. |
+| `b03-subject-swapped-resigned` | `ok` | pass | 1: artifact mismatch | Replacement artifact exists; predicate relationship fails. |
+| `b04-predicate-type-changed-resigned` | `ok` | 1: `invalid:predicate-type` | pass | Consumer type pin. |
+| `b05-statement-type-changed-resigned` | `ok` | 1: `invalid:statement-type` | pass | Consumer version pin. |
+| `b06-attestation-deleted` | `ok` | 1: missing attestation | 1: missing attestation | Genuine absence follows both presence rules. |
+| `b07-payload-type-changed` | `ok` | 1: `fail:payload-type` | pass | Type pin precedes signature verification. |
+| `b08-predicate-receipt-edited-resigned` | `ok` | pass | 1: predicate differs | Valid envelope does not establish store identity. |
+| `b09-cited-subject-dropped-resigned` | `ok` | pass | 1: citation subject set | Remaining subjects validate; required citation is absent. |
+| `c01-store-reminted-other-gateway-key` | `key-mismatch` | pass | pass | Coherent foreign chain; unchanged seal matches count; ladder rejection prevents action joins. |
+
+For c01 specifically, the retained r2 signatures independently verify under the literal prefix `judgment-pack-gateway/receipt/3:`; `prevSignature` and the action citation name the new acquisition signature; the registry is byte-identical to baseline. The revised structure and reason are sound.
+
+The holdout file is a **bare JSON array**, exactly matching the array extracted from the verbatim round-1 findings, including whitespace and final newline:
+
+```text
+6638 bytes
+SHA-256 10f87d02a06cb91e32ab47c9477331c90068b49dcc33711cea8a276ae951b9f1
+```
+
+All six implementations faithfully implement their construction strings, by inspection:
+
+| Holdout | Construction audit |
+|---|---|
+| `h01` — `cells.py:248–250` | Exact foreign-signer rebinding of the key file and both envelopes; gateway inputs untouched. |
+| `h02` — `cells.py:253–257` | Exact bad citation descriptor inserted first; originals retained; action re-signed. |
+| `h03` — `cells.py:260–262` | Exact requested bytes written to the new audit file. Its expected tuple is correct; scorer handling is defective. |
+| `h04` — `cells.py:265–267` | Only action receipt 1 is deleted. |
+| `h05` — `cells.py:270–275` | Exact preconditions and CRLF/empty-line transformation. |
+| `h06` — `cells.py:278–282` | Action subject list emptied and re-signed; nothing else changed. |
+
+**No amendment to the holdout array.** Its six expectations remain correct. Correct the provenance disclosure for h01, h02 and h06 and retain the array byte for byte.
+
+The current 26-file manifest matches; all non-freeze pins match; all eight baseline gateway-input files match the pinned corpus materialization. The freeze-set checker reports ten studies checked and zero problems. The null freeze hashes are appropriate draft state, and `results/` is absent.
+
+**Verdict: `not freezable as written`.**
+````
+
+### Disposition
+
+Every finding was accepted. Fixing commit: the commit that adds this record (round 3's prompt
+names it as the reviewed SHA). "Mutation" names the entries of the round-2 mutation table.
+
+| # | Severity | Disposition | What changed | Mutation |
+|---|---|---|---|---|
+| 1 | BLOCKER | accepted | `harness/score.py`: `finding_problem()` validates every gateway finding by category against the shapes `verify.go` emits at the pinned commit — receipt findings by call index or by file, chain findings with a null index, session findings (counted for `tail-rollback`/`count-exceeds-seal`), record findings by `recordDigest` — with the status vocabulary of the binary; exactly one receipt-level finding per stored receipt file, each in a stored session; Boolean summaries by type (an integer is refused); in-toto and binding records of exactly the recorded members. Beyond the record's own coherence, `main()` re-runs the three layers over the rebuilt cell (`run_layers.observe`) and refuses any observation not equal to that output — the reviewer's invented-subject record is refused there, and an end-to-end test drives that through the real pipeline. PREREGISTRATION §6 says so. | N1, N16/N16b, N17, N18 |
+| 2 | BLOCKER | accepted | Record findings are validated as `{recordDigest, status}` with no session id (gateway SPEC §4 step 7); a test asserts the h03-shaped finding is accepted and a record finding carrying a session id is refused. | N2 |
+| 3 | BLOCKER | accepted | Every harness process (runner, layer runner, scorer, tests) sets `sys.dont_write_bytecode` and an empty `sys.pycache_prefix` before any study or package import, and the runner passes both to its children through the environment, so no bytecode beside a source is read; `harness/pins.py` `execution_problems()` checks every loaded module of the four distributions (not their roots) to be a distribution file under a `SourceFileLoader` or `ExtensionFileLoader` with its cache path under the empty prefix (a namespace package only inside the distribution's location; cryptography's deprecation proxy unwrapped to the module it holds), every study module to be from the study tree, the prefix to hold no file, and the interpreter to be the pinned implementation (`platform.python_implementation()`) and version. PREREGISTRATION §2 states the policy and its enforcement. | N3a, N3b, N3c, N3d |
+| 4 | MAJOR | accepted | `harness/cells.py`: `build()` refuses a holdout id without a `RegisteredContext`, which is constructed only from a `REGISTERED` marker at the literal primary root; the command-line route refuses holdout ids; the runner builds a holdout cell after writing its marker, the scorer rebuilds one after validating that marker. PREREGISTRATION §1a now states that `h01`, `h02` and `h06` are pretested reviewer challenge cells at the adapter-layer level (the round-1 fix tests perform their edits on a copy of the baseline and assert the adapter layers' outcomes; gateway outcomes and the three-layer observation were not exercised) and that `h03`, `h04` and `h05` are prospective. The tests' docstrings say the same. | N4a, N4c (N4b equivalent: the `build()` guard already refuses the CLI route) |
+| 5 | MAJOR | accepted | `harness/score.py` `main()` refuses to score a registered attempt at any root but the literal one; `marker_problems()` takes the actual root and refuses a marker whose `attemptRoot` is not it (and, for `REGISTERED`, not the literal root). PREREGISTRATION freeze block says so. | N5, N6 |
+| 6 | MAJOR | accepted | `adapter/verify_binding.py` checks the nested action members (`action` object, `decision` object, `cites` list of objects with string `sessionId` and integer `callIndex`) before access → `fail:unreadable` (SPEC §3a item 2); both layers use `adapter/storewalk.py`: presence by `lstat` (absent = no entry; a present non-file raises, the validity channel) and the gateway's enumeration (per session directory, every non-directory `.json` entry by name); a subject digest must be 64 lowercase hex before a path is formed (`unknown-subject` in the ceremony, `fail:unreadable` in the binding). SPEC §3a and §5 state each. | N8, N11, N12, N19 |
+| 7 | MAJOR | accepted | Rule 4 is a check of names only (`any(n not in allowed)`); a predicate citing the same receipt twice with two matching subjects passes, and a missing one is still `fail:cites-subject-set`. SPEC §3a item 7. | N7' |
+| 8 | MAJOR | accepted | `validate_statement()` converts the Statement as supplied with `google.protobuf.json_format.ParseDict` into the bindings' message (unknown or mistyped members refused by the mapping; `content` as base64 text accepted) and runs the bindings' `validate()`; `descriptor()` is gone. SPEC §5 step 4. Test cases: a `content` member accepted, an unknown member alone refused with a complete predicate. | N9 |
+| 9 | MAJOR | accepted | `harness/trees.py` is the one typed representation for reconstruction comparison and observation digests: directories and plain files by relative path (files by SHA-256), the root and every entry `lstat`-ed, a symbolic link (root included), device or pipe refused before any byte is read; `same_tree`, `tree_digest` and the scorer's `rebuild_cells` use it. PREREGISTRATION §2. | N10a, N10b, N10c |
+| 10 | MINOR | accepted | Targeted tests added: key material versus key id (`trusted_pubkey_problems(pins, path)`), an unknown descriptor member with a complete predicate, exact binding codes per malformed case, an extra and an out-of-vocabulary receipt finding as consistent lies, the locked-only decision and separate holdout report on synthetic rows (`assemble`/`decide`), the terminal handler in-process (a construction that raises after the marker) and once-only writing, and the end-to-end tampered-observation run. | the table below |
+| 11 | MINOR | accepted | PREREGISTRATION §4 attributes b02 to the ceremony's key-selection rule (consumer, before upstream verification) and says a05's predicate carries `sessionId` uninterpreted; `harness/MATRIX.json` a05 reason and b02 ownership/reason rewritten accordingly; the scorer's docstring is locked-only with the holdout apart; README describes the consumer ceremony. | — (wording) |
+| holdout | — | unchanged | `harness/MATRIX-HOLDOUT.json` is untouched (SHA-256 `10f87d02…`, as the reviewer measured); the six constructions are unchanged; the provenance disclosure is in §1a as finding 4 asked. | — |
+
+### Mutation table (round 2; each breaks one fix; the suite must fail)
+
+| Mutation | Result |
+|---|---|
+| N1 the scorer's recomputation removed | FAILED (1) — the end-to-end test |
+| N2 a record finding required to carry a session id | FAILED (1) |
+| N3a loader kind unchecked | FAILED (1) |
+| N3b cache-prefix emptiness unchecked | FAILED (1) |
+| N3c only package roots checked, not submodules | FAILED (1) |
+| N3d interpreter implementation unchecked | FAILED (1) |
+| N4a `build()` holdout guard removed | FAILED (1) |
+| N4b CLI refusal of holdout ids removed | OK — **equivalent**: `build()` refuses the same call with the same words; the CLI check is a courtesy message, not the safeguard |
+| N4c `RegisteredContext` accepts any root | FAILED (1 error) |
+| N5 the scorer scores a registered attempt at any root | FAILED (1) |
+| N6 marker root not compared with the scored root | FAILED (1) |
+| N7 rule 4 as set equality | OK — **equivalent**: at rule 4 every allowed name is already present (rules 2–3), so set equality and the name check coincide |
+| N7' rule 4 as the round-1 list-versus-set comparison (the reported defect) | FAILED (1) |
+| N8 nested action shapes unchecked | FAILED (1 error) |
+| N9 unknown descriptor members ignored by the mapping | FAILED (1) |
+| N10a typed tree omits directories | FAILED (1) |
+| N10b root symbolic link followed | FAILED (1) |
+| N10c non-regular entries read as files | FAILED (1) |
+| N11 presence by `is_file()` | FAILED (1) |
+| N12 digest syntax unchecked | FAILED (1) |
+| N13 holdout divergences included in the R1 decision | FAILED (1) |
+| N14 terminal handler removed | FAILED (1 error) |
+| N15 key material unchecked | FAILED (1) |
+| N16 gateway `ok` accepted as an integer at the type check | OK alone — the combined-verdict identity check still refuses; N16b the combined check by truthiness — OK alone, the type check refuses; **N16 and N16b together: FAILED (1)**. Each is a redundant defence of the other; neither is the sole safeguard |
+| N17 receipt-level finding count as a lower bound | FAILED (1) — after the extra-finding case was added |
+| N18 status vocabulary unchecked | FAILED (1) — after the out-of-vocabulary case was made a consistent lie |
+| N19 receipts enumerated by integer stem instead of the gateway's rule | FAILED (1) |
+
+Two mutations are labeled equivalent, with the reason each time. Suite: 42 tests, all passing,
+under the virtual environment with `GATEWAY_BIN` set to the pinned binary and the bytecode
+policy in force (the test module sets it before importing the study).
+
+### Pilot after the round
+
+`pilots/r3` (harness validation, `--pilot`, locked stratum only, holdout not built): `R1 holds`
+over the nineteen locked cells, zero validity failures, zero gate failures, with the scorer's
+recomputation of every cell in force — the same reduced tuples as before the round for every
+cell.
+

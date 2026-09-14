@@ -1,32 +1,43 @@
 """The in-toto layer's verification ceremony (adapter/SPEC.md section 5).
 
-For every receipt the store holds, the layer expects one attestation and holds it, in this
-order, to: (1) presence; (2) the DSSE payload type; (3) a signature by the pinned adapter key
--- the signature's key id must be the pinned one (`fail:untrusted-key`) and the reference
-implementation must verify it (`fail:signature`) -- the trusted key is handed in from the
-study's fixture, never read from the cell; (4) the Statement's `_type` and the
-registered predicate type; (5) the Statement's validity by the in-toto-attestation bindings;
-(6) each subject re-digested against what it names -- the artifact under the store, the
-decision record among the candidates the gateway's rule enumerates under the record
-directory, a cited receipt's file -- `match`, `mismatch` or `missing`. The layer passes when
-every attestation passes every step and every subject matches. It reads no gateway key and
-runs no gateway code: what it can see is what an in-toto consumer can see.
+A study-written consumer ceremony using unmodified DSSE verification and unmodified Statement
+validation. For every receipt the store holds, the layer expects one attestation and holds it,
+in this order, to: (1) presence [consumer]; (2) the envelope parses [upstream] and its payload
+type is the in-toto one [consumer]; (3) a signature under the pinned adapter key's id is
+present [consumer selection] -- the key is handed in from the study's fixture, never read from
+the cell -- and the reference implementation verifies it [upstream]; (4) the payload is a JSON
+object of the pinned Statement type and predicate type [consumer], converted by the pinned
+protobuf JSON mapping and validated by the in-toto-attestation bindings [upstream]; (5) each
+subject re-digested against what it names [consumer] -- `match`, `mismatch`, `missing`, or
+`unknown-subject` for a name or digest the ceremony does not recognise -- every outcome
+retained in the statement's order. The layer passes when every attestation passes every step
+and every subject matches. It reads no gateway key and runs no gateway code.
 
 Run: python adapter/verify_attestation.py STORE_DIR ATTESTATIONS_DIR DECISIONS_DIR TRUSTED_PUBKEY_JSON
 """
 import hashlib
 import json
+import re
 import sys
 from pathlib import Path
 
+from google.protobuf import json_format
 from securesystemslib.dsse import Envelope
 from securesystemslib.signer import SSlibKey
-from in_toto_attestation.v1.resource_descriptor import ResourceDescriptor
+import in_toto_attestation.v1.statement_pb2 as statement_pb2
 from in_toto_attestation.v1.statement import Statement
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from storewalk import presence, stored_receipts  # noqa: E402
 
 STATEMENT_TYPE = "https://in-toto.io/Statement/v1"
 PREDICATE_TYPE = "https://judgment-pack.dev/attestation/gateway-receipt/v3"
 PAYLOAD_TYPE = "application/vnd.in-toto+json"
+HEX64 = re.compile(r"^[0-9a-f]{64}$")
+
+DSSE_CODES = ("pass", "fail:missing-attestation", "fail:unparseable", "fail:payload-type", "fail:untrusted-key", "fail:signature")
+STATEMENT_CODES = ("valid", "invalid:not-json", "invalid:not-object", "invalid:statement-type", "invalid:predicate-type", "invalid:bindings")
+SUBJECT_OUTCOMES = ("match", "mismatch", "missing", "unknown-subject")
 
 
 def sha256_hex(data):
@@ -53,19 +64,20 @@ def record_candidates(decisions):
 
 
 def check_subject(subject, store, decisions):
+    """Step 5 for one subject: the shape is checked before any path is formed from it."""
     if not isinstance(subject, dict) or not isinstance(subject.get("digest"), dict):
         return "unknown-subject"
-    name, digest = subject.get("name"), subject.get("digest", {}).get("sha256")
-    if not isinstance(name, str) or not isinstance(digest, str):
+    name, digest = subject.get("name"), subject["digest"].get("sha256")
+    if not isinstance(name, str) or not isinstance(digest, str) or not HEX64.match(digest):
         return "unknown-subject"
     if name == "artifact":
-        path = Path(store) / "artifacts" / str(digest)
+        path = Path(store) / "artifacts" / digest
         if not path.is_file():
             return "missing"
         return "match" if sha256_hex(path.read_bytes()) == digest else "mismatch"
     if name == "decision-record":
         return "match" if digest in record_candidates(decisions) else "missing"
-    if isinstance(name, str) and name.startswith("cites/"):
+    if name.startswith("cites/"):
         parts = name.split("/")
         if len(parts) != 3 or not parts[1] or not parts[2].isdigit():
             return "unknown-subject"
@@ -77,21 +89,12 @@ def check_subject(subject, store, decisions):
     return "unknown-subject"
 
 
-DSSE_CODES = ("pass", "fail:missing-attestation", "fail:unparseable", "fail:payload-type", "fail:untrusted-key", "fail:signature")
-STATEMENT_CODES = ("valid", "invalid:not-json", "invalid:not-object", "invalid:statement-type", "invalid:predicate-type", "invalid:bindings")
-SUBJECT_OUTCOMES = ("match", "mismatch", "missing", "unknown-subject")
-
-
-def descriptor(s):
-    """The supplied descriptor, whole, for the bindings to validate; a member the bindings have no field for is a validation failure."""
-    allowed = {"name", "uri", "digest", "content", "download_location", "downloadLocation", "media_type", "mediaType", "annotations"}
-    if not isinstance(s, dict) or set(s) - allowed:
-        raise ValueError("descriptor has members the bindings do not define")
-    kwargs = {}
-    for k, v in s.items():
-        key = {"downloadLocation": "download_location", "mediaType": "media_type"}.get(k, k)
-        kwargs[key] = v
-    return ResourceDescriptor(**kwargs).pb
+def validate_statement(statement):
+    """Step 4's upstream part: the Statement as supplied, converted by the pinned protobuf JSON mapping (an unknown
+    or mistyped member is refused by the mapping) and validated by the bindings' own rule."""
+    pb = statement_pb2.Statement()
+    json_format.ParseDict(statement, pb)
+    Statement.copy_from_pb(pb).validate()
 
 
 def verify_one(envelope_path, pubkey, store, decisions):
@@ -128,18 +131,15 @@ def verify_one(envelope_path, pubkey, store, decisions):
     if statement.get("predicateType") != PREDICATE_TYPE:
         out["statement"] = "invalid:predicate-type"
         return out
-    subjects = statement.get("subject")
     try:
-        if not isinstance(subjects, list):
-            raise ValueError("subject is not a list")
-        Statement([descriptor(s) for s in subjects], statement["predicateType"], statement.get("predicate")).validate()
-    except Exception:  # noqa: BLE001
+        validate_statement(statement)
+    except Exception:  # noqa: BLE001 -- the mapping's or the bindings' refusal
         out["statement"] = "invalid:bindings"
         return out
     out["statement"] = "valid"
     # every descriptor is checked and retained in order: a later descriptor with the same
     # name cannot erase an earlier failure (the reduced form keeps the first non-match)
-    for s in subjects:
+    for s in statement["subject"]:
         out["subjects"].append([s.get("name") if isinstance(s.get("name"), str) else None, check_subject(s, store, decisions)])
     return out
 
@@ -164,18 +164,16 @@ def trusted_key(path):
 
 
 def verify(store, attestations, decisions, pubkey):
-    attestations = Path(attestations)
     results = []
-    receipts = Path(store) / "receipts"
-    for session in sorted(p for p in receipts.iterdir() if p.is_dir()):
-        for f in sorted(session.glob("*.json"), key=lambda p: int(p.stem)):
-            env_path = attestations / session.name / (f.stem + ".dsse.json")
-            if not env_path.is_file():
-                results.append({"attestation": "%s/%s.dsse.json" % (session.name, f.stem), "dsse": "fail:missing-attestation", "statement": None, "subjects": []})
-                continue
-            r = verify_one(env_path, pubkey, store, decisions)
-            r["attestation"] = "%s/%s" % (session.name, r["attestation"])
-            results.append(r)
+    for session, stem, _ in stored_receipts(store):
+        env_path = Path(attestations) / session / (stem + ".dsse.json")
+        name = "%s/%s.dsse.json" % (session, stem)
+        if presence(env_path) == "absent":
+            results.append({"attestation": name, "dsse": "fail:missing-attestation", "statement": None, "subjects": []})
+            continue
+        r = verify_one(env_path, pubkey, store, decisions)
+        r["attestation"] = name
+        results.append(r)
     return {"pass": all(attestation_passes(r) for r in results), "attestations": results}
 
 

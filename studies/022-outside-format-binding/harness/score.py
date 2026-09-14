@@ -1,35 +1,61 @@
 """Adjudicate the registered cells against the observations of one attempt.
 
-Before any observation is read: the pins (harness/pins.py) against the tree and the
-environment; the attempt marker parsed and matched (label, gateway digest, pins digest,
-adapter key id, cell set); the attempt's cells rebuilt from the baseline by the registered
-constructions and compared byte for byte; the observations file bound to the pinned gateway
-binary and covering exactly the registered cells, each observation complete. Any shortfall is
-pipeline-invalid. Then the control gates (the positive control passing all three layers, the
-negative control failing exactly where registered), then every registered cell: the observed
-per-layer outcomes, reduced as adapter/SPEC.md section 6 states, must equal the registered
-ones; any divergence falsifies R1.
+Before any observation is read: the pins (harness/pins.py) against the tree, the environment
+and the executing code; for a registered adjudication the root being scored is the literal
+primary root; the attempt marker parsed and matched (root, label, gateway digest, pins digest,
+adapter key id, interpreter, cell set); the attempt's cells rebuilt from the baseline by the
+registered constructions and compared byte for byte (typed tree: paths, kinds, file digests);
+the observations file bound to the attempt, the pinned gateway binary, the interpreter and the
+trusted-key file and covering exactly the registered cells; each observation a complete,
+self-consistent record of the three layers (shapes and vocabularies), bound to the rebuilt
+cell's digest, and equal to what the pinned apparatus produces when the three layers are run
+again over the rebuilt cell. Any shortfall is pipeline-invalid. Then the control gates (the
+positive control passing all three layers, the negative control failing exactly where
+registered), then every locked cell: the observed per-layer outcomes, reduced as
+adapter/SPEC.md section 6 states, must equal the registered ones; any divergence in a locked
+endpoint cell falsifies R1. The holdout stratum is adjudicated by the same comparison and
+reported in its own section; it decides nothing.
 
 Run: python harness/score.py --attempt-root DIR --gateway BIN [--include-holdout] [--pilot]
 """
-import argparse
-import json
-import re
-import shutil
 import sys
 import tempfile
-from pathlib import Path
+
+# before any study or pinned-package import: no bytecode read from beside the sources, none written (harness/pins.py)
+sys.dont_write_bytecode = True
+if not sys.pycache_prefix:
+    sys.pycache_prefix = tempfile.mkdtemp(prefix="study022-pycache-")
+
+import argparse  # noqa: E402
+import json  # noqa: E402
+import re  # noqa: E402
+from pathlib import Path  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import cells as constructions  # noqa: E402
 import pins as pinning  # noqa: E402
 import run_layers  # noqa: E402
+from trees import same_tree, tree_digest, typed_tree  # noqa: E402,F401
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "adapter"))
+import storewalk  # noqa: E402
 import verify_attestation  # noqa: E402
 import verify_binding  # noqa: E402
 
 STUDY = Path(__file__).resolve().parent.parent
-REGISTERED, PILOT = "REGISTERED", "PILOT"
+PRIMARY_ROOT = constructions.PRIMARY_ROOT
+PILOT, REGISTERED = "PILOT", "REGISTERED"
+
+# the gateway's finding vocabulary and shapes, as verify.go at the pinned commit emits them (its SPEC.md sections 1.4 and 4)
+GATEWAY_STATUSES = frozenset(("artifact-mismatch", "artifact-missing", "authority-mismatch", "chain-broken", "citation-unresolved", "count-exceeds-seal",
+                              "decision-record-mismatch", "key-mismatch", "malformed", "misfiled", "ok", "record-citation-malformed",
+                              "record-citation-unresolved", "sealed-session-missing", "sequence-broken", "signature-mismatch", "tail-rollback",
+                              "unregistered-session", "unsupported-version"))
+RECORD_STATUSES = frozenset(("record-citation-malformed", "record-citation-unresolved"))
+JOIN_STATUSES = frozenset(("citation-unresolved", "decision-record-mismatch"))
+CHAIN_STATUSES = frozenset(("sequence-broken", "chain-broken"))
+SESSION_STATUSES = frozenset(("unregistered-session", "sealed-session-missing", "tail-rollback", "count-exceeds-seal"))
+COUNTED_STATUSES = frozenset(("tail-rollback", "count-exceeds-seal"))
+SHA256_PREFIXED = re.compile(r"^sha256:[0-9a-f]{64}$")
 
 
 def load_matrix(path):
@@ -58,9 +84,9 @@ def reduce_observation(o):
             "combined": o["combined"]}
 
 
-def marker_problems(marker, gateway_digest, label):
+def marker_problems(marker, gateway_digest, label, actual_root):
     problems = []
-    if not isinstance(marker, dict):
+    if marker is None:
         return ["no attempt marker"]
     for key in ("attemptId", "attemptRoot", "label", "gatewaySha256", "pinsRawSha256", "adapterKeyid", "python", "cells", "startedAt"):
         if key not in marker:
@@ -71,77 +97,99 @@ def marker_problems(marker, gateway_digest, label):
         problems.append("marker label is %s, not %s" % (marker["label"], label))
     if marker["python"] != sys.version.split()[0]:
         problems.append("marker's interpreter %s is not this interpreter %s" % (marker["python"], sys.version.split()[0]))
-    if label == REGISTERED and Path(marker["attemptRoot"]).resolve() != (STUDY / "results" / "primary-attempt-001").resolve():
+    # the marker's root is the directory the evidence is read from, and for a registered attempt the literal primary root
+    if Path(marker["attemptRoot"]).resolve() != Path(actual_root).resolve():
+        problems.append("marker's root %s is not the root being scored, %s" % (marker["attemptRoot"], Path(actual_root).resolve()))
+    if label == REGISTERED and Path(marker["attemptRoot"]).resolve() != PRIMARY_ROOT.resolve():
         problems.append("a registered attempt's root is results/primary-attempt-001, not %s" % marker["attemptRoot"])
     if marker["gatewaySha256"] != gateway_digest:
         problems.append("marker's gateway digest is not this binary's")
     if marker["pinsRawSha256"] != pinning.raw_sha256():
-        problems.append("marker's pins digest is not the current harness/PINS.json's")
+        problems.append("marker's pins digest is not the current harness/PINS.json")
     if marker["adapterKeyid"] != pinning.adapter_keyid():
-        problems.append("marker's adapter key id is not the pinned key's")
+        problems.append("marker's adapter key id is not the pinned one")
     expected_cells = sorted(constructions.ALL_CELLS) if label == REGISTERED else sorted(constructions.CELLS)
     if sorted(marker["cells"]) != expected_cells:
         problems.append("marker's cell set is not the registered constructions (%s)" % ("locked and holdout" if label == REGISTERED else "locked"))
-    if not isinstance(marker["attemptId"], str) or not re.fullmatch(r"[0-9a-f]{32}", marker["attemptId"]):
-        problems.append("marker attempt id is not a 32-hex token")
+    if not isinstance(marker["attemptId"], str) or len(marker["attemptId"]) != 32:
+        problems.append("marker's attempt id is not a 32-character token")
     return problems
 
 
-def tree_map(root):
-    """Every entry under a tree by relative path: 'd' for a directory, or the file's SHA-256; a symbolic link is refused."""
-    out = {}
-    for p in sorted(Path(root).rglob("*")):
-        rel = p.relative_to(root).as_posix()
-        if p.is_symlink():
-            raise RuntimeError("symbolic link in %s: %s" % (root, rel))
-        out[rel] = "d" if p.is_dir() else pinning.sha256_file(p)
-    return out
-
-
-def same_tree(a, b):
-    """Byte-for-byte equality of two trees: the same paths, the same kinds, the same file bytes."""
-    return tree_map(a) == tree_map(b)
-
-
-def cells_are_the_registered_constructions(root, failures, cell_ids, unconstructed=()):
-    """Every expected cell present and byte for byte the registered construction; no other cell present. Returns the
-    rebuilt cells' digests. A holdout cell the runner recorded as unconstructed is expected absent and is not rebuilt."""
-    digests = {}
-    with tempfile.TemporaryDirectory() as tmp:
-        for cid in cell_ids:
-            kept = Path(root) / "cells" / cid
-            if cid in unconstructed:
-                if kept.exists():
-                    failures.append("cell %s is recorded unconstructed but is present" % cid)
-                continue
-            try:
-                built = constructions.build(cid, tmp)
-            except Exception as e:  # noqa: BLE001 -- a construction that cannot be rebuilt is a validity failure, not a crash
-                failures.append("cell %s cannot be rebuilt (%s)" % (cid, type(e).__name__))
-                continue
-            if not kept.is_dir():
-                failures.append("cell %s is missing" % cid)
-            elif not same_tree(built, kept):
+def rebuild_cells(root, failures, cell_ids, unconstructed, tmp, registered=None):
+    """Every expected cell present and byte for byte the registered construction; no other cell present. Returns
+    {cell id: (rebuilt path, typed-tree digest)}. A holdout cell the runner recorded as unconstructed is expected absent."""
+    rebuilt = {}
+    for cid in cell_ids:
+        kept = Path(root) / "cells" / cid
+        if cid in unconstructed:
+            if kept.exists() or kept.is_symlink():
+                failures.append("cell %s is recorded unconstructed but is present" % cid)
+            continue
+        try:
+            built = constructions.build(cid, tmp, registered)
+        except Exception as e:  # noqa: BLE001 -- a construction that cannot be rebuilt is a validity failure, not a crash
+            failures.append("cell %s cannot be rebuilt (%s)" % (cid, type(e).__name__))
+            continue
+        try:
+            if not same_tree(built, kept):
                 failures.append("cell %s is not the registered construction" % cid)
-            digests[cid] = run_layers.tree_digest(built)
-    present = {p.name for p in (Path(root) / "cells").iterdir() if p.is_dir()} if (Path(root) / "cells").is_dir() else set()
+                continue
+        except (OSError, RuntimeError) as e:
+            failures.append("cell %s cannot be compared (%s)" % (cid, e))
+            continue
+        rebuilt[cid] = (built, tree_digest(built))
+    cells_dir = Path(root) / "cells"
+    present = set(p.name for p in cells_dir.iterdir()) if cells_dir.is_dir() else set()
     for extra in sorted(present - set(cell_ids)):
         failures.append("cell %s is not registered" % extra)
-    return digests
+    return rebuilt
+
+
+def finding_problem(f):
+    """One gateway finding against the shapes verify.go emits: receipt findings by call index or by file, chain
+    findings with a null call index, session findings (counted for the two seal-count statuses), record findings
+    by record digest. Returns a problem string or None."""
+    if not isinstance(f, dict) or not isinstance(f.get("status"), str) or f["status"] not in GATEWAY_STATUSES:
+        return "a finding outside the gateway's vocabulary"
+    keys = set(f)
+    if "recordDigest" in f:
+        if keys != {"recordDigest", "status"} or not isinstance(f["recordDigest"], str) or not SHA256_PREFIXED.match(f["recordDigest"]) \
+                or f["status"] not in RECORD_STATUSES:
+            return "a record finding of the wrong shape"
+        return None
+    if not isinstance(f.get("sessionId"), str):
+        return "a session-scoped finding without a session id"
+    if "file" in f:
+        if keys != {"sessionId", "file", "status"} or not isinstance(f["file"], str) or f["status"] in RECORD_STATUSES | SESSION_STATUSES | CHAIN_STATUSES:
+            return "a receipt finding by file of the wrong shape"
+        return None
+    if "callIndex" in f:
+        if keys != {"sessionId", "callIndex", "status"}:
+            return "a receipt finding of the wrong shape"
+        ci = f["callIndex"]
+        if ci is None:
+            return None if f["status"] in CHAIN_STATUSES else "a null call index outside a chain finding"
+        if isinstance(ci, bool) or not isinstance(ci, int) or ci < 0 or f["status"] in RECORD_STATUSES | SESSION_STATUSES | CHAIN_STATUSES:
+            return "a receipt finding with a call index or status of the wrong shape"
+        return None
+    if f["status"] not in SESSION_STATUSES:
+        return "a session finding with a status that is not a session status"
+    if f["status"] in COUNTED_STATUSES:
+        if keys != {"sessionId", "status", "have", "sealed"} or not all(isinstance(f[k], int) and not isinstance(f[k], bool) for k in ("have", "sealed")):
+            return "a counted session finding of the wrong shape"
+    elif keys != {"sessionId", "status"}:
+        return "a session finding of the wrong shape"
+    return None
 
 
 def required_attestations(cell_dir):
-    """One attestation per receipt file the cell's store holds, in the ceremony's order."""
-    names = []
-    receipts = Path(cell_dir) / "store" / "receipts"
-    for session in sorted(p for p in receipts.iterdir() if p.is_dir()):
-        for f in sorted(session.glob("*.json"), key=lambda p: int(p.stem)):
-            names.append("%s/%s.dsse.json" % (session.name, f.stem))
-    return names
+    """One attestation per receipt file the cell's store holds, in the ceremony's order (the gateway's enumeration)."""
+    return ["%s/%s.dsse.json" % (session, stem) for session, stem, _ in storewalk.stored_receipts(Path(cell_dir) / "store")]
 
 
 def observation_problems(o, cid, cell_dir, snapshot):
-    """Every way an observation falls short of a complete record of the three layers over the registered cell."""
+    """Every way an observation falls short of a complete, self-consistent record of the three layers over the registered cell."""
     problems = []
     try:
         if o["cell"] != cid:
@@ -149,47 +197,67 @@ def observation_problems(o, cid, cell_dir, snapshot):
         if o.get("cellSha256") != snapshot:
             problems.append("was not made over the registered construction (snapshot digest differs)")
         g, i, b = o["gateway"], o["intoto"], o["binding"]
-        if not isinstance(g["ok"], bool) or not isinstance(g["findings"], list):
+        stored = storewalk.stored_receipts(Path(cell_dir) / "store")
+        required = ["%s/%s.dsse.json" % (session, stem) for session, stem, _ in stored]
+        sessions = {session for session, _, _ in stored}
+        # the gateway layer
+        if not isinstance(g.get("ok"), bool) or not isinstance(g.get("findings"), list) or not isinstance(g.get("statuses"), list):
             problems.append("gateway record incomplete")
         else:
-            statuses = sorted({f.get("status") for f in g["findings"]})
-            if g["statuses"] != statuses:
+            for f in g["findings"]:
+                p = finding_problem(f)
+                if p:
+                    problems.append("gateway finding %r: %s" % (f, p))
+            if g["statuses"] != sorted({f.get("status") for f in g["findings"] if isinstance(f, dict)}):
                 problems.append("gateway statuses are not the findings' statuses")
-            if not all(isinstance(f.get("status"), str) and isinstance(f.get("sessionId"), str) for f in g["findings"]):
-                problems.append("a gateway finding is not a finding")
             # the gateway's rule (verify.go): ok is false exactly when some finding's status is not ok
-            if g["ok"] != all(f.get("status") == "ok" for f in g["findings"]):
+            if g["ok"] != all(isinstance(f, dict) and f.get("status") == "ok" for f in g["findings"]):
                 problems.append("gateway ok does not follow from its findings")
-            # the gateway emits one finding per receipt file it read (by callIndex, or by file when unreadable), plus session findings
-            per_receipt = [f for f in g["findings"] if "callIndex" in f or "file" in f]
-            if len(per_receipt) < len(required_attestations(cell_dir)):
-                problems.append("gateway findings do not cover every stored receipt")
-        required = required_attestations(cell_dir)
-        for layer, key, codes, ok_code in ((i, "dsse", verify_attestation.DSSE_CODES, None), (b, "binding", verify_binding.CODES, None)):
-            names = [a.get("attestation") for a in layer["attestations"]]
-            if names != required:
-                problems.append("%s records are not one per stored receipt in order" % key)
-            for a in layer["attestations"]:
-                if a.get(key) not in codes:
-                    problems.append("%s code %r is not in the vocabulary" % (key, a.get(key)))
-        for a in i["attestations"]:
-            if a["dsse"] == "pass":
-                if a.get("statement") not in verify_attestation.STATEMENT_CODES:
-                    problems.append("statement code %r is not in the vocabulary" % a.get("statement"))
-                if a["statement"] == "valid":
-                    if not isinstance(a["subjects"], list) or not all(isinstance(x, list) and len(x) == 2 and x[1] in verify_attestation.SUBJECT_OUTCOMES for x in a["subjects"]):
-                        problems.append("subject outcomes of %s are not a list of [name, outcome]" % a["attestation"])
-                elif a["subjects"]:
-                    problems.append("subjects recorded for an attestation whose statement was not valid")
-            elif a.get("statement") is not None or a.get("subjects"):
-                problems.append("statement or subjects recorded for an attestation whose envelope failed")
-        if i["pass"] != all(verify_attestation.attestation_passes(a) for a in i["attestations"]):
-            problems.append("intoto pass does not follow from its attestations")
-        if b["pass"] != all(a["binding"] == "pass" for a in b["attestations"]):
-            problems.append("binding pass does not follow from its attestations")
-        if o["combined"] != ("pass" if (g["ok"] and i["pass"] and b["pass"]) else "fail"):
+            # one receipt-level finding per stored receipt file (by call index outside the joins, or by file), each in a stored session
+            receipt_level = [f for f in g["findings"] if isinstance(f, dict) and ("file" in f or (isinstance(f.get("callIndex"), int)
+                             and not isinstance(f.get("callIndex"), bool) and f.get("status") not in JOIN_STATUSES))]
+            if len(receipt_level) != len(required):
+                problems.append("gateway receipt-level findings are not one per stored receipt file")
+            if any(f.get("sessionId") not in sessions for f in receipt_level):
+                problems.append("a gateway receipt finding names a session the store does not hold")
+        # the in-toto layer
+        if not isinstance(i.get("pass"), bool) or not isinstance(i.get("attestations"), list):
+            problems.append("intoto record incomplete")
+        else:
+            if [a.get("attestation") for a in i["attestations"]] != required:
+                problems.append("intoto records are not one per stored receipt in order")
+            for a in i["attestations"]:
+                if set(a) != {"attestation", "dsse", "statement", "subjects"} or a["dsse"] not in verify_attestation.DSSE_CODES:
+                    problems.append("intoto record of the wrong shape or code: %r" % a.get("attestation"))
+                    continue
+                if a["dsse"] != "pass":
+                    if a["statement"] is not None or a["subjects"] != []:
+                        problems.append("statement or subjects recorded for an attestation whose envelope failed")
+                    continue
+                if a["statement"] not in verify_attestation.STATEMENT_CODES:
+                    problems.append("statement code %r is not in the vocabulary" % a["statement"])
+                elif a["statement"] != "valid":
+                    if a["subjects"] != []:
+                        problems.append("subjects recorded for an attestation whose statement was not valid")
+                elif not isinstance(a["subjects"], list) or not all(isinstance(x, list) and len(x) == 2 and (x[0] is None or isinstance(x[0], str))
+                                                                    and x[1] in verify_attestation.SUBJECT_OUTCOMES for x in a["subjects"]):
+                    problems.append("subject outcomes of %s are not a list of [name, outcome]" % a["attestation"])
+            if not problems and i["pass"] != all(verify_attestation.attestation_passes(a) for a in i["attestations"]):
+                problems.append("intoto pass does not follow from its attestations")
+        # the binding layer
+        if not isinstance(b.get("pass"), bool) or not isinstance(b.get("attestations"), list):
+            problems.append("binding record incomplete")
+        else:
+            if [a.get("attestation") for a in b["attestations"]] != required:
+                problems.append("binding records are not one per stored receipt in order")
+            for a in b["attestations"]:
+                if set(a) != {"attestation", "binding"} or a["binding"] not in verify_binding.CODES:
+                    problems.append("binding record of the wrong shape or code: %r" % a.get("attestation"))
+            if b["pass"] != all(a.get("binding") == "pass" for a in b["attestations"]):
+                problems.append("binding pass does not follow from its attestations")
+        if o["combined"] not in ("pass", "fail") or o["combined"] != ("pass" if (g.get("ok") is True and i.get("pass") is True and b.get("pass") is True) else "fail"):
             problems.append("combined verdict does not follow from the layers")
-    except (KeyError, TypeError, AttributeError, ValueError) as e:
+    except (KeyError, TypeError, AttributeError, ValueError, OSError) as e:
         problems.append("not a complete record (%s)" % type(e).__name__)
     return problems
 
@@ -211,6 +279,26 @@ def adjudicate(matrix_cells, observed, unconstructed=None):
     return rows
 
 
+def decide(locked_rows):
+    """The decision from the locked stratum alone (PREREGISTRATION.md section 5): control gates first, then R1."""
+    gates = [r["id"] for r in locked_rows if r["role"] == "control-gate" and r["verdict"] != "holds"]
+    diverging = [r["id"] for r in locked_rows if r["role"] == "endpoint" and r["verdict"] == "diverges"]
+    decision = "control-gate-failed" if gates else ("R1 holds" if not diverging else "R1 falsified")
+    return decision, gates
+
+
+def assemble(label, attempt_id, gateway_digest, holdout_included, validity, locked_rows, holdout_rows, unconstructed):
+    """The adjudication record: the locked stratum decides; the holdout is reported beside it and decides nothing."""
+    if validity:
+        decision, gates = "pipeline-invalid", []
+    else:
+        decision, gates = decide(locked_rows)
+    return {"label": label, "attemptId": attempt_id, "gatewaySha256": gateway_digest, "holdoutIncluded": holdout_included, "decision": decision,
+            "validityFailures": validity, "gateFailures": gates, "cells": locked_rows,
+            "holdout": {"cells": holdout_rows, "diverging": [r["id"] for r in holdout_rows if r["verdict"] == "diverges"],
+                        "unconstructed": sorted(unconstructed), "note": "the reviewer's stratum: reported, deciding nothing"}}
+
+
 def write_once(root, name, payload):
     with open(Path(root) / name, "x") as f:
         f.write(json.dumps(payload, indent=1))
@@ -224,13 +312,17 @@ def main():
     ap.add_argument("--pilot", action="store_true")
     args = ap.parse_args()
     root = Path(args.attempt_root)
+    label = PILOT if args.pilot else REGISTERED
+    # a registered adjudication reads its evidence from the literal primary root and nowhere else
+    if not args.pilot and root.resolve() != PRIMARY_ROOT.resolve():
+        sys.exit("refusing: a registered adjudication scores %s, not %s" % (PRIMARY_ROOT, root))
     if (root / "ADJUDICATION.json").exists():
         sys.exit("refusing: %s already holds an adjudication" % root)
     pins = pinning.load()
     problems = pinning.problems(pins, args.gateway, require_all=not args.pilot)
     gateway_digest = pinning.sha256_file(args.gateway) if Path(args.gateway).is_file() else None
     marker = json.loads((root / "ATTEMPT.json").read_text()) if (root / "ATTEMPT.json").exists() else None
-    problems += marker_problems(marker, gateway_digest, PILOT if args.pilot else REGISTERED)
+    problems += marker_problems(marker, gateway_digest, label, root)
     if problems:
         sys.exit("refusing to adjudicate %s:\n  " % root + "\n  ".join(problems))
     holdout = load_matrix(STUDY / "harness" / "MATRIX-HOLDOUT.json") if args.include_holdout else []
@@ -254,49 +346,48 @@ def main():
         for cid in unconstructed:
             if cid not in constructions.HOLDOUT_CELLS:
                 validity.append("cell %s is recorded unconstructed but is not a holdout cell" % cid)
-    snapshots = cells_are_the_registered_constructions(root, validity, cell_ids, unconstructed)
-    obs_path = root / "OBSERVATIONS.json"
     observed = {}
-    if not obs_path.exists():
-        validity.append("no observations")
-    else:
-        doc = json.loads(obs_path.read_text())
-        if doc.get("attemptId") != marker["attemptId"]:
-            validity.append("the observations are not this attempt's")
-        if doc.get("gatewaySha256") != gateway_digest:
-            validity.append("the observations were made with another gateway binary")
-        if doc.get("python") != marker["python"]:
-            validity.append("the observations were made under another interpreter")
-        if doc.get("trustedKeySha256") != pinning.sha256_file(STUDY / "fixtures" / "baseline" / "attestations" / "adapter.pubkey.json"):
-            validity.append("the observations were made under another trusted key file")
-        seen = [o.get("cell") for o in doc.get("cells", [])]
-        if sorted(seen) != [c for c in cell_ids if c not in unconstructed] or len(seen) != len(set(seen)):
-            validity.append("the observations do not cover exactly the registered cells once each")
-        for o in doc.get("cells", []):
-            cid = o.get("cell")
-            if cid in snapshots:
-                for p in observation_problems(o, cid, root / "cells" / cid, snapshots[cid]):
-                    validity.append("observation of %s: %s" % (cid, p))
-            observed[cid] = o
-    rows, holdout_rows, gates, decision = [], [], [], "pipeline-invalid"
+    with tempfile.TemporaryDirectory() as tmp:
+        registered = constructions.RegisteredContext(root) if holdout else None
+        rebuilt = rebuild_cells(root, validity, cell_ids, unconstructed, tmp, registered)
+        obs_path = root / "OBSERVATIONS.json"
+        if not obs_path.exists():
+            validity.append("no observations")
+        else:
+            doc = json.loads(obs_path.read_text())
+            if doc.get("attemptId") != marker["attemptId"]:
+                validity.append("the observations are not this attempt's")
+            if doc.get("gatewaySha256") != gateway_digest:
+                validity.append("the observations were made with another gateway binary")
+            if doc.get("python") != marker["python"]:
+                validity.append("the observations were made under another interpreter")
+            if doc.get("trustedKeySha256") != pinning.sha256_file(pinning.TRUSTED_KEY_FILE):
+                validity.append("the observations were made under another trusted key file")
+            seen = [o.get("cell") for o in doc.get("cells", [])]
+            if sorted(seen) != [c for c in cell_ids if c not in unconstructed] or len(seen) != len(set(seen)):
+                validity.append("the observations do not cover exactly the registered cells once each")
+            for o in doc.get("cells", []):
+                cid = o.get("cell")
+                if cid in rebuilt:
+                    built, snapshot = rebuilt[cid]
+                    for p in observation_problems(o, cid, built, snapshot):
+                        validity.append("observation of %s: %s" % (cid, p))
+                    # the record must be what the pinned apparatus produces over the registered construction, run again here
+                    if run_layers.observe(args.gateway, built) != o:
+                        validity.append("observation of %s is not what the pinned apparatus produces over the registered construction" % cid)
+                observed[cid] = o
+    rows, holdout_rows = [], []
     if not validity:
         rows = adjudicate(locked, observed)
         holdout_rows = adjudicate(holdout, observed, unconstructed) if holdout else []
         unobserved = [r["id"] for r in rows + holdout_rows if r["verdict"] == "unobserved"]
         if unobserved:
             validity.append("unobserved registered cells: %s" % ", ".join(unobserved[:3]))
-        else:
-            gates = [r["id"] for r in rows if r["role"] == "control-gate" and r["verdict"] != "holds"]
-            diverging = [r["id"] for r in rows if r["role"] == "endpoint" and r["verdict"] == "diverges"]
-            # the locked stratum alone decides R1; the holdout reports beside it
-            decision = "control-gate-failed" if gates else ("R1 holds" if not diverging else "R1 falsified")
-    write_once(root, "ADJUDICATION.json", {"label": PILOT if args.pilot else REGISTERED, "attemptId": marker["attemptId"], "gatewaySha256": gateway_digest,
-                                           "holdoutIncluded": bool(holdout), "decision": decision, "validityFailures": validity, "gateFailures": gates,
-                                           "cells": rows, "holdout": {"cells": holdout_rows, "diverging": [r["id"] for r in holdout_rows if r["verdict"] == "diverges"],
-                                                                      "unconstructed": sorted(unconstructed), "note": "the reviewer's stratum: reported, deciding nothing"}})
-    print("%s: %s (%d locked cells, %d diverge; holdout %d cells, %d diverge; %d validity failures, %d gate failures)" % (
-        PILOT if args.pilot else REGISTERED, decision, len(rows), sum(1 for r in rows if r["verdict"] == "diverges"), len(holdout_rows),
-        sum(1 for r in holdout_rows if r["verdict"] == "diverges"), len(validity), len(gates)))
+    record = assemble(label, marker["attemptId"], gateway_digest, bool(holdout), validity, rows, holdout_rows, unconstructed)
+    write_once(root, "ADJUDICATION.json", record)
+    print("%s: %s (%d locked cells, %d diverge; holdout %d cells, %d diverge, %d unconstructed; %d validity failures, %d gate failures)" % (
+        label, record["decision"], len(rows), sum(1 for r in rows if r["verdict"] == "diverges"), len(holdout_rows),
+        len(record["holdout"]["diverging"]), len(unconstructed), len(validity), len(record["gateFailures"])))
     for v in validity[:6]:
         print("  ", v)
 

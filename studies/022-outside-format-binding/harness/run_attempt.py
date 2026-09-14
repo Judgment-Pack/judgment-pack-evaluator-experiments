@@ -6,14 +6,23 @@ baseline, runs the three layers over every cell, and scores with the holdout.
 
 Run: python harness/run_attempt.py --attempt-root results/primary-attempt-001 --gateway BIN
 """
-import argparse
-import datetime
-import json
-import secrets
-import shutil
-import subprocess
 import sys
-from pathlib import Path
+import tempfile
+
+# before any study or pinned-package import: no bytecode read from beside the sources, none written (harness/pins.py);
+# the children inherit the same empty prefix through the environment
+sys.dont_write_bytecode = True
+if not sys.pycache_prefix:
+    sys.pycache_prefix = tempfile.mkdtemp(prefix="study022-pycache-")
+
+import argparse  # noqa: E402
+import datetime  # noqa: E402
+import json  # noqa: E402
+import os  # noqa: E402
+import secrets  # noqa: E402
+import shutil  # noqa: E402
+import subprocess  # noqa: E402
+from pathlib import Path  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import cells as constructions  # noqa: E402
@@ -23,7 +32,8 @@ STUDY = Path(__file__).resolve().parent.parent
 HARNESS = STUDY / "harness"
 
 
-PRIMARY_ROOT = STUDY / "results" / "primary-attempt-001"
+PRIMARY_ROOT = constructions.PRIMARY_ROOT
+CHILD_ENV = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", PYTHONPYCACHEPREFIX=sys.pycache_prefix)
 
 
 def terminal(root, payload):
@@ -61,12 +71,14 @@ def main():
     (root / "ATTEMPT.json").write_text(json.dumps(marker, indent=1))
     unconstructed = {}
     try:
+        # the holdout's only construction context: the marker just written, at the literal root
+        registered = constructions.RegisteredContext(root) if not args.pilot else None
         for cid in cell_ids:
             if cid in constructions.HOLDOUT_CELLS:
                 # a holdout construction is first built here; one that raises is recorded and its partial tree removed,
                 # and the locked stratum is unaffected (PREREGISTRATION.md section 1a)
                 try:
-                    constructions.build(cid, root / "cells")
+                    constructions.build(cid, root / "cells", registered)
                 except Exception as e:  # noqa: BLE001
                     shutil.rmtree(root / "cells" / cid, ignore_errors=True)
                     unconstructed[cid] = "%s: %s" % (type(e).__name__, str(e)[:300])
@@ -75,13 +87,13 @@ def main():
         if not args.pilot:
             (root / "HOLDOUT-CONSTRUCTION.json").write_text(json.dumps({"failed": unconstructed}, indent=1))
         subprocess.run([sys.executable, str(HARNESS / "run_layers.py"), "--cells", str(root / "cells"), "--gateway", args.gateway,
-                        "--out", str(root / "OBSERVATIONS.json"), "--attempt-id", attempt_id], check=True)
+                        "--out", str(root / "OBSERVATIONS.json"), "--attempt-id", attempt_id], check=True, env=CHILD_ENV)
         score = [sys.executable, str(HARNESS / "score.py"), "--attempt-root", str(root), "--gateway", args.gateway]
         if not args.pilot:
             score.append("--include-holdout")
         if args.pilot:
             score.append("--pilot")
-        subprocess.run(score, check=True)
+        subprocess.run(score, check=True, env=CHILD_ENV)
     except BaseException as e:  # noqa: BLE001 -- every terminal path after the marker is recorded
         terminal(root, {"label": marker["label"], "attemptId": attempt_id, "decision": "pipeline-invalid",
                         "validityFailures": ["the attempt failed after the marker: %s: %s" % (type(e).__name__, str(e)[:300])], "gateFailures": [], "cells": [],

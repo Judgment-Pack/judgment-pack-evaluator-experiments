@@ -17,6 +17,21 @@ sys.path.insert(0, str(HERE.parent / "adapter"))
 import bind  # noqa: E402
 
 BASELINE = HERE.parent / "fixtures" / "baseline"
+PRIMARY_ROOT = HERE.parent / "results" / "primary-attempt-001"
+
+
+class RegisteredContext:
+    """The only context in which a holdout cell is constructed: the registered attempt's marker at the literal
+    primary root (PREREGISTRATION.md section 1a). Constructing one validates the marker; nothing else grants it."""
+
+    def __init__(self, root):
+        root = Path(root).resolve()
+        if root != PRIMARY_ROOT.resolve():
+            raise RuntimeError("a holdout cell is constructed only for the registered attempt at %s" % PRIMARY_ROOT)
+        marker = json.loads((root / "ATTEMPT.json").read_text())
+        if marker.get("label") != "REGISTERED" or not isinstance(marker.get("attemptId"), str) or marker.get("attemptRoot") != str(root):
+            raise RuntimeError("no registered attempt marker at %s" % root)
+        self.root, self.attempt_id = root, marker["attemptId"]
 
 
 def read_json(p):
@@ -294,7 +309,10 @@ HOLDOUT_CELLS = {
 ALL_CELLS = dict(CELLS, **HOLDOUT_CELLS)
 
 
-def build(cell_id, out_root):
+def build(cell_id, out_root, registered=None):
+    """Build one cell from the baseline. A holdout cell requires a RegisteredContext: the registered attempt is its first construction anywhere."""
+    if cell_id in HOLDOUT_CELLS and not isinstance(registered, RegisteredContext):
+        raise RuntimeError("holdout cell %s is constructed only inside the registered attempt (PREREGISTRATION.md section 1a)" % cell_id)
     cell = Path(out_root) / cell_id
     if cell.exists():
         raise FileExistsError(cell)
@@ -305,4 +323,6 @@ def build(cell_id, out_root):
 
 if __name__ == "__main__":
     for cid in sys.argv[2:] or CELLS:
+        if cid in HOLDOUT_CELLS:
+            sys.exit("refusing: %s is a holdout cell; it is constructed only inside the registered attempt" % cid)
         print(build(cid, sys.argv[1]))

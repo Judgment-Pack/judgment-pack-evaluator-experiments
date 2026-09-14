@@ -7,16 +7,24 @@ statuses; the in-toto layer (adapter/verify_attestation.py); the binding layer
 
 Run: python harness/run_layers.py --cells DIR --gateway BIN --out FILE
 """
-import argparse
-import hashlib
-import json
-import os
-import subprocess
 import sys
-from pathlib import Path
+import tempfile
+
+# before any study or pinned-package import: no bytecode read from beside the sources, none written (harness/pins.py)
+sys.dont_write_bytecode = True
+if not sys.pycache_prefix:
+    sys.pycache_prefix = tempfile.mkdtemp(prefix="study022-pycache-")
+
+import argparse  # noqa: E402
+import hashlib  # noqa: E402
+import json  # noqa: E402
+import subprocess  # noqa: E402
+from pathlib import Path  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parent / "adapter"))
+from trees import tree_digest  # noqa: E402
 import verify_attestation  # noqa: E402
 import verify_binding  # noqa: E402
 
@@ -26,18 +34,6 @@ AUTHORITY = (STUDY / "fixtures" / "baseline" / "AUTHORITY").read_text().strip()
 
 
 TRUSTED_KEY = STUDY / "fixtures" / "baseline" / "attestations" / "adapter.pubkey.json"
-
-
-def tree_digest(root):
-    """A digest over every regular file under a tree, by relative path and bytes; a symbolic link is refused."""
-    h = hashlib.sha256()
-    for p in sorted(Path(root).rglob("*")):
-        rel = p.relative_to(root).as_posix()
-        if p.is_symlink():
-            raise RuntimeError("symbolic link in %s: %s" % (root, rel))
-        if p.is_file():
-            h.update(rel.encode() + b"\0" + hashlib.sha256(p.read_bytes()).digest())
-    return h.hexdigest()
 
 
 def gateway_layer(binary, cell):

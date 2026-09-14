@@ -35,15 +35,22 @@ the artifacts govern.
   their checks run on, `cryptography` 47.0.0 (the Ed25519 primitive) and `protobuf` 5.29.6
   (the message runtime the bindings validate with), installed with pip into a virtual
   environment under CPython 3.8.20 and pinned by version and by a digest over each
-  distribution's installed files; a patched installation does not pass as the release. The
-  module each of the four is imported from must be a file of its pinned distribution (import
-  origins are checked), so a package shadowing the installation under a prepended path does
-  not pass either; the manifest covers every file under `adapter/` and `harness/` recursively
-  and refuses an unexpected directory there.
+  distribution's installed files; a patched installation does not pass as the release. **The
+  executing code is held to the pinned code, not only the installed files**: before any study
+  or package import, every harness process sets an empty bytecode-cache prefix and disables
+  bytecode writing (`sys.pycache_prefix`, `sys.dont_write_bytecode`; the runner passes both to
+  its children), so no cached bytecode beside a source is ever read; then `harness/pins.py`
+  checks every loaded module of the four distributions — not only their roots — to be one of
+  the distribution's own files under a source or extension loader with its cache path under
+  the empty prefix, every study module to be from the study tree, the prefix to be empty, and
+  the interpreter to be the pinned implementation and version. The manifest covers every file
+  under `adapter/` and `harness/` recursively and refuses an unexpected directory or a symbolic
+  link there.
 - **Primary attempt root**: `results/primary-attempt-001` — literal, must not exist at the
-  freeze; the runner and the scorer refuse any other root for a registered attempt, the marker
-  names the root and the scorer checks it, the runner refuses an existing root, and the first
-  invocation of the governing command is the primary attempt, crash and all.
+  freeze; the runner and the scorer refuse any other root for a registered attempt (the scorer
+  refuses to read registered evidence from any other directory, and refuses a marker whose
+  recorded root is not the directory being scored), the runner refuses an existing root, and
+  the first invocation of the governing command is the primary attempt, crash and all.
 - **Governing invocation** (offline; the pinned gateway binary and the virtual environment):
 
       python harness/run_attempt.py --attempt-root results/primary-attempt-001 --gateway <the pinned binary>
@@ -104,17 +111,27 @@ byte-for-byte, the constructions implemented by the maintainer from those string
 `harness/cells.py` (`HOLDOUT_CELLS`) — and reports separately. The locked stratum decides R1;
 the holdout stratum is adjudicated by the same comparison in its own section, deciding nothing.
 
-The holdout is prospective: **no pilot and no harness test builds a holdout cell**, and the
-registered attempt is their first construction anywhere. The pilot runner constructs the locked
-stratum only; the tests build the locked constructions only and check of the holdout that each
-registered id has a construction function and nothing more. What was done before the freeze,
-and is disclosed here, is function-level testing of the verifier fixes the round-1 review asked
-for (a foreign-key binding refused under the pinned key; a duplicated subject name retained;
-malformed inputs given codes), which touch the boundaries the reviewer's `h01`, `h02` and `h06`
-probe without building or observing those cells. A holdout construction that raises inside the
-registered attempt is recorded as `unconstructed` in the holdout section, and neither
-invalidates the pipeline nor touches R1. The two matrices are disjoint and together are exactly
-the constructions the harness registers; the scorer refuses otherwise.
+The holdout's construction is guarded, and its provenance is split and disclosed:
+
+- **Construction.** `harness/cells.py` builds a holdout cell only under a validated
+  registered-attempt context (`RegisteredContext`: the marker of a `REGISTERED` attempt at the
+  literal primary root, the only place such a marker can be); the pilot runner, the tests and
+  the command-line route never hold one, and the command-line route refuses a holdout id.
+  Through `harness/cells.py` no holdout cell was built before the freeze, and the registered
+  attempt is their first construction through the harness.
+- **Provenance.** Three holdout cells are **pretested reviewer challenge cells at the
+  adapter-layer level**, and no claim of prospectivity is made for them: the function-level
+  tests of the round-1 verifier fixes (`harness/tests/test_study.py`, class `Verifiers`)
+  perform, on a copy of the baseline, the same edit `h01` (a foreign-key rebinding of the key
+  file and both envelopes), `h02` (a duplicated citation subject with the bad digest first) and
+  `h06` (an emptied subject list, re-signed) specify, and assert the two adapter layers'
+  outcomes on it. Their gateway outcomes and their observation through the runner and the
+  scorer were not exercised. The other three — `h03`, `h04`, `h05` — are prospective: no
+  construction of theirs, under any name, was executed before the freeze.
+- **Containment.** A holdout construction that raises inside the registered attempt is recorded
+  as `unconstructed` in the holdout section, and neither invalidates the pipeline nor touches
+  R1. The two matrices are disjoint and together are exactly the constructions the harness
+  registers; the scorer refuses otherwise.
 
 ## 2. Apparatus and pins
 
@@ -135,9 +152,11 @@ the constructions the harness registers; the scorer refuses otherwise.
   mismatch; a registered adjudication further requires every pin non-null, the holdout
   included and non-empty, and the attempt marker parsed and matched.
 - **Determinism**: every construction is a function of the committed baseline; the scorer
-  rebuilds every cell from the baseline and compares byte for byte — the same path set, the
-  same kinds, every regular file's bytes by SHA-256, a symbolic link refused — before reading
-  an observation, and a harness test builds the locked cells twice and compares the same way.
+  rebuilds every cell from the baseline and compares byte for byte — one typed tree for
+  comparison and for observation digests alike: every directory and every plain file by
+  relative path, files by SHA-256; a symbolic link (the root included), a device or a pipe
+  refused before any byte is read — before reading an observation, and a harness test builds
+  the locked cells twice and compares the same way.
 - **Observations are bound to what was observed**: each cell's observation carries a digest of
   the cell tree taken before the layers ran and checked again after, and the scorer compares it
   with the digest of the cell it rebuilt; the observations file carries the attempt id, the
@@ -164,9 +183,10 @@ naming the clauses it follows from. The structures the reasons rest on:
 
 - **What the gateway's key covers and in-toto's does not** (a05, a06, c01): the seal, the
   chain, the count, and the gateway's own identity. The attestation's predicate carries the
-  gateway's identity and chain members (`keyId`, `prevSignature`, the signatures) as copied
-  bytes, and the ceremony interprets none of them; the seal and the count it does not carry at
-  all. A store re-minted under another gateway key binds and verifies as attestations exactly
+  gateway's identity, session and chain members (`keyId`, `sessionId`, `prevSignature`, the
+  signatures) as copied bytes, and the ceremony interprets none of them — it never consults the
+  registry, so it cannot tell a registered session from an unregistered one (a05); the seal
+  and the count it does not carry at all. A store re-minted under another gateway key binds and verifies as attestations exactly
   as the genuine one does — the binding carries no gateway-key trust.
 - **What re-digest sees** (a01, a03, a04, a02 from the action's side): a subject named by digest
   is checked against the store, so an edited artifact, a removed cited receipt and a rewritten
@@ -179,10 +199,12 @@ naming the clauses it follows from. The structures the reasons rest on:
   attestation; the binding's rules (§3 of the specification) are what make it about its
   receipt. These are the study's registered limits of the outside format alone.
 - **What the in-toto layer sees** (neg, b01, b02, b04, b05, b06, b07), split by whose check it
-  is: the envelope's signature is the upstream DSSE verification (neg, b01, and b02 under the
-  key the ceremony hands in); the attestation's presence (b06), the payload type (b07), the
-  statement type (b05) and the predicate type (b04) are the ceremony's own pins — consumer
-  policy, which a consumer that pinned less would not see.
+  is: the envelope's signature is the upstream DSSE verification (neg, b01); a signature under
+  a key id that is not the pinned one is refused by the ceremony's own key-selection rule
+  before upstream verification runs (b02 — consumer policy, §5 step 3); the attestation's
+  presence (b06), the payload type (b07), the statement type (b05) and the predicate type
+  (b04) are the ceremony's own pins — consumer policy, which a consumer that pinned less would
+  not see.
 - **Where a non-gateway layer sees a store change only by the ceremony's rule** (a06): an
   appended receipt is seen by in-toto and the binding not because they read the seal but
   because the ceremony requires one attestation per stored receipt (`fail:missing-attestation`).
@@ -210,8 +232,11 @@ observation that is not a complete record of all three layers: the gateway's `ok
 recomputed from its findings (the gateway's rule) with a finding per stored receipt, one
 in-toto record and one binding record per stored receipt in order with codes from the
 vocabulary and phase-dependent members, each layer's `pass` recomputed from its records, the
-combined verdict recomputed from the layers, and the cell's snapshot digest equal to the
-rebuilt cell's. A shortfall is a validity failure before any reduction. The negative control
+combined verdict recomputed from the layers, the cell's snapshot digest equal to the rebuilt
+cell's — and, beyond the record's own coherence, **equal to what the pinned apparatus produces
+when the scorer runs the three layers again over the rebuilt cell**, so a record that is
+well-formed but not the apparatus's is refused. A shortfall is a validity failure before any
+reduction. The negative control
 holds the reference implementation to its signature check; the positive control holds all
 three layers to the baseline.
 

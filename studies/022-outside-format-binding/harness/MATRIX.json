@@ -204,7 +204,7 @@
    },
    "ownership": "gateway only: registered undetected for in-toto and the binding",
    "structure": "store tampering, attestations untouched",
-   "reason": "the seal registry is emptied: the gateway reports the session unregistered (\u00a74 step 3); an attestation has no seal, no session and no count -- the in-toto layer and the binding pass"
+   "reason": "the seal registry is emptied: the gateway reports the session unregistered (§4 step 3); the attestation's predicate carries the receipt's `sessionId` as copied bytes but no seal and no count, and neither the in-toto layer nor the binding consults the registry -- both pass"
   },
   {
    "id": "a06-receipt-appended-after-seal",
@@ -317,9 +317,9 @@
     },
     "combined": "fail"
    },
-   "ownership": "in-toto only",
+   "ownership": "in-toto only: the ceremony's key-selection rule (consumer, §5 step 3), before upstream verification runs",
    "structure": "attestation tampering, store untouched",
-   "reason": "the action's attestation is rebuilt and signed with a key that is not the adapter's: its signature's key id is not the pinned one (untrusted-key); the binding, which verifies no signature, finds the statement consistent; the gateway sees nothing"
+   "reason": "the action's attestation is rebuilt and signed with a key that is not the adapter's: the envelope carries no signature under the pinned key id, so the ceremony's key-selection rule refuses it (untrusted-key) before the reference implementation verifies anything -- a consumer check, not an upstream one; the binding, which verifies no signature, finds the statement consistent; the gateway sees nothing"
   },
   {
    "id": "b03-subject-swapped-resigned",
