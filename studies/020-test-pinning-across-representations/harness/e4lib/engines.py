@@ -234,16 +234,50 @@ def _run(argv, cwd, timeout=ENGINE_TIMEOUT_S):
             finished.stderr.decode("utf-8", "replace"))
 
 
+#: ROUND-1 FINDING R1-1: the typed third state. An invocation that produced
+#: NO ANSWER AT ALL — a timeout, a self-declared invocation failure, an
+#: answering exit whose stream is not a document — is an APPARATUS event in
+#: §1a's sense, and it is typed here at the source so no admission or E1 layer
+#: can file it as something the author emitted.
+INVOCATION_TIMEOUT = "engine-timeout"
+INVOCATION_FAILURE = "invocation-failure"
+UNREADABLE_INVOCATION = "unreadable-invocation-output"
+#: jpack's own exit taxonomy (§2, and this module's docstring): 0/1/2 are
+#: evaluator ANSWERS, 3/4/5 are the binary declaring its own invocation
+#: failed.
+JPACK_ANSWER_EXITS = (0, 1, 2)
+
+
+def invocation_refusal(code: int, payload_readable: bool,
+                       answer_exits=JPACK_ANSWER_EXITS):
+    """The R1-1 discrimination, in one place: None for a live answer, else the
+    typed refusal class."""
+    if code == 124:
+        return INVOCATION_TIMEOUT
+    if code not in answer_exits:
+        return "%s:%d" % (INVOCATION_FAILURE, code)
+    if not payload_readable:
+        return UNREADABLE_INVOCATION
+    return None
+
+
 def jpack_json(tools: Toolchain, argv_tail, workdir: str) -> tuple:
-    """Run a jpack command and return `(payload_or_None, rc, stdout, stderr)`.
+    """Run a jpack command and return
+    `(payload_or_None, rc, stdout, stderr, refusal_or_None)`.
 
     The payload is the answer; `rc` is evidence about the INVOCATION only
-    (section 2)."""
+    (section 2); `refusal` is R1-1's typed apparatus state — a timeout, a
+    3/4/5 invocation failure, or an answering exit with an unreadable stream —
+    and a caller that files a non-None refusal as an authoring outcome is the
+    defect R1-1 names."""
     code, out, err = _run([tools.jpack] + list(argv_tail), workdir)
     try:
-        return json.loads(out), code, out, err
+        payload = json.loads(out)
+        readable = True
     except ValueError:
-        return None, code, out, err
+        payload = None
+        readable = False
+    return payload, code, out, err, invocation_refusal(code, readable)
 
 
 def opa_check(tools: Toolchain, path: str, workdir: str,
@@ -265,6 +299,14 @@ def opa_check(tools: Toolchain, path: str, workdir: str,
         argv.append("--v0-compatible")
     argv.append(path)
     code, out, err = _run(argv, workdir)
+    # R1-1: a timed-out `opa check` produced no verdict about the policy; it
+    # must surface as the typed apparatus refusal, never as the authoring
+    # code the unreadable-stream fallback below maps to.
+    if code == 124:
+        raise EngineError(
+            "ENGINE-INVOCATION-REFUSED opa check timed out at %ds on %s: the "
+            "invocation produced no verdict about the artifact and §1a files "
+            "that on the apparatus side (R1-1)" % (ENGINE_TIMEOUT_S, path))
     if code == 0:
         return code, []
     codes = []
@@ -302,8 +344,45 @@ def opa_parse_tree(tools: Toolchain, path: str, workdir: str) -> tuple:
     — `parse` performs no evaluation and accepts no `--capabilities` at the
     pinned version — and it is never scored: `e4lib/presence_idiom.py` reads the
     syntax tree and the syntax tree only.
+
+    ROUND-2 FINDING R2-1 gave it `opa_check()`'s discipline. `opa parse` ANSWERS
+    on exits 0 (a tree) and 1 (a readable parse refusal); every other exit — 124
+    above all — is the invocation producing no answer at all, and returning that
+    raw let §3.2's detector raise an untyped `PresenceIdiomError` straight out of
+    `score_run()`. One transient timeout on one arm-B run then ended a 180-slot
+    attempt through `main()`'s last-resort handler. A no-answer is an APPARATUS
+    event and it says so here, at the one place the binary is invoked.
     """
-    return _run([tools.opa, "parse", "--format", "json", path], workdir)
+    code, out, err = _run([tools.opa, "parse", "--format", "json", path],
+                          workdir)
+    _refuse_no_answer("opa parse", code, out, path, answer_exits=(0, 1))
+    return code, out, err
+
+
+def _refuse_no_answer(what: str, code: int, out, path: str,
+                      answer_exits=(0,), require_readable: bool = False):
+    """ROUND-2 FINDING R2-1's shared refusal, so the rule is read once.
+
+    `answer_exits` are the exits at which the engine ANSWERED — for a parser,
+    both "here is the tree" and "these are the syntax errors" are answers about
+    the author's bytes. `require_readable` additionally demands that an
+    answering exit carried a parseable stream, for the callers that consume one.
+    Raises `EngineError`, which every scoring caller already routes to §1a's
+    `engine-invocation-refused`; returns None when the engine answered."""
+    readable = True
+    if require_readable:
+        try:
+            json.loads(out if isinstance(out, str) else out.decode("utf-8"))
+        except (ValueError, UnicodeDecodeError, AttributeError):
+            readable = False
+    refusal = invocation_refusal(code, readable, answer_exits=answer_exits)
+    if refusal is None:
+        return
+    raise EngineError(
+        "ENGINE-INVOCATION-REFUSED %s produced no answer about %s (%s): §1a "
+        "files a pinned-engine invocation that produced no answer during "
+        "scoring on the APPARATUS side, never as an authoring outcome (R2-1)"
+        % (what, path, refusal))
 
 
 def capabilities_canary(tools: Toolchain, workdir: str) -> dict:
@@ -423,12 +502,18 @@ def eval_pack(tools: Toolchain, pack_path: str, facts: dict, evidence: dict,
         json.dump(facts, handle, sort_keys=True)
     with open(evidence_path, "w", encoding="utf-8") as handle:
         json.dump(evidence, handle, sort_keys=True)
-    payload, code, _out, _err = jpack_json(
+    payload, code, _out, _err, refusal = jpack_json(
         tools, ["experimental", "evaluate", pack_path, "--facts", facts_path,
                 "--evidence", evidence_path, "--format", "json"], workdir)
+    if refusal is not None:
+        # R1-1: the typed no-answer classes. Callers scoring an AUTHORED
+        # artifact route these to the apparatus side; the kill path keeps them
+        # as ROW-ERROR because a mutant that provokes an engine refusal is a
+        # signal the suite may legitimately carry (`refusedAll` and §6's gate
+        # adjudicate that separately).
+        return ("ROW-ERROR", refusal, ())
     if payload is None:
-        return ("ROW-ERROR",
-                "engine-timeout" if code == 124 else "non-json-payload", ())
+        return ("ROW-ERROR", "non-json-payload", ())
     if payload.get("status") != "evaluated":
         diagnostics = payload.get("diagnostics") or []
         error_class = ((payload.get("error") or {}).get("class")
@@ -683,7 +768,13 @@ def opa_eval_document(tools: Toolchain, data_paths, query: str,
     binary's own reading, under the pinned capabilities and the registered flags
     — the same invocation `eval_rego()` uses, at a different query.
 
-    Returns `(exit code, stdout bytes)`; the caller decodes."""
+    Returns `(exit code, stdout bytes)`; the caller decodes.
+
+    ROUND-2 FINDING R2-1: a TIMEOUT raises. A non-zero eval exit is a live
+    answer — the query did not resolve against these data files — and stays the
+    caller's to interpret; exit 124 is the invocation producing nothing, which
+    `e4.py`'s table-driven block used to let fall through to `unresolved` and
+    thence to the authoring code `unparseable-artifact`."""
     argv = [tools.opa, "eval", "--format", "json",
             "--strict-builtin-errors", "--capabilities", tools.caps,
             "--timeout", OPA_EVAL_TIMEOUT]
@@ -691,6 +782,12 @@ def opa_eval_document(tools: Toolchain, data_paths, query: str,
         argv += ["--data", path]
     argv.append(query)
     code, out, _err = _run(argv, workdir)
+    if code == 124:
+        raise EngineError(
+            "ENGINE-INVOCATION-REFUSED opa eval timed out at %ds resolving %s: "
+            "the invocation produced no document, and §1a files that on the "
+            "APPARATUS side rather than as an unparseable authored artifact "
+            "(R2-1)" % (ENGINE_TIMEOUT_S, query))
     return code, out.encode("utf-8")
 
 
@@ -700,9 +797,16 @@ def opa_parse(tools: Toolchain, path: str, workdir: str) -> tuple:
 
     Returns `(exit code, stdout bytes)`. Parsing is a SYNTAX operation and takes
     no capabilities file: the builtin set constrains evaluation, and a file that
-    parses under one capabilities set parses under any."""
+    parses under one capabilities set parses under any.
+
+    ROUND-2 FINDING R2-1: exits 0 and 1 are the parser's ANSWERS about the
+    author's bytes; anything else is a no-answer and raises, because
+    `e4.rego_case_signatures()` used to map EVERY non-zero exit — 124 included —
+    to the authoring code `unparseable-artifact`, which is a claim about the
+    author made out of an invocation that never happened."""
     code, out, _err = _run([tools.opa, "parse", "--format", "json", path],
                            workdir)
+    _refuse_no_answer("opa parse", code, out, path, answer_exits=(0, 1))
     return code, out.encode("utf-8")
 
 

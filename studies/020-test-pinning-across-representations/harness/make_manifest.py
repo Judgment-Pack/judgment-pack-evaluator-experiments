@@ -5,19 +5,20 @@ PORTED from Study 019's `harness/make_manifest.py`
 line Study 019's own frozen lock carries for it; `harness/PORTS.md` records the
 row and `harness/integrity.py` binds it against that lock).
 
-**§7 DELTA 11 / ADR 0004 — the scope, restated for this study.** 019 excluded
-four appendable documents and the registry. 020 excludes **five** appendable
-documents and the registry: `CORRECTION-TARGETS.md` joins them. It is the same
-shape of file as the other four — it is written and rewritten while the review
-runs and it carries no claim a published number rests on — and 019 covered it
-only because round-7 R7-9 needed something that would make `--freeze` refuse
-while it was absent. Those two jobs are separated here: the exclusion is by
-named constant in `EXCLUDED_DOCUMENTS`, and the pre-freeze OBLIGATION lives in
-`UNCOVERED_PRE_FREEZE_DOCUMENTS`, which `pending_documents()` reports and
-`--freeze` refuses on. A file can therefore be required before the freeze
-without being anchored by it. `harness/tests/test_manifest.py` asserts the
-exclusion **while the file is absent**, which is the state 020 is in today, and
-asserts the obligation separately.
+**§7 DELTA 11 / ADR 0004 — the scope, restated for this study (as R1-18 amended
+it; this paragraph kept the pre-amendment reading until round-2 R2-14).** 019
+excluded four appendable documents and the registry. 020 excludes **five**
+appendable documents and the registry — `CORRECTION-TARGETS-LOG.md`,
+`DEVIATIONS.md`, `README.md`, `PREREG-REVIEW.md` and `harness/ADVISORIES.md` —
+and `CORRECTION-TARGETS.md` is COVERED and freezes with the tree: a
+precommitment the maintainer may rewrite post-freeze precommits nothing, so the
+register is in `REGISTERED_DOCUMENTS` and post-freeze venue or status changes
+append to the LOG, which is the appendable half. The exclusion is by named
+constant in `EXCLUDED_DOCUMENTS`, each with its reason; the category of a
+pre-freeze OBLIGATION outside the manifest, `UNCOVERED_PRE_FREEZE_DOCUMENTS`,
+is retained and EMPTY (`pending_documents()` reports it and `--freeze` refuses
+on it), and `harness/tests/test_manifest.py` asserts both the coverage and the
+emptiness.
 
 One line per covered file, `sha256  <study-relative path>`, sorted by path. The
 covered set is exact and closed (`manifest_entries` below): the registered
@@ -153,11 +154,21 @@ Run: <the pinned interpreter> harness/make_manifest.py
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import re
 import subprocess
 import sys
 from pathlib import Path
+
+# ROUND-2 FINDING R2-9: every reader of a registered document refuses
+# JSON's non-literal `NaN`/`Infinity` tokens, and the rule lives at ONE
+# seat (`integrity.LOAD_KWARGS`) so the fence has no holes. This module
+# is imported by the freeze gate before `integrity` is on the path in
+# some callers, so the import is local to first use below.
+def _load_kwargs():
+    import integrity
+    return integrity.LOAD_KWARGS
 
 STUDY = Path(__file__).resolve().parent.parent
 MANIFEST_PATH = STUDY / "harness" / "STUDY-MANIFEST.sha256"
@@ -198,11 +209,14 @@ REGISTERED_DOCUMENTS = (
     #                                    registers a new row for group-size
     #                                    imbalance
     #
-    # §7 DELTA 11: `CORRECTION-TARGETS.md` is NOT in this tuple any more. It is
-    # an appendable document (ADR 0004) and is excluded from the covered set by
-    # named constant; its pre-freeze obligation moved to
-    # `UNCOVERED_PRE_FREEZE_DOCUMENTS` below, so `--freeze` still refuses while
-    # it is absent.
+    # ROUND-1 FINDING R1-18: `CORRECTION-TARGETS.md` is BACK in this tuple.
+    # §7 delta 11 had moved it out as appendable, which un-pinned the very
+    # precommitment §10 registers — a target register the maintainer may
+    # rewrite after the freeze precommits nothing. The register freezes with
+    # the tree; post-freeze venue or status changes land in the appendable
+    # `CORRECTION-TARGETS-LOG.md` (EXCLUDED_DOCUMENTS below), never by
+    # editing the frozen register.
+    "CORRECTION-TARGETS.md",
     "verification/V7-COMPLETENESS.md",
     "verification/V8-ASYMMETRY-LEDGER.md",
     # NEW IN 020, and both are `GATE(pre-freeze)` obligations this study's own
@@ -224,6 +238,11 @@ REGISTERED_DOCUMENTS = (
     #                                    Clopper-Pearson rule with no human
     #                                    number entering
     "harness/POWER-PRESENCE-IDIOM.md",
+    # ROUND-2 FINDING R2-16: the counterfactual per-member shift's published
+    # figures (§3.2(iv), correction target T5) were manifest-covered by
+    # nothing — unasserted values could have changed after the freeze
+    # without an integrity failure. Covered now, and T5 names the file.
+    "harness/COUNTERFACTUAL-SHIFT.json",
     "calibration/derive_floor.py",
     # NEW IN 020: the design record §0.1 makes an AUTHORITY rather than a
     # background note — "where this document and the brief disagree, the rulings
@@ -246,12 +265,12 @@ REGISTERED_DOCUMENTS = (
 # freeze, and it is rewritten as targets are settled — so the two properties are
 # registered separately here. Each entry names the registration that owes it.
 UNCOVERED_PRE_FREEZE_DOCUMENTS = {
-    "CORRECTION-TARGETS.md":
-        "PREREGISTRATION.md §10 pins the CORRECTION.md targets — verbatim "
-        "wording, venue, URL and retrieval date — before the freeze. It is "
-        "appendable by design (ADR 0004) and therefore excluded from the "
-        "covered set; this is the half of R7-9's obligation that survives that "
-        "exclusion.",
+    # R1-18 emptied this mapping: `CORRECTION-TARGETS.md`, its only member,
+    # moved back into REGISTERED_DOCUMENTS (a precommitment the maintainer may
+    # rewrite post-freeze precommits nothing). The category itself stays,
+    # because the two properties it separates — must-exist-before-freeze and
+    # must-not-be-covered — remain distinct, and a future appendable
+    # obligation lands here rather than re-arguing the split.
 }
 
 # The registered payload SETS, each an exact one-level glob. Same finding: every
@@ -281,14 +300,12 @@ REGISTERED_PAYLOAD_SETS = (
 # scope rule that only binds while the file is there is a scope rule the file's
 # arrival can walk past.
 EXCLUDED_DOCUMENTS = {
-    "CORRECTION-TARGETS.md":
-        "ADR 0004, §7 delta 11: appendable by design. The correction-target "
-        "register is written and rewritten as targets are settled, including "
-        "after the freeze if a venue moves, so covering it means the first "
-        "settled target breaks the anchor. It carries no claim a published "
-        "number rests on. Its pre-freeze obligation is registered separately "
-        "in UNCOVERED_PRE_FREEZE_DOCUMENTS, so it is still required before the "
-        "freeze — it is simply not anchored by it.",
+    "CORRECTION-TARGETS-LOG.md":
+        "R1-18: the appendable half of the correction-target machinery. The "
+        "REGISTER (CORRECTION-TARGETS.md) freezes with the tree — a "
+        "precommitment must be pinned — and post-freeze venue moves or target "
+        "status changes are APPENDED here with their dates, so the frozen "
+        "register and the living log cannot be one file with two duties.",
     "DEVIATIONS.md":
         "ADR 0004: appendable by design. Post-freeze corrections go here, so "
         "covering it means the first genuine deviation breaks the anchor the "
@@ -706,7 +723,8 @@ def reviewer_load_problems(study=None):
     registry = root / "harness" / "PINS.json"
     if registry.is_file():
         try:
-            pins = json.loads(registry.read_text(encoding="utf-8"))
+            pins = json.loads(registry.read_text(encoding="utf-8"),
+                              **_load_kwargs())
         except (ValueError, UnicodeDecodeError):
             pins = {}
         pinned = (pins.get("reviewerMutantSet") or {}).get("sha256") \
@@ -915,13 +933,507 @@ def calibration_problems(study=None):
                 "(C1-C5) as a precondition of the freeze, and the freeze gate "
                 "REQUIRES the subtree as well as permitting it"
                 % CALIBRATION_ROOT]
-    labels = sorted(entry.name for entry in here.iterdir() if entry.is_dir())
+    entries = sorted(entry.name for entry in here.iterdir() if entry.is_dir())
+    # §2a.6 as amended (R2-12): an ABANDONED label — one under which no call
+    # completed, retained under `abandoned-<label>/` by `batch.py abandon` —
+    # is not a pilot and does not count as one, but it is checked: an
+    # abandoned tree holding a wrapper-clean call would be a spent pilot
+    # hidden under a name the count skips.
+    problems = []
+    labels = []
+    for name in entries:
+        if name.startswith(ABANDONED_PREFIX):
+            problems.extend(_abandoned_tree_problems(here / name))
+        else:
+            labels.append(name)
     if not labels:
-        return ["%s/ carries no pilot label: the subtree exists and the pilot "
-                "has not run, which is the state §2a.6's one-pilot rule and "
-                "PINS.json's calibration.label both describe as unreached"
-                % CALIBRATION_ROOT]
+        return problems + [
+            "%s/ carries no pilot label: the subtree exists and the pilot "
+            "has not run, which is the state §2a.6's one-pilot rule and "
+            "PINS.json's calibration.label both describe as unreached"
+            % CALIBRATION_ROOT]
+    return problems + calibration_record_problems(root, labels)
+
+
+ABANDONED_PREFIX = "abandoned-"
+
+
+def _abandoned_tree_problems(where) -> list:
+    ledger = where / "PILOT.json"
+    if not ledger.is_file():
+        return []
+    try:
+        body = json.loads(ledger.read_text(encoding="utf-8"), **_load_kwargs())
+    except (ValueError, UnicodeDecodeError):
+        return ["calibration/%s/PILOT.json is not readable JSON" % where.name]
+    records = (body.get("records") if isinstance(body, dict) else None) or []
+    clean = [record for record in records
+             if isinstance(record, dict) and record.get("code") is None]
+    if clean:
+        return ["calibration/%s holds %d wrapper-clean call(s): an abandoned "
+                "label is one under which NO call completed (§2a.6 as "
+                "amended), and this one is a spent pilot under a name the "
+                "one-pilot count skips" % (where.name, len(clean))]
     return []
+
+
+def calibration_record_problems(root, labels):
+    """ROUND-1 FINDING R1-17's freeze-gate half: a pilot-labelled subtree is
+    VALIDATED as a registered pilot output, never merely found.
+
+    The finding's words: "the existing freeze check merely looks for a
+    pilot-labelled subtree rather than validating a registered pilot output."
+    So each fact §2a puts inside that subtree is checked here through the
+    SEALED deriver's own `validate_record()` — one reading of the record
+    contract, `calibration/derive_floor.py`'s, imported from its committed
+    seat rather than re-implemented:
+
+    * ONE label, and it is the pinned one (§2a.6 as amended, R2-12: label
+      into `PINS.json` before the primary attempt; there is no second pilot,
+      so two labels is unregistered evidence; an `abandoned-<label>/` tree is
+      skipped by the count and checked for hidden completed calls).
+    * The LEDGER is authenticated (R2-7, `pilot_ledger_problems()`): replay,
+      chain, per-slot seals, `CALL.json` pin state, no unnamed slot, and the
+      rates record's rows are exactly the ledger's slots.
+    * `PILOT.json` (the driver's ledger) and `PILOT-RATES.json` (the counts
+      record) both present; the record passes `validate_record()` — arms
+      exactly A/B/C, the registered 12 calls, integer counts in range,
+      `citable: false` in its own bytes.
+    * `calibration.outputSha256` matches the record's bytes and
+      `calibration.derivedFloor` equals the floors recomputed through the
+      sealed rule (§2a.6: N and output digest into `PINS.json`).
+    * The go/no-go is GO under the DECLARED minimum (§2a.4(2): the
+      below-minimum branch ABORTS under M-9 — a freeze over a NO-GO record is
+      that abort ignored).
+
+    The record checks are unconditional; the PIN comparisons run only when
+    `harness/PINS.json` is readable, because a tree with no registry at all
+    fails the freeze on the registry's own gates and repeating that fact here
+    would bury every record problem behind it (the scratch fixtures in
+    `tests/test_manifest.py` are exactly such trees)."""
+    problems = []
+    if len(labels) > 1:
+        problems.append(
+            "calibration/ holds %d labels (%s): §2a.6 as amended (R2-12) "
+            "registers ONE pilot and no second; a second label is "
+            "unregistered evidence" % (len(labels), ", ".join(labels)))
+    # The §2a.6 pin comparisons run against a READABLE registry and only
+    # that: a tree with no `harness/PINS.json` at all fails the freeze on the
+    # registry's own gates, and this function repeating that fact would put
+    # every record problem behind it. A registry that EXISTS but does not
+    # parse is still named here, because the record checks below would
+    # otherwise silently lose their pin half.
+    calibration = None
+    registry = root / "harness" / "PINS.json"
+    if registry.is_file():
+        try:
+            calibration = json.loads(
+                registry.read_text(encoding="utf-8"),
+                **_load_kwargs()).get("calibration") or {}
+        except (ValueError, UnicodeDecodeError):
+            problems.append(
+                "harness/PINS.json is not readable JSON, so the pilot record "
+                "cannot be validated against §2a.6's calibration pins")
+    pinned_label = None
+    if calibration is not None:
+        pinned_label = calibration.get("label")
+        if pinned_label not in labels:
+            problems.append(
+                "PINS.json's calibration.label is %r and calibration/ holds "
+                "%s: §2a.6 puts the pilot's label into the registry before "
+                "the primary attempt, and the freeze anchors the registry"
+                % (pinned_label, ", ".join(labels)))
+            return problems
+    label = pinned_label if pinned_label is not None else labels[0]
+    here = root / "calibration" / label
+    if not (here / "PILOT.json").is_file():
+        problems.append(
+            "calibration/%s/ carries no PILOT.json: a pilot label without the "
+            "driver's ledger is a tree the driver did not write" % label)
+        return problems
+    ledger_problems, ledger_paths = pilot_ledger_problems(root, label,
+                                                          calibration)
+    problems.extend(ledger_problems)
+    if ledger_problems:
+        return problems
+    record_path = here / "PILOT-RATES.json"
+    if not record_path.is_file():
+        problems.append(
+            "calibration/%s/ carries no PILOT-RATES.json: the counts record "
+            "is what §2a.4's go/no-go reads, and a pilot without one has not "
+            "reached the gate the freeze presupposes" % label)
+        return problems
+    record_bytes = record_path.read_bytes()
+    try:
+        record = json.loads(record_bytes.decode("utf-8"))
+    except (ValueError, UnicodeDecodeError):
+        return problems + ["calibration/%s/PILOT-RATES.json is not readable "
+                           "JSON" % label]
+    floor = _derive_floor_module()
+    try:
+        floor.validate_record(record)
+        derived = floor.derive(record)
+    except floor.FloorError as refusal:
+        return problems + ["the sealed deriver refuses calibration/%s/"
+                           "PILOT-RATES.json: %s" % (label, refusal)]
+    # R2-7 (g): the rates record's rows are the ledger's slots, once each —
+    # the ledger/rates agreement.
+    rated = sorted(row.get("slot") for row in record.get("slots") or [])
+    if rated != sorted(ledger_paths):
+        problems.append(
+            "calibration/%s/PILOT-RATES.json rates %d slot(s) and the sealed "
+            "ledger names %d: the two sets differ (%s), so the counts were "
+            "not computed over the pilot the ledger authenticates (R2-7)"
+            % (label, len(rated), len(ledger_paths),
+               ", ".join(sorted(set(rated) ^ set(ledger_paths))[:4])))
+        return problems
+    if record.get("label") != label:
+        problems.append(
+            "calibration/%s/PILOT-RATES.json names the label %r: a record "
+            "under one label naming another is not this pilot's (R2-7)"
+            % (label, record.get("label")))
+        return problems
+    if calibration is None:
+        return problems
+    try:
+        verdict = floor.go_no_go(derived, calibration.get("minimumViable"),
+                                 calibration.get("minimumViableBasis"))
+    except floor.FloorError as refusal:
+        return problems + ["the sealed deriver refuses calibration/%s/"
+                           "PILOT-RATES.json: %s" % (label, refusal)]
+    if not verdict["go"]:
+        problems.append(
+            "the pilot record's go/no-go is NO-GO (failing arms %s, declared "
+            "minimum %s on %s): §2a.4(2) under M-9 ABORTS below the minimum, "
+            "and a freeze over a NO-GO record is that abort ignored"
+            % (", ".join(verdict["failingArms"]), verdict["minimumViable"],
+               verdict["basis"]))
+    # R2-7: an embedded verdict that is not its own recomputation is stale
+    # or edited — a NO-GO rewritten as GO in the record's own bytes.
+    embedded = record.get("goNoGo")
+    if embedded is not None and json.loads(json.dumps(embedded)) != \
+            json.loads(json.dumps(verdict)):
+        problems.append(
+            "calibration/%s/PILOT-RATES.json embeds a goNoGo block that does "
+            "not equal the verdict recomputed from its own counts under the "
+            "declared minimum: a stale or rewritten verdict (R2-7)" % label)
+    digest = "sha256:%s" % hashlib.sha256(record_bytes).hexdigest()
+    pinned_digest = calibration.get("outputSha256")
+    if pinned_digest not in (digest, digest.split(":", 1)[1]):
+        problems.append(
+            "PINS.json's calibration.outputSha256 is %r and "
+            "calibration/%s/PILOT-RATES.json is %s: §2a.6 puts the output "
+            "digest into the registry before the primary attempt"
+            % (pinned_digest, label, digest))
+    if calibration.get("derivedFloor") != derived:
+        problems.append(
+            "PINS.json's calibration.derivedFloor does not equal the floors "
+            "recomputed through the sealed rule from the record's own counts: "
+            "the pin is derive_floor.py's OUTPUT (§2a.4), and a pin the rule "
+            "does not reproduce is a chosen number wearing a derived one's "
+            "name")
+    problems.extend(analysis_artifact_problems(root, label, calibration))
+    return problems
+
+
+def analysis_artifact_problems(root, label: str, calibration: dict) -> list:
+    """ROUND-2 FINDINGS R2-11 AND R2-13: the two post-pilot analysis
+    artifacts are present, pinned at their digests, and of the registered
+    shape — the C4 reference validated through `e4lib/transfer.py`'s own
+    `validate_reference()`, the dispersion table checked for exactly the
+    eighteen registered members, a GO verdict, and NO forbidden member (the
+    no-peek gate, re-run at the freeze so a table edited after publication
+    cannot smuggle a direction in)."""
+    import sys
+    harness = str(Path(__file__).resolve().parent)
+    if harness not in sys.path:
+        sys.path.insert(0, harness)
+    from e4lib import family, transfer
+    import pilot_analysis
+    problems = []
+    here = root / "calibration" / label
+    for name, pin, kind in (("C4-REFERENCE.json", "c4ReferenceSha256",
+                             "reference"),
+                            ("PILOT-DISPERSION.json", "dispersionSha256",
+                             "dispersion")):
+        path = here / name
+        if not path.is_file():
+            problems.append(
+                "calibration/%s/%s is absent: §2a.5/§2a.6 register the "
+                "post-pilot analysis pass (harness/pilot_analysis.py) as a "
+                "precondition of the freeze (round 2, R2-11/R2-13)"
+                % (label, name))
+            continue
+        raw = path.read_bytes()
+        digest = "sha256:%s" % hashlib.sha256(raw).hexdigest()
+        pinned = calibration.get(pin)
+        if pinned not in (digest, digest.split(":", 1)[1]):
+            problems.append(
+                "PINS.json's calibration.%s is %r and calibration/%s/%s is %s: "
+                "§2a.6 pins the artifact before the primary attempt"
+                % (pin, pinned, label, name, digest))
+        try:
+            document = json.loads(raw.decode("utf-8"), **_load_kwargs())
+        except (ValueError, UnicodeDecodeError):
+            problems.append("calibration/%s/%s is not readable JSON"
+                            % (label, name))
+            continue
+        if kind == "reference":
+            try:
+                transfer.validate_reference(document)
+            except transfer.TransferError as refusal:
+                problems.append("calibration/%s/%s: %s" % (label, name, refusal))
+            if document.get("label") != label:
+                problems.append("calibration/%s/%s names the label %r"
+                                % (label, name, document.get("label")))
+            continue
+        ids = [row.get("id") for row in (document.get("perMember") or [])]
+        if ids != list(family.MEMBER_IDS):
+            problems.append(
+                "calibration/%s/%s carries %d member row(s) and §5.2 registers "
+                "exactly the eighteen in registered order (R2-13)"
+                % (label, name, len(ids)))
+        if document.get("goNoGo") != "GO":
+            problems.append("calibration/%s/%s was published over a pilot that "
+                            "is not GO (M-9)" % (label, name))
+        if document.get("citable") is not False or document.get("label") != label:
+            problems.append("calibration/%s/%s must say citable: false and "
+                            "name its own label" % (label, name))
+        leaked = pilot_analysis.forbidden_members(document)
+        if leaked:
+            problems.append(
+                "calibration/%s/%s carries a forbidden member (%s): the "
+                "dispersion table publishes no direction, test or contrast "
+                "(§2a, R2-13's no-peek gate)" % (label, name, leaked[0]))
+    return problems
+
+
+def pilot_ledger_problems(root, label: str, calibration) -> tuple:
+    """ROUND-2 FINDING R2-7: the pilot is AUTHENTICATED from its sealed,
+    chained ledger, never merely found. `(problems, ledger slot paths)`.
+
+    The finding's executed attack: a directory holding a two-counter
+    `PILOT.json` and a hand-authored rates record passed the gate, so an
+    honest NO-GO could be rewritten GO and re-pinned. Every check below is a
+    fact the driver's own finalization (R2-8) establishes and this gate
+    RECONSTRUCTS through `batch.py`'s own readers:
+
+    (a) the ledger is the driver's: chained `records`, the label it names,
+        `citable: false`, `complete` with no `short` arm;
+    (b) the records are §2a.2's round robin REPLAYED from their own codes
+        (`batch.pilot_replay()`), so deletion, duplication and reordering all
+        break the replay — and the chain verifies;
+    (c) every record's slot is a real directory whose seal RECOMPUTES to the
+        record's `manifestSha256` (`batch.verify_seal_of()`): any post-seal
+        add, change or delete inside a slot, and any re-sealing, refuses;
+    (d) no slot directory under the label that the ledger does not name;
+    (e) every completed slot's sealed `CALL.json` carries the scheduled arm,
+        the pinned arm prompt, the scheduled slot index, `pinLabel` PILOT,
+        `citable` false, the ledger header's `pinsSha256` and `goldenSha256`
+        (the registry EVERY call ran under — reconciled to the header, not
+        to the current registry, because §2a.6's own ceremony edits the
+        registry after the pilot), and — when the registry is readable — the
+        pinned `codex.reasoningEffort`, which is §2a.2's fourth difference
+        now inside the seal."""
+    import batch
+    problems = []
+    here = root / "calibration" / label
+    try:
+        ledger = json.loads((here / "PILOT.json").read_text(encoding="utf-8"),
+                            **_load_kwargs())
+    except (ValueError, UnicodeDecodeError):
+        return ["calibration/%s/PILOT.json is not readable JSON" % label], []
+    if not isinstance(ledger, dict):
+        return ["calibration/%s/PILOT.json is not a JSON object" % label], []
+    records = ledger.get("records")
+    if not isinstance(records, list) or not records:
+        return ["calibration/%s/PILOT.json carries no chained records: a "
+                "pilot the driver did not seal and chain (R2-8) is a tree the "
+                "driver did not write, and a counter with no records beneath "
+                "it authenticates nothing (R2-7)" % label], []
+    for member, expected, what in (("label", label, "the directory's label"),
+                                   ("citable", False, "citable: false")):
+        if ledger.get(member) != expected:
+            problems.append("calibration/%s/PILOT.json's %s is %r, not %s"
+                            % (label, member, ledger.get(member), what))
+    if not ledger.get("complete") or ledger.get("short"):
+        problems.append(
+            "calibration/%s/PILOT.json records an incomplete or short pilot "
+            "(complete=%r, short=%r): §2a.2 as amended publishes no rates for "
+            "an arm short of %d clean calls at the cap, and a freeze over one "
+            "is that DEVIATIONS.md event ignored"
+            % (label, ledger.get("complete"), ledger.get("short"),
+               batch.PILOT_RUNS_PER_ARM))
+    if problems:
+        return problems, []
+    for record in records:
+        if not isinstance(record, dict):
+            return ["calibration/%s/PILOT.json carries a non-object record"
+                    % label], []
+    # (b): the replay, with paths derived from the label under validation.
+    # `pilot_slot_path()` anchors at the driver's CALIBRATION_ROOT, which is
+    # the study's; the replay compares study-relative paths, so it holds for
+    # a stand-in tree too because the derived and recorded paths are both
+    # relative to their own study root.
+    try:
+        _replay(batch, records, label)
+    except batch.BatchError as error:
+        return ["calibration/%s/PILOT.json: %s" % (label, error)], []
+    header_pins = ledger.get("pinsSha256")
+    header_golden = ledger.get("goldenSha256")
+    pinned_effort = None
+    pinned_prompts = {}
+    registry = root / "harness" / "PINS.json"
+    if registry.is_file():
+        try:
+            pins = json.loads(registry.read_text(encoding="utf-8"),
+                              **_load_kwargs())
+            pinned_effort = (pins.get("codex") or {}).get("reasoningEffort")
+            pinned_prompts = {arm: ((pins.get("arms") or {}).get(arm) or {})
+                              .get("promptSha256") for arm in batch.ARMS}
+        except (ValueError, UnicodeDecodeError):
+            pins = None
+    paths = []
+    for record in records:
+        relative = record.get("path")
+        slot = root / relative
+        paths.append(relative)
+        if slot.is_symlink() or not slot.is_dir():
+            problems.append("calibration/%s: the ledger names %s and it is "
+                            "not a directory on disk (R2-7)" % (label, relative))
+            continue
+        entry = {key: record.get(key) for key in batch.SCHEDULE_KEYS}
+        try:
+            sealed = _verify_seal(batch, str(slot), entry)
+        except batch.BatchError as error:
+            problems.append("calibration/%s: %s" % (label, error))
+            continue
+        if sealed != record.get("manifestSha256"):
+            problems.append(
+                "calibration/%s: %s's seal recomputes to %s and the ledger "
+                "records %s — a re-sealed slot is not the slot the chain "
+                "sealed (R2-7)" % (label, relative, sealed,
+                                   record.get("manifestSha256")))
+            continue
+        try:
+            status, code = batch.slot_outcome(str(slot))
+        except batch.BatchError as error:
+            problems.append("calibration/%s: %s" % (label, error))
+            continue
+        if (status, code) != (record.get("wrapperExit"), record.get("code")):
+            problems.append(
+                "calibration/%s: %s's own bytes say exit %r / %r and the "
+                "ledger records %r / %r" % (label, relative, status, code,
+                                            record.get("wrapperExit"),
+                                            record.get("code")))
+        if code is not None:
+            continue
+        call_path = slot / "CALL.json"
+        try:
+            call = json.loads(call_path.read_text(encoding="utf-8"),
+                              **_load_kwargs())
+        except (ValueError, UnicodeDecodeError, OSError):
+            problems.append("calibration/%s: %s/CALL.json is unreadable"
+                            % (label, relative))
+            continue
+        checks = [
+            ("arm", record.get("arm")),
+            ("slotIndex", record.get("slotIndex")),
+            ("globalIndex", record.get("globalIndex")),
+            ("pinLabel", "PILOT"),
+            ("citable", False),
+        ]
+        for member, expected in checks:
+            if call.get(member) != expected:
+                problems.append(
+                    "calibration/%s: %s/CALL.json records %s %r and the "
+                    "ledger's schedule assigns %r (R2-7)"
+                    % (label, relative, member, call.get(member), expected))
+        for member, expected in (("pinsSha256", header_pins),
+                                 ("goldenSha256", header_golden)):
+            if _bare(call.get(member)) != _bare(expected):
+                problems.append(
+                    "calibration/%s: %s/CALL.json's %s %r is not the ledger "
+                    "header's %r — this call ran under a different registry "
+                    "or golden than the pilot the ledger names (R2-7)"
+                    % (label, relative, member, call.get(member), expected))
+        if pinned_effort is not None and \
+                call.get("reasoningEffort") != pinned_effort:
+            problems.append(
+                "calibration/%s: %s/CALL.json records reasoningEffort %r and "
+                "the registry pins %r: §2a.2's fourth difference is the pin "
+                "state APPLYING, now inside the seal (R2-7)"
+                % (label, relative, call.get("reasoningEffort"),
+                   pinned_effort))
+        prompt = pinned_prompts.get(record.get("arm"))
+        if prompt is not None and \
+                _bare(call.get("armPromptSha256")) != _bare(prompt):
+            problems.append(
+                "calibration/%s: %s/CALL.json records armPromptSha256 %r and "
+                "arm %s's pinned prompt is %r (R2-7)"
+                % (label, relative, call.get("armPromptSha256"),
+                   record.get("arm"), prompt))
+    # (d): no slot under the label the ledger does not name.
+    named = set(paths)
+    for arm_dir in sorted(here.glob("arm-*")):
+        if not arm_dir.is_dir():
+            continue
+        for slot in sorted(arm_dir.iterdir()):
+            relative = slot.relative_to(root).as_posix()
+            if relative not in named:
+                problems.append(
+                    "calibration/%s: %s exists and the ledger does not name "
+                    "it — an attempt the chain never sealed (R2-7)"
+                    % (label, relative))
+    return problems, paths
+
+
+def _bare(digest):
+    return digest.split(":")[-1] if isinstance(digest, str) else digest
+
+
+def _replay(batch, records, label):
+    """`batch.pilot_replay()` with paths derived relative to the tree under
+    validation rather than the driver's own STUDY root."""
+    replayed = []
+    for offset, record in enumerate(records):
+        expected = batch.pilot_next_entry(replayed)
+        if expected is None:
+            raise batch.BatchError(
+                "record %d lies past the end of §2a.2's round robin"
+                % (offset + 1))
+        want = {key: expected[key] for key in batch.SCHEDULE_KEYS}
+        want["path"] = "/".join(("calibration", label,
+                                 "arm-%s" % expected["arm"],
+                                 "run-%03d" % expected["slotIndex"]))
+        got = {key: record.get(key) for key in batch.SCHEDULE_KEYS}
+        got["path"] = record.get("path")
+        if got != want:
+            raise batch.BatchError(
+                "the ledger diverges from §2a.2's round robin at position %d: "
+                "it records %r and the replay of its own codes assigns %r "
+                "(R2-7: a deleted, duplicated or reordered record breaks the "
+                "replay)" % (offset + 1, got, want))
+        replayed.append(record)
+    batch.verify_ledger_chain(records)
+
+
+def _verify_seal(batch, slot: str, entry: dict) -> str:
+    return batch.verify_seal_of(slot, entry)
+
+
+def _derive_floor_module():
+    """§2a.4's sealed deriver, imported from its committed seat — the one
+    reading of the record contract, never a re-implementation. Resolved from
+    THIS module's location rather than the (test-patchable) study argument,
+    because the sealed rule is the committed bytes even when the tree under
+    validation is a stand-in."""
+    path = Path(__file__).resolve().parent.parent / "calibration" \
+        / "derive_floor.py"
+    spec = importlib.util.spec_from_file_location("derive_floor", str(path))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def freeze_gate_problems(study=None):
@@ -1015,9 +1527,45 @@ def pending_documents(study=None):
 # SOURCE nobody names is a pin nobody fills, so the source is named here — the
 # digest of the sealed manifest — and the gate reports it beside the pending
 # documents. The ceremony cannot complete without it.
+def _pilot_label(study=None):
+    """The one non-abandoned pilot label under calibration/, or None."""
+    root = Path(study) if study is not None else STUDY
+    here = root / CALIBRATION_ROOT
+    if not here.is_dir():
+        return None
+    labels = sorted(entry.name for entry in here.iterdir()
+                    if entry.is_dir() and not entry.name.startswith(ABANDONED_PREFIX))
+    return labels[0] if len(labels) == 1 else None
+
+
+def _calibration_artifact_digest(name):
+    """A `compute` for PENDING_PIN_SOURCES: the sha256 of
+    calibration/<label>/<name>, or None while it is not there."""
+    def compute(study=None):
+        label = _pilot_label(study)
+        if label is None:
+            return None
+        root = Path(study) if study is not None else STUDY
+        path = root / CALIBRATION_ROOT / label / name
+        if not path.is_file():
+            return None
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+    return compute
+
+
 PENDING_PIN_SOURCES = (
     ("reviewerMutantSet.sha256", REVIEWER_SET_DIR + "/" + REVIEWER_SET_MANIFEST,
      reviewer_set_digest),
+    # ROUND 2 (R2-7, R2-11, R2-13): the pilot's three pinned artifacts, so a
+    # freeze cannot complete with the pilot published and unpinned.
+    ("calibration.outputSha256", CALIBRATION_ROOT + "/<label>/PILOT-RATES.json",
+     _calibration_artifact_digest("PILOT-RATES.json")),
+    ("calibration.c4ReferenceSha256",
+     CALIBRATION_ROOT + "/<label>/C4-REFERENCE.json",
+     _calibration_artifact_digest("C4-REFERENCE.json")),
+    ("calibration.dispersionSha256",
+     CALIBRATION_ROOT + "/<label>/PILOT-DISPERSION.json",
+     _calibration_artifact_digest("PILOT-DISPERSION.json")),
 )
 
 
@@ -1029,7 +1577,8 @@ def pending_pins(study=None):
     if not registry.is_file():
         return []
     try:
-        pins = json.loads(registry.read_text(encoding="utf-8"))
+        pins = json.loads(registry.read_text(encoding="utf-8"),
+                          **_load_kwargs())
     except (ValueError, UnicodeDecodeError):
         return ["harness/PINS.json is not readable JSON"]
     out = []

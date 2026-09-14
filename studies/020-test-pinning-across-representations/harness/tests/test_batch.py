@@ -128,8 +128,17 @@ def entries(prompt, answer, cwd, home, model, session_id):
                  "payload": {"type": "reasoning", "id": "rs_1",
                              "summary": [], "encrypted_content": "opaque"}})
     rows.append({"type": "turn_context",
+                 # R1-12: under the gate-5-extension branch a FILLED effort pin
+                 # requires a non-null transcript witness, and the stand-in
+                 # registry fills the pin — so the stand-in transcript carries
+                 # the member exactly as the pinned CLI's real transcripts do,
+                 # in both witnessed spellings.
                  "payload": {"model": model, "cwd": cwd,
-                             "current_date": "2026-08-15"}})
+                             "current_date": "2026-08-15",
+                             "effort": "s020-stand-in-effort",
+                             "collaboration_mode": {"settings": {
+                                 "reasoning_effort":
+                                     "s020-stand-in-effort"}}}})
     rows.append(message("user", prompt))
     rows.append({"type": "event_msg",
                  "payload": {"type": "agent_message", "message": answer}})
@@ -201,6 +210,15 @@ def main(argv):
                    "00000000-0000-4000-8000-%012d" % (index + 1))
     if step.get("no_assistant"):
         rows = drop_assistant(rows)
+    if step.get("no_effort_witness"):
+        # 019's own turn_context shape — no effort member in any spelling —
+        # kept drivable so the witness-resolution step's SELF-REPORT branch
+        # stays an end-to-end case after R1-12 made the default stand-in
+        # witness like the real CLI does.
+        for row in rows:
+            if row.get("type") == "turn_context":
+                row["payload"].pop("effort", None)
+                row["payload"].pop("collaboration_mode", None)
     if step.get("poison_prior"):
         rows = poison_prior(rows, step["poison_prior"])
     if step.get("tool_call"):
@@ -578,8 +596,8 @@ class RegisteredConstants(unittest.TestCase):
         with contextlib.redirect_stdout(buffer):
             self.assertEqual(batch.main(["batch.py", "plan"]), 0)
         printed = buffer.getvalue()
-        self.assertIn("150 slots, 50 rounds, 3 arms", printed)
-        self.assertIn("position spread 1, transition spread 1, "
+        self.assertIn("180 slots, 60 rounds, 3 arms", printed)
+        self.assertIn("position spread 0, transition spread 1, "
                       "self-successions 0", printed)
         self.assertIn("2700 s", printed)
 
@@ -890,19 +908,20 @@ class PreflightGates(StandInStudy):
         different call order.
 
         Both refusals are exercised, because a registry can name an order that
-        is lawful-but-other or one that is not lawful at all. `W1 W2 W3 W5 W4 W6`
-        with the tail `W2 W3` also attains the registered floor and is still a
-        different order; `W1…W6` in their natural order self-succeeds seventeen
-        times and is refused by `schedule()`'s own floor guard."""
+        is lawful-but-other or one that is not lawful at all. At the registered
+        60 rounds (ten whole blocks, no tail) `W1 W2 W3 W5 W4 W6` keeps the
+        arithmetic and is still a different order; `W1…W6` in their natural
+        order self-succeeds and is refused by `schedule()`'s own floor guard.
+        (This case was first written at the 50-round port carry with a
+        two-sequence tail; the mutation moved with the registered count.)"""
         self.ready()
         order = json.loads(json.dumps(self.pins["batch"]))
         order["order"]["blockOrder"] = ["W1", "W2", "W3", "W5", "W4", "W6"]
-        order["order"]["tail"] = ["W2", "W3"]
         registry = self.alternate_registry("order.json", batch=order)
         self.assertIn("expands to a different call order",
                       self.refusal(self.preflight, registry))
         order["order"]["blockOrder"] = ["W1", "W2", "W3", "W4", "W5", "W6"]
-        order["order"]["tail"] = ["W4", "W6"]
+        order["order"]["tail"] = []
         registry = self.alternate_registry("unbalanced.json", batch=order)
         self.assertIn("self-successions", self.refusal(self.preflight, registry))
 
