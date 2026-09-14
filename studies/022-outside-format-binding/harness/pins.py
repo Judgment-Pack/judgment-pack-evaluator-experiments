@@ -105,7 +105,7 @@ def trusted_pubkey_problems(pins, path=None):
 
 
 STUDY_MODULES = ("bind", "verify_attestation", "verify_binding", "storewalk", "cells", "pins", "run_layers", "score", "run_attempt",
-                 "make_manifest", "trees", "guard", "marker", "test_study")
+                 "make_manifest", "trees", "marker", "test_study")  # not guard: it is admitted only as the bootstrap loaded it
 
 
 def _under(path, parent):

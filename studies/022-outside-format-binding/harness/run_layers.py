@@ -24,12 +24,16 @@ if __name__ == "__main__":
             continue
         sys.pycache_prefix = _d
         break
+    else:
+        raise SystemExit("refusing to start: no empty bytecode-cache prefix could be made under %s" % (os.environ.get("TMPDIR") or "/tmp"))
     _ORIGINAL_PATH = list(sys.path)
     _GUARD_DIR = os.path.dirname(os.path.realpath(__file__))
     _STUDY = os.path.dirname(_GUARD_DIR)
-    # import resolution restricted to the interpreter's library and the virtual environment until the guard has verified the study roots
-    sys.path[:] = [_e for _e in sys.path if _e and (os.path.realpath(_e).startswith(os.path.realpath(sys.base_prefix) + os.sep)
-                                                     or os.path.realpath(_e).startswith(os.path.realpath(sys.prefix) + os.sep))]
+    # import resolution restricted to the interpreter's own library -- its pure-Python directory and its extension directory,
+    # located from the os module the interpreter loaded at start-up; nothing else, in no inherited order -- until the guard
+    # has verified everything else (the original path is judged as data by the guard, then a canonical path is set)
+    _LIBRARY = os.path.dirname(os.path.realpath(os.__file__))
+    sys.path[:] = [_LIBRARY, os.path.join(_LIBRARY, "lib-dynload")]
     import types  # noqa: E402 -- the interpreter's library
 
     # the trusted guard, compiled from its bytes by exact path: no module-name resolution, no cache

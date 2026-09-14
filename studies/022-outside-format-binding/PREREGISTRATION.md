@@ -42,14 +42,18 @@ the artifacts govern.
   to the pinned code, not only the installed files.** Every harness process begins with a
   bootstrap block that uses `os` and `sys` alone, in this order: it makes a fresh, empty
   bytecode-cache prefix of its own — whatever the environment inherited, an inherited prefix is
-  never used — and disables bytecode writing; it restricts import resolution to the
-  interpreter's library and the virtual environment, so that nothing under the study roots can
-  be resolved by name until the roots are verified; it compiles `harness/guard.py` from its
-  bytes by exact path (no module-name resolution, no cache) and calls it. The guard then
-  establishes trusted import resolution before anything else is imported: the import path the
-  process started with holds only the study roots, the interpreter's library and the virtual
-  environment (`PYTHONPATH` refused; the runner strips it from its children, which make their
-  own fresh prefix); the study roots hold no importable file that is not a `.py` module, no
+  never used, and if no fresh one can be made the process refuses to start — and disables
+  bytecode writing; it replaces the import path with the interpreter's own library
+  directories alone (the pure-Python directory and its extension directory, located from the
+  `os` module the interpreter loaded at start-up; not anything beneath a prefix, in no
+  inherited order), so that nothing under the study roots or the environment can be resolved
+  by name until verified; it compiles `harness/guard.py` from its bytes by exact path (no
+  module-name resolution, no cache) and calls it with the path the process started with. The
+  guard then establishes trusted import resolution before anything else is imported: the
+  original import path holds only the study roots, the interpreter's library directories and
+  the environment's site-packages directory — exactly those (`PYTHONPATH` refused; the runner
+  strips it and any cache prefix from its children, which make their own); the study roots hold
+  no importable file that is not a `.py` module, no
   directory an import could resolve to, no symbolic link, and no `.py` named like a module of
   the interpreter's library (its extension modules included) or a pinned package; the virtual
   environment's import roots hold nothing an installed distribution does not record in its
@@ -64,7 +68,9 @@ the artifacts govern.
   `harness/pins.py` computes, independently, from the RECORD and the bytes), every file the
   manifest lists hashes to its listed digest, every `.py` under the study roots is listed, and,
   once the freeze pin is set, the manifest itself hashes to the pin. Only then does the guard
-  put the study roots on the import path. At check time `harness/pins.py` repeats all of that, takes one
+  set the canonical import path — the study roots, the interpreter's library, the environment's
+  site-packages — never the inherited order. At check time `harness/pins.py` repeats all of that
+  (admitting the guard only as the bootstrap loaded it), takes one
   inventory of the environment's distributions (one per normalized name, a duplicated name
   refused and used for nothing) that both the hashing and the ownership of files consume, and
   classifies

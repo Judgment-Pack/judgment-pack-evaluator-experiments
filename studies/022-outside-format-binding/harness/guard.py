@@ -11,9 +11,11 @@ interpreter's library and `harness/PINS.json` (PREREGISTRATION.md section 7); ev
 every distribution file imported afterwards is hashed here before it is imported. `establish` puts the
 study roots on the import path when every check has passed:
 
-- the import path (`sys.path`) holds only the study's own roots (the script's directory, the study root
-  as the working directory), the interpreter's own library and the virtual environment; any other entry
-  (a `PYTHONPATH` injection, a foreign directory) is refused;
+- the import path the process started with holds only the study's own roots (the script's directory,
+  the study root as the working directory), the interpreter's library directories and the environment's
+  site-packages directory -- exactly those, not anything beneath a prefix; any other entry (a
+  `PYTHONPATH` injection, a foreign directory) is refused; the path in force afterwards is canonical
+  (study roots, library, environment), never the inherited order;
 - the study roots (`adapter/`, `harness/`, `harness/tests/`) hold no importable file that is not a `.py`
   module (a `.pyc` beside the sources, an extension, an archive), no directory an import could resolve to
   other than `harness/tests` and `__pycache__` (never consulted under the cache prefix), no symbolic link,
@@ -48,20 +50,34 @@ def _real(p):
     return os.path.realpath(p)
 
 
+def library_dirs():
+    """The interpreter's own library directories, located from the os module it loaded at start-up: the pure-Python
+    directory, its extension directory, and the zip archive the interpreter would search if it existed."""
+    stdlib = os.path.dirname(_real(os.__file__))
+    return [stdlib, os.path.join(stdlib, "lib-dynload"), os.path.join(os.path.dirname(stdlib), "python%d%d.zip" % sys.version_info[:2])]
+
+
+def environment_dirs():
+    """The virtual environment's site-packages directory (the only import root the environment supplies)."""
+    return [os.path.join(_real(sys.prefix), "lib", "python%d.%d" % sys.version_info[:2], "site-packages")]
+
+
 def _under(path, parent):
     path, parent = _real(path), _real(parent)
     return path == parent or path.startswith(parent + os.sep)
 
 
 def path_problems(study, original_path=None):
-    """Every entry of the import path the process started with is a study root, the interpreter's library, or the virtual environment."""
+    """Every entry of the import path the process started with is a study root (or the working directory when that is one),
+    one of the interpreter's library directories, or the environment's site-packages directory -- exactly those, not
+    anything beneath a prefix."""
     out = []
-    allowed_roots = [_real(os.path.join(study, r)) for r in ROOTS] + [_real(study)]
+    allowed = [_real(os.path.join(study, r)) for r in ROOTS] + [_real(study)] + [_real(d) for d in library_dirs() + environment_dirs()]
     for entry in (sys.path if original_path is None else original_path):
         e = _real(entry) if entry else _real(os.getcwd())
-        if e in allowed_roots or _under(e, sys.base_prefix) or _under(e, sys.prefix):
+        if e in allowed:
             continue
-        out.append("sys.path entry %r is not a study root, the interpreter's library or the virtual environment" % entry)
+        out.append("sys.path entry %r is not a study root, one of the interpreter's library directories or the environment's site-packages" % entry)
     if os.environ.get("PYTHONPATH"):
         out.append("PYTHONPATH is set (%r); the study's processes run without it" % os.environ["PYTHONPATH"])
     return out
@@ -144,7 +160,7 @@ def _declared_name(metadata_file):
 
 
 def _import_roots():
-    return [_real(e) for e in sys.path if e and _under(e, sys.prefix) and os.path.isdir(e)]
+    return [d for d in environment_dirs() if os.path.isdir(d)]
 
 
 def _claimed(root, out):
@@ -256,7 +272,7 @@ def environment_problems():
     out = []
     roots = _import_roots()
     if not roots:
-        out.append("no import root of the virtual environment is on sys.path")
+        out.append("the virtual environment has no site-packages directory at %s" % environment_dirs()[0])
     for root in roots:
         root = _real(root)
         owned_files, owned_dirs = set(), set()
@@ -324,18 +340,5 @@ def establish(study, original_path=None):
         problems = package_problems(study) + study_module_problems(study)
     if problems:
         raise SystemExit("refusing to start: trusted import resolution is not established:\n  " + "\n  ".join(problems))
-    roots = [_real(os.path.join(study, "harness")), _real(os.path.join(study, "adapter"))]
-    sys.path[:] = roots + [e for e in sys.path if _real(e) not in roots]
-
-
-def fresh_cache_prefix():
-    """An empty directory of this process's own, made with os alone (the entry scripts inline this before importing anything)."""
-    base = os.environ.get("TMPDIR") or "/tmp"
-    for attempt in range(10000):
-        d = os.path.join(base, "study022-pycache-%d-%d" % (os.getpid(), attempt))
-        try:
-            os.mkdir(d, 0o700)
-            return d
-        except FileExistsError:
-            continue
-    raise SystemExit("could not make an empty bytecode-cache prefix under %s" % base)
+    # the canonical import path: the study roots, then the interpreter's library, then the environment -- never the inherited order
+    sys.path[:] = [_real(os.path.join(study, "harness")), _real(os.path.join(study, "adapter"))] + [d for d in library_dirs() + environment_dirs() if os.path.exists(d)]
