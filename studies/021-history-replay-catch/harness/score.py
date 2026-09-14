@@ -171,9 +171,13 @@ def observe(cells_by_policy, cell):
     raise ValueError("unknown endpoint " + cell["endpoint"])
 
 
-def adjudicate(cells, cells_by_policy):
+def adjudicate(cells, cells_by_policy, dropped_by_policy=None):
     rows = []
     for cell in cells:
+        if cell["defect"] in (dropped_by_policy or {}).get(cell["policy"], set()):
+            # G2 dropped the instance; its absence is the control's result, not missing evidence
+            rows.append({"id": cell["id"], "role": cell.get("role", "endpoint"), "expected": cell["expected"], "observed": None, "cells": 0, "verdict": "dropped"})
+            continue
         got = observe(cells_by_policy, cell)
         expected = cell["expected"]
         if got["observed"] is not None:
@@ -186,7 +190,7 @@ def adjudicate(cells, cells_by_policy):
     return rows
 
 
-def signature_evidence_ok(sig, mismatched, boundaries=None, origins=None, ledger_rows=None):
+def signature_evidence_ok(sig, mismatched, boundaries=None, origins=None, ledger_rows=None, cases=None):
     """A signature record is complete evidence: the threshold count, and when a
     threshold exists the profile's entries retained whole -- exactly the pack's
     boundaries, each reporting exactly the ledger's origins with bounded
@@ -228,6 +232,11 @@ def signature_evidence_ok(sig, mismatched, boundaries=None, origins=None, ledger
         return False
     if len(seen) != len(entries):
         return False
+    # the entries must agree with the ledger they describe: bucket rows are
+    # the ledger's comparable rows, and disagreements reconcile with the
+    # replay's mismatches (zero-disagreement entries included)
+    if cases is not None and replay.reconcile(entries, cases, mismatched) is not None:
+        return False
     per_pointer = replay.buckets_per_pointer(entries)
     if per_pointer != sig["disagreeing"]:
         return False
@@ -235,7 +244,7 @@ def signature_evidence_ok(sig, mismatched, boundaries=None, origins=None, ledger
     return line_moved == sig["lineMoved"] and placed == sig["placed"]
 
 
-def registered_inputs_ok(root, marker, failures):
+def registered_inputs_ok(root, marker, failures, dropped_by_policy=None):
     """The retained inputs are the registered ones: every mutant equals the
     planter's document for its site, and every ledger -- the literal one and
     every random one at its declared seed -- rebuilds byte for byte under the
@@ -245,8 +254,13 @@ def registered_inputs_ok(root, marker, failures):
     for policy in POLICIES:
         pdir = Path(root) / policy
         pack, base = build_ledgers.load_policy(policy)
+        dropped = (dropped_by_policy or {}).get(policy, set())
         for k, inst in enumerate(plant.instances(pack)):
             path = pdir / "defects" / ("%s-%02d.pack.json" % (inst["class"], k))
+            if ("%s-%02d" % (inst["class"], k)) in dropped:
+                if path.exists():
+                    failures.append("%s: the dropped instance %s has a retained mutant" % (policy, path.name))
+                continue
             if not path.exists() or json.loads(path.read_text()) != inst["pack"]:
                 failures.append("%s: the retained mutant %s is not the planter's document for its site" % (policy, path.name))
                 break
@@ -285,8 +299,9 @@ def evidence(root, marker):
     """
     failures, controls = [], []
     cells_by_policy = {}
+    dropped_by_policy = {}
     if not marker:
-        return ["no attempt marker: the records belong to no attempt"], [], {}
+        return ["no attempt marker: the records belong to no attempt"], [], {}, {}
     seeds = range(marker["seeds"][0], marker["seeds"][1] + 1)
     expected_ledgers = ["literal"] + ["random-%d-%d" % (n, s) for n in marker["sizes"] for s in seeds]
     for policy in POLICIES:
@@ -302,12 +317,20 @@ def evidence(root, marker):
         recorded = [(d.get("id"), d.get("class"), d.get("site")) for d in index.get("instances", [])]
         if recorded != [(c["id"], c["class"], c["site"]) for c in canon]:
             failures.append("%s: the defect index is not the planter's canonical set" % policy)
-        dropped = [d.get("id") for d in index.get("instances", []) if d.get("valid") is not True]
+        dropped = []
+        for d in index.get("instances", []):
+            if not isinstance(d.get("valid"), bool):
+                failures.append("%s: instance %s carries no validation result" % (policy, d.get("id")))
+            elif not d["valid"]:
+                if not isinstance(d.get("note"), str) or not d["note"].strip():
+                    failures.append("%s: instance %s is dropped without a note" % (policy, d.get("id")))
+                dropped.append(d.get("id"))
         if dropped:
             # a documented drop is an executed control's result (G2), not malformed evidence
             controls.append("%s: G2 -- instances dropped as invalid: %s" % (policy, ", ".join(map(str, dropped))))
+        dropped_by_policy[policy] = set(dropped)
         valid_ids = [c["id"] for c in canon if c["id"] not in dropped]
-        ledger_digest, ledger_rows, ledger_origins = {}, {}, {}
+        ledger_digest, ledger_rows, ledger_origins, ledger_cases = {}, {}, {}, {}
         for name in expected_ledgers:
             path = pdir / (name + ".matrix.json")
             if not path.exists():
@@ -316,6 +339,7 @@ def evidence(root, marker):
             cases = json.loads(path.read_text()).get("cases", [])
             rows = len(cases)
             ledger_origins[name] = {c.get("origin") for c in cases}
+            ledger_cases[name] = cases
             if name != "literal" and rows != int(name.split("-")[1]):
                 failures.append("%s: ledger %s holds %d rows" % (policy, name, rows))
             if name == "literal" and rows == 0:
@@ -340,7 +364,7 @@ def evidence(root, marker):
             for g in gate.get("ledgers", []):
                 well_formed = (g.get("status") in ("passed", "mismatch") and isinstance(g.get("mismatched"), int)
                                and g.get("rows") == ledger_rows.get(g.get("ledger")) and g.get("ledgerSha256") == ledger_digest.get(g.get("ledger"))
-                               and (g["status"] == "mismatch") == (g["mismatched"] > 0))
+                               and 0 <= g["mismatched"] <= (g.get("rows") or -1) and (g["status"] == "mismatch") == (g["mismatched"] > 0))
                 if not well_formed:
                     failures.append("%s: the gate record for %s is not a complete, bound replay record" % (policy, g.get("ledger")))
                 elif g["mismatched"]:
@@ -374,12 +398,12 @@ def evidence(root, marker):
                   and defect_path.exists() and c.get("defectSha256") == attempt.sha256_file(defect_path)
                   and site_of.get(c.get("defect")) == (c.get("class"), c.get("site"))
                   and signature_evidence_ok(c.get("signature"), c["mismatched"] if isinstance(c.get("mismatched"), int) else None,
-                                            boundaries.get(c.get("defect")), ledger_origins.get(c.get("ledger")), rows))
+                                            boundaries.get(c.get("defect")), ledger_origins.get(c.get("ledger")), rows, ledger_cases.get(c.get("ledger"))))
             if not ok:
                 failures.append("%s: cell %s x %s is not a complete, bound replay record" % (policy, c.get("defect"), c.get("ledger")))
                 break
         cells_by_policy[policy] = cells
-    return failures, controls, cells_by_policy
+    return failures, controls, cells_by_policy, dropped_by_policy
 
 
 def determinism_check(root):
@@ -428,9 +452,9 @@ def main():
     registered = not args.pilot
     # validity first: the records must be a complete, unique, bound set of the
     # registered inputs, or nothing is aggregated and nothing adjudicated
-    validity_failures, control_failures, cells_by_policy = evidence(root, marker)
+    validity_failures, control_failures, cells_by_policy, dropped_by_policy = evidence(root, marker)
     if len(cells_by_policy) == len(POLICIES) and not validity_failures:
-        registered_inputs_ok(root, marker, validity_failures)
+        registered_inputs_ok(root, marker, validity_failures, dropped_by_policy)
     rates, sigs, adjudication, gate_failures = [], [], [], []
     if validity_failures or len(cells_by_policy) != len(POLICIES):
         decision = "pipeline-invalid"
@@ -438,7 +462,7 @@ def main():
         # then the executed controls: G1 and G2 as evidence() recorded them, G3 here
         gate_failures = control_failures + determinism_check(root)
         rates, sigs = aggregate(cells_by_policy)
-        adjudication = adjudicate(load_matrix(STUDY / "harness" / "MATRIX.json") + holdout, cells_by_policy)
+        adjudication = adjudicate(load_matrix(STUDY / "harness" / "MATRIX.json") + holdout, cells_by_policy, dropped_by_policy)
         unobserved = [r["id"] for r in adjudication if r["verdict"] == "unobserved"]
         diverging = [r for r in adjudication if r["verdict"] == "diverges"]
         if unobserved:

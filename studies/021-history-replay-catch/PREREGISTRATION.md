@@ -311,14 +311,19 @@ ledger — the literal one and every random one at its declared seed — rebuilt
 under the pinned runtime; every signature record complete — the profile present, its
 threshold entries retained whole and exactly the replayed pack's distinct (pointer, literal)
 ordered comparisons (none for a pack that draws no line, which the runtime reports by omitting
-the member), each entry reporting exactly the ledger's origins with counts bounded by the
-ledger, zero counts included, from which the bucket sums and the recorded verdict are
-recomputed and must agree; a replay whose report carries no profile, a threshold set that is
+the member), each entry reporting exactly the ledger's origins, its bucket rows exactly the ledger's
+comparable rows at that boundary per origin, and its disagreements reconciled with the
+replay's mismatches (D placed-row disagreements over R placed rows of N with M mismatched
+lies in [max(0, M − (N − R)), min(M, R)]; for a ledger every row of which is placed, D = M),
+zero counts included, from which the bucket sums and the recorded verdict are recomputed and
+must agree; a replay whose report carries no profile, a threshold set that is
 not the pack's, or an origin set that is not the ledger's, fails the construction, as does one
 that does not run to a verdict, reads fewer rows than the ledger holds, or reports a status
 that disagrees with its count. Any shortfall in that validity is pipeline-invalid before
 anything is aggregated; only the executed controls — G1 as a completed, bound unplanted replay
-that mismatched, G2 as a documented dropped instance, G3 — fail as control gates. The scorer
+that mismatched (its count within its rows), G2 as a dropped instance documented with a
+validation result and a note, whose registered cells are then recorded as dropped rather than
+as missing evidence, G3 — fail as control gates. The scorer
 refuses an existing adjudication, refuses an unpinned or mismatching runtime, writes each of
 its three files once and never over an existing one, and labels the attempt.
 

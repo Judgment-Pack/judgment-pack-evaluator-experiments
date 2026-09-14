@@ -60,6 +60,62 @@ def expected_thresholds(pack):
     return len(threshold_boundaries(pack))
 
 
+def get_pointer(facts, pointer):
+    node = facts
+    for p in [p for p in pointer.split("/") if p]:
+        if not isinstance(node, dict) or p not in node:
+            return None
+        node = node[p]
+    return node
+
+
+def expected_buckets(cases, pointer, literal):
+    """The rows the profile must place at a boundary, per origin: every row whose
+    value at the pointer is a decimal string, below, at or above the literal by
+    mathematical value (runtime ADR-0034); a row whose value is absent or not a
+    decimal sits in no bucket."""
+    from decimal import Decimal, InvalidOperation
+    out = {}
+    lit = Decimal(literal)
+    for c in cases:
+        v = get_pointer(c.get("facts", {}), pointer)
+        if not isinstance(v, str):
+            continue
+        try:
+            d = Decimal(v)
+        except InvalidOperation:
+            continue
+        side = "below" if d < lit else ("at" if d == lit else "above")
+        o = out.setdefault(c.get("origin"), {"below": 0, "at": 0, "above": 0})
+        o[side] += 1
+    return out
+
+
+def reconcile(entries, cases, mismatched):
+    """Every retained entry must agree with the ledger: its per-origin bucket
+    rows are exactly the ledger's comparable rows at that boundary, and its
+    disagreement total D over R placed rows of N with M mismatched lies in
+    [max(0, M - (N - R)), min(M, R)] -- for a ledger every row of which is
+    placed, D = M. Returns the first inconsistency, or None."""
+    n = len(cases)
+    for t in entries:
+        expected = expected_buckets(cases, t["pointer"], t["literal"])
+        placed, disagreeing = 0, 0
+        for o in t["origins"]:
+            want = expected.get(o["origin"])
+            if want is None:
+                return "entry %s at %s reports origin %s the ledger does not hold" % (t["pointer"], t["literal"], o["origin"])
+            for side in ("below", "at", "above"):
+                if o[side]["rows"] != want[side]:
+                    return "entry %s at %s reports %d %s rows for origin %s where the ledger holds %d" % (t["pointer"], t["literal"], o[side]["rows"], side, o["origin"], want[side])
+                placed += o[side]["rows"]
+                disagreeing += o[side]["disagreeing"]
+        lo, hi = max(0, mismatched - (n - placed)), min(mismatched, placed)
+        if not lo <= disagreeing <= hi:
+            return "entry %s at %s reports %d disagreeing rows where %d mismatched of %d placed of %d allow [%d, %d]" % (t["pointer"], t["literal"], disagreeing, mismatched, placed, n, lo, hi)
+    return None
+
+
 def buckets_per_pointer(entries):
     """Sum each entry's origins into (pointer -> [literal, below, at, above]) -- the scorer recomputes this from retained evidence."""
     per_pointer = {}
@@ -81,7 +137,7 @@ def signature_from_buckets(per_pointer, mismatched):
     return bool(one and sided and placed), bool(placed)
 
 
-def signature(profile, mismatched=None, expected=None, origins=None):
+def signature(profile, mismatched=None, expected=None, origins=None, cases=None):
     """The registered line-moved signature, read per POINTER across origins.
 
     A pack may compare one pointer against several literals (a rule's guard
@@ -107,6 +163,10 @@ def signature(profile, mismatched=None, expected=None, origins=None):
         reported = {o.get("origin") for o in t.get("origins", [])}
         if not reported or (origins is not None and reported != set(origins)):
             raise RuntimeError("the profile's entry for %s at %s reports origins %s where the ledger holds %s" % (t.get("pointer"), t.get("literal"), sorted(reported), sorted(origins or [])))
+    if cases is not None:
+        problem = reconcile(entries, cases, mismatched)
+        if problem:
+            raise RuntimeError("the profile does not agree with the ledger: " + problem)
     per_pointer = buckets_per_pointer(entries)
     # every mismatched row must be PLACED on that pointer: a row whose value
     # the profile could not compare sits in no bucket, and a signature over
@@ -132,7 +192,7 @@ def replay(policy, pack, ledger):
         raise RuntimeError("replay of %s reports status %s with %d mismatched" % (policy, entry["status"], summary["mismatched"]))
     origins = {c.get("origin") for c in ledger["cases"]}
     return {"status": entry["status"], "rows": summary["total"], "mismatched": summary["mismatched"],
-            "caught": summary["mismatched"] > 0, "signature": signature(entry.get("profile"), summary["mismatched"], expected_thresholds(pack), origins)}
+            "caught": summary["mismatched"] > 0, "signature": signature(entry.get("profile"), summary["mismatched"], expected_thresholds(pack), origins, ledger["cases"])}
 
 
 def main():

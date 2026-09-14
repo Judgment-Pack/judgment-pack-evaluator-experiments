@@ -738,3 +738,118 @@ Every finding is applied.
 | 2 | BLOCKER | **Applied.** `registered_inputs_ok` rebuilds every random ledger at its declared seed under the pinned runtime and compares bytes, as it does the literal ledger; a ledger that is not its seed's construction is a validity failure. §7 says so. |
 | 3 | MAJOR | **Applied.** `evidence()` returns validity failures and control results separately: a malformed, missing or unbound record is a validity failure (pipeline-invalid); a completed, bound unplanted replay that mismatched is G1 failing and a documented dropped instance is G2 failing, both `control-gate-failed` after validity passes. §7 names the three executed controls. |
 | 4 | MINOR | **Applied.** D4-19's random reason no longer lists `approve` above the line; D2-12's states the band [187500, 250000) and the retained 250000 boundary. |
+
+## Round 5 — 2026-09-14
+
+Reviewer: codex-cli 0.153.4, model gpt-6-astra (OpenAI), read-only sandbox, on worktree commit `2a7ea53b`; different vendor than the model that drafted (Claude). Verdict: **not freezable as written** (1 BLOCKER, 1 MAJOR, 1 MINOR); the round-4 fixes audited, two closed, two partial; the holdout confirmed byte-for-byte.
+
+> Note: the reviewer's worktree paths are normalized here. The finding prose is otherwise verbatim.
+
+### Round 5 — prompt (verbatim)
+
+```
+You are the pre-freeze cross-vendor reviewer for Study 021 in the judgment-pack-evaluator-experiments repository, under the interim review regime (a model from a different vendor than the one that drafted; Claude drafted). This is ROUND 5 on commit 2a7ea53b (`git log -1`). Rounds 1 to 4 (recorded verbatim with the maintainer's dispositions in studies/021-history-replay-catch/PREREG-REVIEW.md) returned ten blockers, twelve majors and six minors in all, every one applied; round 1 authored eight holdout cells, placed byte-for-byte as a top-level array in harness/MATRIX-HOLDOUT.json.
+
+First, verify each round-4 fix against the harness and the registration — in particular the retained threshold entries in replay.signature and their validation in score.signature_evidence_ok against the mutant's boundaries (replay.threshold_boundaries) and the ledger's origins; registered_inputs_ok rebuilding every random ledger at its seed; the separation of validity failures from executed control results in evidence() and main(); and the two vendor reasons. Say per round-4 finding whether the edit makes the registration true and enforceable, and whether it introduced a new defect. Then say per finding whether the edit makes the registration true and enforceable, and whether it introduced a new defect. In particular: run `python -m unittest discover -s harness/tests` from the study directory (the pinned runtime is not available to you, so the two ledger tests skip; say so); read harness/score.py end to end for any path that still reaches "R1 holds" without complete observations, executed gates, matching pins and the reserved ledger set; read harness/run_attempt.py for the exclusive root and the marker; read harness/build_ledgers.py for the discrete-uniform draw, the not-applicable drop, the refusal-exhaustion failure and the reserved-seed guard; read harness/replay.py for the placement condition and the verdict check. re-read PREREGISTRATION.md and harness/MATRIX.json whole for anything the earlier rounds missed. If nothing that would let a favourable outcome be reached for the wrong reason remains, say so plainly and return `freezable as written`; note that the runtime pin (harness/PINS.json jpack.sha256) is null by design until the runtime's v0.21.0 release publishes, and the freeze pins are filled at the freeze commit — say whether anything in the design depends on their being filled earlier. Verify your own holdout cells still fit the schema the scorer loads and that their reasons survive the corrected generator (discrete-uniform: sanctions {0,1,2} at one third each; expense lattice of 151 values; vendor lattice of 500001).
+
+The study directory is studies/021-history-replay-catch/ of the current worktree; the spec and runtime checkouts are at /home/onword/repo/judgment-pack/judgment-pack-spec and /home/onword/repo/judgment-pack/judgment-pack-runtime, read via `git -C <path> show origin/main:<file>`.
+
+For each finding give: severity (BLOCKER / MAJOR / MINOR), the exact sentence, cell or line, what the source says, and the smallest edit. Then a verdict: `freezable as written`, `freezable after fixes` (list them), or `not freezable as written`.
+```
+
+### Round 5 — findings (verbatim)
+
+**Verdict: `not freezable as written`.** One acceptance gap remains: internally inconsistent threshold evidence can still satisfy all 131 endpoints. The validity/control separation also remains incomplete.
+
+Reviewed HEAD `2a7ea53b479e66b6336192e6c5911bb3adc6f1d9`, the complete registration, both matrices, and every harness source. Source comparisons used the requested `git show origin/main:<file>` commands: spec `587ebc5e…`, runtime `0c8a4b63…`.
+
+The requested unittest command ran from the study directory: **25 passed, 2 skipped, 4 errored**. The two ledger tests skipped because the pinned runtime is unavailable. All four errors occurred during temporary-directory creation in the read-only sandbox. The local interpreter is CPython 3.8.20, rather than the registered 3.12. The 22-file manifest matches; the freeze-set checker reports zero problems. No runtime evaluation, primary attempt or reserved-seed draw ran. Files remain unchanged.
+
+| Round-4 finding | Does the edit make the registration true and enforceable? | New defect introduced? |
+|---|---|---|
+| **1 — BLOCKER: threshold evidence** | **Partial.** Entries are retained whole; missing or duplicate boundaries, foreign boundaries, missing or foreign origins, and individual bucket-count violations are rejected. However, threshold disagreements are not reconciled with placed-row counts and replay mismatches. Finding 1 below. | No new regression identified; an evidence-consistency gap remains. |
+| **2 — BLOCKER: random-ledger provenance** | **Closed.** `registered_inputs_ok()` rebuilds all 480 random ledgers at their declared seeds, plus the four literal ledgers, and compares their serialized contents. A mismatch prevents acceptance. | None found. |
+| **3 — MAJOR: validity versus controls** | **Partial.** A completed, bound G1 mismatch now produces `control-gate-failed`. A documented G2 drop still becomes `pipeline-invalid` downstream. | **Yes:** malformed control records can now be classified as executed failures. Findings 2–3 below. |
+| **4 — MINOR: vendor reasons** | **Closed.** D4-19 correctly excludes approval above 250000. D2-12 correctly identifies `[187500,250000)` and the retained committee boundary as the one-sidedness witness. | None found; both intervals remain justified. |
+
+1. **BLOCKER — impossible threshold counts can still satisfy R1.**
+
+   **Exact commitment:** §7 requires “every signature record complete,” with retained threshold entries and recomputed bucket sums and verdict. See [PREREGISTRATION.md:311](studies/021-history-replay-catch/PREREGISTRATION.md#L311).
+
+   **Implementation:** `score.py:215–235` checks individual bucket bounds and the total placed rows’ upper bound, but does not reconcile threshold disagreement totals with replay mismatches. `replay.py:70` then removes zero-disagreement entries before `signature_from_buckets()` checks placement.
+
+   **What the source says:** runtime `internal/project/profile.go:181–195` visits every comparable row at every boundary and increments that bucket’s disagreement count when the row mismatched. Thus, when all ledger rows are placed, each boundary’s disagreement total must equal the replay’s mismatch total.
+
+   **In-memory reproduction using retained `pilots/r6` records:** I zeroed only threshold disagreement counts in all thirty sanctions D3-03/random-50 records, removed their nearest-disagreement values, and recomputed the flags. Input files, digests, boundaries, origins, bucket row counts and replay mismatch totals remained unchanged. Results:
+
+   ```text
+   evidence(): 0 validity failures, 0 control failures
+   adjudicate(): 131 holds, 0 diverges, 0 unobserved
+   ```
+
+   One accepted record reported **50 placed rows, 10 replay mismatches and zero threshold disagreements**. An isolated two-boundary probe also accepted contradictory disagreement totals and returned both `lineMoved: true` and `placed: true`.
+
+   **Smallest sufficient edit:** validate bucket row counts against the ledger’s comparable facts per boundary and origin, then reconcile disagreement totals with replay mismatches before reducing entries. For `N` ledger rows, `M` mismatches and `R` placed rows, the boundary’s disagreement total `D` must satisfy:
+
+   ```text
+   max(0, M − (N − R)) ≤ D ≤ min(M, R)
+   ```
+
+   In the study’s fully comparable ledgers, this requires `D = M` at every boundary. Zero-disagreement entries must participate in validation.
+
+2. **MAJOR — documented G2 drops still become pipeline invalidity.**
+
+   **Exact commitment:** §7 says a nonempty dropped-mutant set “is a control failure,” and identifies G2 as “a documented dropped instance” (`PREREGISTRATION.md:303–321`).
+
+   **What the implementation does:** `plant.py:140–144` writes a mutant file only when validation succeeds. But `registered_inputs_ok()` at `score.py:248–251` requires a file for **every** canonical instance, including documented drops. That makes ordinary G2 output fail input validity.
+
+   There is a second obstacle: even if the missing-file check is corrected, endpoint adjudication marks the dropped instance unobserved, and `score.py:444–448` gives that precedence over the recorded G2 failure.
+
+   **Reproduction:** I represented a documented sanctions D3-03 drop exactly as the planter would: `valid: false`, a note, no mutant file and no replay cells for that instance. `evidence()` returned no validity failures and one G2 failure. `main()` nevertheless returned:
+
+   ```json
+   {"decision": "pipeline-invalid", "gateFailures": []}
+   ```
+
+   Runtime rebuilds were mocked for this control-flow probe. The three registered D3-03 endpoints also became unobserved, confirming the second obstacle.
+
+   **Smallest edit:** require retained mutant files for valid instances; validate documented drops separately. After genuine input validity passes, preserve G2’s `control-gate-failed` result without reclassifying the deliberately absent observations of dropped instances as missing experimental evidence.
+
+3. **MINOR — malformed controls are accepted as completed control failures.**
+
+   **Exact commitment:** §7 distinguishes validity shortfalls from “only the executed controls” (`PREREGISTRATION.md:319–321`).
+
+   **Implementation:** `score.py:341–343` does not bound G1’s mismatch count by its row count. At `score.py:305`, anything other than `valid is True` becomes a documented G2 drop, without requiring a Boolean validation result or a note.
+
+   **Reproduction:** a G1 record declaring **51 mismatches in 50 rows** produced zero validity failures and an executed G1 failure.
+
+   **Smallest edit:** require a correctly typed G1 mismatch count within `[0, rows]`; require Boolean `valid`, and a validation note for a dropped instance. Malformed records belong in validity failures.
+
+The remaining requested checks passed on inspection or isolated probes. The governing runner checks pins before exclusive root creation and writes the marker before construction. The builder guards reserved seeds through a validated registered context, draws inclusive uniform integers over **0–2, 0–150 and 0–500000**, redraws not-applicable cases, and raises on refusal exhaustion. Replay requires a completed verdict, matching row count and consistent status; with consistent threshold evidence, its placement and existential-literal rule match §5. Complete observation pairs, matching pins, the reserved ledger set, holdout inclusion and G3 remain necessary on the path to “R1 holds.”
+
+The eight holdouts remain **byte-for-byte identical** to the round-1 array. They load through `score.load_matrix()`, reference existing defects, and produce **131 unique IDs and combinations** with the main matrix.
+
+| Holdout | Reason survives the corrected generator? |
+|---|---|
+| h01 | Yes: deny → fallback review below 75; signature present. |
+| h02 | Yes: dropping the amount guard removes the only threshold. |
+| h03 | Yes: the changed at-250000 row prevents the signature. |
+| h04 | Yes: the retained 250000 boundary establishes one-sidedness. |
+| h05 | Yes: the embargo exception changes disposition; no threshold exists. |
+| h06 | Yes: changed zero and two occupy both sides. |
+| h07 | Yes: per-row probability `1/30`; n=20 catch probability **0.492385**. |
+| h08 | Yes: per-row probability `(1/108) × (250000/500001)`; n=20 catch probability **0.088631**. |
+
+The intentionally null runtime digest is **not a review blocker**. Nothing in the design requires the runtime or freeze pins before their stated release/freeze milestones. They must be complete and matching before registered construction; the current null pins correctly fail preflight. No retained pilot ledger uses seeds 101–130.
+
+**Final verdict: `not freezable as written`.** Reconcile threshold counts, preserve documented G2 failures through adjudication, and tighten malformed-control validation.
+
+### Round 5 — maintainer disposition
+
+Every finding is applied.
+
+| # | Severity | Disposition |
+|---|---|---|
+| 1 | BLOCKER | **Applied.** `replay.reconcile` holds every retained entry to the ledger: its per-origin bucket rows are exactly the ledger's comparable rows at that boundary (`replay.expected_buckets`: decimal strings placed below, at or above by mathematical value; anything else in no bucket), and its disagreement total D over R placed rows of N with M mismatched lies in [max(0, M − (N − R)), min(M, R)] — D = M for a fully placed ledger. The replay raises on any inconsistency and the scorer (`signature_evidence_ok` with the ledger's cases) refuses it; zero-disagreement entries participate, since the check runs before the reduction. Tests hold zeroed disagreements against a mismatching replay, and bucket rows that are not the ledger's, to refusal at both stages. §7 says so. |
+| 2 | MAJOR | **Applied.** `registered_inputs_ok` requires a retained mutant only for a valid instance and refuses one for a dropped instance; `adjudicate` records a dropped instance's registered cells as `dropped`, which the unobserved rule does not count, so a documented G2 drop reaches `control-gate-failed` after validity passes. |
+| 3 | MINOR | **Applied.** A G1 record's mismatch count must lie within its rows; a dropped instance must carry a Boolean validation result and a non-empty note, or the index is a validity failure. |

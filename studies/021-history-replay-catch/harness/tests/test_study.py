@@ -169,6 +169,10 @@ class Adjudication(unittest.TestCase):
         cell = {"id": "c", "policy": "p", "defect": "D1-00", "stratum": "random", "n": 50, "endpoint": "caught", "expected": {"min": 1, "max": 1}}
         self.assertEqual(score.adjudicate([cell], self.cells())[0]["verdict"], "diverges")
 
+    def test_a_dropped_instance_is_the_control_result_not_missing_evidence(self):
+        cell = {"id": "c", "policy": "p", "defect": "D1-00", "stratum": "random", "n": 50, "endpoint": "caught", "expected": {"min": 1, "max": 1}}
+        self.assertEqual(score.adjudicate([cell], {}, {"p": {"D1-00"}})[0]["verdict"], "dropped")
+
     def test_a_holdout_array_loads_as_cells(self):
         holdout = score.load_matrix(STUDY / "harness" / "MATRIX-HOLDOUT.json")
         self.assertTrue(isinstance(holdout, list) and holdout, "the reviewer's holdout must be a non-empty array")
@@ -198,6 +202,32 @@ class SignatureEvidence(unittest.TestCase):
         self.assertFalse(score.signature_evidence_ok(good, 3, boundaries={("/x", "10")}, origins={"o"}, ledger_rows=2))
         with self.assertRaises(RuntimeError):
             replay.signature({"thresholds": [{"pointer": "/x", "literal": "10", "origins": []}]}, 1, expected=1, origins={"o"})
+
+    def cases(self, values):
+        return [{"id": "r%d" % i, "origin": "o", "facts": {"x": v}} for i, v in enumerate(values)]
+
+    def test_threshold_evidence_must_agree_with_the_ledger(self):
+        cases = self.cases(["5", "10", "12"])  # one below, one at, one above 10
+        good = profile([("/x", "10", 1, 0, 0)])
+        good["thresholds"][0]["origins"][0] = {"origin": "o", "below": {"rows": 1, "disagreeing": 1}, "at": {"rows": 1, "disagreeing": 0}, "above": {"rows": 1, "disagreeing": 0}}
+        sig = replay.signature(good, 1, expected=1, origins={"o"}, cases=cases)
+        self.assertTrue(sig["lineMoved"])
+        self.assertTrue(score.signature_evidence_ok(sig, 1, boundaries={("/x", "10")}, origins={"o"}, ledger_rows=3, cases=cases))
+        # zeroed disagreements against a replay that mismatched one row: impossible
+        zeroed = json.loads(json.dumps(good)); zeroed["thresholds"][0]["origins"][0]["below"]["disagreeing"] = 0
+        with self.assertRaises(RuntimeError):
+            replay.signature(zeroed, 1, expected=1, origins={"o"}, cases=cases)
+        forged = json.loads(json.dumps(sig)); forged["thresholds"][0]["origins"][0]["below"]["disagreeing"] = 0
+        forged["disagreeing"] = {}; forged["lineMoved"] = False; forged["placed"] = False
+        self.assertFalse(score.signature_evidence_ok(forged, 1, boundaries={("/x", "10")}, origins={"o"}, ledger_rows=3, cases=cases))
+        # bucket rows that are not the ledger's comparable rows
+        wrong = json.loads(json.dumps(good)); wrong["thresholds"][0]["origins"][0]["above"]["rows"] = 2
+        with self.assertRaises(RuntimeError):
+            replay.signature(wrong, 1, expected=1, origins={"o"}, cases=cases)
+
+    def test_expected_buckets_place_only_decimal_strings(self):
+        cases = self.cases(["5", 7, "abc", "10", None, "11"])
+        self.assertEqual(replay.expected_buckets(cases, "/x", "10"), {"o": {"below": 1, "at": 1, "above": 1}})
 
     def test_a_missing_profile_fails_the_replay(self):
         with self.assertRaises(RuntimeError):
