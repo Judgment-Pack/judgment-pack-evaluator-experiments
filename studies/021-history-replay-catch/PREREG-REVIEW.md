@@ -2,8 +2,8 @@
 
 Cross-vendor review rounds on the preregistration and the registered matrices, under the
 interim review regime: each round's prompt verbatim, the reviewer's findings verbatim, and the
-maintainer's disposition of every finding. The freeze is the squash-merge of the pull request
-this record names once a round returns `freezable as written`.
+maintainer's disposition of every finding. The freeze is the squash-merge of pull request #105
+(`study/021-history-replay-catch`), opened after round 8 returned `freezable as written`.
 
 ## Round 1 — 2026-09-14
 

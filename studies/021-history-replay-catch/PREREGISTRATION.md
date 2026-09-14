@@ -25,7 +25,7 @@ kept byte-for-byte). Where prose here and those artifacts could diverge, the art
 
 ## The freeze and the primary attempt
 
-- **Freeze commit**: the squash-merge commit of the pull request named in `PREREG-REVIEW.md`.
+- **Freeze commit**: the squash-merge commit of pull request #105, named in `PREREG-REVIEW.md`.
 - **Runtime**: the judgment-pack runtime release **v0.21.0**, the first carrying the history
   profile (runtime ADR-0034), pinned by the digest of its published linux/amd64 binary in
   `harness/PINS.json`; the scorer refuses any other binary. That one member is filled after

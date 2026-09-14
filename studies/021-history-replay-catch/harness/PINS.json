@@ -7,9 +7,9 @@
     "source": "the judgment-pack runtime release v0.21.0 (ADR-0034: the history profile); the digest of the linux/amd64 binary as published, filled after the freeze by one commit that touches nothing else (PREREGISTRATION.md, the freeze and the primary attempt)"
   },
   "freeze": {
-    "preregistration": "69430d1226c74ad99fc14abbd60fb6b89a5b1ed4b02f7d02d161be0f34132998",
+    "preregistration": "97746ec46709833a2cf7775c510214c603194a2822967c795677cbd4e113c867",
     "matrix": "8b6a927e8adc39ec901f15c99f7190b87f6816335b1d4441021626644ee729f5",
     "matrixHoldout": "eecf61feb90515d6bcdcc0b380b1e93a95631608ab42dd8ffb581c5c7b95cfd2",
-    "studyManifest": "1274f9aa9593a7025305757b9657a9d634af347d41c8ff8f20de5120848fd2ef"
+    "studyManifest": "0b624a3fcf72aa01bd6291552243ad7ed54815e496bc1a4cb7e4b208a2fa7c76"
   }
 }
