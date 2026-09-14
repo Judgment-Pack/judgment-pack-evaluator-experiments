@@ -1,0 +1,101 @@
+{
+ "attemptId": "f2284e59b2f2e5e5c368bcf4a5f1b74f",
+ "instances": [
+  {
+   "id": "D7-00",
+   "class": "D7",
+   "site": "rules/0/when[0]",
+   "valid": true
+  },
+  {
+   "id": "D7-01",
+   "class": "D7",
+   "site": "rules/0/when[1]",
+   "valid": true
+  },
+  {
+   "id": "D7-02",
+   "class": "D7",
+   "site": "rules/0/when[2]",
+   "valid": true
+  },
+  {
+   "id": "D6-03",
+   "class": "D6",
+   "site": "rules/1/when[0]",
+   "valid": true
+  },
+  {
+   "id": "D6-04",
+   "class": "D6",
+   "site": "rules/1/when[1]",
+   "valid": true
+  },
+  {
+   "id": "D6-05",
+   "class": "D6",
+   "site": "rules/1/when[2]",
+   "valid": true
+  },
+  {
+   "id": "D1-06",
+   "class": "D1",
+   "site": "rules/1/when/conditions/0",
+   "valid": true
+  },
+  {
+   "id": "D2-07",
+   "class": "D2",
+   "site": "rules/1/when/conditions/0",
+   "valid": true
+  },
+  {
+   "id": "D3-08",
+   "class": "D3",
+   "site": "rules/1/when/conditions/0",
+   "valid": true
+  },
+  {
+   "id": "D4-09",
+   "class": "D4",
+   "site": "rules/1/when/conditions/0",
+   "valid": true
+  },
+  {
+   "id": "D7-10",
+   "class": "D7",
+   "site": "rules/1/when/conditions/1/condition[0]",
+   "valid": true
+  },
+  {
+   "id": "D7-11",
+   "class": "D7",
+   "site": "rules/1/when/conditions/1/condition[1]",
+   "valid": true
+  },
+  {
+   "id": "D7-12",
+   "class": "D7",
+   "site": "rules/1/when/conditions/1/condition[2]",
+   "valid": true
+  },
+  {
+   "id": "D5-13",
+   "class": "D5",
+   "site": "rules/0:deny->reimburse",
+   "valid": true
+  },
+  {
+   "id": "D5-14",
+   "class": "D5",
+   "site": "rules/1:reimburse->deny",
+   "valid": true
+  },
+  {
+   "id": "D9-15",
+   "class": "D9",
+   "site": "fallbackOutcome:review->reimburse",
+   "valid": true
+  }
+ ]
+}

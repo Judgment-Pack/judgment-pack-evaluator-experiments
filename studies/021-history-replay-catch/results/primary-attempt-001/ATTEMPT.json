@@ -1,0 +1,25 @@
+{
+ "attemptId": "f2284e59b2f2e5e5c368bcf4a5f1b74f",
+ "attemptRoot": "results/primary-attempt-001",
+ "startedAt": "2026-09-14T14:49:40.108524+00:00",
+ "label": "REGISTERED",
+ "jpackVersion": "jpack 0.21.0\nJPS: 0.1.0-draft, 0.2.0-draft (immutable-git-ref)",
+ "jpackDigest": "sha256:5e307176d22e350f6619b2f760fee843db115f2c9d7e4bb188168846e59d4f35",
+ "pinsRawSha256": "f4a9214cb1ba3165e9ece7ececa7a864aad165b0e8d55c085ea3b10746176ca4",
+ "seeds": [
+  101,
+  130
+ ],
+ "sizes": [
+  5,
+  10,
+  20,
+  50
+ ],
+ "policies": [
+  "data-request-intake-triage",
+  "expense-approval",
+  "sanctions-screening",
+  "vendor-onboarding"
+ ]
+}

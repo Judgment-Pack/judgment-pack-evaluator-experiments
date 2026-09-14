@@ -1,0 +1,1490 @@
+{
+ "label": "REGISTERED",
+ "attemptId": "f2284e59b2f2e5e5c368bcf4a5f1b74f",
+ "jpackDigest": "sha256:5e307176d22e350f6619b2f760fee843db115f2c9d7e4bb188168846e59d4f35",
+ "jpackVersion": "jpack 0.21.0\nJPS: 0.1.0-draft, 0.2.0-draft (immutable-git-ref)",
+ "holdoutIncluded": true,
+ "decision": "R1 holds",
+ "validityFailures": [],
+ "gateFailures": [],
+ "cells": [
+  {
+   "id": "vendor-onboarding/D7-00/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D7-00/random-50/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D7-01/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D7-01/random-50/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D6-02/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D6-03/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D6-04/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D6-05/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D6-06/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D6-07/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D6-05/random-50/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D6-06/random-50/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D6-07/random-50/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D7-08/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D7-09/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D7-10/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D1-11/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D1-11/random-50/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D2-12/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D3-13/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D3-13/random-50/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D4-14/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D7-15/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D1-16/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D2-17/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D3-18/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D3-18/random-50/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0.1
+   },
+   "observed": 0.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D4-19/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D5-20/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D5-21/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D8-22/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D8-23/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D9-24/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D6-02/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 9,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D6-03/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 13,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D6-04/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 9,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D7-08/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 6,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D7-09/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 6,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D7-10/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 6,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D4-14/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 6,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D7-15/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 27,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D5-20/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 27,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D5-21/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 6,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D8-22/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D8-23/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0.95,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D9-24/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 23,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D1-16/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D2-17/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D2-12/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "vendor-onboarding/D4-19/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0.1,
+    "allowsNoCaught": true
+   },
+   "observed": 0.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D7-00/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D7-00/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0.35,
+    "allowsNoCaught": true
+   },
+   "observed": 0.1333,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D7-01/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D7-01/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0.35,
+    "allowsNoCaught": true
+   },
+   "observed": 0.1667,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D7-02/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D7-02/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0.35,
+    "allowsNoCaught": true
+   },
+   "observed": 0.0333,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D6-03/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D6-03/random-50/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0.8,
+    "max": 1
+   },
+   "observed": 0.9667,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D6-04/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D6-04/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D6-05/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D6-05/random-50/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D1-06/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D1-06/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 16,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D2-07/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D2-07/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0.5,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 22,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D3-08/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D3-08/random-50/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0.25
+   },
+   "observed": 0.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D4-09/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D4-09/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0.35,
+    "allowsNoCaught": true
+   },
+   "observed": 0.0667,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D7-10/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D7-10/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 29,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D7-11/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D7-11/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 28,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D7-12/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D7-12/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D5-13/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D5-13/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0.1,
+    "allowsNoCaught": true
+   },
+   "observed": 0.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D5-14/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D5-14/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 29,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D9-15/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "expense-approval/D9-15/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0.8,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 29,
+   "verdict": "holds"
+  },
+  {
+   "id": "sanctions-screening/D7-00/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "sanctions-screening/D7-00/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "sanctions-screening/D1-01/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "sanctions-screening/D1-01/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "sanctions-screening/D2-02/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "sanctions-screening/D2-02/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0,
+    "allowsNoCaught": true
+   },
+   "observed": 0.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "sanctions-screening/D3-03/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "sanctions-screening/D3-03/random-50/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0.9,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "sanctions-screening/D3-03/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0,
+    "allowsNoCaught": true
+   },
+   "observed": 0.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "sanctions-screening/D4-04/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "sanctions-screening/D4-04/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0.1,
+    "allowsNoCaught": true
+   },
+   "observed": 0.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "sanctions-screening/D5-05/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "sanctions-screening/D5-05/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1,
+    "allowsNoCaught": true
+   },
+   "observed": 1.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "sanctions-screening/D5-06/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "sanctions-screening/D5-06/random-50/lineMovedWhenCaught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0.1,
+    "allowsNoCaught": true
+   },
+   "observed": 0.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "sanctions-screening/D7-00/random-50/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0.9,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "sanctions-screening/D1-01/random-50/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0.9,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "sanctions-screening/D2-02/random-50/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0.9,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "sanctions-screening/D4-04/random-50/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0.9,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "sanctions-screening/D5-05/random-50/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0.9,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "sanctions-screening/D5-06/random-50/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0.9,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "data-request-intake-triage/D7-00/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "data-request-intake-triage/D7-01/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "data-request-intake-triage/D7-02/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "data-request-intake-triage/D7-02/random-50/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "data-request-intake-triage/D7-03/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "data-request-intake-triage/D7-03/random-50/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "data-request-intake-triage/D6-04/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "data-request-intake-triage/D6-05/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "data-request-intake-triage/D6-06/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "data-request-intake-triage/D6-06/random-50/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "data-request-intake-triage/D6-07/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "data-request-intake-triage/D6-07/random-50/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "data-request-intake-triage/D7-08/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "data-request-intake-triage/D7-09/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "data-request-intake-triage/D5-10/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "data-request-intake-triage/D5-11/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "data-request-intake-triage/D5-12/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "data-request-intake-triage/D8-13/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "data-request-intake-triage/D8-13/random-50/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0.9,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "data-request-intake-triage/D9-14/literal/caught",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "h01-expense-d7-00-literal-signature",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "h02-expense-d6-03-literal-no-threshold",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "h03-vendor-d8-23-literal-at-row",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "h04-vendor-d2-17-literal-mirror",
+   "role": "endpoint",
+   "expected": {
+    "min": 1,
+    "max": 1
+   },
+   "observed": 1.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "h05-triage-d8-13-literal-no-threshold",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "h06-sanctions-d4-04-literal-two-sides",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0
+   },
+   "observed": 0.0,
+   "cells": 1,
+   "verdict": "holds"
+  },
+  {
+   "id": "h07-triage-d6-05-random-20-catch",
+   "role": "endpoint",
+   "expected": {
+    "min": 0.25,
+    "max": 0.75
+   },
+   "observed": 0.4667,
+   "cells": 30,
+   "verdict": "holds"
+  },
+  {
+   "id": "h08-vendor-d6-04-random-20-catch",
+   "role": "endpoint",
+   "expected": {
+    "min": 0,
+    "max": 0.25
+   },
+   "observed": 0.0667,
+   "cells": 30,
+   "verdict": "holds"
+  }
+ ]
+}

@@ -1,10 +1,11 @@
 # Study 021 — does replayed history catch a planted defect, and can the profile tell a moved line from the rest?
 
-**Status: preregistration through eight pre-freeze cross-vendor review rounds, the last
-`freezable as written` (`PREREG-REVIEW.md`); FROZEN at the squash-merge of the pull request
-that record names. Nothing has run under the freeze; `results/` is absent until the registered
-primary attempt, which waits on the runtime's v0.21.0 release for its pin; everything under
-`pilots/` is harness validation that supports no claim.**
+**Status: RUN. Frozen at the squash-merge of PR #105 after eight pre-freeze cross-vendor
+review rounds (`PREREG-REVIEW.md`); the runtime pinned by one post-freeze commit
+(`DEVIATIONS.md`); the registered primary attempt `results/primary-attempt-001` ran once under
+the published v0.21.0 binary: `R1 holds` — 131 registered cells, 0 divergent, the reviewer's
+holdout 8/8, every control gate green (`ANALYSIS.md`). Everything under `pilots/` is harness
+validation that supports no claim.**
 
 A pack drafted from policy documents is tested against the decisions actually made under the
 policy — each past decision a matrix row whose facts are what was on file and whose expectation

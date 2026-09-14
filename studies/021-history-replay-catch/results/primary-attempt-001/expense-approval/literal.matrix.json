@@ -1,0 +1,404 @@
+{
+ "matrixVersion": "3",
+ "cases": [
+  {
+   "id": "suggest-expense-approval-value--expense-amountUsd-74",
+   "origin": "literal",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "team-meal",
+     "amountUsd": "74"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "reimburse",
+    "reasons": []
+   }
+  },
+  {
+   "id": "suggest-expense-approval-value--expense-amountUsd-75",
+   "origin": "literal",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "team-meal",
+     "amountUsd": "75"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "review",
+    "reasons": []
+   }
+  },
+  {
+   "id": "suggest-expense-approval-value--expense-amountUsd-76",
+   "origin": "literal",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "team-meal",
+     "amountUsd": "76"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "review",
+    "reasons": []
+   }
+  },
+  {
+   "id": "suggest-expense-approval-member--expense-kind--meal-",
+   "origin": "literal",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "team-meal",
+     "amountUsd": "42.50"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "reimburse",
+    "reasons": []
+   }
+  },
+  {
+   "id": "suggest-expense-approval-member--expense-kind--travel-",
+   "origin": "literal",
+   "facts": {
+    "expense": {
+     "kind": "travel",
+     "category": "team-meal",
+     "amountUsd": "42.50"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "reimburse",
+    "reasons": []
+   }
+  },
+  {
+   "id": "suggest-expense-approval-member--expense-kind--supplies-",
+   "origin": "literal",
+   "facts": {
+    "expense": {
+     "kind": "supplies",
+     "category": "team-meal",
+     "amountUsd": "42.50"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "reimburse",
+    "reasons": []
+   }
+  },
+  {
+   "id": "suggest-expense-approval-member--expense-kind--software-",
+   "origin": "literal",
+   "facts": {
+    "expense": {
+     "kind": "software",
+     "category": "team-meal",
+     "amountUsd": "42.50"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "reimburse",
+    "reasons": []
+   }
+  },
+  {
+   "id": "suggest-expense-approval-member--expense-category--alcohol-",
+   "origin": "literal",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "alcohol",
+     "amountUsd": "42.50"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "deny",
+    "reasons": []
+   }
+  },
+  {
+   "id": "suggest-expense-approval-member--expense-category--fines-",
+   "origin": "literal",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "fines",
+     "amountUsd": "42.50"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "deny",
+    "reasons": []
+   }
+  },
+  {
+   "id": "suggest-expense-approval-member--expense-category--gift-cards-",
+   "origin": "literal",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "gift-cards",
+     "amountUsd": "42.50"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "deny",
+    "reasons": []
+   }
+  },
+  {
+   "id": "suggest-expense-approval-member--expense-category--alcohol--2",
+   "origin": "literal",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "alcohol",
+     "amountUsd": "42.50"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "deny",
+    "reasons": []
+   }
+  },
+  {
+   "id": "suggest-expense-approval-member--expense-category--fines--2",
+   "origin": "literal",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "fines",
+     "amountUsd": "42.50"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "deny",
+    "reasons": []
+   }
+  },
+  {
+   "id": "suggest-expense-approval-member--expense-category--gift-cards--2",
+   "origin": "literal",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "gift-cards",
+     "amountUsd": "42.50"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "deny",
+    "reasons": []
+   }
+  },
+  {
+   "id": "suggest-expense-approval-absent",
+   "origin": "literal",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "team-meal",
+     "amountUsd": "42.50"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "reimburse",
+    "reasons": []
+   }
+  },
+  {
+   "id": "suggest-expense-approval-evidence-itemised-receipt-present",
+   "origin": "literal",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "team-meal",
+     "amountUsd": "42.50"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "present"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "none"
+    },
+    "kind": "outcome",
+    "outcomeId": "reimburse",
+    "reasons": []
+   }
+  },
+  {
+   "id": "suggest-expense-approval-evidence-itemised-receipt-absent",
+   "origin": "literal",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "team-meal",
+     "amountUsd": "42.50"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "absent"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "missing-required-evidence"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "missing-required-evidence"
+    ]
+   }
+  },
+  {
+   "id": "suggest-expense-approval-evidence-itemised-receipt-unknown",
+   "origin": "literal",
+   "facts": {
+    "expense": {
+     "kind": "meal",
+     "category": "team-meal",
+     "amountUsd": "42.50"
+    }
+   },
+   "evidenceAvailability": {
+    "itemised-receipt": "unknown"
+   },
+   "supportedExtensions": [],
+   "expectedDisposition": {
+    "handoff": {
+     "state": "requested",
+     "triggeredBy": [
+      "unknown"
+     ]
+    },
+    "kind": "unresolved",
+    "reasons": [
+     "unknown"
+    ]
+   }
+  }
+ ]
+}

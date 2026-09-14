@@ -62,7 +62,7 @@ records; it remains the canonical matrix, with the external source each study bu
 | [017](studies/017-witnessed-currency/) | Currency governance | Frozen + run — R1 holds (both strata) | [`ANALYSIS.md`](studies/017-witnessed-currency/ANALYSIS.md), [`results/`](studies/017-witnessed-currency/results/) |
 | [018](studies/018-transition-rules/) | Currency governance | Frozen + run — R1 holds; reviewer holdout diverged on three preregistered cells | [`ANALYSIS.md`](studies/018-transition-rules/ANALYSIS.md), [`results/`](studies/018-transition-rules/results/) |
 | [019](studies/019-authorship-across-representations/) | Blinded authorship | **Frozen + run — R1 inconclusive (control gate failed: E1 floor)** | [`PREREGISTRATION.md`](studies/019-authorship-across-representations/PREREGISTRATION.md) (draft), [`design/`](studies/019-authorship-across-representations/design/) |
-| [021](studies/021-history-replay-catch/) | History replay | Preregistered (freeze on merge) — not yet run | [`PREREGISTRATION.md`](studies/021-history-replay-catch/PREREGISTRATION.md), [`PREREG-REVIEW.md`](studies/021-history-replay-catch/PREREG-REVIEW.md) |
+| [021](studies/021-history-replay-catch/) | History replay | Run — R1 holds (131/131, holdout 8/8) | [`PREREGISTRATION.md`](studies/021-history-replay-catch/PREREGISTRATION.md), [`PREREG-REVIEW.md`](studies/021-history-replay-catch/PREREG-REVIEW.md) |
 | [022](studies/022-outside-format-binding/) | Outside-format binding | Preregistered (freeze on merge) — not yet run | [`PREREGISTRATION.md`](studies/022-outside-format-binding/PREREGISTRATION.md), [`PREREG-REVIEW.md`](studies/022-outside-format-binding/PREREG-REVIEW.md) |
 
 This repository claims **no JPS conformance** for anything in it, and the table above adds no

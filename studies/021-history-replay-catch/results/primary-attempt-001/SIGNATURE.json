@@ -1,0 +1,6487 @@
+[
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-10",
+  "stratum": "literal",
+  "n": null,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-10",
+  "stratum": "random",
+  "n": 5,
+  "caught": 3,
+  "lineMoved": 0,
+  "noThreshold": 3,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.7076
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-10",
+  "stratum": "random",
+  "n": 10,
+  "caught": 3,
+  "lineMoved": 0,
+  "noThreshold": 3,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.7076
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-10",
+  "stratum": "random",
+  "n": 20,
+  "caught": 12,
+  "lineMoved": 0,
+  "noThreshold": 12,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.2646
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-10",
+  "stratum": "random",
+  "n": 50,
+  "caught": 16,
+  "lineMoved": 0,
+  "noThreshold": 16,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.2059
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-11",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 1,
+  "rate": 0.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-11",
+  "stratum": "random",
+  "n": 5,
+  "caught": 13,
+  "lineMoved": 0,
+  "noThreshold": 13,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.2471
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-11",
+  "stratum": "random",
+  "n": 10,
+  "caught": 17,
+  "lineMoved": 0,
+  "noThreshold": 17,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1951
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-11",
+  "stratum": "random",
+  "n": 20,
+  "caught": 25,
+  "lineMoved": 0,
+  "noThreshold": 25,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1372
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-11",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 0,
+  "noThreshold": 30,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-12",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 1,
+  "rate": 0.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-12",
+  "stratum": "random",
+  "n": 5,
+  "caught": 2,
+  "lineMoved": 0,
+  "noThreshold": 2,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.8419
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-12",
+  "stratum": "random",
+  "n": 10,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 1,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.975
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-12",
+  "stratum": "random",
+  "n": 20,
+  "caught": 6,
+  "lineMoved": 0,
+  "noThreshold": 6,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.4593
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "D5-12",
+  "stratum": "random",
+  "n": 50,
+  "caught": 13,
+  "lineMoved": 0,
+  "noThreshold": 13,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.2471
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-04",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 1,
+  "rate": 0.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-04",
+  "stratum": "random",
+  "n": 5,
+  "caught": 2,
+  "lineMoved": 0,
+  "noThreshold": 2,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.8419
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-04",
+  "stratum": "random",
+  "n": 10,
+  "caught": 5,
+  "lineMoved": 0,
+  "noThreshold": 5,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.5218
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-04",
+  "stratum": "random",
+  "n": 20,
+  "caught": 10,
+  "lineMoved": 0,
+  "noThreshold": 10,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.3085
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-04",
+  "stratum": "random",
+  "n": 50,
+  "caught": 17,
+  "lineMoved": 0,
+  "noThreshold": 17,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1951
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-05",
+  "stratum": "literal",
+  "n": null,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-05",
+  "stratum": "random",
+  "n": 5,
+  "caught": 5,
+  "lineMoved": 0,
+  "noThreshold": 5,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.5218
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-05",
+  "stratum": "random",
+  "n": 10,
+  "caught": 7,
+  "lineMoved": 0,
+  "noThreshold": 7,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.4096
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-05",
+  "stratum": "random",
+  "n": 20,
+  "caught": 14,
+  "lineMoved": 0,
+  "noThreshold": 14,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.2316
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-05",
+  "stratum": "random",
+  "n": 50,
+  "caught": 25,
+  "lineMoved": 0,
+  "noThreshold": 25,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1372
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-06",
+  "stratum": "literal",
+  "n": null,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-06",
+  "stratum": "random",
+  "n": 5,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-06",
+  "stratum": "random",
+  "n": 10,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-06",
+  "stratum": "random",
+  "n": 20,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-06",
+  "stratum": "random",
+  "n": 50,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-07",
+  "stratum": "literal",
+  "n": null,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-07",
+  "stratum": "random",
+  "n": 5,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-07",
+  "stratum": "random",
+  "n": 10,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-07",
+  "stratum": "random",
+  "n": 20,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "D6-07",
+  "stratum": "random",
+  "n": 50,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-00",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 1,
+  "rate": 0.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-00",
+  "stratum": "random",
+  "n": 5,
+  "caught": 8,
+  "lineMoved": 0,
+  "noThreshold": 8,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.3694
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-00",
+  "stratum": "random",
+  "n": 10,
+  "caught": 5,
+  "lineMoved": 0,
+  "noThreshold": 5,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.5218
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-00",
+  "stratum": "random",
+  "n": 20,
+  "caught": 15,
+  "lineMoved": 0,
+  "noThreshold": 15,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.218
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-00",
+  "stratum": "random",
+  "n": 50,
+  "caught": 18,
+  "lineMoved": 0,
+  "noThreshold": 18,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1853
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-01",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 1,
+  "rate": 0.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-01",
+  "stratum": "random",
+  "n": 5,
+  "caught": 5,
+  "lineMoved": 0,
+  "noThreshold": 5,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.5218
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-01",
+  "stratum": "random",
+  "n": 10,
+  "caught": 2,
+  "lineMoved": 0,
+  "noThreshold": 2,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.8419
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-01",
+  "stratum": "random",
+  "n": 20,
+  "caught": 5,
+  "lineMoved": 0,
+  "noThreshold": 5,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.5218
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-01",
+  "stratum": "random",
+  "n": 50,
+  "caught": 7,
+  "lineMoved": 0,
+  "noThreshold": 7,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.4096
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-02",
+  "stratum": "literal",
+  "n": null,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-02",
+  "stratum": "random",
+  "n": 5,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-02",
+  "stratum": "random",
+  "n": 10,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-02",
+  "stratum": "random",
+  "n": 20,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-02",
+  "stratum": "random",
+  "n": 50,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-03",
+  "stratum": "literal",
+  "n": null,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-03",
+  "stratum": "random",
+  "n": 5,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-03",
+  "stratum": "random",
+  "n": 10,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-03",
+  "stratum": "random",
+  "n": 20,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-03",
+  "stratum": "random",
+  "n": 50,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-08",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 1,
+  "rate": 0.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-08",
+  "stratum": "random",
+  "n": 5,
+  "caught": 2,
+  "lineMoved": 0,
+  "noThreshold": 2,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.8419
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-08",
+  "stratum": "random",
+  "n": 10,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 1,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.975
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-08",
+  "stratum": "random",
+  "n": 20,
+  "caught": 6,
+  "lineMoved": 0,
+  "noThreshold": 6,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.4593
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-08",
+  "stratum": "random",
+  "n": 50,
+  "caught": 13,
+  "lineMoved": 0,
+  "noThreshold": 13,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.2471
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-09",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 1,
+  "rate": 0.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-09",
+  "stratum": "random",
+  "n": 5,
+  "caught": 2,
+  "lineMoved": 0,
+  "noThreshold": 2,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.8419
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-09",
+  "stratum": "random",
+  "n": 10,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 1,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.975
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-09",
+  "stratum": "random",
+  "n": 20,
+  "caught": 6,
+  "lineMoved": 0,
+  "noThreshold": 6,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.4593
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "D7-09",
+  "stratum": "random",
+  "n": 50,
+  "caught": 13,
+  "lineMoved": 0,
+  "noThreshold": 13,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.2471
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D8",
+  "defect": "D8-13",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 1,
+  "rate": 0.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D8",
+  "defect": "D8-13",
+  "stratum": "random",
+  "n": 5,
+  "caught": 30,
+  "lineMoved": 0,
+  "noThreshold": 30,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D8",
+  "defect": "D8-13",
+  "stratum": "random",
+  "n": 10,
+  "caught": 30,
+  "lineMoved": 0,
+  "noThreshold": 30,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D8",
+  "defect": "D8-13",
+  "stratum": "random",
+  "n": 20,
+  "caught": 30,
+  "lineMoved": 0,
+  "noThreshold": 30,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D8",
+  "defect": "D8-13",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 0,
+  "noThreshold": 30,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D9",
+  "defect": "D9-14",
+  "stratum": "literal",
+  "n": null,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D9",
+  "defect": "D9-14",
+  "stratum": "random",
+  "n": 5,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 1,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.975
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D9",
+  "defect": "D9-14",
+  "stratum": "random",
+  "n": 10,
+  "caught": 6,
+  "lineMoved": 0,
+  "noThreshold": 6,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.4593
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D9",
+  "defect": "D9-14",
+  "stratum": "random",
+  "n": 20,
+  "caught": 10,
+  "lineMoved": 0,
+  "noThreshold": 10,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.3085
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D9",
+  "defect": "D9-14",
+  "stratum": "random",
+  "n": 50,
+  "caught": 19,
+  "lineMoved": 0,
+  "noThreshold": 19,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1765
+  ]
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 2,
+  "lineMoved": 0,
+  "noThreshold": 2,
+  "rate": 0.0,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 18,
+  "lineMoved": 0,
+  "noThreshold": 18,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.1853
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 21,
+  "lineMoved": 0,
+  "noThreshold": 21,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.1611
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 43,
+  "lineMoved": 0,
+  "noThreshold": 43,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.0822
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 59,
+  "lineMoved": 0,
+  "noThreshold": 59,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.0606
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 1,
+  "rate": 0.0,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 7,
+  "lineMoved": 0,
+  "noThreshold": 7,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.4096
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 12,
+  "lineMoved": 0,
+  "noThreshold": 12,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.2646
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 24,
+  "lineMoved": 0,
+  "noThreshold": 24,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.1425
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 42,
+  "lineMoved": 0,
+  "noThreshold": 42,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.0841
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 4,
+  "lineMoved": 0,
+  "noThreshold": 4,
+  "rate": 0.0,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 17,
+  "lineMoved": 0,
+  "noThreshold": 17,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.1951
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 9,
+  "lineMoved": 0,
+  "noThreshold": 9,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.3363
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 32,
+  "lineMoved": 0,
+  "noThreshold": 32,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.1089
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 51,
+  "lineMoved": 0,
+  "noThreshold": 51,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.0698
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D8",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 1,
+  "rate": 0.0,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D8",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 30,
+  "lineMoved": 0,
+  "noThreshold": 30,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.1157
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D8",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 30,
+  "lineMoved": 0,
+  "noThreshold": 30,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.1157
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D8",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 30,
+  "lineMoved": 0,
+  "noThreshold": 30,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.1157
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D8",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 0,
+  "noThreshold": 30,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.1157
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 1,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.975
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 6,
+  "lineMoved": 0,
+  "noThreshold": 6,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.4593
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 10,
+  "lineMoved": 0,
+  "noThreshold": 10,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.3085
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "data-request-intake-triage",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 19,
+  "lineMoved": 0,
+  "noThreshold": 19,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.1765
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D1",
+  "defect": "D1-06",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D1",
+  "defect": "D1-06",
+  "stratum": "random",
+  "n": 5,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D1",
+  "defect": "D1-06",
+  "stratum": "random",
+  "n": 10,
+  "caught": 4,
+  "lineMoved": 4,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.3976,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D1",
+  "defect": "D1-06",
+  "stratum": "random",
+  "n": 20,
+  "caught": 6,
+  "lineMoved": 6,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.5407,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D1",
+  "defect": "D1-06",
+  "stratum": "random",
+  "n": 50,
+  "caught": 16,
+  "lineMoved": 16,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.7941,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D2",
+  "defect": "D2-07",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D2",
+  "defect": "D2-07",
+  "stratum": "random",
+  "n": 5,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D2",
+  "defect": "D2-07",
+  "stratum": "random",
+  "n": 10,
+  "caught": 6,
+  "lineMoved": 6,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.5407,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D2",
+  "defect": "D2-07",
+  "stratum": "random",
+  "n": 20,
+  "caught": 10,
+  "lineMoved": 10,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.6915,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D2",
+  "defect": "D2-07",
+  "stratum": "random",
+  "n": 50,
+  "caught": 22,
+  "lineMoved": 22,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8456,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D3",
+  "defect": "D3-08",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D3",
+  "defect": "D3-08",
+  "stratum": "random",
+  "n": 5,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D3",
+  "defect": "D3-08",
+  "stratum": "random",
+  "n": 10,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D3",
+  "defect": "D3-08",
+  "stratum": "random",
+  "n": 20,
+  "caught": 2,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.8419
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D3",
+  "defect": "D3-08",
+  "stratum": "random",
+  "n": 50,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D4",
+  "defect": "D4-09",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D4",
+  "defect": "D4-09",
+  "stratum": "random",
+  "n": 5,
+  "caught": 12,
+  "lineMoved": 12,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.7354,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D4",
+  "defect": "D4-09",
+  "stratum": "random",
+  "n": 10,
+  "caught": 24,
+  "lineMoved": 18,
+  "noThreshold": 0,
+  "rate": 0.75,
+  "ci95exact": [
+   0.5329,
+   0.9023
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D4",
+  "defect": "D4-09",
+  "stratum": "random",
+  "n": 20,
+  "caught": 27,
+  "lineMoved": 11,
+  "noThreshold": 0,
+  "rate": 0.4074,
+  "ci95exact": [
+   0.2239,
+   0.612
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D4",
+  "defect": "D4-09",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 2,
+  "noThreshold": 0,
+  "rate": 0.0667,
+  "ci95exact": [
+   0.0082,
+   0.2207
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "D5-13",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "D5-13",
+  "stratum": "random",
+  "n": 5,
+  "caught": 26,
+  "lineMoved": 19,
+  "noThreshold": 0,
+  "rate": 0.7308,
+  "ci95exact": [
+   0.5221,
+   0.8843
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "D5-13",
+  "stratum": "random",
+  "n": 10,
+  "caught": 29,
+  "lineMoved": 6,
+  "noThreshold": 0,
+  "rate": 0.2069,
+  "ci95exact": [
+   0.0799,
+   0.3972
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "D5-13",
+  "stratum": "random",
+  "n": 20,
+  "caught": 30,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "D5-13",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "D5-14",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "D5-14",
+  "stratum": "random",
+  "n": 5,
+  "caught": 7,
+  "lineMoved": 7,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.5904,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "D5-14",
+  "stratum": "random",
+  "n": 10,
+  "caught": 16,
+  "lineMoved": 16,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.7941,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "D5-14",
+  "stratum": "random",
+  "n": 20,
+  "caught": 23,
+  "lineMoved": 23,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8518,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "D5-14",
+  "stratum": "random",
+  "n": 50,
+  "caught": 29,
+  "lineMoved": 29,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8806,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-03",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 1,
+  "rate": 0.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-03",
+  "stratum": "random",
+  "n": 5,
+  "caught": 5,
+  "lineMoved": 0,
+  "noThreshold": 5,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.5218
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-03",
+  "stratum": "random",
+  "n": 10,
+  "caught": 14,
+  "lineMoved": 0,
+  "noThreshold": 14,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.2316
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-03",
+  "stratum": "random",
+  "n": 20,
+  "caught": 21,
+  "lineMoved": 0,
+  "noThreshold": 21,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1611
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-03",
+  "stratum": "random",
+  "n": 50,
+  "caught": 29,
+  "lineMoved": 0,
+  "noThreshold": 29,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1194
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-04",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-04",
+  "stratum": "random",
+  "n": 5,
+  "caught": 17,
+  "lineMoved": 17,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8049,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-04",
+  "stratum": "random",
+  "n": 10,
+  "caught": 25,
+  "lineMoved": 25,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8628,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-04",
+  "stratum": "random",
+  "n": 20,
+  "caught": 30,
+  "lineMoved": 30,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-04",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 30,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-05",
+  "stratum": "literal",
+  "n": null,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-05",
+  "stratum": "random",
+  "n": 5,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-05",
+  "stratum": "random",
+  "n": 10,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-05",
+  "stratum": "random",
+  "n": 20,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "D6-05",
+  "stratum": "random",
+  "n": 50,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-00",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-00",
+  "stratum": "random",
+  "n": 5,
+  "caught": 11,
+  "lineMoved": 11,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.7151,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-00",
+  "stratum": "random",
+  "n": 10,
+  "caught": 19,
+  "lineMoved": 13,
+  "noThreshold": 0,
+  "rate": 0.6842,
+  "ci95exact": [
+   0.4345,
+   0.8742
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-00",
+  "stratum": "random",
+  "n": 20,
+  "caught": 30,
+  "lineMoved": 14,
+  "noThreshold": 0,
+  "rate": 0.4667,
+  "ci95exact": [
+   0.2834,
+   0.6567
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-00",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 4,
+  "noThreshold": 0,
+  "rate": 0.1333,
+  "ci95exact": [
+   0.0376,
+   0.3072
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-01",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-01",
+  "stratum": "random",
+  "n": 5,
+  "caught": 13,
+  "lineMoved": 11,
+  "noThreshold": 0,
+  "rate": 0.8462,
+  "ci95exact": [
+   0.5455,
+   0.9808
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-01",
+  "stratum": "random",
+  "n": 10,
+  "caught": 20,
+  "lineMoved": 11,
+  "noThreshold": 0,
+  "rate": 0.55,
+  "ci95exact": [
+   0.3153,
+   0.7694
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-01",
+  "stratum": "random",
+  "n": 20,
+  "caught": 28,
+  "lineMoved": 12,
+  "noThreshold": 0,
+  "rate": 0.4286,
+  "ci95exact": [
+   0.2446,
+   0.6282
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-01",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 5,
+  "noThreshold": 0,
+  "rate": 0.1667,
+  "ci95exact": [
+   0.0564,
+   0.3472
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-02",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-02",
+  "stratum": "random",
+  "n": 5,
+  "caught": 16,
+  "lineMoved": 15,
+  "noThreshold": 0,
+  "rate": 0.9375,
+  "ci95exact": [
+   0.6977,
+   0.9984
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-02",
+  "stratum": "random",
+  "n": 10,
+  "caught": 25,
+  "lineMoved": 19,
+  "noThreshold": 0,
+  "rate": 0.76,
+  "ci95exact": [
+   0.5487,
+   0.9064
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-02",
+  "stratum": "random",
+  "n": 20,
+  "caught": 27,
+  "lineMoved": 18,
+  "noThreshold": 0,
+  "rate": 0.6667,
+  "ci95exact": [
+   0.4604,
+   0.8348
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-02",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 0.0333,
+  "ci95exact": [
+   0.0008,
+   0.1722
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-10",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-10",
+  "stratum": "random",
+  "n": 5,
+  "caught": 6,
+  "lineMoved": 6,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.5407,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-10",
+  "stratum": "random",
+  "n": 10,
+  "caught": 13,
+  "lineMoved": 13,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.7529,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-10",
+  "stratum": "random",
+  "n": 20,
+  "caught": 23,
+  "lineMoved": 23,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8518,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-10",
+  "stratum": "random",
+  "n": 50,
+  "caught": 29,
+  "lineMoved": 29,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8806,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-11",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-11",
+  "stratum": "random",
+  "n": 5,
+  "caught": 7,
+  "lineMoved": 7,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.5904,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-11",
+  "stratum": "random",
+  "n": 10,
+  "caught": 13,
+  "lineMoved": 13,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.7529,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-11",
+  "stratum": "random",
+  "n": 20,
+  "caught": 20,
+  "lineMoved": 20,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8316,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-11",
+  "stratum": "random",
+  "n": 50,
+  "caught": 28,
+  "lineMoved": 28,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8766,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-12",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-12",
+  "stratum": "random",
+  "n": 5,
+  "caught": 9,
+  "lineMoved": 9,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.6637,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-12",
+  "stratum": "random",
+  "n": 10,
+  "caught": 14,
+  "lineMoved": 14,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.7684,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-12",
+  "stratum": "random",
+  "n": 20,
+  "caught": 20,
+  "lineMoved": 20,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8316,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "D7-12",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 30,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D9",
+  "defect": "D9-15",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D9",
+  "defect": "D9-15",
+  "stratum": "random",
+  "n": 5,
+  "caught": 5,
+  "lineMoved": 5,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.4782,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D9",
+  "defect": "D9-15",
+  "stratum": "random",
+  "n": 10,
+  "caught": 14,
+  "lineMoved": 14,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.7684,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D9",
+  "defect": "D9-15",
+  "stratum": "random",
+  "n": 20,
+  "caught": 21,
+  "lineMoved": 19,
+  "noThreshold": 0,
+  "rate": 0.9048,
+  "ci95exact": [
+   0.6962,
+   0.9883
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D9",
+  "defect": "D9-15",
+  "stratum": "random",
+  "n": 50,
+  "caught": 29,
+  "lineMoved": 29,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8806,
+   1.0
+  ]
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 4,
+  "lineMoved": 4,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.3976,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 6,
+  "lineMoved": 6,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.5407,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 16,
+  "lineMoved": 16,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.7941,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 6,
+  "lineMoved": 6,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.5407,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 10,
+  "lineMoved": 10,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.6915,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 22,
+  "lineMoved": 22,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8456,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 2,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.8419
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 12,
+  "lineMoved": 12,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.7354,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 24,
+  "lineMoved": 18,
+  "noThreshold": 0,
+  "rate": 0.75,
+  "referenceInterval": [
+   0.5329,
+   0.9023
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 27,
+  "lineMoved": 11,
+  "noThreshold": 0,
+  "rate": 0.4074,
+  "referenceInterval": [
+   0.2239,
+   0.612
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 2,
+  "noThreshold": 0,
+  "rate": 0.0667,
+  "referenceInterval": [
+   0.0082,
+   0.2207
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 2,
+  "lineMoved": 2,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 33,
+  "lineMoved": 26,
+  "noThreshold": 0,
+  "rate": 0.7879,
+  "referenceInterval": [
+   0.6109,
+   0.9102
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 45,
+  "lineMoved": 22,
+  "noThreshold": 0,
+  "rate": 0.4889,
+  "referenceInterval": [
+   0.337,
+   0.6423
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 53,
+  "lineMoved": 23,
+  "noThreshold": 0,
+  "rate": 0.434,
+  "referenceInterval": [
+   0.2984,
+   0.5772
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 59,
+  "lineMoved": 29,
+  "noThreshold": 0,
+  "rate": 0.4915,
+  "referenceInterval": [
+   0.3589,
+   0.625
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 2,
+  "lineMoved": 1,
+  "noThreshold": 1,
+  "rate": 0.5,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 22,
+  "lineMoved": 17,
+  "noThreshold": 5,
+  "rate": 0.7727,
+  "referenceInterval": [
+   0.5463,
+   0.9218
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 39,
+  "lineMoved": 25,
+  "noThreshold": 14,
+  "rate": 0.641,
+  "referenceInterval": [
+   0.4718,
+   0.788
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 51,
+  "lineMoved": 30,
+  "noThreshold": 21,
+  "rate": 0.5882,
+  "referenceInterval": [
+   0.4417,
+   0.7242
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 59,
+  "lineMoved": 30,
+  "noThreshold": 29,
+  "rate": 0.5085,
+  "referenceInterval": [
+   0.375,
+   0.6411
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 6,
+  "lineMoved": 6,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 62,
+  "lineMoved": 59,
+  "noThreshold": 0,
+  "rate": 0.9516,
+  "referenceInterval": [
+   0.865,
+   0.9899
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 104,
+  "lineMoved": 83,
+  "noThreshold": 0,
+  "rate": 0.7981,
+  "referenceInterval": [
+   0.7081,
+   0.8704
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 148,
+  "lineMoved": 107,
+  "noThreshold": 0,
+  "rate": 0.723,
+  "referenceInterval": [
+   0.6435,
+   0.7933
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 177,
+  "lineMoved": 97,
+  "noThreshold": 0,
+  "rate": 0.548,
+  "referenceInterval": [
+   0.4716,
+   0.6228
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 5,
+  "lineMoved": 5,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.4782,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 14,
+  "lineMoved": 14,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.7684,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 21,
+  "lineMoved": 19,
+  "noThreshold": 0,
+  "rate": 0.9048,
+  "referenceInterval": [
+   0.6962,
+   0.9883
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "expense-approval",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 29,
+  "lineMoved": 29,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8806,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D1",
+  "defect": "D1-01",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D1",
+  "defect": "D1-01",
+  "stratum": "random",
+  "n": 5,
+  "caught": 17,
+  "lineMoved": 17,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8049,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D1",
+  "defect": "D1-01",
+  "stratum": "random",
+  "n": 10,
+  "caught": 26,
+  "lineMoved": 26,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8677,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D1",
+  "defect": "D1-01",
+  "stratum": "random",
+  "n": 20,
+  "caught": 29,
+  "lineMoved": 29,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8806,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D1",
+  "defect": "D1-01",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 30,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D2",
+  "defect": "D2-02",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D2",
+  "defect": "D2-02",
+  "stratum": "random",
+  "n": 5,
+  "caught": 15,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.218
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D2",
+  "defect": "D2-02",
+  "stratum": "random",
+  "n": 10,
+  "caught": 28,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1234
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D2",
+  "defect": "D2-02",
+  "stratum": "random",
+  "n": 20,
+  "caught": 30,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D2",
+  "defect": "D2-02",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D3",
+  "defect": "D3-03",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D3",
+  "defect": "D3-03",
+  "stratum": "random",
+  "n": 5,
+  "caught": 17,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1951
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D3",
+  "defect": "D3-03",
+  "stratum": "random",
+  "n": 10,
+  "caught": 26,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1323
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D3",
+  "defect": "D3-03",
+  "stratum": "random",
+  "n": 20,
+  "caught": 29,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1194
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D3",
+  "defect": "D3-03",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D4",
+  "defect": "D4-04",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D4",
+  "defect": "D4-04",
+  "stratum": "random",
+  "n": 5,
+  "caught": 25,
+  "lineMoved": 16,
+  "noThreshold": 0,
+  "rate": 0.64,
+  "ci95exact": [
+   0.4252,
+   0.8203
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D4",
+  "defect": "D4-04",
+  "stratum": "random",
+  "n": 10,
+  "caught": 30,
+  "lineMoved": 8,
+  "noThreshold": 0,
+  "rate": 0.2667,
+  "ci95exact": [
+   0.1228,
+   0.4589
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D4",
+  "defect": "D4-04",
+  "stratum": "random",
+  "n": 20,
+  "caught": 30,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 0.0333,
+  "ci95exact": [
+   0.0008,
+   0.1722
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D4",
+  "defect": "D4-04",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "D5-05",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "D5-05",
+  "stratum": "random",
+  "n": 5,
+  "caught": 15,
+  "lineMoved": 15,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.782,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "D5-05",
+  "stratum": "random",
+  "n": 10,
+  "caught": 28,
+  "lineMoved": 28,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8766,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "D5-05",
+  "stratum": "random",
+  "n": 20,
+  "caught": 30,
+  "lineMoved": 30,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "D5-05",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 30,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "D5-06",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "D5-06",
+  "stratum": "random",
+  "n": 5,
+  "caught": 27,
+  "lineMoved": 10,
+  "noThreshold": 0,
+  "rate": 0.3704,
+  "ci95exact": [
+   0.194,
+   0.5763
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "D5-06",
+  "stratum": "random",
+  "n": 10,
+  "caught": 30,
+  "lineMoved": 4,
+  "noThreshold": 0,
+  "rate": 0.1333,
+  "ci95exact": [
+   0.0376,
+   0.3072
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "D5-06",
+  "stratum": "random",
+  "n": 20,
+  "caught": 30,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 0.0333,
+  "ci95exact": [
+   0.0008,
+   0.1722
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "D5-06",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D7",
+  "defect": "D7-00",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D7",
+  "defect": "D7-00",
+  "stratum": "random",
+  "n": 5,
+  "caught": 15,
+  "lineMoved": 15,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.782,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D7",
+  "defect": "D7-00",
+  "stratum": "random",
+  "n": 10,
+  "caught": 28,
+  "lineMoved": 28,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8766,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D7",
+  "defect": "D7-00",
+  "stratum": "random",
+  "n": 20,
+  "caught": 30,
+  "lineMoved": 30,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D7",
+  "defect": "D7-00",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 30,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 17,
+  "lineMoved": 17,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8049,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 26,
+  "lineMoved": 26,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8677,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 29,
+  "lineMoved": 29,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8806,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 30,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8843,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 15,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.218
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 28,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.1234
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 30,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.1157
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.1157
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 17,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.1951
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 26,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.1323
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 29,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.1194
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.1157
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 25,
+  "lineMoved": 16,
+  "noThreshold": 0,
+  "rate": 0.64,
+  "referenceInterval": [
+   0.4252,
+   0.8203
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 30,
+  "lineMoved": 8,
+  "noThreshold": 0,
+  "rate": 0.2667,
+  "referenceInterval": [
+   0.1228,
+   0.4589
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 30,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 0.0333,
+  "referenceInterval": [
+   0.0008,
+   0.1722
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "referenceInterval": [
+   0.0,
+   0.1157
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 2,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 0.5,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 42,
+  "lineMoved": 25,
+  "noThreshold": 0,
+  "rate": 0.5952,
+  "referenceInterval": [
+   0.4328,
+   0.7437
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 58,
+  "lineMoved": 32,
+  "noThreshold": 0,
+  "rate": 0.5517,
+  "referenceInterval": [
+   0.4154,
+   0.6826
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 60,
+  "lineMoved": 31,
+  "noThreshold": 0,
+  "rate": 0.5167,
+  "referenceInterval": [
+   0.3839,
+   0.6477
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 60,
+  "lineMoved": 30,
+  "noThreshold": 0,
+  "rate": 0.5,
+  "referenceInterval": [
+   0.3681,
+   0.6319
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 15,
+  "lineMoved": 15,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.782,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 28,
+  "lineMoved": 28,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8766,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 30,
+  "lineMoved": 30,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8843,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "sanctions-screening",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 30,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8843,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "D1-11",
+  "stratum": "literal",
+  "n": null,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "D1-11",
+  "stratum": "random",
+  "n": 5,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "D1-11",
+  "stratum": "random",
+  "n": 10,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "D1-11",
+  "stratum": "random",
+  "n": 20,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "D1-11",
+  "stratum": "random",
+  "n": 50,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "D1-16",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "D1-16",
+  "stratum": "random",
+  "n": 5,
+  "caught": 12,
+  "lineMoved": 12,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.7354,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "D1-16",
+  "stratum": "random",
+  "n": 10,
+  "caught": 22,
+  "lineMoved": 22,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8456,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "D1-16",
+  "stratum": "random",
+  "n": 20,
+  "caught": 26,
+  "lineMoved": 26,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8677,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "D1-16",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 30,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "D2-12",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "D2-12",
+  "stratum": "random",
+  "n": 5,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "D2-12",
+  "stratum": "random",
+  "n": 10,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "D2-12",
+  "stratum": "random",
+  "n": 20,
+  "caught": 2,
+  "lineMoved": 2,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.1581,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "D2-12",
+  "stratum": "random",
+  "n": 50,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.025,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "D2-17",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "D2-17",
+  "stratum": "random",
+  "n": 5,
+  "caught": 15,
+  "lineMoved": 15,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.782,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "D2-17",
+  "stratum": "random",
+  "n": 10,
+  "caught": 21,
+  "lineMoved": 21,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8389,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "D2-17",
+  "stratum": "random",
+  "n": 20,
+  "caught": 28,
+  "lineMoved": 28,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8766,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "D2-17",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 30,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "D3-13",
+  "stratum": "literal",
+  "n": null,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "D3-13",
+  "stratum": "random",
+  "n": 5,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "D3-13",
+  "stratum": "random",
+  "n": 10,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "D3-13",
+  "stratum": "random",
+  "n": 20,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "D3-13",
+  "stratum": "random",
+  "n": 50,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "D3-18",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "D3-18",
+  "stratum": "random",
+  "n": 5,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "D3-18",
+  "stratum": "random",
+  "n": 10,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "D3-18",
+  "stratum": "random",
+  "n": 20,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "D3-18",
+  "stratum": "random",
+  "n": 50,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "D4-14",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "D4-14",
+  "stratum": "random",
+  "n": 5,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.025,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "D4-14",
+  "stratum": "random",
+  "n": 10,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.025,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "D4-14",
+  "stratum": "random",
+  "n": 20,
+  "caught": 5,
+  "lineMoved": 5,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.4782,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "D4-14",
+  "stratum": "random",
+  "n": 50,
+  "caught": 6,
+  "lineMoved": 6,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.5407,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "D4-19",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "D4-19",
+  "stratum": "random",
+  "n": 5,
+  "caught": 30,
+  "lineMoved": 2,
+  "noThreshold": 0,
+  "rate": 0.0667,
+  "ci95exact": [
+   0.0082,
+   0.2207
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "D4-19",
+  "stratum": "random",
+  "n": 10,
+  "caught": 30,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "D4-19",
+  "stratum": "random",
+  "n": 20,
+  "caught": 30,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "D4-19",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": [
+   0.0,
+   0.1157
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "D5-20",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "D5-20",
+  "stratum": "random",
+  "n": 5,
+  "caught": 5,
+  "lineMoved": 5,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.4782,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "D5-20",
+  "stratum": "random",
+  "n": 10,
+  "caught": 8,
+  "lineMoved": 8,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.6306,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "D5-20",
+  "stratum": "random",
+  "n": 20,
+  "caught": 22,
+  "lineMoved": 22,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8456,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "D5-20",
+  "stratum": "random",
+  "n": 50,
+  "caught": 27,
+  "lineMoved": 27,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8723,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "D5-21",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "D5-21",
+  "stratum": "random",
+  "n": 5,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.025,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "D5-21",
+  "stratum": "random",
+  "n": 10,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.025,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "D5-21",
+  "stratum": "random",
+  "n": 20,
+  "caught": 5,
+  "lineMoved": 5,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.4782,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "D5-21",
+  "stratum": "random",
+  "n": 50,
+  "caught": 6,
+  "lineMoved": 6,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.5407,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-02",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-02",
+  "stratum": "random",
+  "n": 5,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-02",
+  "stratum": "random",
+  "n": 10,
+  "caught": 3,
+  "lineMoved": 3,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.2924,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-02",
+  "stratum": "random",
+  "n": 20,
+  "caught": 8,
+  "lineMoved": 8,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.6306,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-02",
+  "stratum": "random",
+  "n": 50,
+  "caught": 9,
+  "lineMoved": 9,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.6637,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-03",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-03",
+  "stratum": "random",
+  "n": 5,
+  "caught": 2,
+  "lineMoved": 2,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.1581,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-03",
+  "stratum": "random",
+  "n": 10,
+  "caught": 2,
+  "lineMoved": 2,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.1581,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-03",
+  "stratum": "random",
+  "n": 20,
+  "caught": 8,
+  "lineMoved": 8,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.6306,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-03",
+  "stratum": "random",
+  "n": 50,
+  "caught": 13,
+  "lineMoved": 13,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.7529,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-04",
+  "stratum": "literal",
+  "n": null,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-04",
+  "stratum": "random",
+  "n": 5,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.025,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-04",
+  "stratum": "random",
+  "n": 10,
+  "caught": 3,
+  "lineMoved": 3,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.2924,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-04",
+  "stratum": "random",
+  "n": 20,
+  "caught": 2,
+  "lineMoved": 2,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.1581,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-04",
+  "stratum": "random",
+  "n": 50,
+  "caught": 9,
+  "lineMoved": 9,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.6637,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-05",
+  "stratum": "literal",
+  "n": null,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-05",
+  "stratum": "random",
+  "n": 5,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-05",
+  "stratum": "random",
+  "n": 10,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-05",
+  "stratum": "random",
+  "n": 20,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-05",
+  "stratum": "random",
+  "n": 50,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-06",
+  "stratum": "literal",
+  "n": null,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-06",
+  "stratum": "random",
+  "n": 5,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-06",
+  "stratum": "random",
+  "n": 10,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-06",
+  "stratum": "random",
+  "n": 20,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-06",
+  "stratum": "random",
+  "n": 50,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-07",
+  "stratum": "literal",
+  "n": null,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-07",
+  "stratum": "random",
+  "n": 5,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-07",
+  "stratum": "random",
+  "n": 10,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-07",
+  "stratum": "random",
+  "n": 20,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "D6-07",
+  "stratum": "random",
+  "n": 50,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-00",
+  "stratum": "literal",
+  "n": null,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-00",
+  "stratum": "random",
+  "n": 5,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-00",
+  "stratum": "random",
+  "n": 10,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-00",
+  "stratum": "random",
+  "n": 20,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-00",
+  "stratum": "random",
+  "n": 50,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-01",
+  "stratum": "literal",
+  "n": null,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-01",
+  "stratum": "random",
+  "n": 5,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-01",
+  "stratum": "random",
+  "n": 10,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-01",
+  "stratum": "random",
+  "n": 20,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-01",
+  "stratum": "random",
+  "n": 50,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-08",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-08",
+  "stratum": "random",
+  "n": 5,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.025,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-08",
+  "stratum": "random",
+  "n": 10,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.025,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-08",
+  "stratum": "random",
+  "n": 20,
+  "caught": 5,
+  "lineMoved": 5,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.4782,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-08",
+  "stratum": "random",
+  "n": 50,
+  "caught": 6,
+  "lineMoved": 6,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.5407,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-09",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-09",
+  "stratum": "random",
+  "n": 5,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.025,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-09",
+  "stratum": "random",
+  "n": 10,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.025,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-09",
+  "stratum": "random",
+  "n": 20,
+  "caught": 5,
+  "lineMoved": 5,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.4782,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-09",
+  "stratum": "random",
+  "n": 50,
+  "caught": 6,
+  "lineMoved": 6,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.5407,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-10",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-10",
+  "stratum": "random",
+  "n": 5,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.025,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-10",
+  "stratum": "random",
+  "n": 10,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.025,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-10",
+  "stratum": "random",
+  "n": 20,
+  "caught": 5,
+  "lineMoved": 5,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.4782,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-10",
+  "stratum": "random",
+  "n": 50,
+  "caught": 6,
+  "lineMoved": 6,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.5407,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-15",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-15",
+  "stratum": "random",
+  "n": 5,
+  "caught": 4,
+  "lineMoved": 4,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.3976,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-15",
+  "stratum": "random",
+  "n": 10,
+  "caught": 13,
+  "lineMoved": 13,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.7529,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-15",
+  "stratum": "random",
+  "n": 20,
+  "caught": 13,
+  "lineMoved": 13,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.7529,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "D7-15",
+  "stratum": "random",
+  "n": 50,
+  "caught": 27,
+  "lineMoved": 27,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8723,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "D8-22",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "D8-22",
+  "stratum": "random",
+  "n": 5,
+  "caught": 20,
+  "lineMoved": 20,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8316,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "D8-22",
+  "stratum": "random",
+  "n": 10,
+  "caught": 22,
+  "lineMoved": 22,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8456,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "D8-22",
+  "stratum": "random",
+  "n": 20,
+  "caught": 30,
+  "lineMoved": 30,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "D8-22",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 30,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "D8-23",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "D8-23",
+  "stratum": "random",
+  "n": 5,
+  "caught": 28,
+  "lineMoved": 28,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8766,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "D8-23",
+  "stratum": "random",
+  "n": 10,
+  "caught": 30,
+  "lineMoved": 30,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "D8-23",
+  "stratum": "random",
+  "n": 20,
+  "caught": 30,
+  "lineMoved": 30,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "D8-23",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 30,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8843,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D9",
+  "defect": "D9-24",
+  "stratum": "literal",
+  "n": null,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "ci95exact": null
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D9",
+  "defect": "D9-24",
+  "stratum": "random",
+  "n": 5,
+  "caught": 4,
+  "lineMoved": 4,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.3976,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D9",
+  "defect": "D9-24",
+  "stratum": "random",
+  "n": 10,
+  "caught": 10,
+  "lineMoved": 10,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.6915,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D9",
+  "defect": "D9-24",
+  "stratum": "random",
+  "n": 20,
+  "caught": 19,
+  "lineMoved": 19,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8235,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D9",
+  "defect": "D9-24",
+  "stratum": "random",
+  "n": 50,
+  "caught": 23,
+  "lineMoved": 23,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "ci95exact": [
+   0.8518,
+   1.0
+  ]
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 12,
+  "lineMoved": 12,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.7354,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 22,
+  "lineMoved": 22,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8456,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 26,
+  "lineMoved": 26,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8677,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D1",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 30,
+  "lineMoved": 30,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8843,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 2,
+  "lineMoved": 2,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 15,
+  "lineMoved": 15,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.782,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 21,
+  "lineMoved": 21,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8389,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 30,
+  "lineMoved": 30,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8843,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D2",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 31,
+  "lineMoved": 31,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8878,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 1,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": 0.0,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D3",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "referenceInterval": null,
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 2,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 0.5,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 31,
+  "lineMoved": 3,
+  "noThreshold": 0,
+  "rate": 0.0968,
+  "referenceInterval": [
+   0.0204,
+   0.2575
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 31,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 0.0323,
+  "referenceInterval": [
+   0.0008,
+   0.167
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 35,
+  "lineMoved": 5,
+  "noThreshold": 0,
+  "rate": 0.1429,
+  "referenceInterval": [
+   0.0481,
+   0.3026
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D4",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 36,
+  "lineMoved": 6,
+  "noThreshold": 0,
+  "rate": 0.1667,
+  "referenceInterval": [
+   0.0637,
+   0.3281
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 2,
+  "lineMoved": 2,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 6,
+  "lineMoved": 6,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.5407,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 9,
+  "lineMoved": 9,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.6637,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 27,
+  "lineMoved": 27,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8723,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D5",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 33,
+  "lineMoved": 33,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8942,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 2,
+  "lineMoved": 2,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 3,
+  "lineMoved": 3,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.2924,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 8,
+  "lineMoved": 8,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.6306,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 18,
+  "lineMoved": 18,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8147,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D6",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 31,
+  "lineMoved": 31,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8878,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 4,
+  "lineMoved": 4,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 7,
+  "lineMoved": 7,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.5904,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 16,
+  "lineMoved": 16,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.7941,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 28,
+  "lineMoved": 28,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8766,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D7",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 45,
+  "lineMoved": 45,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.9213,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 2,
+  "lineMoved": 1,
+  "noThreshold": 0,
+  "rate": 0.5,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 48,
+  "lineMoved": 48,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.926,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 52,
+  "lineMoved": 52,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.9315,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 60,
+  "lineMoved": 60,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.9404,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D8",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 60,
+  "lineMoved": 60,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.9404,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "literal",
+  "n": null,
+  "caught": 0,
+  "lineMoved": 0,
+  "noThreshold": 0,
+  "rate": null,
+  "referenceInterval": null,
+  "note": "the one deterministic ledger: counts, no interval"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "random",
+  "n": 5,
+  "caught": 4,
+  "lineMoved": 4,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.3976,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "random",
+  "n": 10,
+  "caught": 10,
+  "lineMoved": 10,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.6915,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "random",
+  "n": 20,
+  "caught": 19,
+  "lineMoved": 19,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8235,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ },
+ {
+  "policy": "vendor-onboarding",
+  "class": "D9",
+  "defect": "*",
+  "stratum": "random",
+  "n": 50,
+  "caught": 23,
+  "lineMoved": 23,
+  "noThreshold": 0,
+  "rate": 1.0,
+  "referenceInterval": [
+   0.8518,
+   1.0
+  ],
+  "note": "pooled over the class's instances: a reference interval with no nominal coverage"
+ }
+]
