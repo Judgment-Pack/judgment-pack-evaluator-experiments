@@ -14,7 +14,7 @@ and agreement tracks are kept separate and why.
 | [001](001-policy-representation/) | Does representing a policy as a judgment pack change how reliably a model applies it? | Expressiveness / efficacy | RuleArena | Run — expressiveness result |
 | [002](002-qualitative-policy/) | Does the determination boundary reproduce on a *qualitative* policy? | Expressiveness | τ²-bench | Run — expressiveness result |
 | [003](003-escape-census/) | The escape census: across twelve real decisions, how often does judgment escape the pack? | Expressiveness | τ²-bench | Run — 12/12 decisions |
-| [004](004-composition-closure/) | Does declared composition close the census's cross-decision escape? | Composition | — | Preregistered, not yet run |
+| [004](004-composition-closure/) | Does declared composition close the census's cross-decision escape? | Composition | — | Run — negative: 0 of 5 closed |
 | [005](005-semantic-source-discovery/) | Semantic source discovery. | Trustworthy input | — | Run |
 | [006](006-evidence-lineage-gate/) | The evidence-lineage gate: can a fabricated fact reach evaluation? | Trustworthy input | — | Run |
 | [007](007-evidence-lineage-model-replication/) | Evidence-lineage model replication. | Trustworthy input | — | Run (frozen) |
@@ -25,7 +25,7 @@ and agreement tracks are kept separate and why.
 | [012](012-policy-perturbation/) | Is a blinded author's test surface anchored to the policy's *surface form*, or to what the policy means? | Blinded authorship | codex-cli (author) | Frozen + run — **R1 unsupported; retracts a published claim** |
 | [013](013-agent-eval-forge-integration/) | Can an independently developed agent-regression harness see the judgment/integration boundary? | Interoperability | Agent Eval Forge | Frozen + run — R1 holds (both strata) |
 | [014](014-openworkproof-binding/) | Can an independently developed receipt protocol bind an executed action to the exact judgment that authorized it? | Interoperability | OpenWorkProof | Frozen + run — R1 holds (both strata) |
-| [015](015-cloudflare-os-boundary/) | Can a third party prove offline which judgment authorized which staged action on a governed-agent platform — and what can neither system see? | Interoperability | Cloudflare OS | **Draft — five review rounds, not frozen** |
+| [015](015-cloudflare-os-boundary/) | Can a third party prove offline which judgment authorized which staged action on a governed-agent platform — and what can neither system see? | Interoperability | Cloudflare OS | Frozen + run — R1 holds (27 cells); reviewer holdout diverged on 7 of 8 cells |
 | [016](016-policy-currency-anchor/) | Can a signed pack-version currency registry detect a retired-version decision offline — and where must it fail? | Interoperability | OpenWorkProof | Frozen + run — R1 holds (both strata) |
 | [017](017-witnessed-currency/) | What does a minimal witness/cross-view comparison step buy against the registry split view — and which contract clause does each remaining silence isolate? | Currency governance | — | Frozen + run — R1 holds (both strata) |
 | [018](018-transition-rules/) | What does a cited registry head buy a stated transition rule — and where does the evidence stop? | Currency governance | — | Frozen + run — R1 holds; reviewer holdout diverged on three preregistered cells |
