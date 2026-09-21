@@ -78,6 +78,15 @@ jobs:
         run: env GO111MODULE=on CGO_ENABLED=0 go build -trimpath -o "$GITHUB_WORKSPACE/jpack" ./cmd/jpack
       - name: Compare both evaluators over the frozen corpus
         run: python3 harness/class_agreement.py ./jpack python
+      # The frozen corpus has no error row, so the step above says nothing about WHICH §8.4 class
+      # the two report. The specification's staged rows do; they are in no corpus, and this is
+      # agreement evidence and not a corpus result. The vendored rows are held to recorded digests
+      # first, so an expectation cannot be edited in place to make the comparison pass.
+      - name: Hold the vendored staged rows to their digests, and test the error-class driver
+        working-directory: harness
+        run: python3 -m unittest test_error_class_agreement -v
+      - name: Compare both evaluators' §8.4 error classes over the staged rows
+        run: python3 harness/error_class_agreement.py ./jpack python
 
   study-001-harness:
     name: Study 001 · deterministic harness

@@ -23,6 +23,17 @@ counted as semantic: the disposition's handoff serialization
 (object-with-target-echo vs bare string enum) is underdetermined by the
 RFC -- see python/DECISIONS.md entry 3.
 
+`error_class_agreement.py` covers what `class_agreement.py` cannot. That driver compares
+dispositions and treats any error as a non-result, and the frozen corpus has no error row, so
+nothing compared WHICH Core §8.4 class the two implementations report. This one runs the
+specification's **staged** rows (`reference/conformance-evaluation-staged/`, in no corpus) through
+both and compares three classes — Go's, Python's, and the row's — since a staged row may itself be
+what is wrong. §8.4 leaves an error's transport undefined and the two differ on it (the Go runtime
+writes `evaluationError` to stdout, the Python evaluator writes `error` to stderr), so the driver is
+told where each puts a result and an error and compares the class identifier alone. Its verdict
+logic and the vendored rows' digests are tested in `test_error_class_agreement.py`, which needs
+neither evaluator. Findings: `ERROR-CLASS-AGREEMENT.md`.
+
 ## The runtime pin, and when to move it
 
 `class_agreement.py` takes a Go binary, so CI builds one from a **pinned, immutable
