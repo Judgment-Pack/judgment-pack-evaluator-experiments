@@ -1,0 +1,12 @@
+{
+  "specRepository": "https://github.com/Judgment-Pack/judgment-pack-spec",
+  "specCommit": "4a650a8",
+  "specPath": "conformance/evaluation/staged",
+  "note": "Copied byte for byte with `git show <commit>:<path>`. `git archive` cannot be used: the specification marks this directory export-ignore so that no release bundle carries a staged row.",
+  "files": {
+    "cases.json": "5351517adfb04a7081a7b18dcc6b353e91b4e69f91b569cbd886511148f4498b",
+    "packs/data-request-intake-triage.json": "5bdf53e5c283b5a7c7a04373cfa66a488b021c1e098254424c0de7a963ea8aca",
+    "packs/error-required-extension.json": "f763150f90ad414b7f45a65500e88988f2622b5ff5277e5d7ddd1fbddfe50849",
+    "packs/error-single-outcome.json": "6af618e5626a331b2fda95648946078c6472e3b91091d3834fc99a6a8c2cc959"
+  }
+}
