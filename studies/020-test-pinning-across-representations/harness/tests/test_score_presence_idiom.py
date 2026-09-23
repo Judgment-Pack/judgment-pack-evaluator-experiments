@@ -111,6 +111,63 @@ TRAPS = {
 }
 
 
+def test_a_probe_bound_to_a_string_literal_is_the_trap():
+    """ROUND-1 FINDING R1-10(a): `k := "riskScore"; k in input.vendor` is
+    M-14 with one extra line, and the first implementation called it lawful
+    because it read the probe's raw AST type before resolving the binding.
+    Measured before adoption: zero occurrences on the certification corpus,
+    so every certified figure stands — but the adversarial construction now
+    flags. Mutation check: restore the raw `probe_type not in SCALAR_TYPES`
+    condition and this fails."""
+    document = _membership(_ref("input", "vendor"),
+                           probe={"type": "var", "value": "k"})
+    document["rules"].insert(0, {
+        "body": [{"index": 0, "terms": {"type": "boolean", "value": True}}],
+        "head": {"name": "k", "value": {"type": "string",
+                                        "value": "riskScore"},
+                 "assign": True, "ref": [{"type": "var", "value": "k"}]}})
+    report = presence_idiom.scan_ast(document)
+    assert report["flagged"] is True
+    assert report["findings"][0]["kind"] in presence_idiom.FLAG_REASONS
+
+
+def test_a_dynamic_tail_bound_to_a_string_resolves_and_flags():
+    """R1-10(b): `member := "vendor"; "riskScore" in input[member]` is a
+    static path wearing a variable's name; the bindings map this module
+    already keeps resolves it. The genuinely UNBOUND tail keeps its
+    unclassified verdict — that case is the parametrized `a ref with a
+    dynamic tail` row above, unchanged."""
+    dynamic = {"type": "ref", "value": [
+        {"type": "var", "value": "input"},
+        {"type": "var", "value": "member"}]}
+    document = _membership(dynamic)
+    document["rules"].insert(0, {
+        "body": [{"index": 0, "terms": {"type": "boolean", "value": True}}],
+        "head": {"name": "member", "value": {"type": "string",
+                                             "value": "vendor"},
+                 "assign": True, "ref": [{"type": "var", "value": "member"}]}})
+    report = presence_idiom.scan_ast(document)
+    assert report["flagged"] is True
+
+
+def test_a_non_string_probe_is_lawful_value_membership():
+    """R1-10(c): `5 in {"x": 5}` is TRUE under the pinned binary — lawful
+    value membership over the object's values — and the first implementation
+    flagged it, zero-scoring a correct policy. A number or boolean probe is
+    outside the guard's certified class now; the numeric-key trap
+    (`5 in {5: "x"}`) is §3.2's THIRD measured ceiling, zero occurrences on
+    the corpus. Mutation check: treat "number" as a probe again and this
+    fails."""
+    trap_shaped = {"type": "object", "value": [
+        [{"type": "string", "value": "x"}, {"type": "number", "value": 5}]]}
+    document = _membership(trap_shaped,
+                           probe={"type": "number", "value": 5})
+    report = presence_idiom.scan_ast(document)
+    assert report["flagged"] is False
+    assert any(use.get("kind") == "value-membership"
+               for use in report["lawful"])
+
+
 @pytest.mark.parametrize("name", sorted(LAWFUL))
 def test_a_lawful_membership_is_not_flagged(name):
     report = presence_idiom.scan_ast(_membership(LAWFUL[name]))
@@ -404,7 +461,15 @@ def test_the_ast_shape_is_the_pinned_binarys_own(tmp_path):
 def test_scan_refuses_a_policy_the_parser_rejects(tmp_path, monkeypatch):
     """The caller has already admitted the artifact through `opa check`, so a
     parse refusal AFTER a passing check is an apparatus fact — never a silent
-    "not flagged"."""
+    "not flagged".
+
+    ROUND-2 FINDING R2-1 split this into the two states it had merged. Exit 1
+    is the parser ANSWERING — a readable syntax refusal about the author's
+    bytes — and stays `PresenceIdiomError`, which `admit_arm_rego()` converts
+    into the typed apparatus refusal because two pinned invocations disagreeing
+    about one artifact yield no verdict about the author either. An unreadable
+    stream at an ANSWERING exit is the same class. Every NO-ANSWER exit is
+    caught one layer down and is the case below."""
     from e4lib import engines
     monkeypatch.setattr(engines, "opa_parse_tree",
                         lambda *a, **k: (1, "", "rego_parse_error"))
@@ -416,6 +481,63 @@ def test_scan_refuses_a_policy_the_parser_rejects(tmp_path, monkeypatch):
     with pytest.raises(presence_idiom.PresenceIdiomError) as caught:
         presence_idiom.scan(None, "policy.rego", str(tmp_path))
     assert "PRESENCE-IDIOM-PARSE-UNREADABLE" in str(caught.value)
+
+
+def test_a_parser_that_never_answered_is_typed_apparatus_not_a_detector_error(
+        tmp_path, monkeypatch):
+    """ROUND-2 FINDING R2-1, at the seat where the escape happened.
+
+    `opa_parse_tree()` returned `_run()`'s raw tuple, `parse_policy()` raised
+    `PresenceIdiomError` on any non-zero exit, and `PresenceIdiomError` is not
+    an `engines.EngineError` — so `score_run()`'s apparatus handler could not
+    see it and one transient OPA timeout on one arm-B run left the scorer
+    entirely and ended a 180-slot attempt through `main()`'s last-resort
+    handler.
+
+    MUTATION 1: delete the `_refuse_no_answer()` call in `opa_parse_tree()` —
+    the timeout case raises `PresenceIdiomError` again and this test fails.
+    MUTATION 2: add 124 to that call's `answer_exits` — same failure, which is
+    what proves the test reads the ANSWER/NO-ANSWER split and not merely the
+    exception type."""
+    from e4lib import engines
+
+    class Tools:
+        opa = "/nonexistent/opa"
+    monkeypatch.setattr(engines, "_run", lambda *a, **k: (124, "", ""))
+    with pytest.raises(engines.EngineError) as caught:
+        engines.opa_parse_tree(Tools(), "policy.rego", str(tmp_path))
+    assert "ENGINE-INVOCATION-REFUSED" in str(caught.value)
+    assert not isinstance(caught.value, presence_idiom.PresenceIdiomError)
+    # An invocation FAILURE exit (not a parse verdict) is the same class.
+    monkeypatch.setattr(engines, "_run", lambda *a, **k: (3, "", "boom"))
+    with pytest.raises(engines.EngineError):
+        engines.opa_parse_tree(Tools(), "policy.rego", str(tmp_path))
+    # …and exit 1 still ANSWERS, so it reaches the detector's own refusal.
+    monkeypatch.setattr(engines, "_run", lambda *a, **k: (1, "", "syntax"))
+    code, out, err = engines.opa_parse_tree(Tools(), "policy.rego",
+                                            str(tmp_path))
+    assert code == 1
+
+
+def test_the_two_engines_disagreeing_leaves_admission_as_apparatus(
+        tmp_path, monkeypatch):
+    """R2-1's residual state, and the one judgement call in the repair: `opa
+    check` accepted these bytes and `opa parse` refused them. No verdict about
+    the AUTHOR survives a disagreement between the study's own pinned
+    invocations, so admission raises the typed apparatus refusal rather than
+    letting an untyped detector error escape.
+
+    MUTATION: remove `admit_arm_rego()`'s `except PresenceIdiomError` wrap —
+    the raised exception is `PresenceIdiomError` and this test fails."""
+    from e4lib import admit as admit_lib
+    from e4lib import engines
+    monkeypatch.setattr(engines, "opa_check", lambda *a, **k: (0, []))
+    monkeypatch.setattr(engines, "opa_parse_tree",
+                        lambda *a, **k: (1, "", "rego_parse_error"))
+    with pytest.raises(engines.EngineError) as caught:
+        admit_lib.admit(None, "B", "package x\n", str(tmp_path), True)
+    assert "ENGINE-INVOCATION-REFUSED" in str(caught.value)
+    assert "disagree" in str(caught.value)
 
 
 # --------------------------------------------------------------------------
@@ -495,16 +617,76 @@ def test_the_power_analysis_is_published_and_registered_beside_the_switch(pins):
         return
     with open(published, "rb") as handle:
         text = handle.read().decode("utf-8")
-    flat = " ".join(text.split())
+    flat = " ".join(text.replace("*", "").replace("`", "").split())
     assert block["sensitivity"] in flat
+    assert block["codeCoverage"] in flat
     assert block["specificity"] in flat
     assert block["falsePositivesOnLawfulIn"] in flat
-    # The kill switch's own condition, read off the published numbers rather
-    # than off the prose that describes them.
-    meets = block["sensitivity"].startswith("40/40") and \
-        block["specificity"].startswith("0/22")
-    assert block["registered"] is meets, (
-        "§3.2's kill switch: registered iff (i) 40/40 and (ii) 0/22 exactly")
+    # ROUND-2 R2-4: the kill switch's condition is decided from the MACHINE
+    # block — the R1-9-amended (i-a)/(i-b)/(ii), blessed by round 2 — cross-
+    # checked against a second in-tree authority, the certified constants of
+    # `counterfactual_shift.py`. The two `startswith("40/40")`/`("0/22")`
+    # reads this replaces were NON-DISCRIMINATING: they read prose prefixes
+    # and could not see an unflagged admitted policy, a flagged perfect run
+    # or a swapped set behind unchanged strings.
+    import counterfactual_shift as cs
+    criterion = block["criterion"]
+    flagged_set = block["counterfactualPerMemberShift"]["flaggedSet"]
+    assert criterion["iA"]["population"] == "admitted"
+    assert criterion["iA"]["inClass"] == sum(cs.CERTIFIED_FLAGGED.values()) == 32
+    assert flagged_set["admitted"] == sum(cs.CERTIFIED_ADMITTED.values()) == 60
+    assert flagged_set["sha256"] == "sha256:" + cs.CERTIFIED_FLAGGED_SHA256
+    assert block["registered"] is _meets(criterion, flagged_set, cs), (
+        "§3.2's AMENDED kill switch: registered iff (i-a) n/n admitted, "
+        "(i-b) 40/40 coded, (ii) 0/22, on the certified set")
+
+
+def _meets(criterion, flagged_set, cs):
+    return (criterion["iA"]["inClass"] > 0
+            and criterion["iA"]["flagged"] == criterion["iA"]["inClass"]
+            and criterion["iB"]["inClass"] > 0
+            and criterion["iB"]["coded"] == criterion["iB"]["inClass"]
+            and criterion["ii"]["perfect"] > 0
+            and criterion["ii"]["flagged"] == 0
+            and flagged_set["sha256"] == "sha256:" + cs.CERTIFIED_FLAGGED_SHA256)
+
+
+def test_the_amended_kill_switch_discriminates_what_the_prefix_rule_could_not(pins):
+    """R2-4's mutation checks, each against a deep-copied block, with the
+    control last: an unflagged admitted policy (M1), a flagged perfect run
+    (M2), an uncoded in-class run (M3) and a same-count set swap (M4) must
+    each flip the decision while the OLD prefix rule still passes — that
+    contrast is the proof the old test could not discriminate."""
+    import copy
+    import counterfactual_shift as cs
+    block = pins["presenceIdiomGuard"]
+    old_rule = (block["sensitivity"].startswith("32/32")
+                or block["sensitivity"].startswith("40/40")) \
+        and block["specificity"].startswith("0/22")
+    assert old_rule and _meets(block["criterion"],
+                               block["counterfactualPerMemberShift"]["flaggedSet"], cs)
+    mutations = {
+        "M1 admitted policy unflagged": (("criterion", "iA", "flagged"), 31),
+        "M2 perfect run flagged": (("criterion", "ii", "flagged"), 1),
+        "M3 in-class run uncoded": (("criterion", "iB", "coded"), 39),
+        "M4 same-count set swap": (("counterfactualPerMemberShift", "flaggedSet",
+                                    "sha256"), "sha256:" + "0" * 64),
+    }
+    for name, (path, value) in mutations.items():
+        mutated = copy.deepcopy(block)
+        node = mutated
+        for key in path[:-1]:
+            node = node[key]
+        node[path[-1]] = value
+        still_old = (mutated["sensitivity"].startswith("32/32")
+                     and mutated["specificity"].startswith("0/22"))
+        assert still_old, name                       # the prefix rule is blind
+        assert not _meets(mutated["criterion"],
+                          mutated["counterfactualPerMemberShift"]["flaggedSet"],
+                          cs), name                  # the machine rule sees it
+    # M5, the control: the unmutated block still meets.
+    assert _meets(block["criterion"],
+                  block["counterfactualPerMemberShift"]["flaggedSet"], cs)
 
 
 # --- the merge's own regression case ----------------------------------------

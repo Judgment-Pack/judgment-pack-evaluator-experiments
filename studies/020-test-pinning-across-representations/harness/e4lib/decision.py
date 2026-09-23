@@ -209,6 +209,31 @@ def _family_claims(outcome):
             "anti-conservative direction, so a short family is refused rather "
             "than adjudicated"
             % (REGISTERED_FAMILY_SIZE, CONTRAST_PRIMARY, len(members)))
+    # R1-8: the EXACT registered id set, the closed verdict token, and a sign
+    # from the closed vocabulary — eighteen arbitrary strings and a truthy
+    # claim member must not adjudicate anything.
+    from . import family as _family
+    named = [member.get("id") if isinstance(member, dict) else member
+             for member in members]
+    if sorted(str(name) for name in named) != sorted(_family.MEMBER_IDS):
+        raise DecisionError(
+            "DECISION-FAMILY-NOT-THE-REGISTERED-SET the %s verdict names %s "
+            "where the registration names %s; the decision layer validates "
+            "the membership independently of the scorer that produced it"
+            % (CONTRAST_PRIMARY, sorted(str(name) for name in named),
+               sorted(_family.MEMBER_IDS)))
+    if verdict.get("verdict") not in (_family.CLAIM, _family.INDETERMINATE):
+        raise DecisionError(
+            "DECISION-FAMILY-VERDICT-VOCABULARY %r is not in the closed "
+            "vocabulary" % (verdict.get("verdict"),))
+    if verdict.get("sign") not in ("+", "-", "none"):
+        raise DecisionError(
+            "DECISION-FAMILY-SIGN-VOCABULARY %r is not in the closed "
+            "vocabulary" % (verdict.get("sign"),))
+    if bool(verdict.get("claim")) != (verdict.get("verdict") == _family.CLAIM):
+        raise DecisionError(
+            "DECISION-FAMILY-INCONSISTENT claim %r beside verdict %r"
+            % (verdict.get("claim"), verdict.get("verdict")))
     if not verdict.get("claim"):
         return []
     return ["all %d members agree in sign (%s) and all %d reject at two-sided "

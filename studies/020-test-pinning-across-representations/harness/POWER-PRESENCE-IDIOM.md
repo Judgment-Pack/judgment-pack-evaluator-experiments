@@ -8,7 +8,17 @@ it as.** The guard is `harness/e4lib/presence_idiom.py` and the code it emits is
 > guard is not registered at all** and the mechanism is carried as a Tier D
 > descriptive finding only.
 
-**Verdict: the condition is met and the guard IS registered.**
+> **AMENDED 2026-08-24 (round-1 R1-9), BLESSED by round 2 (`reviews/round-2/REVIEW.md`);
+> this document quoted the original condition as live until round-2 R2-4.** The
+> condition is now **(i-a) / (i-b) / (ii)**: (i-a) the detector flags every in-class
+> policy in its registered operating set — the admitted policies — exactly, n/n;
+> (i-b) every in-class retained run receives a registered authoring code from the
+> admission chain, 40/40, the detector's code or an earlier one; (ii) 0/22 perfect
+> runs flagged, unchanged. The original 40/40-by-the-detector reading was ruled
+> literally unmeetable by an admission-level detector: a policy the parser refuses
+> never reaches it.
+
+**Verdict: the AMENDED condition is met and the guard IS registered.**
 `harness/PINS.json`'s `presenceIdiomGuard.registered` carries that as data, and
 `harness/e4lib/admit.py`'s `guard_is_registered()` is the only place it is read —
 fail-shut toward NOT registered, so a registry that lost the member would
@@ -70,7 +80,10 @@ method M-14 did not use. Per arm: **21 of 37 in arm B, 19 of 39 in arm C**.
 
 ---
 
-## (i) Sensitivity
+## (i-a) Detector coverage of the registered operating set, and (i-b) admission-chain code coverage
+
+*(Retitled round 2, R2-4; this section was "(i) Sensitivity" and its headline figure
+was the code-receipt count, which is (i-b), not the detector's coverage, which is (i-a).)*
 
 | population | in-class | flagged | sensitivity |
 |---|---|---|---|
@@ -78,8 +91,10 @@ method M-14 did not use. Per arm: **21 of 37 in arm B, 19 of 39 in arm C**.
 | parseable (73) | 39 | 39 | **39/39** |
 | admitted (60) | 32 | 32 | **32/32** |
 
-**40/40 of the in-class runs receive an authoring code.** The one in-class run
-the detector does not flag is `B run-040`, which the pinned parser refuses; it
+**(i-a) 32/32 admitted in-class policies flagged, 39/39 parseable — the operating
+set §3.2 registers the detector to run over, and every policy the pinned parser
+accepts. (i-b) 40/40 in-class retained runs receive a registered authoring code.**
+The one in-class run the detector does not flag is `B run-040`, which the pinned parser refuses; it
 receives the registered authoring code `unparseable-artifact` instead, from a
 check that runs strictly earlier. So the in-class set is fully covered by §1a's
 partition, and the detector is exact on every policy it is registered to see:
@@ -166,7 +181,7 @@ the conservative choice for a detector whose output is an authoring code.
 
 ---
 
-## Two measured ceilings, stated here and not discovered later
+## Two measured ceilings, stated here and not discovered later — and a third, added by the R1-10 re-certification above
 
 1. **Presence tests over a FUNCTION PARAMETER are not detected — 2 runs.**
    `B run-023` and `C run-040` both write
@@ -193,28 +208,134 @@ and arm A's own near-miss profile in 019 stands unexplained by this mechanism.
 
 ---
 
-## (iv) The counterfactual per-member shift — NOT COMPUTED, and why
+## Re-certification under the repaired detector — round-1 findings R1-9 and R1-10, executed 2026-08-24
+
+Round 1 found two false negatives and one false positive outside the disclosed ceilings
+(R1-10), and ruled the original 40/40 kill-switch condition literally unmeetable by an
+admission-level detector (R1-9; the maintainer amended the criterion prospectively, pending
+round-2 review). The detector was repaired — a probe bound statically to a string literal is
+the trap (`k := "riskScore"; k in input.vendor` flags); a dynamic reference tail bound
+statically to a string resolves (`member := "vendor"; "riskScore" in input[member]` flags); a
+non-string scalar probe is lawful VALUE membership (`5 in {"x": 5}` no longer zero-scores a
+correct policy) — and the full census was RE-EXECUTED over Study 019's corpus with the pinned
+binary and the repaired module:
+
+| quantity | certified | re-executed |
+|---|---|---|
+| parseable flagged | 39/39 | **39/39** |
+| flagged uses | 178 | **178** |
+| admitted flagged (B/C) | 19/13, digest `759b0ddc…` | **19/13, digest match** |
+| (ii) perfect runs flagged | 0/22 | **0/22** |
+| (iii) lawful uses | 392 | **392** |
+| unclassified | 29 | **29** |
+| non-string probes in corpus | — | **0 of 599** |
+
+Every certified figure reproduces exactly: all three defects were LATENT on this corpus (probe
+census 351 `var` / 248 `string`, zero number or boolean), so the repairs move adversarial
+constructions only. The amended criterion is met by the re-run — (i-a) 32/32 admitted flagged
+with the pinned set-identity digest, (i-b) 40/40 in-class runs coded, (ii) 0/22 — and the
+switch's `registered: true` stands — round 2 BLESSED the amendment
+(`reviews/round-2/REVIEW.md`; recorded here by round-2 R2-4).
+
+**The third measured ceiling, named with the first two:** a non-string probe over an object is
+outside the guard's certified class, so the NUMERIC-KEY trap (`5 in {5: "x"}` — Rego object
+keys may be numbers) is not detected. Measured: zero non-string probes anywhere in the
+corpus. The adversarial constructions are pinned in
+`harness/tests/test_score_presence_idiom.py`'s three R1-10 cases, each mutation-checked.
+
+---
+
+## (iv) The counterfactual per-member shift — COMPUTED
 
 §3.2(iv) asks for **every one of §5.2's eighteen members recomputed with the
 flagged runs coded `presence-idiom-unsound`, published beside the unflagged
-figures.** It is not computed here and it is not deferred quietly:
+figures.** This section first shipped as "NOT COMPUTED, and why": the
+eighteen-member family scorer was §7's delta 5, `harness/SCAFFOLD.md` item S4,
+and computing the shift with an ad-hoc implementation would have published
+eighteen numbers no registered code path can reproduce. The scorer has landed
+(`e4lib/family.py`), and the shift is now computed by the registered script
+**`harness/counterfactual_shift.py`**, reproduced by
+`harness/tests/test_counterfactual_shift.py`, and published in full —
+four `family_report()` blocks and the per-member distillation — at
+**`harness/COUNTERFACTUAL-SHIFT.json`**.
 
-**the eighteen-member family scorer does not exist in this tree.** It is §7's
-delta 5 — the eighteen members, L2c's offset estimator, the two permutation
-schemes with their pinned B and seed, the IU verdict, the drop-a-pole table, the
-BCa intervals and the ITT × ANCOVA refusal — and it is carried open in
-`harness/SCAFFOLD.md` item **S4**, with the freeze gated on it. Computing the
-shift with an ad-hoc eighteen-member implementation written for this document
-would produce eighteen numbers that no registered code path can reproduce, which
-is the defect §7's delta 5 exists to prevent.
+**The recode, derived from the registration:** a flagged run becomes what every
+other authoring-coded run already is on 019's batch — identity false, no kill
+record — because `e4lib/admit.py` returns no policy path for a flagged run, so
+nothing downstream can run the identity control or a suite. The run stays in
+every ITT denominator scoring zero, takes no offset, and leaves the
+per-protocol population.
 
-The registered obligation therefore stands and the preregistration's
-`TODO(prereg)` stays open **for (iv) alone**, with (i), (ii), (iii) and (v)
-filled from this document. What can be said now, and is said as a bound rather
-than an estimate: **the flagged set is 32 of the 60 admitted runs** — arm B 15
-of 30, arm C 17 of 30 — so the code moves those runs from "scored" to "scoring
-zero" in every ITT member and out of every per-protocol member, and the shift is
-a function of that reallocation and of nothing this analysis chose.
+**The flagged set is derived, then gated:** the script re-runs the certified
+detector over the 60 admitted policies and refuses to publish unless it lands
+on the certified counts exactly — **32 of the 60 admitted runs, arm B 19 of
+30, arm C 13 of 30** (the corrected split; the note below records how the gate
+caught this document's own first printing).
+
+**The measured effect on the family, A–C (the primary contrast) — REGENERATED
+once in round 2 under the registered estimand (PREREGISTRATION.md §5.2, F-1
+re-ruled: native-for-both; the JSON names the estimand it was computed under
+and is manifest-covered since R2-16). The first printing's table is kept
+beneath, marked, because two of its cells no longer hold:**
+
+| members | unflagged | counterfactual | shift |
+|---|---|---|---|
+| all six ITT members (M1/M4/M7/M10/M13/M16) | +0.138 … +0.192 | +0.306 … +0.402 | **+0.168 … +0.210, all positive** |
+| all six unadjusted PP members (M2/M5/M8/M11/M14/M17) | +0.031 … +0.084 | +0.006 … +0.078 | **−0.031 … −0.006, all negative** |
+| all six PP/ANCOVA members (M3/M6/M9/M12/M15/M18) | −0.004 … +0.048 | −0.008 … +0.062 | −0.008 … +0.015; five negative, **M18 positive** |
+
+> **First printing (under the superseded hybrid reading), retained:** ITT
+> +0.138 … +0.232 / +0.306 … +0.426 / +0.168 … +0.209; PP +0.031 … +0.128 /
+> +0.006 … +0.104 / −0.022 … −0.031 all negative; PP/ANCOVA −0.004 … +0.091 /
+> −0.008 … +0.088 / −0.008 … −0.002 all negative. Only the excluded-column
+> L2c members (M16/M17/M18) moved between the two printings; under the native
+> offset M18's unflagged side falls further than its counterfactual side, so
+> its shift changes sign (+0.015) and the "all negative" cell for the adjusted
+> row is no longer true. The unadjusted PP row's lower bound moved from −0.022
+> to −0.006 for the same reason (M17).
+
+The code **amplifies every ITT member** (32 B/C runs move from "scored" to
+"scoring zero", widening arm A's intention-to-treat lead) and **attenuates
+every unadjusted A–C per-protocol member** (the flagged runs leave the PP
+denominator, and the runs that remain are the better ones); the adjusted
+members sit within ±0.015 of zero. Two α = 0.05 decisions flip, both from
+reject to not-reject: **M2 and M5**, the L1 per-protocol members (p 0.0213 →
+0.3483 in both columns). No other member's decision moves in either contrast.
+In A–B the ITT amplification is larger (+0.246 … +0.303) and the PP members
+barely move (|shift| ≤ 0.020, mixed sign). The full 36-row table with
+p-values under both codings is in `COUNTERFACTUAL-SHIFT.json`; the unflagged
+column reproduces the REGISTERED reading — fifteen of Reprint 1's rows to the
+printed digit for point estimates and unadjusted p-values, to the decision
+boundary for the six ANCOVA p-values (PREREGISTRATION.md §5.5's marked R1-6
+scope note prints both streams), and the three excluded-column L2c rows at
+§5.5's Reprint 1b (M17 A–C +0.0839; F-2's anchor p-values exactly) — which
+is the evidence the script's adapter is the fixture adapter and not a second
+reading of 019's batch.
+
+What (iv) was registered to settle is therefore settled by measurement: the
+code's effect on the family is **direction-heterogeneous by population** —
+it moves ITT members away from the null and unadjusted PP members toward it —
+so no single-direction story about "the guard's effect" is licensed, and any
+§5 verdict sensitive to those two L1/PP rejections now has the counterfactual
+figure to cite instead of an assumption.
+
+> **CORRECTION (pre-freeze, found by the (iv) computation).** This document
+> first published the per-arm split as "arm B 15 of 30, arm C 17 of 30". That
+> split was never measured: it was arithmetic that assumed how the in-class
+> runs overlap the not-admitted runs, exactly the enumerate-instead-of-derive
+> defect this programme's standing rule names. When
+> `harness/counterfactual_shift.py` re-derived the flagged set by running the
+> detector (its certified-counts gate refused to publish over the mismatch),
+> the measured split is **arm B 19 of 30, arm C 13 of 30** — same total, 32.
+> Every other figure in this document reconciles exactly with the measured
+> split and none depended on it: 39/39 parseable is B 20 flagged (19 admitted
+> + `B run-025`, `opa-check-failed`) + C 19 flagged (13 admitted + 6
+> `opa-check-failed`: C `run-017/032/033/036/046/047`), and the oracle's
+> retained in-class split B 21 / C 19 is the measured 19 + 1 + 1 and 13 + 6.
+> No figure outside the split moved, and the preregistration's §3.2(iv) row
+> carries the corrected split with this note cited. The gate that fired is
+> kept firing in CI:
+> `test_counterfactual_shift.py::test_the_certified_gate_refused_the_first_printed_split`.
 
 ---
 
@@ -261,10 +382,11 @@ trees.
 |---|---|
 | retained arm-B/C policies | 76 (B 37 / C 39) |
 | in-class by the independent source oracle | 40 (B 21 / C 19) |
-| (i) sensitivity | **40/40 in-class runs receive an authoring code** — 39/39 of those the detector reaches, 32/32 admitted; the fortieth is refused earlier by `opa check` and coded `unparseable-artifact` |
+| (i-a) detector coverage, registered operating set | **32/32 admitted in-class policies flagged, 39/39 parseable** — zero false negatives in either population |
+| (i-b) admission-chain code coverage | **40/40 in-class retained runs receive a registered authoring code** — 39 the detector's, and the fortieth refused earlier by `opa check` and coded `unparseable-artifact` |
 | (ii) specificity | **0/22 perfect runs flagged** |
 | (iii) false positives on lawful `in` | **0/392 lawful uses, 0/15 over sets and arrays** |
-| (iv) counterfactual per-member shift | not computed — the family scorer is §7 delta 5 and `harness/SCAFFOLD.md` item S4 |
+| (iv) counterfactual per-member shift | **computed** by `harness/counterfactual_shift.py` over the derived-and-gated flagged set (32/60: B 19, C 13), regenerated once in round 2 under the registered estimand — every ITT member amplified (A–C +0.168…+0.210), every unadjusted A–C PP member attenuated (−0.031…−0.006), the adjusted members within ±0.015 (M18 positive), two decisions flip (M2, M5: reject → not-reject); full table in `harness/COUNTERFACTUAL-SHIFT.json` |
 | (v) mutation check | drop the object-type branch: 39/39 → **23/39**, and the certifying test fails |
 | unclassified uses | 29, none flagged |
 | measured false negatives beyond the class | 2 (presence tests over a function parameter) |

@@ -309,21 +309,77 @@ def execute(tools, sealed: dict, per_arm_runs: dict, context: dict,
 
     "Scored as authored": the same kill machinery, the same refusal routing, no
     pairing, no cut, no contribution to any registered rate."""
-    if sealed.get("executed"):
+    if sealed.get("executed") or sealed.get("attempted"):
         raise ReviewerSetError(
             "REVIEWER-SET-RE-EXECUTED the sealed set is executed exactly once, "
             "at the primary attempt; a second execution is not what §1a "
             "registers and its result would not be the first")
-    sealed["executed"] = True
+    # ROUND-1 FINDING R1-13: `attempted` marks the once-only promise the moment
+    # execution begins; `executed` is set only after the loop COMPLETES, so an
+    # aborted execution is distinguishable from a completed empty one and
+    # neither can run twice.
+    sealed["attempted"] = True
     per_arm = {}
     for arm in arms:
         language = language_of_arm[arm]
         members = [record for record in sealed["mutants"]
                    if record["language"] == language]
         rows = []
-        for run in per_arm_runs.get(arm) or []:
-            if not run.get("referenceIdentityPass") or not run.get("suitePath"):
-                continue
+        candidates = per_arm_runs.get(arm) or []
+        # R1-13: the input records are VALIDATED, not `.get()`-ed — a schema
+        # drift between the scorer's vocabulary and this module's is fatal
+        # here, never a silent zero-run execution. (The rename this guards
+        # against actually happened: production wrote `identityPass` while
+        # this filter read `referenceIdentityPass`, and every run in every arm
+        # silently skipped.)
+        #
+        # ROUND-2 FINDING R2-5 separated two things this loop had merged:
+        # PRESENCE (a missing member is drift and stays fatal) from VALUE (a
+        # member whose value says "there is no suite here" is an ordinary
+        # outcome and is lawful ineligibility). `suitePath` was required to
+        # exist AND be truthy in one read, but `score_run()` set it only after
+        # a suite was written — so a wrapper apparatus code, any of the six
+        # authoring codes, or a completion with no suite at all made this
+        # mandatory execution FATAL. One such run in 180 ended the attempt.
+        # The scorer now emits a TOTAL record (`score._run_record()`), so
+        # presence is once again a real drift check rather than a branch test.
+        for run in candidates:
+            for member in ("referenceIdentityPass", "suitePath", "scoredCases",
+                           "run"):
+                if member not in run:
+                    raise ReviewerSetError(
+                        "REVIEWER-RECORD-SCHEMA run record %r lacks %r: the "
+                        "holdout reads the scorer's registered vocabulary and "
+                        "a missing member is drift, not a run to skip"
+                        % (run.get("run", "<unnamed>"), member))
+            # R2-1 made the relation TRI-STATE: True, False, or None for "a
+            # pinned engine never answered". Any OTHER type is still drift.
+            if run["referenceIdentityPass"] not in (True, False, None):
+                raise ReviewerSetError(
+                    "REVIEWER-RECORD-SCHEMA run %r carries a "
+                    "referenceIdentityPass %r that is neither True, False nor "
+                    "None (R2-1's registered tri-state)"
+                    % (run.get("run"), run["referenceIdentityPass"]))
+            if not isinstance(run["suitePath"], (str, type(None))):
+                raise ReviewerSetError(
+                    "REVIEWER-RECORD-SCHEMA run %r carries a suitePath %r that "
+                    "is neither a path nor None: a nullable member is not an "
+                    "untyped one" % (run.get("run"), run["suitePath"]))
+        eligible = [run for run in candidates
+                    if run["referenceIdentityPass"] is True
+                    and run["suitePath"] is not None]
+        if language == "jps":
+            # `kill_arm_a()` indexes `scoredCases` unguarded; an eligible run
+            # that does not carry a list is drift and refuses here rather than
+            # as a TypeError three frames down.
+            for run in eligible:
+                if not isinstance(run["scoredCases"], list):
+                    raise ReviewerSetError(
+                        "REVIEWER-RECORD-SCHEMA eligible run %r carries "
+                        "scoredCases %r: arm A's holdout execution reads the "
+                        "run's own scored cases and cannot run without them"
+                        % (run["run"], run["scoredCases"]))
+        for run in eligible:
             outcomes = {}
             for record in members:
                 if language == "jps":
@@ -342,12 +398,29 @@ def execute(tools, sealed: dict, per_arm_runs: dict, context: dict,
                 "refused": sorted(mutant for mutant, outcome in outcomes.items()
                                   if outcome == e4.REFUSED),
             })
+        if len(rows) != len(eligible):
+            raise ReviewerSetError(
+                "REVIEWER-EXECUTION-SHORT arm %s scored %d of %d eligible "
+                "runs; a holdout that quietly skipped an eligible suite is "
+                "not the execution §4.3 registers" % (arm, len(rows),
+                                                      len(eligible)))
         per_arm[arm] = {
             "arm": arm, "language": language,
             "reviewerMutants": len(members),
             "scoredRuns": len(rows),
+            "eligibleRuns": len(eligible),
+            # R2-5: an eligibility of zero is a STATED number and never a
+            # silence — the exact shape of the R1-13 defect this module exists
+            # to prevent, one level up.
+            "ineligibleRuns": len(candidates) - len(eligible),
+            "noSuiteRuns": sum(1 for run in candidates
+                               if run["suitePath"] is None),
+            "identityNotAnsweredRuns": sum(
+                1 for run in candidates
+                if run["referenceIdentityPass"] is None),
             "perRun": rows,
         }
+    sealed["executed"] = True
     return {
         "version": sealed["version"],
         "manifestSha256": "sha256:" + sealed["manifestSha256"],
