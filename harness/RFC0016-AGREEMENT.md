@@ -6,8 +6,10 @@ Run date 2026-09-28. Two prototypes of draft
 and with the answer the RFC's text gives.
 
 - **Implementation A, Go.** The reference runtime's experimental evaluator, built from
-  [judgment-pack-runtime pull request 172](https://github.com/Judgment-Pack/judgment-pack-runtime/pull/172)
-  at commit `dacceff`, which is not merged. It is invoked as
+  judgment-pack-runtime at commit `f98d4c9` of its main branch, which is
+  [pull request 172](https://github.com/Judgment-Pack/judgment-pack-runtime/pull/172) as it was
+  merged. The run was first made against that pull request's branch at `dacceff`, before the
+  merge, and gave the same answer on every row. It is invoked as
   `jpack experimental evaluate <pack> --facts <f> [--evidence <e>] --rfc0016-outcome-values --format json`.
   Its decisions are in that pull request's ADR-0039.
 - **Implementation B, Python.** The clean-room `jps_evaluator` in this repository's `python/`,
@@ -106,10 +108,12 @@ RFC permits. An input near either implementation's limit is not portable between
 
 ## What this run is not
 
-- It is not in this repository's CI. CI builds the Go runtime from a pinned commit of its main
-  branch, and the prototype is on a branch that is not merged. The driver's own logic and the
+- It is not in this repository's CI yet. CI builds the Go runtime from a pinned commit, and the
+  pinned commit is older than the prototype and has no such flag. The driver's own logic and the
   rows' expected answers are tested in CI by `test_rfc0016_harness.py`, which needs neither
-  evaluator. The comparison joins CI when the runtime pin can name a commit that carries the flag.
+  evaluator. The comparison joins CI when the pin is moved to a commit that carries the flag,
+  which is a change of its own: this repository does not move the pin in the commit that adds
+  rows.
 - It is not independent evidence, for the reason given at the top.
 - It says nothing about whether outcome values should be an extension or a member of Core. The
   semantics are the same in both forms, and both implementations built the extension form.

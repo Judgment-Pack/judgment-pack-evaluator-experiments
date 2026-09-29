@@ -80,8 +80,8 @@ its own qualifications.
   answer**, a disposition byte for byte or an error class. Three more agree with each other and
   not with the RFC, for a reason the RFC's own Compatibility section gives. One differs: what a
   carrier does with an unpaired surrogate, which Core does not say
-  ([`harness/RFC0016-AGREEMENT.md`](harness/RFC0016-AGREEMENT.md)). The Go side is an unmerged
-  branch of the runtime.
+  ([`harness/RFC0016-AGREEMENT.md`](harness/RFC0016-AGREEMENT.md)). Run by hand against the
+  runtime's main branch; not yet in CI.
 - **Two specification gaps found** and recorded as RFC 0006 unresolved questions: number
   representability, and the disposition's concrete JSON serialization (the two implementations
   agreed on all semantics while serializing `handoff` incompatibly — see
