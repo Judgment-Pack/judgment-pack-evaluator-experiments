@@ -12,7 +12,6 @@ import stat
 import subprocess
 import sys
 import tempfile
-import textwrap
 import unittest
 
 import error_class_agreement as driver
