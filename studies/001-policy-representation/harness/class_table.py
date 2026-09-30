@@ -15,23 +15,31 @@ Two descriptive tables over the same paired analysis set ``score.py`` uses:
   always gave that answer would score on accuracy, and on pass^k too, because a
   constant answer is the same on every trial.
 
-Neither table is registered. PREREGISTRATION.md names no baseline and no
-per-class breakdown; both were added after the results were read and are
-recorded as such in DEVIATIONS.md section 9. They change no registered figure.
+Both tables are secondary, post hoc and descriptive. PREREGISTRATION.md names no
+constant-answer baseline and no per-class breakdown; both were added after the
+results were read and are recorded as such in DEVIATIONS.md section 9. They
+change no registered figure.
 
-The analysis set is built exactly as ``score.py`` builds it, by calling the same
-functions: the instances every condition covers, restricted by ``--population``
-on the instance document's ``variant`` field, with k per instance the smallest
-trial count across conditions and the first k trials read. The gold class is
-``score.gold_decision``, and accuracy is the mean over instances of the share of
-an instance's trials that match gold, as ``score.aggregate`` computes it. So the
-accuracy printed here is the accuracy ``score.py`` reports for the same
-population and result files, and a disagreement between the two is a defect in
-this file.
+The analysis set follows ``score.py``'s rules: the instances every condition
+covers, restricted by ``--population`` on the instance document's ``variant``
+field, with k per instance the smallest trial count across conditions and the
+first k trials read. The population filter, the gold class, the result loader
+and the instance key are the scorer's own functions. The intersection across
+conditions and the first-k rule are repeated here in the scorer's form, and
+accuracy is the mean over instances of the share of an instance's trials that
+match gold, as ``score.aggregate`` computes it. The tests hold the accuracy
+printed here to the accuracy ``score.py`` reports for the same instances and
+rows.
+
+Two inputs the scorer accepts are refused here, because a class table cannot
+place them: an instance with no gold decision, which belongs to no class (the
+scorer counts every trial on it as wrong), and an instance with no trial under
+some condition (the scorer gives it k = 0).
 
 WHAT THIS FILE DELIBERATELY DOES NOT DO
 ---------------------------------------
-* No interval and no test. These are counts.
+* No interval and no test. These are counts, and rates that are those counts
+  divided.
 * No default population. ``--population`` is required: DEVIATIONS.md section 2
   records what reporting on an unstated population cost this study.
 * No verdict. Whether a hypothesis passed is settled by PREREGISTRATION.md
@@ -104,6 +112,11 @@ def class_table(instances: Sequence[Mapping[str, Any]],
 
     k_by_instance = {
         iid: min(len(results[cond][iid]) for cond in conditions) for iid in paired}
+    untried = sorted(iid for iid in paired if k_by_instance[iid] == 0)
+    if untried:
+        raise ValueError(
+            "%d instance(s) have no trial under some condition, so they have no "
+            "decision to count: %s" % (len(untried), ", ".join(untried[:5])))
 
     gold_instances = {d: sum(1 for iid in paired if gold[iid] == d) for d in DECISIONS}
     gold_trials = {d: sum(k_by_instance[iid] for iid in paired if gold[iid] == d)
@@ -120,7 +133,7 @@ def class_table(instances: Sequence[Mapping[str, Any]],
                 decision = trial_decision(row)
                 counts[gold[iid]][decision] += 1
                 matching += int(decision == gold[iid])
-            rate_sum += (matching / k) if k else 0.0
+            rate_sum += matching / k
         by_condition[cond] = {
             "trials_by_gold_and_decision": counts,
             "trials": sum(gold_trials.values()),
@@ -147,17 +160,14 @@ def class_table(instances: Sequence[Mapping[str, Any]],
     }
 
 
-def _rate(numerator: int, denominator: int) -> str:
-    return "n/a" if not denominator else "%.3f" % (numerator / denominator)
-
-
 def render_markdown(summary: Mapping[str, Any]) -> str:
     ks = summary["trials_per_instance"]
     lines = [
         "# Study 001 -- decisions by gold class, and constant-answer baselines",
         "",
-        "**Descriptive and not registered.** Computed after the results were read "
-        "(DEVIATIONS.md section 9). Counts only: no interval, no test, no verdict.",
+        "**Secondary, post hoc and descriptive; not registered.** Computed after the "
+        "results were read (DEVIATIONS.md section 9). Counts and descriptive rates, "
+        "without intervals: no test, no verdict.",
         "",
         "Analysis population: `%s`. %d instances shared by every condition. "
         "Trials per instance: %d-%d." % (
@@ -194,9 +204,9 @@ def render_markdown(summary: Mapping[str, Any]) -> str:
             total = summary["gold_trials"][g]
             if not total:
                 continue
-            lines.append("| `%s` | `%s` | %d | %s | %s |" % (
+            lines.append("| `%s` | `%s` | %d | %s | %.3f |" % (
                 cond, g, total, " | ".join(str(counts[g][c]) for c in COLUMNS),
-                _rate(counts[g][g], total)))
+                counts[g][g] / total))
 
     lines += [
         "",

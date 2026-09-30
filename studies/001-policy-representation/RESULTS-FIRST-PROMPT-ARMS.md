@@ -108,10 +108,10 @@ the redacted half.
 
 ### Added 2026-09-30: what a constant answer scores, and each arm by gold class
 
-**Nothing in this subsection is registered.** The preregistration names no
-baseline and no per-class breakdown. Both were computed after the results
-were read, from the rows already retained, and change no figure above
-(`DEVIATIONS.md` §9).
+**Secondary, post hoc and descriptive: nothing in this subsection is
+registered.** The preregistration names no constant-answer baseline and no
+per-class breakdown. Both were computed after the results were read, from
+the rows already retained, and change no figure above (`DEVIATIONS.md` §9).
 
 The gold labels on the registered population are unbalanced: 179 of the
 216 answerable instances are `illegal` and 37 are `legal`. An arm that

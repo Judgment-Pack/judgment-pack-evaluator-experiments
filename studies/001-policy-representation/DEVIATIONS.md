@@ -358,17 +358,21 @@ still written and still mean the same thing.
 
 ## 9. A constant-answer baseline and decisions by gold class, added after the results were read (2026-09-30)
 
-**Nothing in `results/` was re-run or re-scored for this entry**, and no
-published figure changes. Two descriptive tables were added to
-`RESULTS-FIRST-PROMPT-ARMS.md` and one sentence to the README's banner.
+**No model or evaluator execution was repeated, and no existing result
+artifact was replaced.** The retained rows were re-scored to check them and
+were used to write two new descriptive reports. No published figure changes.
+Two tables were added to `RESULTS-FIRST-PROMPT-ARMS.md` and one sentence to
+the README's banner, each labelled secondary, post hoc and descriptive, as
+§2 of the preregistration requires of everything outside the primary
+endpoint.
 
 1. **Neither table is registered.** §5 of the preregistration defines
-   accuracy as per-trial agreement with the benchmark's gold `answer` and
-   names no baseline to read it against, and no breakdown by gold class.
-   Both were computed after the results were read, and both are labelled as
-   such where they appear. They are not evidence for or against any
-   hypothesis: §6's falsification criteria are differences between arms, and
-   a baseline is not among them.
+   accuracy as per-trial agreement with the benchmark's gold `answer`. It
+   names no constant-answer baseline to read it against (the baseline §8
+   speaks of is arm A) and no breakdown by gold class. Both were computed
+   after the results were read, and both are labelled as such where they
+   appear. They do not test the preregistered hypotheses and do not change
+   their registered decision criteria.
 
    **They also depart from two sentences of §5**, which says every metric is
    computed by `harness/score.py` and that "No metric is reported without an
@@ -381,8 +385,8 @@ published figure changes. Two descriptive tables were added to
 2. **What was added.** On the registered answerable population 179 of the
    216 gold labels are `illegal` and 37 are `legal`, so an arm that always
    answered `illegal` would score 179/216 = 0.829 on accuracy and, a
-   constant answer being the same on every trial, 0.829 on pass^5. All
-   three arms score below that on both measures (accuracy 0.781, 0.778,
+   constant answer being the same on every trial, 0.829 on pass^5. Every
+   arm's point estimate is below that on both measures (accuracy 0.781, 0.778,
    0.579; pass^5 0.727, 0.778, 0.579). The second table counts each arm's
    trials by gold class and decision.
 
@@ -392,12 +396,16 @@ published figure changes. Two descriptive tables were added to
    shows an arm doing better than a constant answer would.
 
 4. **How it was computed.** `harness/class_table.py` is new and changes
-   nothing in `score.py`. It builds the analysis set by calling the
-   scorer's own functions (the instances every condition covers, the
-   `variant` filter, the first k trials, `gold_decision`) and takes
-   `--population` with no default, for the reason §2 records. Run over the
-   twins regenerated from the pinned benchmark commit and the rows
-   `results/k5-report-answerable.json` was scored from:
+   nothing in `score.py`. The `variant` filter, `gold_decision`, the result
+   loader and the instance key are the scorer's own functions. The
+   intersection across conditions and the first-k rule are repeated in the
+   new file in the scorer's form, and its tests hold its accuracy to the
+   scorer's on a corpus where instances differ in k. It takes `--population`
+   with no default, for the reason §2 of this ledger records. It refuses two
+   inputs the scorer accepts, an instance with no gold decision and an
+   instance with no trial under some condition; neither occurs in this
+   corpus. Run over the twins regenerated from the pinned benchmark commit
+   and the rows `results/k5-report-answerable.json` was scored from:
 
    ```bash
    python harness/class_table.py --instances pipeline/out/twins \
@@ -412,8 +420,8 @@ published figure changes. Two descriptive tables were added to
    own counts equals the scorer's for every arm (843, 840 and 625 of 1,080
    trials). Each arm's `cannot_decide` column sums to the false escalations
    in `results/k5-report-answerable.json` (12, 51, 300). Arm B's rows are
-   five times the per-instance table in `PIPELINE-STATUS.md` §6.3. Before
-   the table was computed, re-scoring the same instances and rows
-   reproduced `results/k5-report-answerable.json` in every field it holds;
-   the re-scored summary differs only in the schema string and the two
-   fields §8 added.
+   five times the per-instance table in `PIPELINE-STATUS.md` §6.3.
+   Re-scoring the same instances and rows reproduces
+   `results/k5-report-answerable.json` in every field it holds; the
+   re-scored summary differs only in the schema string and the two fields
+   §8 added.

@@ -14,7 +14,11 @@ WHAT THIS FILE DOES
 * Holds the accuracy printed here to the accuracy ``score.py`` reports for the
   same corpus, on a corpus where instances differ in k, so that trials matching
   gold over trials would give a different number.
-* Checks that ``--population`` has no default.
+* Checks that ``--population`` has no default and takes only the scorer's
+  population names.
+* Checks each refusal: colliding instance identities, no result rows, conditions
+  that share no instance, an instance with no gold decision, and an instance
+  with no trial under some condition.
 
 WHAT THIS FILE DELIBERATELY DOES NOT DO
 ---------------------------------------
@@ -295,6 +299,54 @@ def test_an_instance_with_no_gold_decision_is_refused():
         ct.class_table(corpus, _results(), population="answerable")
 
 
+def test_colliding_instance_identities_are_refused():
+    corpus = _corpus()
+    corpus.append(_instance(0, "answerable"))
+    with pytest.raises(ValueError, match="instance identities collide"):
+        ct.class_table(corpus, _results(), population="answerable")
+
+
+def test_no_result_rows_is_refused():
+    with pytest.raises(ValueError, match="no result rows"):
+        ct.class_table(_corpus(), {}, population="answerable")
+
+
+def test_conditions_that_share_no_instance_are_refused():
+    results = _results()
+    results[B] = {"p3__answerable": results[A]["p3__answerable"]}
+    del results[A]["p3__answerable"]
+    with pytest.raises(ValueError, match="share no instances"):
+        ct.class_table(_corpus(), results, population="answerable")
+
+
+def test_an_instance_with_no_trial_under_a_condition_is_refused():
+    # score.py gives such an instance k = 0 and an accuracy of 0. A class table
+    # has no decision to count for it, and a constant answer would be credited
+    # with an instance nobody answered.
+    results = _results()
+    results[B]["p1__answerable"] = []
+    with pytest.raises(ValueError, match="no trial under some condition"):
+        ct.class_table(_corpus(), results, population="answerable")
+
+
+def test_rows_for_a_twin_with_no_instance_document_are_left_out():
+    results = _results()
+    for arm, cond in (("A", A), ("B", B)):
+        results[cond]["p9__answerable"] = [
+            _row("p9__answerable", 1, "illegal", arm=arm)]
+    assert ct.class_table(_corpus(), results, population="answerable") == _table(
+        "answerable")
+
+
+def test_a_parsed_row_with_no_prediction_has_no_decision():
+    row = _row("p0__answerable", 1, "illegal", arm="A")
+    assert ct.trial_decision(row) == "illegal"
+    row["prediction"] = None
+    assert ct.trial_decision(row) == ct.NO_DECISION
+    del row["prediction"]
+    assert ct.trial_decision(row) == ct.NO_DECISION
+
+
 def _write_inputs(tmp_path):
     instances = tmp_path / "instances.json"
     instances.write_text(json.dumps(_corpus()), encoding="utf-8")
@@ -308,6 +360,14 @@ def test_population_has_no_default(tmp_path, capsys):
     with pytest.raises(SystemExit):
         ct.main(["--instances", instances, "--results", results])
     assert "--population" in capsys.readouterr().err
+
+
+def test_population_takes_only_the_scorers_names(tmp_path, capsys):
+    instances, results = _write_inputs(tmp_path)
+    with pytest.raises(SystemExit):
+        ct.main(["--instances", instances, "--results", results,
+                 "--population", "answerable-and-redacted"])
+    assert "invalid choice" in capsys.readouterr().err
 
 
 def test_main_writes_both_reports_and_says_what_they_are(tmp_path, capsys):
@@ -324,7 +384,8 @@ def test_main_writes_both_reports_and_says_what_they_are(tmp_path, capsys):
     assert summary["schema"] == ct.SCHEMA
 
     markdown = out_md.read_text(encoding="utf-8")
-    assert "Descriptive and not registered" in markdown
+    assert "Secondary, post hoc and descriptive; not registered" in markdown
+    assert "Counts only" not in markdown
     assert "Analysis population: `answerable`" in markdown
     assert "| `illegal` | 2 of 3 | 0.667 |" in markdown
     assert "| `%s` | `illegal` | 4 | 1 | 1 | 1 | 1 | 0.250 |" % A in markdown

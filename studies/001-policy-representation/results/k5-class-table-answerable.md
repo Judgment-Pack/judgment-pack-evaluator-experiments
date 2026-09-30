@@ -1,6 +1,6 @@
 # Study 001 -- decisions by gold class, and constant-answer baselines
 
-**Descriptive and not registered.** Computed after the results were read (DEVIATIONS.md section 9). Counts only: no interval, no test, no verdict.
+**Secondary, post hoc and descriptive; not registered.** Computed after the results were read (DEVIATIONS.md section 9). Counts and descriptive rates, without intervals: no test, no verdict.
 
 Analysis population: `answerable`. 216 instances shared by every condition. Trials per instance: 5-5.
 
