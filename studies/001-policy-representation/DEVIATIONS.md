@@ -355,3 +355,65 @@ are identical apart from the two added fields and the schema string.
 
 The JSON summary is now `jps-study-001-score/3`; version 2's fields are all
 still written and still mean the same thing.
+
+## 9. A constant-answer baseline and decisions by gold class, added after the results were read (2026-09-30)
+
+**Nothing in `results/` was re-run or re-scored for this entry**, and no
+published figure changes. Two descriptive tables were added to
+`RESULTS-FIRST-PROMPT-ARMS.md` and one sentence to the README's banner.
+
+1. **Neither table is registered.** §5 of the preregistration defines
+   accuracy as per-trial agreement with the benchmark's gold `answer` and
+   names no baseline to read it against, and no breakdown by gold class.
+   Both were computed after the results were read, and both are labelled as
+   such where they appear. They are not evidence for or against any
+   hypothesis: §6's falsification criteria are differences between arms, and
+   a baseline is not among them.
+
+   **They also depart from two sentences of §5**, which says every metric is
+   computed by `harness/score.py` and that "No metric is reported without an
+   interval". The tables come from a separate file and are counts; the
+   percentages beside them are those counts divided, and carry no interval.
+   No arm is tested against the baseline. The results document says which of
+   the published intervals reach 0.829 and that those intervals are not a
+   comparison with it.
+
+2. **What was added.** On the registered answerable population 179 of the
+   216 gold labels are `illegal` and 37 are `legal`, so an arm that always
+   answered `illegal` would score 179/216 = 0.829 on accuracy and, a
+   constant answer being the same on every trial, 0.829 on pass^5. All
+   three arms score below that on both measures (accuracy 0.781, 0.778,
+   0.579; pass^5 0.727, 0.778, 0.579). The second table counts each arm's
+   trials by gold class and decision.
+
+3. **Why it was added.** The accuracy figures were published with nothing
+   to read them against, on labels this unbalanced. A reader could take
+   0.78 for a strong result and 0.58 for a weak one; against 0.829, neither
+   shows an arm doing better than a constant answer would.
+
+4. **How it was computed.** `harness/class_table.py` is new and changes
+   nothing in `score.py`. It builds the analysis set by calling the
+   scorer's own functions (the instances every condition covers, the
+   `variant` filter, the first k trials, `gold_decision`) and takes
+   `--population` with no default, for the reason §2 records. Run over the
+   twins regenerated from the pinned benchmark commit and the rows
+   `results/k5-report-answerable.json` was scored from:
+
+   ```bash
+   python harness/class_table.py --instances pipeline/out/twins \
+       --results results/pilot-A-codex.jsonl results/pilot-Aprime-codex.jsonl \
+                 results/k5-B-runtime-audited.jsonl \
+       --population answerable \
+       --out-json results/k5-class-table-answerable.json \
+       --out-md results/k5-class-table-answerable.md
+   ```
+
+5. **Three checks on the counts.** The accuracy the table derives from its
+   own counts equals the scorer's for every arm (843, 840 and 625 of 1,080
+   trials). Each arm's `cannot_decide` column sums to the false escalations
+   in `results/k5-report-answerable.json` (12, 51, 300). Arm B's rows are
+   five times the per-instance table in `PIPELINE-STATUS.md` §6.3. Before
+   the table was computed, re-scoring the same instances and rows
+   reproduced `results/k5-report-answerable.json` in every field it holds;
+   the re-scored summary differs only in the schema string and the two
+   fields §8 added.
