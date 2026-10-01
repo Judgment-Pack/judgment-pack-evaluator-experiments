@@ -1,0 +1,25 @@
+{
+  "contextVersion": "1",
+  "entries": [
+    {
+      "role": "developer",
+      "sha256": "029b4168c24d6525378718fd5bc0dd86f748a8e69c493ca4110dea126e7cee5b",
+      "length": 4024
+    },
+    {
+      "role": "developer",
+      "sha256": "61f6bc799a82990ebede5d07532d630a01c40dcdfc55d89e74fdf079e9322636",
+      "length": 2183
+    },
+    {
+      "role": "developer",
+      "sha256": "6ded806e3cdbb35599ecaf8742574bc5274908472b1729090010c404c2151e8e",
+      "length": 271
+    },
+    {
+      "role": "user",
+      "sha256": "81aabd1e575cd1e8a3f29e32a8675b0d818db64e5de687e8fb96830d191a3d12",
+      "length": 3912
+    }
+  ]
+}

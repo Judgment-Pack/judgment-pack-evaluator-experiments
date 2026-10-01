@@ -44,13 +44,17 @@ def family(claim=True, sign="+", arms=("A", "C"), members=None):
     short one — so a fixture that produced seventeen would be testing a rule the
     registration does not have."""
     if members is None:
-        members = [{"id": "M%d" % (index + 1),
-                    "difference": 0.1 if sign == "+" else -0.1,
-                    "p": 0.001, "rejects": True}
+        # R1-8 moved this fixture onto the PRODUCTION shape: `family.verdict()`
+        # publishes `members` as the registered ID STRINGS and a closed
+        # `verdict` token, and `decision._family_claims()` now validates both,
+        # so a fixture of eighteen ad-hoc dicts would be testing a laxer
+        # contract than the one production meets.
+        members = ["M%d" % (index + 1)
                    for index in range(decision.REGISTERED_FAMILY_SIZE)]
     return {"contrast": "%s-%s" % arms, "arms": list(arms), "members": members,
             "signUnanimous": claim, "allReject": claim, "sign": sign,
-            "claim": claim}
+            "claim": claim,
+            "verdict": "CLAIM" if claim else "INDETERMINATE-BY-DISAGREEMENT"}
 
 
 # --- one case per registered row, in registered order -----------------------
@@ -137,6 +141,29 @@ def test_sign_unanimity_alone_does_not_claim_and_neither_does_rejection_alone():
                                    claim=False)}})
         assert verdict["row"] == "indeterminate-by-disagreement", (signs,
                                                                    rejects)
+
+
+def test_eighteen_arbitrary_strings_do_not_adjudicate():
+    """R1-8: the decision layer validates the EXACT registered id set and the
+    closed verdict vocabulary independently of the scorer. Eighteen made-up
+    names with a truthy claim used to pass."""
+    forged = family()
+    forged["members"] = ["X%d" % index for index in range(18)]
+    with pytest.raises(decision.DecisionError,
+                       match="NOT-THE-REGISTERED-SET"):
+        decision.decide({"pipelineProblems": [], "controlGates": gates(),
+                         "family": {"A-C": forged}})
+    vocab = family()
+    vocab["verdict"] = "TOTALLY-CONFIRMED"
+    with pytest.raises(decision.DecisionError,
+                       match="VERDICT-VOCABULARY"):
+        decision.decide({"pipelineProblems": [], "controlGates": gates(),
+                         "family": {"A-C": vocab}})
+    torn = family()
+    torn["claim"] = False
+    with pytest.raises(decision.DecisionError, match="FAMILY-INCONSISTENT"):
+        decision.decide({"pipelineProblems": [], "controlGates": gates(),
+                         "family": {"A-C": torn}})
 
 
 def test_a_short_family_is_refused_rather_than_adjudicated():
@@ -226,8 +253,9 @@ def test_the_engine_execution_gate_is_a_registered_control_row():
 
 def test_c4s_calibration_invalid_outcome_is_a_control_gate_row():
     """§2a.5's other side: every exact-equality row holds and only band rows
-    differ, so the PILOT is suspect and a re-pilot under C5 is required. That
-    adjudicates R1 in neither direction and is row 3, not row 1."""
+    differ, so the PILOT is suspect. That adjudicates R1 in neither direction
+    and is row 3, not row 1 — and under §2a.6 as amended (round 2, R2-12) the
+    outcome is TERMINAL: there is no second pilot."""
     assert "c4-transfer-calibration" in decision.CONTROL_GATES
     verdict = decision.decide({
         "pipelineProblems": [],

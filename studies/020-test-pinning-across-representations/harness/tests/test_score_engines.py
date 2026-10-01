@@ -86,7 +86,7 @@ def test_a_pack_payload_becomes_the_scored_surface_and_nothing_else(monkeypatch,
          "disposition": {"kind": "outcome", "outcomeId": "review",
                          "reasons": []},
          "handoff": {"state": "pending", "target": "committee"},
-         "trace": [{"rule": "r-d3"}]}, 0, "", ""))
+         "trace": [{"rule": "r-d3"}]}, 0, "", "", None))
     assert engines.eval_pack(StubTools(), "pack.json", {}, {},
                              str(tmp_path)) == ("outcome", "review", ())
 
@@ -94,25 +94,33 @@ def test_a_pack_payload_becomes_the_scored_surface_and_nothing_else(monkeypatch,
 def test_a_refused_evaluation_is_a_row_error_with_its_class(monkeypatch,
                                                             tmp_path):
     monkeypatch.setattr(engines, "jpack_json", lambda *a, **k: (
-        {"status": "refused", "error": {"class": "facts-schema"}}, 1, "", ""))
+        {"status": "refused", "error": {"class": "facts-schema"}}, 1, "", "", None))
     assert engines.eval_pack(StubTools(), "pack.json", {}, {},
                              str(tmp_path)) == ("ROW-ERROR", "facts-schema", ())
 
 
-def test_a_non_json_payload_is_a_row_error_not_a_crash(monkeypatch, tmp_path):
-    monkeypatch.setattr(engines, "jpack_json", lambda *a, **k: (None, 5, "", ""))
-    assert engines.eval_pack(StubTools(), "pack.json", {}, {},
-                             str(tmp_path))[1] == "non-json-payload"
-    monkeypatch.setattr(engines, "jpack_json", lambda *a, **k: (None, 124, "", ""))
-    assert engines.eval_pack(StubTools(), "pack.json", {}, {},
-                             str(tmp_path))[1] == "engine-timeout"
+def test_an_unanswered_invocation_is_a_typed_row_error(monkeypatch, tmp_path):
+    """R1-1: eval_pack surfaces the TYPED no-answer classes — a self-declared
+    invocation failure (jpack exit 5) and a timeout — so the E1 caller can
+    route them to the apparatus side while the kill path keeps reading them
+    as ROW-ERROR signals."""
+    monkeypatch.setattr(engines, "jpack_json", lambda *a, **k: (None, 5, "", "",
+                                         engines.invocation_refusal(5, False)))
+    got = engines.eval_pack(StubTools(), "pack.json", {}, {}, str(tmp_path))
+    assert got[0] == "ROW-ERROR"
+    assert got[1] == "%s:5" % engines.INVOCATION_FAILURE
+    monkeypatch.setattr(engines, "jpack_json", lambda *a, **k: (None, 124, "", "",
+                                         engines.invocation_refusal(124, False)))
+    got = engines.eval_pack(StubTools(), "pack.json", {}, {}, str(tmp_path))
+    assert got[0] == "ROW-ERROR"
+    assert got[1] == engines.INVOCATION_TIMEOUT
 
 
 def test_an_unresolved_pack_answer_sorts_its_reasons(monkeypatch, tmp_path):
     monkeypatch.setattr(engines, "jpack_json", lambda *a, **k: (
         {"status": "evaluated",
          "disposition": {"kind": "unresolved",
-                         "reasons": ["unknown", "no-match"]}}, 0, "", ""))
+                         "reasons": ["unknown", "no-match"]}}, 0, "", "", None))
     assert engines.eval_pack(StubTools(), "pack.json", {}, {}, str(tmp_path)) \
         == ("unresolved", None, ("no-match", "unknown"))
 

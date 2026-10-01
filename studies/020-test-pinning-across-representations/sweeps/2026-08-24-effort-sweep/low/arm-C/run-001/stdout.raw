@@ -1,0 +1,308 @@
+POLICY:
+```rego
+package study
+
+default decision := {"disposition": "unresolved", "reasons": ["no-match"]}
+
+decision := {"disposition": "unresolved", "reasons": ["missing-required-evidence"]} if {
+	evidence := object.get(input, "evidence", {})
+	evidence["financial-evidence"] == "absent"
+} else := {"disposition": "unresolved", "reasons": ["unknown"]} if {
+	evidence := object.get(input, "evidence", {})
+	not "financial-evidence" in evidence
+} else := {"disposition": "reject", "reasons": []} if {
+	vendor := object.get(input, "vendor", {})
+	vendor.sanctionsStatus == "MATCH"
+} else := {"disposition": "unresolved", "reasons": ["no-match"]} if {
+	vendor := object.get(input, "vendor", {})
+	vendor.sanctionsStatus == "UNKNOWN"
+} else := result if {
+	vendor := object.get(input, "vendor", {})
+	vendor.sanctionsStatus == "CLEAR"
+	count(possible_outcomes) == 1
+	some result in possible_outcomes
+} else := {"disposition": "unresolved", "reasons": ["unknown"]} if {
+	vendor := object.get(input, "vendor", {})
+	vendor.sanctionsStatus == "CLEAR"
+	count(possible_outcomes) > 1
+}
+
+risk_values := [input.vendor.riskScore] if {
+	"riskScore" in input.vendor
+} else := [0, 39, 40, 69, 70, 89, 90, 100]
+
+spend_values := [input.vendor.requestedSpend] if {
+	"requestedSpend" in input.vendor
+} else := [
+	0,
+	100000,
+	100000.01,
+	500000,
+	500000.01,
+	2000000,
+	2000000.01,
+	10000000,
+]
+
+country_values := [input.vendor.countryRisk] if {
+	"countryRisk" in input.vendor
+} else := ["LOW", "MEDIUM", "HIGH"]
+
+possible_outcomes contains result if {
+	some risk in risk_values
+	some spend in spend_values
+	some country in country_values
+	result := readable_outcome(risk, spend, country)
+}
+
+readable_outcome(risk, spend, country) := {"disposition": "unresolved", "reasons": ["exception-escalation"]} if {
+	country == "HIGH"
+	spend > 2000000
+} else := {"disposition": "review", "reasons": []} if {
+	vendor := object.get(input, "vendor", {})
+	object.get(vendor, "criticalSupplier", "no") == "yes"
+} else := {"disposition": "reject", "reasons": []} if {
+	risk >= 90
+} else := {"disposition": "reject", "reasons": []} if {
+	country == "HIGH"
+	risk >= 70
+} else := {"disposition": "reject", "reasons": []} if {
+	vendor := object.get(input, "vendor", {})
+	object.get(vendor, "priorEnforcement", "no") == "yes"
+} else := {"disposition": "approve", "reasons": []} if {
+	country == "LOW"
+	risk < 40
+	spend <= 500000
+} else := result if {
+	country == "LOW"
+	risk < 40
+	spend > 500000
+	spend <= 2000000
+	result := d6b_outcome
+} else := {"disposition": "approve", "reasons": []} if {
+	country == "LOW"
+	risk >= 40
+	risk < 70
+	spend <= 100000
+	vendor := object.get(input, "vendor", {})
+	object.get(vendor, "newVendor", "no") != "yes"
+} else := {"disposition": "approve", "reasons": []} if {
+	country == "MEDIUM"
+	risk < 40
+	spend <= 100000
+} else := {"disposition": "review", "reasons": []}
+
+d6b_outcome := {"disposition": "approve", "reasons": []} if {
+	evidence := object.get(input, "evidence", {})
+	evidence["insurance-certificate"] == "present"
+} else := {"disposition": "enhanced-review", "reasons": []} if {
+	evidence := object.get(input, "evidence", {})
+	evidence["insurance-certificate"] == "absent"
+} else := {"disposition": "unresolved", "reasons": ["unknown"]}
+```
+
+TESTS:
+```rego
+package study_test
+
+import data.study
+
+base_vendor := {
+	"riskScore": 10,
+	"requestedSpend": 100,
+	"sanctionsStatus": "CLEAR",
+	"countryRisk": "LOW",
+	"newVendor": "no",
+	"criticalSupplier": "no",
+	"priorEnforcement": "no",
+}
+
+financials := {"financial-evidence": "present"}
+
+test_p1_absent_precedes_match if {
+	input_doc := {
+		"vendor": object.union(base_vendor, {"sanctionsStatus": "MATCH"}),
+		"evidence": {"financial-evidence": "absent"},
+	}
+	study.decision == {
+		"disposition": "unresolved",
+		"reasons": ["missing-required-evidence"],
+	} with input as input_doc
+}
+
+test_p1_unreported_is_unknown if {
+	study.decision == {
+		"disposition": "unresolved",
+		"reasons": ["unknown"],
+	} with input as {"vendor": base_vendor, "evidence": {}}
+}
+
+test_match_rejects if {
+	input_doc := {
+		"vendor": object.union(base_vendor, {"sanctionsStatus": "MATCH"}),
+		"evidence": financials,
+	}
+	study.decision == {"disposition": "reject", "reasons": []} with input as input_doc
+}
+
+test_unknown_sanctions_has_no_match if {
+	input_doc := {
+		"vendor": object.union(base_vendor, {"sanctionsStatus": "UNKNOWN"}),
+		"evidence": financials,
+	}
+	study.decision == {
+		"disposition": "unresolved",
+		"reasons": ["no-match"],
+	} with input as input_doc
+}
+
+test_o3_precedes_critical_and_rejection if {
+	input_doc := {
+		"vendor": object.union(base_vendor, {
+			"riskScore": 95,
+			"requestedSpend": 2000000.01,
+			"countryRisk": "HIGH",
+			"criticalSupplier": "yes",
+		}),
+		"evidence": financials,
+	}
+	study.decision == {
+		"disposition": "unresolved",
+		"reasons": ["exception-escalation"],
+	} with input as input_doc
+}
+
+test_critical_supplier_review if {
+	input_doc := {
+		"vendor": object.union(base_vendor, {
+			"riskScore": 95,
+			"criticalSupplier": "yes",
+		}),
+		"evidence": financials,
+	}
+	study.decision == {"disposition": "review", "reasons": []} with input as input_doc
+}
+
+test_d6b_boundaries_and_insurance if {
+	cases := [
+		{"spend": 500000, "insurance": "absent", "want": "approve"},
+		{"spend": 500000.01, "insurance": "present", "want": "approve"},
+		{"spend": 2000000, "insurance": "absent", "want": "enhanced-review"},
+		{"spend": 2000000.01, "insurance": "present", "want": "review"},
+	]
+	every tc in cases {
+		input_doc := {
+			"vendor": object.union(base_vendor, {"requestedSpend": tc.spend}),
+			"evidence": {
+				"financial-evidence": "present",
+				"insurance-certificate": tc.insurance,
+			},
+		}
+		study.decision.disposition == tc.want with input as input_doc
+	}
+}
+
+test_d6b_unreported_insurance_unknown if {
+	input_doc := {
+		"vendor": object.union(base_vendor, {"requestedSpend": 600000}),
+		"evidence": financials,
+	}
+	study.decision == {
+		"disposition": "unresolved",
+		"reasons": ["unknown"],
+	} with input as input_doc
+}
+
+test_new_vendor_suspends_d6c if {
+	input_doc := {
+		"vendor": object.union(base_vendor, {
+			"riskScore": 40,
+			"requestedSpend": 100000,
+			"newVendor": "yes",
+		}),
+		"evidence": financials,
+	}
+	study.decision == {"disposition": "review", "reasons": []} with input as input_doc
+}
+
+test_unreported_statuses_use_policy_defaults if {
+	input_doc := {
+		"vendor": {
+			"riskScore": 40,
+			"requestedSpend": 100000,
+			"sanctionsStatus": "CLEAR",
+			"countryRisk": "LOW",
+		},
+		"evidence": financials,
+	}
+	study.decision == {"disposition": "approve", "reasons": []} with input as input_doc
+}
+
+test_worked_example_one if {
+	input_doc := {
+		"vendor": {
+			"riskScore": 95,
+			"requestedSpend": 1000000,
+			"sanctionsStatus": "CLEAR",
+		},
+		"evidence": financials,
+	}
+	study.decision == {"disposition": "reject", "reasons": []} with input as input_doc
+}
+
+test_worked_example_two if {
+	input_doc := {
+		"vendor": {
+			"riskScore": 50,
+			"sanctionsStatus": "CLEAR",
+			"countryRisk": "HIGH",
+		},
+		"evidence": financials,
+	}
+	study.decision == {
+		"disposition": "unresolved",
+		"reasons": ["unknown"],
+	} with input as input_doc
+}
+
+test_worked_example_three if {
+	input_doc := {
+		"vendor": {
+			"requestedSpend": 100,
+			"sanctionsStatus": "CLEAR",
+			"countryRisk": "LOW",
+			"criticalSupplier": "yes",
+		},
+		"evidence": financials,
+	}
+	study.decision == {"disposition": "review", "reasons": []} with input as input_doc
+}
+
+test_worked_example_four if {
+	input_doc := {
+		"vendor": {
+			"riskScore": 10,
+			"sanctionsStatus": "CLEAR",
+			"criticalSupplier": "yes",
+		},
+		"evidence": financials,
+	}
+	study.decision == {
+		"disposition": "unresolved",
+		"reasons": ["unknown"],
+	} with input as input_doc
+}
+
+test_unreadable_inputs_can_still_have_one_outcome if {
+	input_doc := {
+		"vendor": {
+			"sanctionsStatus": "CLEAR",
+			"criticalSupplier": "yes",
+			"countryRisk": "LOW",
+			"requestedSpend": 100,
+		},
+		"evidence": financials,
+	}
+	study.decision == {"disposition": "review", "reasons": []} with input as input_doc
+}
+```

@@ -103,10 +103,14 @@
 #                      only caller; it retains a verdict, a stripped call
 #                      record and — when there is one — the context digests,
 #                      never the transcript, whose deletion it verifies.)
-#        PIN_LABEL   - "PRIMARY" (default) or "SWEEP" (§2.1, M-25: the one
-#                      registered exemption, one value and one label wide).
-#                      harness/batch.py sets it UNCONDITIONALLY, so an
-#                      operator's stray PIN_LABEL=SWEEP cannot reach here.
+#        PIN_LABEL   - "PRIMARY" (default), "SWEEP" (§2.1, M-25: the one
+#                      registered exemption, one value and one label wide) or
+#                      "PILOT" (§2a.2, round-1 finding R1-17: the pre-freeze
+#                      calibration pilot — citable false like the sweep, NO
+#                      exemption like the primary, anchored under
+#                      calibration/<label>/). harness/batch.py sets it
+#                      UNCONDITIONALLY, so an operator's stray PIN_LABEL
+#                      cannot reach here.
 #        SWEEP_EFFORT - the pre-pilot sweep's setting for THIS call, threaded
 #                      by harness/batch.py's `sweep` subcommand and by nothing
 #                      else. Legal only under PIN_LABEL=SWEEP, refused under
@@ -237,10 +241,11 @@ fi
 #
 #   the PRIMARY state — codex.reasoningEffort is filled, the flag is passed
 #   explicitly, and CALL.json stamps the value, so every retained slot records
-#   the condition it ran under whether or not a transcript witnesses it (M-24:
-#   019's session.jsonl carries no effort member, so the stamp may be the ONLY
-#   record, and the preregistration says in terms that such a pin is a recorded
-#   intention);
+#   the condition it ran under. M-24's witness resolution (2026-08-24) took the
+#   gate-5-extension branch: the transcript's own turn_context names the
+#   effort, and transcript_check.py's gate 5 binds the pin against it, so the
+#   stamp is checkable rather than the only record (the self-report reading
+#   this comment once carried was the branch not taken);
 #
 #   the SWEEP state — the sweep is the procedure that RESOLVES the value, so a
 #   gate that refuses a null effort refuses the sweep's own input. M-25 registers
@@ -332,10 +337,15 @@ sys.exit(0 if isinstance(settings, list) and sys.argv[2] in settings else 1)' \
     PINNED_EFFORT=""
     EFFORT_SOURCE="sweep-default"
   fi
-elif [ "$PIN_LABEL" = "PRIMARY" ]; then
-  CITABLE=true
+elif [ "$PIN_LABEL" = "PRIMARY" ] || [ "$PIN_LABEL" = "PILOT" ]; then
+  # PILOT (section 2a.2, round-1 finding R1-17) shares every effort rule with
+  # PRIMARY — the pilot runs AFTER the sweep resolved the condition, so it
+  # claims no exemption and threads no setting; the fourth registered
+  # difference is the pin state RULE applying, not relaxing. What the label
+  # changes is the slot anchor (calibration/<label>/, below) and citability.
+  if [ "$PIN_LABEL" = "PILOT" ]; then CITABLE=false; else CITABLE=true; fi
   if [ -n "$SWEEP_EFFORT" ]; then
-    echo "refused: SWEEP_EFFORT=$SWEEP_EFFORT was supplied under PIN_LABEL=PRIMARY; the sweep's per-call setting travels under the sweep label alone, and a primary call runs the registry's codex.reasoningEffort or it does not run" >&2
+    echo "refused: SWEEP_EFFORT=$SWEEP_EFFORT was supplied under PIN_LABEL=$PIN_LABEL; the sweep's per-call setting travels under the sweep label alone, and a $PIN_LABEL call runs the registry's codex.reasoningEffort or it does not run" >&2
     exit 1
   fi
   if [ "$EFFORT_NULL" = true ]; then
@@ -347,7 +357,7 @@ elif [ "$PIN_LABEL" = "PRIMARY" ]; then
     exit 1
   fi
 else
-  echo "refused: PIN_LABEL=$PIN_LABEL is not a registered label; the registered labels are PRIMARY and SWEEP, and an unrecognised one is refused rather than treated as PRIMARY" >&2
+  echo "refused: PIN_LABEL=$PIN_LABEL is not a registered label; the registered labels are PRIMARY, SWEEP and PILOT, and an unrecognised one is refused rather than treated as PRIMARY" >&2
   exit 1
 fi
 # The one argv token the effort travels as, composed from the registry's two
@@ -466,6 +476,30 @@ case "$PROMPT_KIND" in
       SLOT_ANCHOR="$STUDY/$SWEEP_ROOT_NAME/$SWEEP_LABEL_DIR/$SWEEP_SETTING_DIR/arm-$ARM"
       SLOT_ANCHOR_COMPONENTS="$SWEEP_ROOT_NAME $SWEEP_LABEL_DIR $SWEEP_SETTING_DIR arm-$ARM"
       SLOT_ANCHOR_NAME="$SWEEP_ROOT_NAME/<UTC date>-effort-sweep/$SWEEP_SETTING_DIR/arm-$ARM"
+    elif [ "$PIN_LABEL" = "PILOT" ]; then
+      # Section 2a.2 (round-1 finding R1-17): the pilot writes under
+      # calibration/<label>/arm-<ARM>/run-NNN — the subtree the freeze gate
+      # PERMITS AND REQUIRES, outside arms/ so R10-1's prior-authoring gate
+      # does not see it. Same rule as the sweep's anchor: the root comes from
+      # the registry, the label is the one component this wrapper cannot know,
+      # so it is read from the path and checked against the registered SHAPE.
+      if ! CALIBRATION_ROOT_NAME="$(pin calibration root 2>/dev/null)"; then
+        echo "refused: harness/PINS.json carries no calibration.root member, so this wrapper cannot compute the pilot's registered slot anchor (section 2a.2)" >&2
+        exit 1
+      fi
+      case "$CALIBRATION_ROOT_NAME" in
+        ""|None|null|*/*|*" "*)
+          echo "refused: harness/PINS.json's calibration.root is ${CALIBRATION_ROOT_NAME:-null}, which is not a single directory name this wrapper can anchor a pilot slot under (section 2a.2)" >&2
+          exit 1;;
+      esac
+      PILOT_LABEL_DIR="$(basename "$(dirname "$(dirname "$SLOT")")")"
+      case "$PILOT_LABEL_DIR" in
+        [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]-pilot) ;;
+        *) SLOT_SHAPE=bad;;
+      esac
+      SLOT_ANCHOR="$STUDY/$CALIBRATION_ROOT_NAME/$PILOT_LABEL_DIR/arm-$ARM"
+      SLOT_ANCHOR_COMPONENTS="$CALIBRATION_ROOT_NAME $PILOT_LABEL_DIR arm-$ARM"
+      SLOT_ANCHOR_NAME="$CALIBRATION_ROOT_NAME/<UTC date>-pilot/arm-$ARM"
     else
       SLOT_ANCHOR="$STUDY/arms/$ARM/authoring"
       SLOT_ANCHOR_COMPONENTS="arms $ARM authoring"
@@ -861,6 +895,32 @@ import json, sys
  timed_out, effort, effort_flag, effort_source, pin_label,
  citable, effort_key, effort_arg) = sys.argv[1:37]
 digits = "".join(ch for ch in slot_name if ch.isdigit())
+# ROUND-1 FINDING R1-12: `reasoningEffortWitnessed` is MEASURED from the
+# retained transcript, never stamped by fiat. The wrapper's measurement is a
+# convenience note; transcript_check.py's gate 5 is the authority and refuses
+# an unwitnessed call under a filled pin regardless of what this member says.
+witnessed = False
+try:
+    with open(out + "/session.jsonl", "rb") as session:
+        for line in session:
+            try:
+                record = json.loads(line.decode("utf-8", "replace"))
+            except ValueError:
+                continue
+            if record.get("type") != "turn_context":
+                continue
+            payload = record.get("payload") or {}
+            mode = payload.get("collaboration_mode")
+            nested = None
+            if isinstance(mode, dict):
+                settings = mode.get("settings")
+                if isinstance(settings, dict):
+                    nested = settings.get("reasoning_effort")
+            for value in (payload.get("effort"), nested):
+                if isinstance(value, str) and effort and value == effort:
+                    witnessed = True
+except OSError:
+    witnessed = False
 with open(out + "/CALL.json", "w") as handle:
     json.dump({
         "argv": (["codex", "exec", "--ignore-user-config", "-m", model]
@@ -892,11 +952,16 @@ with open(out + "/CALL.json", "w") as handle:
         "credentialRemoved": credential_removed == "true",
         "ignoreUserConfig": True,
         "model": model,
-        # M-24: the effort condition, stamped by the WRAPPER. Where no
-        # transcript witness exists this stamp is the only record of it, which
-        # `reasoningEffortWitnessed: false` says in the slot's own bytes rather
-        # than leaving a reader to infer it from an absence. `pinLabel` and
-        # `citable` are what separate a sweep call from a registered one.
+        # M-24: the effort condition, stamped by the WRAPPER. The sweep's
+        # witness-resolution step (2026-08-24) took the `gate-5-extension`
+        # branch, and R1-12 made this member a MEASUREMENT: it is true iff
+        # this call's own retained transcript names the pinned tier non-null
+        # in a turn_context, scanned above. transcript_check.py's gate 5 is
+        # the authority (it refuses an unwitnessed call under a filled pin);
+        # this member is the wrapper's own reading of the same bytes, so the
+        # slot record and the gate can disagree only if the bytes changed
+        # between the stamp and the scoring. `pinLabel` and `citable` are
+        # what separate a sweep call from a registered one.
         #
         # FOUR members and not two, because the resolved spelling (2026-08-24)
         # is a config override and not a flag: `reasoningEffort` is the TIER
@@ -911,7 +976,7 @@ with open(out + "/CALL.json", "w") as handle:
         "reasoningEffortConfigKey": (effort_key or None) if effort_arg else None,
         "reasoningEffortArg": effort_arg or None,
         "reasoningEffortSource": effort_source,
-        "reasoningEffortWitnessed": False,
+        "reasoningEffortWitnessed": witnessed,
         "pinLabel": pin_label,
         "citable": citable == "true",
         "cli": version,

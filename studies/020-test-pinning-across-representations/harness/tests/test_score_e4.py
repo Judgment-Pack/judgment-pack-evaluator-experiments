@@ -450,20 +450,51 @@ def test_nothing_evaluated_and_everything_killed_are_different_bytes(
     assert everything["evaluatedPaired"] == 1
 
 
-def test_the_empty_survivor_record_is_refused_at_write_time(mutant_tree):
-    """§7 delta 1: "`survivorsPaired: []` with `killedPaired: 0` is refused at
-    write time rather than read as 33/33". The refusal is at the WRITE, not at
-    the read, because a reader who has to know about the trap is a reader who
-    can forget about it."""
+def test_the_total_not_evaluated_record_is_accepted_as_the_itt_zero_state(
+        mutant_tree):
+    """ROUND-1 FINDING R1-2, this test's earlier form INVERTED: it proved the
+    vector distinguishes nothing-evaluated from everything-killed and then
+    required the former to be REFUSED — the state `kill_rates({})` emits on
+    every no-suite / no-cases / out-of-domain / identity-failure path, so one
+    such admitted run hard-aborted the attempt. With the vector total and
+    registered, the state is unambiguous and is the registered ITT-zero
+    record; §7 delta 1 carries the marked amendment."""
     mutants = e4.load_mutants(*mutant_tree)
     _table, paired = e4.build_pairing(mutants)
     run = {"run": "run-001", "admitted": True, "suitePresent": True,
            "caseCount": 4,
            "kill": e4.kill_rates({}, mutants["jps"], paired["jps"])}
+    written = e4.require_survivor_schema(run)
+    assert written["kill"]["evaluatedPaired"] == 0
+    assert written["kill"]["killedPaired"] == 0
+    assert all(entry["outcome"] == e4.NOT_EVALUATED
+               for entry in written["kill"]["survivorVector"])
+
+
+def test_vector_aggregate_inconsistency_is_what_refuses_now(mutant_tree):
+    """R1-2's replacement guard, driven in both directions: aggregates are
+    summaries of the vector and may not disagree with it. The impossible
+    state the old aggregate guard was reaching for — something claims to have
+    been evaluated while the vector records no outcome — refuses by the
+    `evaluatedPaired` cross-check; a kill count off the vector's own count
+    refuses by the `killedPaired` one. Mutation check: drop either term from
+    `require_survivor_schema()` and the matching case fails."""
+    mutants = e4.load_mutants(*mutant_tree)
+    _table, paired = e4.build_pairing(mutants)
+    impossible = e4.kill_rates({}, mutants["jps"], paired["jps"])
+    impossible = dict(impossible, evaluatedPaired=69)
+    run = {"run": "run-001", "admitted": True, "suitePresent": True,
+           "caseCount": 4, "kill": impossible}
     with pytest.raises(e4.SurvivorSchemaError) as raised:
         e4.require_survivor_schema(run)
-    assert str(raised.value).startswith("E4-SURVIVOR-EMPTY")
-    assert "0.0526" in str(raised.value)
+    assert "genuinely impossible" in str(raised.value)
+    forged = e4.kill_rates({}, mutants["jps"], paired["jps"])
+    forged = dict(forged, killedPaired=3)
+    run = {"run": "run-001", "admitted": True, "suitePresent": True,
+           "caseCount": 4, "kill": forged}
+    with pytest.raises(e4.SurvivorSchemaError) as raised:
+        e4.require_survivor_schema(run)
+    assert "may not disagree" in str(raised.value)
 
 
 def test_a_kill_block_without_the_vector_is_refused(mutant_tree):

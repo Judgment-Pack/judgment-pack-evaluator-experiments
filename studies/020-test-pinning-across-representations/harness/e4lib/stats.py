@@ -7,9 +7,11 @@ digest Study 012's own `harness/PORTS.md` records for it): `ALPHA`,
 `lower_bound`, `upper_bound`, `rate_block`, `probability_at_least` and
 `REGISTERED_VECTORS` — carried byte-for-byte in their arithmetic. Ported rather
 than re-derived because a re-derived interval is a second implementation of a
-published number, and Study 012 published its n = 50 row, which is exactly this
-study's per-arm denominator (PREREGISTRATION.md section 2 "Batch shape": N = 50
-runs/arm). The enumerated changes are in `harness/PORTS.md`; they are: the
+published number. (R1-16 correction, 2026-08-24: this docstring once added that
+012's n = 50 row "is exactly this study's per-arm denominator" — true of the
+port carry, false since section 2.1's fill registered N = 60. Every registered
+vector is a PORT CONTROL against a number a predecessor published; this study's
+own N lives in harness/PINS.json's batch.n and nowhere in this module.) The enumerated changes are in `harness/PORTS.md`; they are: the
 module's docstring, the removal of `HIGH_CUT`/`LOW_CUT`/`high_threshold()`/
 `low_threshold()` (Study 012's section 5.1 review-depth cuts, which name nothing
 here), and everything below the PORT 2 banner.
@@ -103,10 +105,11 @@ BISECTIONS = 200                 # fixed; no early exit, no tolerance
 
 # Study 012's section 4.3 registered test vectors, carried as DATA so a harness
 # test can diff them against a published table rather than against a
-# re-derivation of the code that produced them. The n = 50 row is this study's
-# own per-arm denominator; n = 30 and n = 25 are Study 012's, retained as port
-# controls against numbers a predecessor already published — if this port drifts
-# from 012's arithmetic, a number 012 printed stops reproducing here.
+# re-derivation of the code that produced them. All three rows — n = 50, 30 and
+# 25 — are Study 012's, retained as port controls against numbers a predecessor
+# already published; none is this study's per-arm denominator (N = 60, held in
+# the registry, R1-16) — if this port drifts from 012's arithmetic, a number 012
+# printed stops reproducing here.
 REGISTERED_VECTORS = {
     30: {0: (0.0000, 0.1157), 1: (0.0008, 0.1722), 2: (0.0082, 0.2207),
          3: (0.0211, 0.2653), 4: (0.0376, 0.3072), 15: (0.3130, 0.6870),
@@ -610,8 +613,13 @@ def excludes_zero(x: int, y: int, n_left: int, n_right: int = None) -> dict:
 #
 #   * the Delta0 MESH. The reported interval is the convex hull of the accepted
 #     set intersected with M_D = {j/FM_DELTA_MESH_DEN : j = -D..D}. At
-#     FM_DELTA_MESH_DEN = 100 every attainable per-arm rate difference at the
-#     registered N = 50 (a multiple of 1/50) is itself a mesh point, and
+#     FM_DELTA_MESH_DEN = 100 every attainable per-arm rate difference at
+#     Study 019's N = 50 (a multiple of 1/50) is itself a mesh point — a
+#     property of the SOURCE study's N; Study 020's registered decision path
+#     reads none of this FM machinery (the eighteen-member family and its
+#     permutation tests replaced it), and at 020's N = 60 the exactness claim
+#     would not carry (1/60 is not on a 1/100 mesh), which is stated here so
+#     nobody re-enlists this block at the new N without re-deriving it — and
 #     MESH_DEN = 1000 is a multiple of it, so p_C and p_A = p_C + Delta0 are
 #     both points of the registered NUISANCE mesh and the tail probability stays
 #     exact integer arithmetic.
