@@ -370,7 +370,7 @@ def condition_key(row: Mapping[str, Any]) -> str:
     return "%s::%s::%s" % (row.get("arm"), row.get("backend"), row.get("model"))
 
 
-RESULT_SCHEMA = "jps-study-001-result/1"
+RESULT_SCHEMAS = ("jps-study-001-result/1", "jps-study-001-result/2")
 
 
 def _check_result_row(row: Any, path: str, lineno: int) -> Tuple[str, str, int]:
@@ -382,10 +382,10 @@ def _check_result_row(row: Any, path: str, lineno: int) -> Tuple[str, str, int]:
     """
     if not isinstance(row, dict):
         raise ValueError("%s line %d: result row must be a JSON object" % (path, lineno))
-    if row.get("schema") != RESULT_SCHEMA:
+    if row.get("schema") not in RESULT_SCHEMAS:
         raise ValueError(
-            "%s line %d: unsupported schema %r (expected %r)"
-            % (path, lineno, row.get("schema"), RESULT_SCHEMA)
+            "%s line %d: unsupported schema %r (expected one of %s)"
+            % (path, lineno, row.get("schema"), ", ".join(repr(x) for x in RESULT_SCHEMAS))
         )
     for field in ("arm", "backend", "model"):
         value = row.get(field)
@@ -416,7 +416,8 @@ def load_results(paths: Sequence[str]) -> Dict[str, Dict[str, List[Dict[str, Any
     to ``instance_id`` for documents that are not twins.
 
     Every non-empty line is validated before it enters the map: it must decode
-    to an object with schema ``jps-study-001-result/1``, non-empty string
+    to an object with schema ``jps-study-001-result/1`` or ``/2`` (the
+    current runner writes ``/2``; the retained ``k5-B`` file is ``/2``), non-empty string
     ``arm``/``backend``/``model``, an integer ``trial`` of at least 1 (booleans
     rejected), and a string ``row_id`` -- falling back to a non-empty string
     ``instance_id`` when ``row_id`` is absent or empty. A repeated ``(arm,

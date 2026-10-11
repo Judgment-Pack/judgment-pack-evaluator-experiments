@@ -1137,6 +1137,18 @@ def test_unsupported_schema_is_rejected(tmp_path, schema):
     assert "line 1" in str(exc.value)
 
 
+def test_schema_2_rows_load_beside_schema_1(tmp_path):
+    """The current runner writes ``/2`` and the retained ``k5-B`` file is ``/2``;
+    both vintages carry the identity fields the loader validates."""
+    one = _valid_row("i1", 1)
+    two = _valid_row("i2", 1)
+    two["schema"] = "jps-study-001-result/2"
+    path = _results_file(tmp_path, "mixed.jsonl", [one, two])
+    results = score_mod.load_results([path])
+    assert set(results["A::mock::m"]) == {"i1", "i2"}
+    assert results["A::mock::m"]["i2"][0]["schema"] == "jps-study-001-result/2"
+
+
 @pytest.mark.parametrize("raw", ["[1, 2]", '"just a string"', "42", "null"])
 def test_non_object_row_is_rejected(tmp_path, raw):
     path = _results_file(tmp_path, "bad.jsonl", [raw])
