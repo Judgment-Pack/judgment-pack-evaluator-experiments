@@ -19,7 +19,11 @@ CHECK REFUSED, not by a judgement about the artifact:
 | `schema-invalid-pack` | `jpack spec validate` reports `status != "valid"` | — (arm-structural: a Rego file has no pack schema) |
 | `opa-check-failed` | — (arm-structural) | `opa check` fails with any non-parse error (type / compile / capability) |
 | `v0-syntax` | — (arm-structural) | `opa check` fails with only `rego_parse_error` AND the same bytes pass under `--v0-compatible` |
-| `unreadable-output-shape` | the validator emitted no JSON payload at all | `opa check` emitted no readable error document |
+
+(R1-1: `unreadable-output-shape` — the validator emitting no payload, `opa check` emitting no
+readable error document — is RETIRED from this table: every such state is the pinned engine
+failing to ANSWER, which is apparatus, raised from here as `engines.EngineError` and filed by
+the scorer under `engine-invocation-refused`.)
 
 The `v0-syntax` discriminator is the one piece with no prototype, and it is
 built to be MECHANICAL rather than prose-reading. Section 2 pins Rego v1 in both
@@ -62,7 +66,6 @@ DROP_ORDER = (
     "v0-syntax",
     "schema-invalid-pack",
     "opa-check-failed",
-    "unreadable-output-shape",
     # NEW IN 020 (§3.2, ruling M-14). It is LAST in the order for a reason that
     # is not cosmetic: the detector runs on a policy the pinned binary has
     # already accepted, so every earlier code describes an artifact that never
@@ -74,20 +77,30 @@ DROP_ORDER = (
 # Which of those an arm can structurally reach. Section 5: "arm-structural
 # categories within-arm-only, enforced in the scorer."
 ARM_REACHABLE_CODES = {
-    "A": ("no-marker-block", "unparseable-artifact", "schema-invalid-pack",
-          "unreadable-output-shape"),
+    "A": ("no-marker-block", "unparseable-artifact", "schema-invalid-pack"),
     # `presence-idiom-unsound` is B/C only, and §11.11 registers that asymmetry
     # as a CEILING rather than repairing it: arm A's format has no analogous
     # single-operator trap on this surface, so the code is structurally
     # unreachable there and `admit()` refuses it as an arm-structural leak.
     "B": ("no-marker-block", "unparseable-artifact", "v0-syntax",
-          "opa-check-failed", "unreadable-output-shape", presence_idiom.CODE),
+          "opa-check-failed", presence_idiom.CODE),
     "C": ("no-marker-block", "unparseable-artifact", "v0-syntax",
-          "opa-check-failed", "unreadable-output-shape", presence_idiom.CODE),
+          "opa-check-failed", presence_idiom.CODE),
 }
 
 PARSE_ERROR_CODE = "rego_parse_error"
 UNREADABLE_CHECK_OUTPUT = "unparseable-check-output"
+
+
+def _refuse_json_constant(token: str):
+    """ROUND-2 FINDING R2-9: JSON has no `NaN`/`Infinity` literal and
+    Python's decoder accepts all three anyway. A non-finite value
+    silently defeats every comparison a gate makes against it, so no
+    reader of a registered document accepts one. `integrity.py` carries
+    the same rule for the modules that can import it."""
+    raise ValueError(
+        "JSON-NONFINITE a registered document carries the JSON-invalid "
+        "token %r" % (token,))
 
 
 class AdmissionError(Exception):
@@ -111,11 +124,14 @@ def admit_arm_a(tools: engines.Toolchain, block: str, workdir: str) -> tuple:
     path = os.path.join(workdir, "pack.json")
     with open(path, "w", encoding="utf-8") as handle:
         handle.write(block)
-    payload, code, _out, _err = engines.jpack_json(
+    payload, code, _out, _err, refusal = engines.jpack_json(
         tools, ["spec", "validate", path, "--format", "json"], workdir)
-    if payload is None:
-        detail["validateExit"] = code
-        return None, "unreadable-output-shape", detail
+    if refusal is not None:
+        # R1-1: no answer at all — apparatus, never an authoring code.
+        raise engines.EngineError(
+            "ENGINE-INVOCATION-REFUSED jpack spec validate produced no answer "
+            "(%s, exit %s): §1a files an invocation the engine never answered "
+            "on the apparatus side" % (refusal, code))
     detail["validateStatus"] = payload.get("status")
     if payload.get("status") != "valid":
         detail["diagnostics"] = [
@@ -158,7 +174,22 @@ def admit_arm_rego(tools: engines.Toolchain, block: str, workdir: str,
         # failure into a presence-idiom verdict. It is a detector and not a
         # repair — the artifact is not rewritten, the run is not excluded, and a
         # flagged run stays in every ITT denominator scoring zero.
-        report = presence_idiom.scan(tools, path, workdir)
+        # ROUND-2 FINDING R2-1: the detector's own refusal is APPARATUS. Every
+        # no-answer exit already raises `engines.EngineError` inside
+        # `opa_parse_tree()`; what reaches here as a `PresenceIdiomError` is the
+        # residual disagreement — `opa check` accepted these bytes and
+        # `opa parse` refused them — and a disagreement between the study's two
+        # pinned invocations about one artifact yields no verdict about the
+        # AUTHOR either. It leaves by the same typed door, so §1a's partition
+        # sees one apparatus state and not two.
+        try:
+            report = presence_idiom.scan(tools, path, workdir)
+        except presence_idiom.PresenceIdiomError as refusal:
+            raise engines.EngineError(
+                "ENGINE-INVOCATION-REFUSED the two pinned invocations disagree "
+                "about the same bytes: `opa check` accepted the policy and "
+                "`opa parse` refused it, so no verdict about the author's "
+                "artifact survives (%s)" % refusal)
         detail["presenceIdiom"] = {
             "flagged": report["flagged"],
             "memberships": report["memberships"],
@@ -173,7 +204,13 @@ def admit_arm_rego(tools: engines.Toolchain, block: str, workdir: str,
             return None, presence_idiom.CODE, detail
         return path, None, detail
     if codes == [UNREADABLE_CHECK_OUTPUT]:
-        return None, "unreadable-output-shape", detail
+        # R1-1: a nonzero `opa check` whose streams carry no readable error
+        # document is the pinned binary failing to render its own verdict —
+        # apparatus, never an authoring code.
+        raise engines.EngineError(
+            "ENGINE-INVOCATION-REFUSED opa check exited %s with no readable "
+            "error document: the invocation rendered no verdict about the "
+            "artifact (R1-1)" % code)
     if codes and all(one == PARSE_ERROR_CODE for one in codes):
         v0_code, v0_codes = engines.opa_check(tools, path, workdir,
                                               v0_compatible=True)
@@ -191,10 +228,14 @@ GUARD_PIN_PATH = ("presenceIdiomGuard", "registered")
 def guard_is_registered(pins: dict = None) -> bool:
     """§3.2's kill switch, from `harness/PINS.json`.
 
-    The preregistration registers the guard CONDITIONALLY — "if the detector
-    cannot meet (i) and (ii) exactly, the guard is not registered at all" — and
+    The preregistration registers the guard CONDITIONALLY — under the R1-9
+    amendment (blessed by round 2): (i-a) the detector flags every in-class
+    policy in its registered operating set, the admitted policies, exactly n/n;
+    (i-b) every in-class retained run receives a registered authoring code from
+    the admission chain, 40/40; (ii) it flags none of the 22 perfect runs — and
     a conditional registration whose condition lives in prose is a condition
-    nothing enforces. `PINS.json`'s `presenceIdiomGuard.registered` carries the
+    nothing enforces. (This docstring quoted the superseded "40/40 by the
+    detector" condition until round-2 R2-4.) `PINS.json`'s `presenceIdiomGuard.registered` carries the
     power analysis's verdict as data, and this is the only place it is read.
 
     FAIL-SHUT toward NOT REGISTERED: a registry with no such member, or one
@@ -216,7 +257,8 @@ def _registry() -> dict:
     if _REGISTRY is None:
         here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         with open(os.path.join(here, "PINS.json"), "rb") as handle:
-            _REGISTRY = json.loads(handle.read().decode("utf-8"))
+            _REGISTRY = json.loads(handle.read().decode("utf-8"),
+                                   parse_constant=_refuse_json_constant)
     return _REGISTRY
 
 

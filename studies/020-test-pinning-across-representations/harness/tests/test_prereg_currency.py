@@ -15,21 +15,23 @@ naming rather than leaving a reader to infer from what is missing:
   different ones — no δ, no τ, no cut (§1.3), a two-tier footing (§0), an
   eighteen-member family (§5.2), a closed verdict vocabulary (§1.3) — and the
   assertions below are about THOSE.
-* **The artifacts are not here yet.** §4.1 ports the gold suite, both mutant
-  corpora, both references and the off-gold certificate BY DIGEST, and
-  `harness/SCAFFOLD.md` item A1 carries that as a `GATE(pre-freeze)`. Every
-  recomputed-count test therefore SKIPS by a named reason — the `artifacts`
-  fixture is the one place that decision is made — and becomes live, unchanged,
-  the moment the bytes land.
-* **The review record is EMPTY of rounds, and that is a registered shape**
-  (§7 delta 10). 019's round-lifecycle layer is the largest thing this module
-  carries and it ports nearly verbatim; what changed is that the zero-round
-  block PARSES and RENDERS, that an absent `reviews/` is zero rounds rather
-  than breakage, and that there are TWO front doors rather than three. Where a
-  019 assertion needed a non-empty block to mean anything, it is driven from a
-  SYNTHETIC block instead of being skipped — a validator nobody has seen refuse
-  is a validator nobody has tested, and waiting for round 1 to test it is
-  exactly how it would go untested.
+* **The artifacts LANDED** (`harness/SCAFFOLD.md` A1 CLOSED; this header said
+  "not here yet" until round-2 R2-18): the gold suite, both mutant corpora,
+  both references and the off-gold certificate are in this tree, so every
+  recomputed-count test below is LIVE. The `artifacts` fixture's skip is kept
+  as a dormant guard — it is the one place the pre-artifact phase was decided,
+  and deleting it would lose the reason the counts are recomputed rather than
+  transcribed.
+* **The empty-of-rounds review record is a registered shape** (§7 delta 10)
+  and is the shape this record HELD until round 1 opened 2026-08-24 (this
+  header said the record IS empty until round-2 R2-18). 019's round-lifecycle
+  layer is the largest thing this module carries and it ports nearly verbatim;
+  what changed is that the zero-round block PARSES and RENDERS, that an absent
+  `reviews/` is zero rounds rather than breakage, and that there are TWO front
+  doors rather than three. The live block now carries its rounds, so the
+  zero-round validators are driven from SYNTHETIC blocks — which is how they
+  were tested from the first day and why they still are: a validator nobody
+  has seen refuse is a validator nobody has tested.
 
 Nothing here is a copy of anything: every expected value is computed from the
 committed bytes at test time.
@@ -788,14 +790,31 @@ def test_the_zero_round_block_is_a_REGISTERED_shape_and_renders():
     is exactly as wide as it was registered to be: the empty block parses and
     renders, and the refusals it does NOT relax still bite — an absent block, a
     `rounds` member that is not a list, and rounds that are not 1..N."""
-    block = _block()
-    assert block["rounds"] == [], (
-        "a round has opened: this test records the ZERO-round state §7's delta "
-        "10 registers, and it must be rebuilt against the first real round")
-    rendered = render_round_status.render(block)
+    # Rebuilt against the first real round, exactly as its pre-round-1 form
+    # obliged: the EMPTY block is exercised SYNTHETICALLY now — §7 delta 10's
+    # relaxation is a parser property, not a property of the live record —
+    # while the live block carries round 1 open and both front doors render
+    # that state verbatim.
+    text = _review_record()
+    head, _, rest = text.partition(render_round_status.BLOCK_OPEN)
+    _, _, tail = rest.partition(render_round_status.BLOCK_CLOSE)
+    body = json.dumps({"blockVersion": 1, "rounds": []}, indent=2)
+    synthetic = "%s%s\n%s\n%s%s" % (head, render_round_status.BLOCK_OPEN,
+                                    body, render_round_status.BLOCK_CLOSE,
+                                    tail)
+    rendered = render_round_status.render(
+        render_round_status.parse_block(synthetic))
     assert rendered.endswith(
         "0 review rounds are on the record, 0 have returned a verdict — none "
         "has returned a verdict — and no round is open.")
+    block = _block()
+    # 1..N, not a frozen count: the first version said exactly [1] and went
+    # stale the day round 2 opened. The 1..N shape is the registered rule the
+    # parser refuses on; the count is the record's business.
+    numbers = [entry["number"] for entry in block["rounds"]]
+    assert numbers == list(range(1, len(numbers) + 1)) and numbers
+    for entry in block["rounds"]:
+        assert entry["state"] in render_round_status.STATES
     assert render_round_status.surface_problems(_study()) == []
 
     def _with(body):
@@ -1643,7 +1662,10 @@ def test_the_registration_header_names_no_round_while_none_is_complete():
         assert found == [], (
             "no round is complete and the registration header says "
             "post-round-%s" % "/".join(found))
-        assert "0 review rounds are on the record" in header
+        # State-agnostic across the two open states (awaiting-review /
+        # awaiting-response): the header must say the round is OPEN; the exact
+        # rendered sentence is held verbatim by surface_problems() already.
+        assert "round 1 is open" in header
         return
     answered = max(complete)
     assert found, (
@@ -1683,7 +1705,10 @@ def test_the_two_headers_agree_on_the_revision_ordinal():
 
 def test_the_ports_sentence_counts_what_the_code_registers():
     """`harness/PORTS.md`'s prose states the size of the registered destination
-    set; `integrity.REQUIRED_PORTS` is that set. Study 019's round-1 finding
+    set; `integrity.REQUIRED_PORTS` is that set. (NON-DISCRIMINATING for
+    round-2 R2-17's six false byte-identical cells and the integrity cell's
+    stale "TWENTY": it reads two sentences and passes over every row cell.
+    The R2-17 cases below are the discriminating ones.) Study 019's round-1 finding
     R1-20 was this exact sentence, stale at "five" while the constant held
     seven, so the count is READ OUT OF THE CONSTANT here and the document must
     spell the same number."""
@@ -1744,13 +1769,15 @@ def test_every_row_that_claims_a_difference_count_enumerates_that_many():
     for line in text.splitlines():
         if not line.startswith("| `"):
             continue
-        stated = re.search(r"port, (\w+) registered differences", line)
+        # R2-17: the singular form ("ONE registered difference") is counted
+        # too, and the idle guard is raised from 4 to 8.
+        stated = re.search(r"port, (\w+) registered differences?", line)
         if not stated:
             continue
         enumerated = len(re.findall(r"\*\*\(\d\)", line))
         assert enumerated == words[stated.group(1).lower()], line[:120]
         checked += 1
-    assert checked >= 4, "no row states a difference count; the check is idle"
+    assert checked >= 8, "too few rows state a difference count; the check is idle"
 
 
 def test_the_harness_is_described_as_existing_and_as_partial():
@@ -1769,7 +1796,11 @@ def test_the_harness_is_described_as_existing_and_as_partial():
 
 def test_no_lifecycle_note_still_calls_a_landed_item_outstanding():
     """019's R4-6, carried: a note that describes a state the tree no longer has
-    is a note on the tripwire whose whole job is to describe the tree. The four
+    is a note on the tripwire whose whole job is to describe the tree. (Its
+    substring searches reached NONE of round-2 R2-18's false cells — a round
+    state in PINS, an owed declaration, an "uncovered by design" register, a
+    zero-round review record — nor R2-14's four carriers; the machine-state
+    tests below are the discriminating replacements.) The four
     deltas that LANDED with this port must not appear in the owed register, and
     the ones that have not must."""
     scaffold = flatten(_read("harness/SCAFFOLD.md"))
@@ -1785,7 +1816,10 @@ def test_no_lifecycle_note_still_calls_a_landed_item_outstanding():
                    "the freeze gate's calibration/ rule",
                    "the fresh sealed reviewer set",
                    "the empty-of-rounds review record",
-                   "CORRECTION-TARGETS.md leaves the covered set",
+                   # R1-18 amended delta 11: the register briefly LEFT the
+                   # covered set and round 1 put it back — the landed phrase
+                   # moved with the ruling.
+                   "the register is COVERED again",
                    "design/pilot/pilot_run.py deleted, not ported",
                    "the D-1 smoke restatement"):
         assert landed in ports, landed
@@ -1878,13 +1912,23 @@ def test_the_family_size_is_one_number_everywhere_it_is_stated():
     text = _read("PREREGISTRATION.md")
     flat_text = flatten(text)
     rows = re.findall(r"^\| M(\d+) \| L", text, re.MULTILINE)
-    assert [int(number) for number in rows] == list(range(1, 19)), rows
     from e4lib import family
-    assert decision.REGISTERED_FAMILY_SIZE == len(rows)
+    # Reprint 1 is the eighteen, in order. Round 2 (R2-2) added Reprint 1b —
+    # the three excluded-column L2c rows re-stated under the registered
+    # estimand — which is a RE-STATEMENT of members, not new members, and is
+    # asserted as exactly that subset rather than counted as a nineteenth.
+    reprint_one = [int(number) for number in rows[:18]]
+    assert reprint_one == list(range(1, 19)), rows
+    reprint_one_b = [int(number) for number in rows[18:]]
+    assert reprint_one_b == [int(member.id[1:]) for member in family.MEMBERS
+                             if member.level == "L2c"
+                             and member.column == "excluded"], reprint_one_b
+    members = sorted(set(int(number) for number in rows))
+    assert decision.REGISTERED_FAMILY_SIZE == len(members) == 18
     # …and the members EXIST, which is the half that could not be
     # asserted while §7 delta 5 was open: the prose, the decision
     # rule's constant and the scorer's own table are one number.
-    assert len(family.MEMBERS) == len(rows)
+    assert len(family.MEMBERS) == len(members)
     for phrase in ("all eighteen registered family members (§5.2) agree",
                    "The registered sensitivity family — eighteen members",
                    "an intersection–union test",
@@ -1935,20 +1979,46 @@ def test_the_presence_idiom_numbers_agree_across_all_three_surfaces(pins):
     document = flatten(_read("harness/POWER-PRESENCE-IDIOM.md"))
     registration = flatten(_read("PREREGISTRATION.md"))
     block = pins["presenceIdiomGuard"]
-    for member in ("sensitivity", "specificity", "falsePositivesOnLawfulIn"):
+    for member in ("sensitivity", "codeCoverage", "specificity",
+                   "falsePositivesOnLawfulIn"):
         value = flatten(block[member])
         assert value in document, (member, value)
         assert value in registration, (member, value)
     assert block["registered"] is True
-    assert "40/40" in registration and "0/22" in registration
+    # ROUND-2 R2-4: the criterion's figures, formatted the way the documents
+    # print them, must appear in BOTH — bound to the machine block, not to a
+    # phrase (the `"40/40" in registration` read this replaces was
+    # non-discriminating: it matched the retired condition's own sentence).
+    criterion = block["criterion"]
+    for figure in ("%d/%d" % (criterion["iA"]["flagged"], criterion["iA"]["inClass"]),
+                   "%d/%d" % (criterion["iB"]["coded"], criterion["iB"]["inClass"]),
+                   "%d/%d" % (criterion["ii"]["flagged"], criterion["ii"]["perfect"])):
+        assert figure in document, figure
+        assert figure in registration, figure
+    # the retired clause survives only struck: its live restatement is gone
+    live = registration.split("[SUPERSEDED by the R1-9 amendment above")[0]
+    assert "must fire on the 40" not in live.split("(i) sensitivity —")[-1] \
+        or "~~" in _read("PREREGISTRATION.md")
 
 
 def test_the_readme_states_the_registered_question_and_the_current_state():
     """The reader-facing front door must state THIS study's question and this
-    study's state, and must not claim a review that has not happened."""
+    study's state, and must not claim a review that has not happened. The
+    state read is the BLOCK'S, not a phrase this test froze at one moment —
+    the first version hard-coded "round 1 is open" and went stale the day the
+    round completed."""
     readme = flatten(_read("README.md"))
     assert "what its accompanying test suite pins down" in readme
-    assert "0 review rounds are on the record" in readme
+    states = _block_states()
+    open_rounds = [number for number, entry in states.items()
+                   if entry["state"] != COMPLETE]
+    complete = [number for number, entry in states.items()
+                if entry["state"] == COMPLETE]
+    if open_rounds:
+        assert "round %d is open" % max(open_rounds) in readme
+    else:
+        assert complete, "no round exists and the question test read a state"
+        assert "post-round-%d" % max(complete) in readme
     for claim in ("has been reviewed", "review is complete",
                   "freezable as written"):
         assert claim not in readme.lower(), claim
@@ -2013,3 +2083,195 @@ def test_the_registered_ci_enforcement_exists():
             % forbidden)
     assert "python -m pytest harness/tests" in executable
     assert "render_round_status.py --check" in executable
+
+
+# ===========================================================================
+# ROUND 2 — currency bound to machine sources, never to a phrase
+# ===========================================================================
+
+def _port_rows():
+    """Every PORTS.md row as (source, source_sha, destination, dest_sha, cell)."""
+    row = re.compile(r"^\| `(harness/[^`]+)` \| `([0-9a-f]{64})` \| `(harness/[^`]+)` "
+                     r"\| `([0-9a-f]{64})` \| (.*)\|\s*$")
+    rows = []
+    for line in _read("harness/PORTS.md").splitlines():
+        match = row.match(line)
+        if match:
+            rows.append(match.groups())
+    return rows
+
+
+def test_no_port_row_claims_byte_identity_over_unequal_digests():
+    """R2-17. The verifier checks digests, so a prose cell is a claim; six rows
+    said "byte-identical" over unequal digests and the round-1 disposition
+    said none did. IFF, both directions, over every row: the phrase appears
+    exactly when the two digests are equal.
+    MUTATION (m1): restore the phrase on the test_score_engines row -> fails
+    naming it; (m2): delete it from a row whose digests ARE equal -> fails
+    the other way, proving an iff rather than an implication."""
+    rows = _port_rows()
+    assert len(rows) == len(integrity.REQUIRED_PORTS) == 46
+    phrase = "ported by digest, byte-identical to 019"
+    for _source, source_sha, destination, dest_sha, cell in rows:
+        equal = source_sha == dest_sha
+        assert (phrase in cell) == equal, (destination, equal, cell[:80])
+
+
+def test_the_integrity_row_states_the_size_of_required_ports():
+    """R2-17 (m3): the integrity cell's destination count is READ OUT OF THE
+    CONSTANT; it said "TWENTY" while the constant held forty-six."""
+    words = {7: "seven", 13: "thirteen", 20: "twenty", 46: "forty-six"}
+    cell = [cell for _s, _ss, destination, _ds, cell in _port_rows()
+            if destination == "harness/integrity.py"][0]
+    size = len(integrity.REQUIRED_PORTS)
+    assert ("REQUIRED_PORTS` IS %s DESTINATIONS" % words[size].upper()) in cell
+    assert "IS TWENTY DESTINATIONS" not in cell or size == 20
+
+
+def test_the_new_in_020_prose_names_every_member_of_the_constant():
+    """R2-17 (m4): PORTS.md's "New here" paragraph is regenerated from
+    `integrity.NEW_IN_020` and must name every member and no other harness
+    Python file; drop one from the prose and this fails naming it."""
+    text = _read("harness/PORTS.md")
+    start = text.index("**New here, and deliberately absent from the table.**")
+    end = text.index("\n\n", start)
+    span = text[start:end]
+    for name in sorted(integrity.NEW_IN_020):
+        assert "`%s`" % name in span, name
+    named = set(re.findall(r"`(harness/[^`]+\.py)`", span))
+    assert named == set(integrity.NEW_IN_020), (
+        named ^ set(integrity.NEW_IN_020))
+    assert len(integrity.NEW_IN_020) == 18
+
+
+def test_no_row_says_no_rule_changed_over_a_changed_refusal_surface():
+    """R2-17 (m6): the reviewer row said "no rule changed" over R1-13's three
+    new refusal rules. Over unequal digests the phrase is refused."""
+    for _s, source_sha, destination, dest_sha, cell in _port_rows():
+        if source_sha != dest_sha:
+            assert "no rule changed" not in cell, destination
+
+
+def test_every_live_statement_of_the_batch_shape_is_the_registrys():
+    """R2-6. A round count stated in prose is checked as a NUMBER against
+    `harness/PINS.json` — not as a phrase somebody hoped was there:
+    test_schedule.py and test_sweep.py both searched for "REGISTERED AT
+    N = 60/ARM" and both passed over a note whose next sentence said the
+    values were the 50-round carry.
+    MUTATIONS: (M1) `batch.n` -> 50 in a tmp registry: the prose says 60/arm,
+    the "%d/arm" read finds no "50/arm" -> fails, proving the test reads the
+    registry; (M2) put "50/arm" back into §5.2's cell -> fails, proving it
+    reads the prose; (M3) `batch.slots` -> 150 -> the product check fails;
+    (M4) re-insert PINS's "at 50 rounds and carried" sentence -> the named
+    phrase assertion fails (a phrase assertion, LABELLED as such — it cannot
+    generalise and is a named regression guard); (M5) unmutated -> passes."""
+    pins = _load("harness/PINS.json")
+    n, slots = pins["batch"]["n"], pins["batch"]["slots"]
+    assert (batch.ROUNDS, batch.RUNS_PER_ARM, batch.REGISTERED_SLOTS) == (n, n, slots)
+    assert slots == n * len(batch.ARMS)
+    assert pins["batch"]["order"]["rounds"] == n
+    prereg = flatten(_read("PREREGISTRATION.md"))
+    assert "§2.1's fill: %d/arm" % n in prereg
+    assert "§2.1's fill: 50/arm), so this TODO" not in prereg
+    assert "illustrative N = %d" % n not in prereg
+    assert "at the REGISTERED N = %d" % n in prereg
+    note = flatten(pins["batch"]["note"])
+    assert "REGISTERED AT N = %d/ARM" % n in note
+    assert "at 50 rounds and carried" not in note              # M4's named guard
+    assert "at the REGISTERED %d rounds" % n in note
+    doc = " ".join(batch.__doc__.split())
+    assert "`RUNS_PER_ARM` is 50" not in doc
+    assert "at the registered N = %d they are %d and %d" % (n, n, slots) in doc
+    ports = flatten(_read("harness/PORTS.md"))
+    assert "carry the port skeleton pending the registered round count" not in \
+        ports.split("this cell said the constants")[0]
+    assert "THE SCHEDULE CONSTANTS ARE GONE" in ports
+
+
+def test_the_correction_register_carriers_say_what_the_code_does():
+    """R2-14. Four carriers stated the pre-amendment reading of §7 delta 11
+    after R1-18 put `CORRECTION-TARGETS.md` back into the covered set. One
+    canonical sentence, bound to the constants, required in every carrier;
+    a closed list of the refuted phrases refused in every carrier.
+    MUTATIONS: (m1) re-insert a refuted phrase in any carrier -> fails naming
+    it; (m2) delete the sentence from one carrier -> fails; (m3) move the
+    register back into EXCLUDED_DOCUMENTS -> the constant half fails."""
+    assert "CORRECTION-TARGETS.md" in make_manifest.REGISTERED_DOCUMENTS
+    assert "CORRECTION-TARGETS.md" in make_manifest.manifest_entries()
+    assert "CORRECTION-TARGETS.md" not in make_manifest.EXCLUDED_DOCUMENTS
+    assert "CORRECTION-TARGETS-LOG.md" in make_manifest.EXCLUDED_DOCUMENTS
+    assert make_manifest.UNCOVERED_PRE_FREEZE_DOCUMENTS == {}
+    canonical = "CORRECTION-TARGETS.md is COVERED and freezes with the tree"
+    refuted = ("CORRECTION-TARGETS.md and harness/ADVISORIES.md are outside the manifest",
+               "Uncovered by design",
+               "names it only while absent",
+               "named while absent, refusing",
+               "CORRECTION-TARGETS.md joins them",
+               "while the file is absent, which is the state 020 is in today")
+    for relative in ("harness/PINS.json", "harness/SCAFFOLD.md",
+                     "harness/make_manifest.py", "PREREGISTRATION.md"):
+        text = flatten(_read(relative))
+        assert canonical in text, relative
+        for phrase in refuted:
+            assert phrase not in text, (relative, phrase)
+
+
+def test_no_live_carrier_states_a_review_round_state_of_its_own():
+    """R2-18. The round lifecycle is DATA in PREREG-REVIEW.md's block and is
+    rendered into the two front doors. Any THIRD carrier that states it in
+    prose goes stale the day a round moves — PINS said round 1 was open after
+    round 1 closed and round 2 opened.
+    MUTATIONS: (M1) put "round 2 is complete" into a tmp PINS note -> fails;
+    (M2) restore PINS's "review round 1 is on the record and open" -> fails;
+    (M3) unmutated -> passes."""
+    states = _block_states()
+    assert states, "the live block declares no rounds; the test asserts nothing"
+    for relative in ("harness/PINS.json", "harness/SCAFFOLD.md"):
+        text = flatten(_read(relative))
+        for number in states:
+            for claim in ("round %d is on the record and open" % number,
+                          "round %d is open" % number,
+                          "round %d is complete" % number,
+                          "round %d is awaiting" % number):
+                assert claim not in text, (relative, claim)
+        assert "zero rounds" not in text, relative
+        assert "EMPTY of rounds" not in text, relative
+    assert render_round_status.SURFACES == ("README.md", "PREREGISTRATION.md")
+
+
+def test_the_owed_register_agrees_with_the_machine_state_it_describes():
+    """R2-18. Each SCAFFOLD row that says a thing is OWED is checked against
+    the artifact that would discharge it, not against a phrase.
+    MUTATIONS: (M1) `calibration.minimumViable` -> null -> fails; (M2)
+    restore "Still owed on this line: the §2a.4(2) declaration" -> fails;
+    (M3) remove CORRECTION-TARGETS.md from REGISTERED_DOCUMENTS -> fails
+    (R2-14's discriminator, asserted once, here); (M4) `measuredCeilings`
+    starting "Two," -> fails; (M5) unmutated -> passes."""
+    scaffold = flatten(_read("harness/SCAFFOLD.md"))
+    pins = _load("harness/PINS.json")
+    declared = (pins["calibration"]["minimumViable"] is not None
+                and pins["calibration"]["minimumViableBasis"] is not None)
+    assert declared
+    assert "Still owed on this line: the §2a.4(2) declaration" not in scaffold
+    assert "CORRECTION-TARGETS.md" in make_manifest.REGISTERED_DOCUMENTS
+    assert "Uncovered by design" not in scaffold
+    ceilings = pins["presenceIdiomGuard"]["measuredCeilings"]
+    assert ceilings.startswith("Three,")
+    assert "the two measured ceilings" not in scaffold
+    assert "What is owed: whether harness/POWER-PRESENCE-IDIOM.md" not in \
+        scaffold.split("CLOSED (round-2 R2-18)")[-1]
+    assert "M1 | ~~What is owed" in scaffold or "CLOSED (round-2 R2-18)" in scaffold
+
+
+def test_the_recertification_names_a_registry_seat_that_exists():
+    """R2-19. The `recertification` string names the member path of the
+    set-identity digest, and walking that path in the loaded registry yields
+    a 64-hex value. MUTATION (m4): revert the string to "with the pinned
+    set-identity digest" -> fails."""
+    pins = _load("harness/PINS.json")
+    text = pins["presenceIdiomGuard"]["recertification"]
+    assert "counterfactualPerMemberShift.flaggedSet.sha256" in text
+    node = pins["presenceIdiomGuard"]
+    for key in ("counterfactualPerMemberShift", "flaggedSet", "sha256"):
+        node = node[key]
+    assert re.fullmatch(r"sha256:[0-9a-f]{64}", node)

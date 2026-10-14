@@ -1,0 +1,372 @@
+{
+  "citable": false,
+  "goldRows": 117,
+  "guardRegistered": true,
+  "label": "2026-08-24-effort-sweep",
+  "obligation": "PREREGISTRATION.md section 2.1 \u2014 the fill's per-arm perfect and identity rates; computed by harness/sweep_rates.py through the registered scoring components, no kill quantity computed by construction",
+  "settings": [
+    {
+      "perArm": {
+        "A": {
+          "calls": 3,
+          "codes": [],
+          "identityPass": 3,
+          "perfect": 0
+        },
+        "B": {
+          "calls": 3,
+          "codes": [
+            "opa-check-failed"
+          ],
+          "identityPass": 2,
+          "perfect": 2
+        },
+        "C": {
+          "calls": 3,
+          "codes": [
+            "presence-idiom-unsound",
+            "presence-idiom-unsound"
+          ],
+          "identityPass": 1,
+          "perfect": 0
+        }
+      },
+      "setting": "low",
+      "slots": [
+        {
+          "arm": "A",
+          "code": null,
+          "goldFailures": 11,
+          "goldPerfect": false,
+          "identityPass": true,
+          "identityWhy": null,
+          "slot": "sweeps/2026-08-24-effort-sweep/low/arm-A/run-001",
+          "suitePresent": true
+        },
+        {
+          "arm": "B",
+          "code": null,
+          "goldFailures": 0,
+          "goldPerfect": true,
+          "identityPass": true,
+          "identityWhy": null,
+          "slot": "sweeps/2026-08-24-effort-sweep/low/arm-B/run-001",
+          "suitePresent": true
+        },
+        {
+          "arm": "C",
+          "code": "presence-idiom-unsound",
+          "goldFailures": null,
+          "goldPerfect": false,
+          "identityPass": false,
+          "identityWhy": "not-asked",
+          "slot": "sweeps/2026-08-24-effort-sweep/low/arm-C/run-001",
+          "suitePresent": false
+        },
+        {
+          "arm": "A",
+          "code": null,
+          "goldFailures": 7,
+          "goldPerfect": false,
+          "identityPass": true,
+          "identityWhy": null,
+          "slot": "sweeps/2026-08-24-effort-sweep/low/arm-A/run-002",
+          "suitePresent": true
+        },
+        {
+          "arm": "B",
+          "code": null,
+          "goldFailures": 0,
+          "goldPerfect": true,
+          "identityPass": true,
+          "identityWhy": null,
+          "slot": "sweeps/2026-08-24-effort-sweep/low/arm-B/run-002",
+          "suitePresent": true
+        },
+        {
+          "arm": "C",
+          "code": null,
+          "goldFailures": 2,
+          "goldPerfect": false,
+          "identityPass": true,
+          "identityWhy": null,
+          "slot": "sweeps/2026-08-24-effort-sweep/low/arm-C/run-002",
+          "suitePresent": true
+        },
+        {
+          "arm": "A",
+          "code": null,
+          "goldFailures": 8,
+          "goldPerfect": false,
+          "identityPass": true,
+          "identityWhy": null,
+          "slot": "sweeps/2026-08-24-effort-sweep/low/arm-A/run-003",
+          "suitePresent": true
+        },
+        {
+          "arm": "B",
+          "code": "opa-check-failed",
+          "goldFailures": null,
+          "goldPerfect": false,
+          "identityPass": false,
+          "identityWhy": "not-asked",
+          "slot": "sweeps/2026-08-24-effort-sweep/low/arm-B/run-003",
+          "suitePresent": false
+        },
+        {
+          "arm": "C",
+          "code": "presence-idiom-unsound",
+          "goldFailures": null,
+          "goldPerfect": false,
+          "identityPass": false,
+          "identityWhy": "not-asked",
+          "slot": "sweeps/2026-08-24-effort-sweep/low/arm-C/run-003",
+          "suitePresent": false
+        }
+      ]
+    },
+    {
+      "perArm": {
+        "A": {
+          "calls": 3,
+          "codes": [],
+          "identityPass": 3,
+          "perfect": 1
+        },
+        "B": {
+          "calls": 3,
+          "codes": [
+            "opa-check-failed",
+            "unparseable-artifact"
+          ],
+          "identityPass": 1,
+          "perfect": 2
+        },
+        "C": {
+          "calls": 3,
+          "codes": [
+            "opa-check-failed"
+          ],
+          "identityPass": 2,
+          "perfect": 2
+        }
+      },
+      "setting": "medium",
+      "slots": [
+        {
+          "arm": "A",
+          "code": null,
+          "goldFailures": 7,
+          "goldPerfect": false,
+          "identityPass": true,
+          "identityWhy": null,
+          "slot": "sweeps/2026-08-24-effort-sweep/medium/arm-A/run-001",
+          "suitePresent": true
+        },
+        {
+          "arm": "B",
+          "code": null,
+          "goldFailures": 0,
+          "goldPerfect": true,
+          "identityPass": true,
+          "identityWhy": null,
+          "slot": "sweeps/2026-08-24-effort-sweep/medium/arm-B/run-001",
+          "suitePresent": true
+        },
+        {
+          "arm": "C",
+          "code": null,
+          "goldFailures": 0,
+          "goldPerfect": true,
+          "identityPass": true,
+          "identityWhy": null,
+          "slot": "sweeps/2026-08-24-effort-sweep/medium/arm-C/run-001",
+          "suitePresent": true
+        },
+        {
+          "arm": "A",
+          "code": null,
+          "goldFailures": 7,
+          "goldPerfect": false,
+          "identityPass": true,
+          "identityWhy": null,
+          "slot": "sweeps/2026-08-24-effort-sweep/medium/arm-A/run-002",
+          "suitePresent": true
+        },
+        {
+          "arm": "B",
+          "code": "opa-check-failed",
+          "goldFailures": null,
+          "goldPerfect": false,
+          "identityPass": false,
+          "identityWhy": "not-asked",
+          "slot": "sweeps/2026-08-24-effort-sweep/medium/arm-B/run-002",
+          "suitePresent": false
+        },
+        {
+          "arm": "C",
+          "code": "opa-check-failed",
+          "goldFailures": null,
+          "goldPerfect": false,
+          "identityPass": false,
+          "identityWhy": "not-asked",
+          "slot": "sweeps/2026-08-24-effort-sweep/medium/arm-C/run-002",
+          "suitePresent": false
+        },
+        {
+          "arm": "A",
+          "code": null,
+          "goldFailures": 0,
+          "goldPerfect": true,
+          "identityPass": true,
+          "identityWhy": null,
+          "slot": "sweeps/2026-08-24-effort-sweep/medium/arm-A/run-003",
+          "suitePresent": true
+        },
+        {
+          "arm": "B",
+          "code": "unparseable-artifact",
+          "engineRefusal": "E4-MATRIX-SCHEMA 22 `with input as` term(s) name an input point that neither the suite's syntax tree nor its resolved package document holds (a 'call' term is not a readable input point): those case i",
+          "goldFailures": 0,
+          "goldPerfect": true,
+          "identityPass": false,
+          "identityWhy": "suite-unparseable",
+          "slot": "sweeps/2026-08-24-effort-sweep/medium/arm-B/run-003",
+          "suitePresent": true
+        },
+        {
+          "arm": "C",
+          "code": null,
+          "goldFailures": 0,
+          "goldPerfect": true,
+          "identityPass": true,
+          "identityWhy": null,
+          "slot": "sweeps/2026-08-24-effort-sweep/medium/arm-C/run-003",
+          "suitePresent": true
+        }
+      ]
+    },
+    {
+      "perArm": {
+        "A": {
+          "calls": 3,
+          "codes": [],
+          "identityPass": 3,
+          "perfect": 1
+        },
+        "B": {
+          "calls": 3,
+          "codes": [
+            "presence-idiom-unsound",
+            "presence-idiom-unsound"
+          ],
+          "identityPass": 1,
+          "perfect": 1
+        },
+        "C": {
+          "calls": 3,
+          "codes": [
+            "unparseable-artifact"
+          ],
+          "identityPass": 1,
+          "perfect": 3
+        }
+      },
+      "setting": "high",
+      "slots": [
+        {
+          "arm": "A",
+          "code": null,
+          "goldFailures": 7,
+          "goldPerfect": false,
+          "identityPass": true,
+          "identityWhy": null,
+          "slot": "sweeps/2026-08-24-effort-sweep/high/arm-A/run-001",
+          "suitePresent": true
+        },
+        {
+          "arm": "B",
+          "code": null,
+          "goldFailures": 0,
+          "goldPerfect": true,
+          "identityPass": true,
+          "identityWhy": null,
+          "slot": "sweeps/2026-08-24-effort-sweep/high/arm-B/run-001",
+          "suitePresent": true
+        },
+        {
+          "arm": "C",
+          "code": null,
+          "goldFailures": 0,
+          "goldPerfect": true,
+          "identityPass": false,
+          "identityWhy": "out-of-domain-case",
+          "outOfDomainCases": 1,
+          "slot": "sweeps/2026-08-24-effort-sweep/high/arm-C/run-001",
+          "suitePresent": true
+        },
+        {
+          "arm": "A",
+          "code": null,
+          "goldFailures": 7,
+          "goldPerfect": false,
+          "identityPass": true,
+          "identityWhy": null,
+          "slot": "sweeps/2026-08-24-effort-sweep/high/arm-A/run-002",
+          "suitePresent": true
+        },
+        {
+          "arm": "B",
+          "code": "presence-idiom-unsound",
+          "goldFailures": null,
+          "goldPerfect": false,
+          "identityPass": false,
+          "identityWhy": "not-asked",
+          "slot": "sweeps/2026-08-24-effort-sweep/high/arm-B/run-002",
+          "suitePresent": false
+        },
+        {
+          "arm": "C",
+          "code": null,
+          "goldFailures": 0,
+          "goldPerfect": true,
+          "identityPass": true,
+          "identityWhy": null,
+          "slot": "sweeps/2026-08-24-effort-sweep/high/arm-C/run-002",
+          "suitePresent": true
+        },
+        {
+          "arm": "A",
+          "code": null,
+          "goldFailures": 0,
+          "goldPerfect": true,
+          "identityPass": true,
+          "identityWhy": null,
+          "slot": "sweeps/2026-08-24-effort-sweep/high/arm-A/run-003",
+          "suitePresent": true
+        },
+        {
+          "arm": "B",
+          "code": "presence-idiom-unsound",
+          "goldFailures": null,
+          "goldPerfect": false,
+          "identityPass": false,
+          "identityWhy": "not-asked",
+          "slot": "sweeps/2026-08-24-effort-sweep/high/arm-B/run-003",
+          "suitePresent": false
+        },
+        {
+          "arm": "C",
+          "code": "unparseable-artifact",
+          "engineRefusal": "E4-MATRIX-SCHEMA 1 `with input as` term(s) name an input point that neither the suite's syntax tree nor its resolved package document holds (a 'object' term is not a readable input point): those case ",
+          "goldFailures": 0,
+          "goldPerfect": true,
+          "identityPass": false,
+          "identityWhy": "suite-unparseable",
+          "slot": "sweeps/2026-08-24-effort-sweep/high/arm-C/run-003",
+          "suitePresent": true
+        }
+      ]
+    }
+  ]
+}

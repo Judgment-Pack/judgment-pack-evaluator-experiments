@@ -131,17 +131,22 @@ def adapter(corpus, batch):
                 record.get("caseCount"), kill, corpus))
             continue
         except family.EmptySurvivorAmbiguity:
-            # Section 5.2's Fact-1 defect. `killedPaired: 0` is unambiguous on
-            # its own: nothing was killed, so every paired mutant survived.
+            # Section 5.2's Fact-1 defect, re-read under ROUND-1 FINDING R1-3:
+            # 019's scorer gated mutant execution on the identity control
+            # (019 score.py:1563-1591, `if ok:`), so a run in this state
+            # EVALUATED NOTHING — the earlier "every paired mutant survived"
+            # synthesis asserted an evaluation that never happened. The
+            # inference is stated and asserted rather than assumed: exactly
+            # the two runs section 5.2 names are in this state, both with a
+            # failed identity control and a zero kill count.
             assert kill.get("killedPaired") == 0, run_id
+            assert record["identityPass"] is False, (
+                "%s: an identity-passing run in the empty-survivor state "
+                "would break the R1-3 inference this adapter states" % run_id)
             repaired_empty.append(run_id)
-            language = family.ARM_LANGUAGE[record["arm"]]
-            units.append(family.unit_from_kill_record(
+            units.append(family.unit_not_evaluated(
                 run_id, record["arm"], record["identityPass"],
-                record.get("caseCount"),
-                {"survivorsPaired": corpus.paired_members(language),
-                 "killedPaired": 0,
-                 "killedPairedExcludingEngineSupplied": 0}, corpus))
+                record.get("caseCount")))
         except family.FamilyError as refusal:
             # Section 5.2 pin 4's defect: a kill block with no survivor vector
             # at all. There is nothing to reconstruct from, so the run is
@@ -255,7 +260,7 @@ def test_fact_one_holds_on_every_scoreable_run(units, corpus, batch):
     `unit_from_kill_record()` asserts this on every unit it builds, in both
     columns, so the fixture loading at all is the check; this test states the
     denominator the registration states."""
-    scoreable = [unit for unit in units if unit.scoreable]
+    scoreable = [unit for unit in units if unit.carries_kill_record]
     assert len(scoreable) == 90
     identity_passing = [unit for unit in scoreable if unit.identity_pass]
     assert len(identity_passing) == 88
@@ -274,7 +279,7 @@ def test_the_coverage_distribution_is_the_registered_one(units, corpus):
     25:1}`, range 12-25, exactly one run reaching 25)"."""
     counts = {}
     for unit in units:
-        if not (unit.scoreable and unit.identity_pass):
+        if not (unit.carries_kill_record and unit.identity_pass):
             continue
         size = len(unit.covered(corpus, "included"))
         counts[size] = counts.get(size, 0) + 1
@@ -294,7 +299,7 @@ def test_the_union_ceilings_are_the_registered_ones(units, corpus):
         survivors = set(universe)
         covered = set()
         for unit in units:
-            if not (unit.scoreable and unit.identity_pass):
+            if not (unit.carries_kill_record and unit.identity_pass):
                 continue
             if unit.language != language:
                 continue
@@ -308,7 +313,7 @@ def test_the_union_ceilings_are_the_registered_ones(units, corpus):
         assert len(covered) == 28, language
     never = set(corpus.column_indices("included"))
     for unit in units:
-        if unit.scoreable and unit.identity_pass:
+        if unit.carries_kill_record and unit.identity_pass:
             never -= set(unit.covered(corpus, "included"))
     assert len(never) == 5
     assert sum(len(corpus.members(i, "jps", "included"))
@@ -325,13 +330,31 @@ def test_the_registered_offsets_reproduce_in_all_four_columns(units, corpus):
     engine-included), -0.04846 (ITT), -0.04922 / -0.04813 excluded-column."
 
     All four are the SHARED-denominator reading (finding F-1) and all four come
-    out to the last published digit. The ITT figures differ from the
-    per-protocol ones only because the ITT population's scoreable set is 90 runs
-    and the per-protocol population's is 88 — finding F-3."""
+    out to the last published digit — named as `"shared"` now that the
+    default is the registered NATIVE reading (round-2 R2-2). The ITT figures
+    differ from the per-protocol ones only because the ITT population's
+    scoreable set is 90 runs and the per-protocol population's is 88 —
+    finding F-3.
+
+    Under the registered reading the INCLUDED column is the same number in
+    both universes (all 33 of its classes are shared, so the native and
+    shared denominators coincide) and only the EXCLUDED column moves:
+    -0.00567 (PP) / -0.00554 (ITT), 019's figures being 8.7x / 8.7x larger
+    there because the shared denominator (29 classes) divides a native
+    numerator counted over more."""
+    for column, population, shared in (("included", "PP", -0.04956),
+                                       ("included", "ITT", -0.04846),
+                                       ("excluded", "PP", -0.04922),
+                                       ("excluded", "ITT", -0.04813)):
+        assert round(family.offset(units, corpus, column, population,
+                                   "shared"), 5) == shared, (column, population)
+    # the registered (default) reading
     assert round(family.offset(units, corpus, "included", "PP"), 5) == -0.04956
     assert round(family.offset(units, corpus, "included", "ITT"), 5) == -0.04846
-    assert round(family.offset(units, corpus, "excluded", "PP"), 5) == -0.04922
-    assert round(family.offset(units, corpus, "excluded", "ITT"), 5) == -0.04813
+    assert round(family.offset(units, corpus, "excluded", "PP"), 5) == -0.00567
+    assert round(family.offset(units, corpus, "excluded", "ITT"), 5) == -0.00554
+    assert family.offset(units, corpus, "excluded", "PP") == \
+        family.offset(units, corpus, "excluded", "PP", "native")
 
 
 def test_the_other_reading_of_the_offset_is_ill_posed_and_is_shown_to_be(
@@ -347,11 +370,17 @@ def test_the_other_reading_of_the_offset_is_ill_posed_and_is_shown_to_be(
     languages can still be scored on, and the two answers differ in sign:
 
         registered (shared denominators)   -0.04922 (PP)  -0.04813 (ITT)
-        native, vacuous coverage pooled    -0.00567 (PP)  -0.00805 (ITT)
+        native, vacuous coverage pooled    -0.00567 (PP)  -0.00554 (ITT)
         native, marginal over the 29       +0.03795 (PP)  +0.03711 (ITT)
 
     Three values for one registered symbol. The included column is unaffected:
-    there the two denominators coincide and every reading agrees."""
+    there the two denominators coincide and every reading agrees. (R1-3 moved
+    the pooled-vacuous ITT cell from its first measurement of -0.00805: the
+    old adapter's all-survivor synthesis for the two never-evaluated arm-A
+    runs let them 'cover' the four vacuous classes, and pooled-vacuous is the
+    ONE reading that pays vacuous coverage; under the honest not-evaluated
+    units they cover nothing. The other five cells are synthesis-invariant,
+    and none of the six ever reproduced a published 019 figure.)"""
     assert round(family.offset(units, corpus, "included", "PP", "native"), 5) \
         == -0.04956
     assert round(family.offset(units, corpus, "included", "ITT", "native"), 5) \
@@ -359,12 +388,12 @@ def test_the_other_reading_of_the_offset_is_ill_posed_and_is_shown_to_be(
     assert round(family.offset(units, corpus, "excluded", "PP", "native"), 5) \
         == -0.00567
     assert round(family.offset(units, corpus, "excluded", "ITT", "native"), 5) \
-        == -0.00805
+        == -0.00554
     # The third value, computed through the public API so the disclosure is a
     # measurement rather than a sentence.
     for population, expected in (("PP", 0.03795), ("ITT", 0.03711)):
         scoreable = [unit for unit in family.population_units(units, population)
-                     if unit.scoreable]
+                     if unit.carries_kill_record]
         indices = corpus.column_indices("excluded")
         table = corpus.weights("L2c", "excluded", "native")
         counts = dict((i, 0) for i in indices)
@@ -391,7 +420,8 @@ def test_the_offset_reads_no_arm_label(units, corpus):
     swap = {"A": "A", "B": "C", "C": "B"}
     relabelled = []
     for unit in units:
-        clone = family.Unit(unit.run_id, swap[unit.arm], unit.scoreable,
+        clone = family.Unit(unit.run_id, swap[unit.arm],
+                            unit.carries_kill_record, unit.evaluated,
                             unit.identity_pass, unit.case_count,
                             unit.survivors, unit.killed_paired)
         relabelled.append(clone)
@@ -427,6 +457,30 @@ REPRINT_ONE = {
     "M17": (+0.1275, None, +0.1065, None),   # published as "< 0.0001"
     "M18": (+0.0911, 0.0002, +0.1105, 0.0002),
 }
+
+#: The REGISTERED reading's rows where they differ from Reprint 1 — the
+#: three excluded-column L2c members, native-for-both (round-2 R2-2), from
+#: the run: id -> (A-C, p, A-B, p). The other fifteen are Reprint 1's rows.
+REGISTERED_EXCLUDED_L2C = {
+    "M16": (+0.1920, 0.0044, +0.1873, 0.0060),
+    "M17": (+0.0839, 0.0018, +0.0629, 0.0102),
+    "M18": (+0.0476, 0.0125, +0.0669, 0.0005),
+}
+
+
+def _reprint_one_under_the_registered_reading():
+    """Reprint 1 with the three rows the ruling moved replaced."""
+    table = dict(REPRINT_ONE)
+    table.update(REGISTERED_EXCLUDED_L2C)
+    return table
+
+
+def _hybrid_rows(report):
+    """The superseded hybrid alternative's rows — 019's own reading."""
+    alt = report["alternatives"][0]
+    assert alt["status"] == "SUPERSEDED"
+    return dict((row["id"], row) for row in alt["members"])
+
 
 #: Section 5.5 Reprint 1's cell shape, member by member.
 REPRINT_ONE_SHAPE = {
@@ -487,18 +541,31 @@ def test_the_eighteen_per_arm_denominators_reproduce(report_ac):
 
 def test_the_eighteen_a_minus_c_point_estimates_reproduce(report_ac):
     """THE PRIMARY REPRODUCTION. Reprint 1's A-C column, to the last published
-    digit, for all eighteen members."""
-    rows = _rows(report_ac)
+    digit, for all eighteen members — through the SUPERSEDED hybrid
+    alternative, which is 019's reading (round-2 R2-2). The registered
+    reading reproduces fifteen of the eighteen to the digit and moves the
+    three excluded-column L2c members to the run's native-for-both figures."""
+    hybrid = _hybrid_rows(report_ac)
     for member_id, expected in sorted(REPRINT_ONE.items()):
+        assert round(hybrid[member_id]["difference"], 4) == expected[0], member_id
+    rows = _rows(report_ac)
+    for member_id, expected in sorted(
+            _reprint_one_under_the_registered_reading().items()):
         assert round(rows[member_id]["difference"], 4) == expected[0], member_id
+    assert set(REGISTERED_EXCLUDED_L2C) == set(
+        m.id for m in family.MEMBERS if m.level == "L2c" and m.column == "excluded")
 
 
 def test_the_eighteen_a_minus_b_point_estimates_reproduce(report_ab):
     """Reprint 1's A-B column, all eighteen. Reached here as a computation, not
     as a result: section 5.9 gates A-B behind an A-C claim, and on 019 A-C does
     not claim."""
-    rows = _rows(report_ab)
+    hybrid = _hybrid_rows(report_ab)
     for member_id, expected in sorted(REPRINT_ONE.items()):
+        assert round(hybrid[member_id]["difference"], 4) == expected[2], member_id
+    rows = _rows(report_ab)
+    for member_id, expected in sorted(
+            _reprint_one_under_the_registered_reading().items()):
         assert round(rows[member_id]["difference"], 4) == expected[2], member_id
 
 
@@ -510,7 +577,7 @@ def test_the_twelve_unadjusted_p_values_reproduce_exactly(report_ac, report_ab):
     payload list, the two-sided `|d*| >= |d_obs|` count and `(count+1)/(B+1)`.
     That is what identifies the scheme; finding F-2 is that the same stream does
     not reproduce the adjusted six."""
-    ac, ab = _rows(report_ac), _rows(report_ab)
+    ac, ab = _hybrid_rows(report_ac), _hybrid_rows(report_ab)
     checked = 0
     for member in family.MEMBERS:
         if member.adjusted:
@@ -524,6 +591,16 @@ def test_the_twelve_unadjusted_p_values_reproduce_exactly(report_ac, report_ab):
             assert round(ab[member.id]["p"], 4) == expected[3], member.id
         checked += 1
     assert checked == 12
+    # and the registered reading's twelve, the same stream: ten of Reprint 1's
+    # and the two excluded-column figures the ruling moved (M16, M17).
+    ac, ab = _rows(report_ac), _rows(report_ab)
+    table = _reprint_one_under_the_registered_reading()
+    for member in family.MEMBERS:
+        if member.adjusted:
+            continue
+        expected = table[member.id]
+        assert round(ac[member.id]["p"], 4) == expected[1], member.id
+        assert round(ab[member.id]["p"], 4) == expected[3], member.id
 
 
 def test_the_six_adjusted_p_values_agree_in_every_decision_but_not_every_digit(
@@ -566,11 +643,23 @@ def test_the_eighteen_sigmas_and_mdes_reproduce(report_ac):
         "M9": (0.06114, 0.0437), "M12": (0.06849, 0.0490),
         "M15": (0.06049, 0.0432), "M18": (0.06420, 0.0459),
     }
-    rows = _rows(report_ac)
+    hybrid = _hybrid_rows(report_ac)
     assert len(expected) == 18
     for member_id, (sigma, mde) in sorted(expected.items()):
-        assert round(rows[member_id]["sigma"], 5) == sigma, member_id
-        assert round(rows[member_id]["mde"], 4) == mde, member_id
+        assert round(hybrid[member_id]["sigma"], 5) == sigma, member_id
+        assert round(hybrid[member_id]["mde"], 4) == mde, member_id
+    # Under the registered reading only M16's dispersion moves: the offset is
+    # subtracted from arm A's kill-record runs and not from its two others, so
+    # a smaller offset narrows arm A's spread; the per-protocol members
+    # subtract from every arm-A unit and their sigma is offset-invariant.
+    rows = _rows(report_ac)
+    for member_id, (sigma, mde) in sorted(expected.items()):
+        if member_id == "M16":
+            assert round(rows[member_id]["sigma"], 5) == 0.29649
+            assert round(rows[member_id]["mde"], 4) == 0.1893
+        else:
+            assert round(rows[member_id]["sigma"], 5) == sigma, member_id
+            assert round(rows[member_id]["mde"], 4) == mde, member_id
 
 
 # ---------------------------------------------------------------------------
@@ -687,7 +776,7 @@ def test_the_empty_survivor_trap_moves_the_contrast_by_the_registered_amount(
     for unit in units:
         if unit.run_id in trapped:
             value = 1.0                       # the trap: no survivors => 33/33
-        elif unit.scoreable:
+        elif unit.carries_kill_record:
             value = len(unit.covered(corpus, "included")) / float(size)
         else:
             value = 0.0
@@ -736,7 +825,7 @@ def test_the_offset_is_taken_by_the_arm_a_runs_that_carry_a_kill_record(
     kill record and subtracted from the 36 arm-A runs that carry one — not from
     the 34 that also pass the identity control. Section 5.2's "unscoreable runs
     ... take no offset" is therefore about the 24 runs with no kill record."""
-    carrying = [unit for unit in units if unit.scoreable]
+    carrying = [unit for unit in units if unit.carries_kill_record]
     assert len(carrying) == 90
     assert len([unit for unit in carrying if unit.arm == "A"]) == 36
     assert len([unit for unit in carrying if unit.identity_pass]) == 88
@@ -746,9 +835,106 @@ def test_the_offset_is_taken_by_the_arm_a_runs_that_carry_a_kill_record(
     assert len(shifted) == 36
 
 
+def test_the_two_never_evaluated_runs_are_honest_bytes_now(units, corpus):
+    """ROUND-1 FINDING R1-3's discriminating test — the one the old
+    `len(shifted) == 36` pin could not be, because it passes under both the
+    all-survivor synthesis and the honest recode. 019's two identity-failing
+    admitted runs evaluated no mutant (019's scorer gated mutant execution on
+    identity), so the adapter must build them as carrying-but-not-evaluated:
+    an adapter that resurrects the synthesis fails the `evaluated` assertions
+    here, and the two offset marginals stop being two."""
+    by_id = dict((unit.run_id, unit) for unit in units)
+    for run_id in ("A/run-025", "A/run-046"):
+        unit = by_id[run_id]
+        assert unit.carries_kill_record
+        assert unit.evaluated is False
+        assert unit.survivors == frozenset()
+        assert unit.covered(corpus, "included") == ()
+    evaluated_a = [unit for unit in units
+                   if unit.arm == "A" and unit.evaluated]
+    carrying_a = [unit for unit in units
+                  if unit.arm == "A" and unit.carries_kill_record]
+    assert len(evaluated_a) == 34
+    assert len(carrying_a) == 36
+    # Both readings of the ITT marginal, pinned to the measured figures: the
+    # kill-record one reproduces 019's published offsets, the evaluated one is
+    # the R1-3 correction published beside it.
+    assert round(family.offset(units, corpus, "included", "ITT", "shared",
+                               predicate="kill-record"), 5) == -0.04846
+    assert round(family.offset(units, corpus, "included", "ITT", "shared",
+                               predicate="evaluated"), 5) == -0.04956
+    assert round(family.offset(units, corpus, "excluded", "ITT", "shared",
+                               predicate="evaluated"), 5) == -0.04922
+
+
 # ---------------------------------------------------------------------------
 # The refusals — one test each, every one mutation-checked (see MUTATIONS)
 # ---------------------------------------------------------------------------
+
+def test_the_registered_stream_parameters_live_in_the_registry(units, corpus):
+    """R1-5. Section 5.3 pins the permutation B and seed and says the BCa seed
+    is pinned in PINS.json; the registry now carries all five, the permutation
+    members must equal this module's transcribed constants (two carriers, one
+    fact), and a family_report driven with the pinned BCa pair publishes an
+    interval on every member instead of eighteen refusals."""
+    import json
+    harness = os.path.dirname(HERE)
+    with open(os.path.join(harness, "PINS.json"), "rb") as handle:
+        pins = json.loads(handle.read().decode("utf-8"))
+    block = pins["family"]
+    assert block["permutationsUnadjusted"] == family.PERMUTATIONS_UNADJUSTED
+    assert block["permutationsAdjusted"] == family.PERMUTATIONS_ADJUSTED
+    assert block["permutationSeed"] == family.PERMUTATION_SEED
+    assert isinstance(block["bcaResamples"], int) and block["bcaResamples"] > 0
+    assert isinstance(block["bcaSeed"], int)
+    # A cheap driven check (full B would be slow in CI): 200 resamples through
+    # the registered code path yields an interval block, not a refusal, and
+    # the adjusted member's resampling covers all three arms (R1-5's second
+    # half) while the unadjusted member's covers the contrast pair.
+    member = family.MEMBERS_BY_ID["M3"]
+    rows = family.member_outcomes(member, units, corpus)
+    interval = family.bca_interval(rows, "A", "C", True, resamples=200,
+                                   seed=block["bcaSeed"])
+    assert interval["coverage"] == "approximate"
+    assert interval["resampledArms"] == ["A", "B", "C"]
+    member = family.MEMBERS_BY_ID["M1"]
+    rows = family.member_outcomes(member, units, corpus)
+    interval = family.bca_interval(rows, "A", "C", False, resamples=200,
+                                   seed=block["bcaSeed"])
+    assert interval["resampledArms"] == ["A", "C"]
+
+
+def test_a_row_wearing_an_unregistered_id_is_refused(report_ac):
+    """R1-8: the membership is CLOSED in both directions. The old check
+    refused a missing member and accepted an extra one, so a favourable row
+    could ride in beside the eighteen."""
+    rows = [dict(row) for row in report_ac["members"]]
+    rows.append(dict(rows[0], id="M19"))
+    with pytest.raises(family.MembershipError, match="MEMBERSHIP-EXTRA"):
+        family.verdict(rows)
+
+
+def test_a_relabelled_row_cannot_sit_in_a_members_seat(report_ac):
+    """R1-8: an id is not a seat. A row carrying M1's id with M18's axes — the
+    relabelling the review constructs — is refused on its stated axes."""
+    rows = [dict(row) for row in report_ac["members"]]
+    rows[0] = dict(rows[17], id="M1")
+    with pytest.raises(family.MembershipError, match="RELABELLED"):
+        family.verdict(rows)
+
+
+def test_supplied_booleans_that_disagree_with_the_numbers_are_refused(
+        report_ac):
+    """R1-8: `sign` and `rejects` are DERIVED quantities and the verdict
+    recomputes them; a row stating rejects=True over p=0.4 is refused, not
+    trusted."""
+    rows = [dict(row) for row in report_ac["members"]]
+    honest_nonrejecter = next(row for row in rows if not row["rejects"])
+    forged = dict(honest_nonrejecter, rejects=True)
+    rows[rows.index(honest_nonrejecter)] = forged
+    with pytest.raises(family.MembershipError, match="INCONSISTENT"):
+        family.verdict(rows)
+
 
 def test_the_itt_ancova_cell_is_refused_and_never_falls_back(units, corpus):
     """Section 5.2: "**The scorer must refuse rather than fall back**, and a
@@ -876,8 +1062,8 @@ def test_the_published_quantity_set_is_identical_in_every_branch(
     types, everything present. The only difference permitted is the values."""
     forced = []
     for unit in units:
-        if unit.arm == "A" and unit.scoreable:
-            forced.append(family.Unit(unit.run_id, unit.arm, True,
+        if unit.arm == "A" and unit.carries_kill_record:
+            forced.append(family.Unit(unit.run_id, unit.arm, True, True,
                                       unit.identity_pass, unit.case_count,
                                       (), {}))
         else:
@@ -896,13 +1082,49 @@ def test_the_published_quantity_set_is_identical_in_every_branch(
 
 
 def test_the_report_publishes_both_readings_of_the_offset(report_ac):
-    """Finding F-1's disclosure obligation: the block carries both readings in
-    both columns and both populations, and names which one produced the members."""
-    assert len(report_ac["offsets"]) == 8
-    assert report_ac["offsetReadingUsed"] == "shared"
+    """Finding F-1's disclosure obligation, extended by R1-3: both WEIGHTINGS
+    in both columns and both populations (eight), plus the evaluation-corrected
+    ITT marginal under each weighting and column (four more) — the PP pair is
+    one set under either predicate and is deliberately not double-printed.
+    Round 2 (R2-3): each entry is a labelled dict and the reading in use is
+    the registered native one."""
+    assert len(report_ac["offsets"]) == 12
+    assert round(report_ac["offsets"]["included/ITT/shared"]["value"], 5) \
+        == -0.04846
+    assert round(report_ac["offsets"]["included/ITT/shared/evaluated"]["value"],
+                 5) == -0.04956
+    assert round(report_ac["offsets"]["excluded/ITT/native/evaluated"]["value"],
+                 5) == -0.00567
+    assert report_ac["offsetReadingUsed"] == "native"
     assert report_ac["outcomeWeightingUsed"] == "native"
     assert report_ac["corpus"]["sharedClasses"] == {"included": 33,
                                                     "excluded": 29}
+
+
+def test_the_refused_cell_is_disclosed_in_six_tier_d_rows(report_ac):
+    """R1-7: the promised disclosure exists — six quantities (three levels x
+    two columns) at ITT x ANCOVA over the complete-case population, its
+    composition printed beside them, all Tier D, while the member-level
+    refusal stands untouched."""
+    block = report_ac["refusedCellTierD"]
+    rows = block["quantities"]
+    assert len(rows) == 6
+    assert sorted((row["level"], row["engine"]) for row in rows) == sorted(
+        (level, column) for level in family.LEVELS
+        for column in family.COLUMNS)
+    for row in rows:
+        assert row["population"] == "ITT"
+        assert row["adjustment"] == "ANCOVA"
+        assert row["tier"] == "D"
+    composition = block["composition"]
+    assert sum(composition["perArm"].values())         + sum(composition["droppedPerArm"].values()) == 114
+    # This disclosure is its own first publication — no prior document
+    # carries these six figures — so the L1/included quantity is pinned at the
+    # value THIS recipe computes on the frozen fixture, against silent
+    # recomputation, not against a predecessor.
+    l1 = next(row for row in rows
+              if row["level"] == "L1" and row["engine"] == "included")
+    assert round(l1["adjustedDifference"], 5) == -0.01531
 
 
 def test_the_report_names_the_refused_cell_whatever_the_verdict(report_ac):
@@ -1013,3 +1235,186 @@ def test_every_registered_refusal_has_a_mutation_row():
         assert name in globals(), name
         assert "still passes" in outcome
     assert math.isclose(family.ALPHA, 0.05)
+
+
+# ---------------------------------------------------------------------------
+# ROUND-2 FINDING R2-2 / R2-3 — one universe, ruled; the alternatives, complete
+# ---------------------------------------------------------------------------
+
+def _l2c(report):
+    return [row for row in report["members"] if row["level"] == "L2c"]
+
+
+def test_the_registered_estimand_is_one_universe(report_ac):
+    """R2-2, ruled NATIVE-FOR-BOTH: the report states its estimand, both
+    weightings are the same universe, and `harness/PINS.json`'s `family`
+    block is where they are registered."""
+    estimand = report_ac["estimand"]
+    assert estimand["outcomeWeighting"] == estimand["offsetWeighting"] == "native"
+    assert estimand["universe"] == "single"
+    assert report_ac["offsetReadingUsed"] == "native"
+    assert report_ac["outcomeWeightingUsed"] == "native"
+    assert "PINS.json" in estimand["pinnedIn"]
+
+
+def test_a_mixed_universe_is_refused_before_any_number_exists(units, corpus):
+    """R2-2's mechanism: an L2c outcome weighted in one universe with an
+    offset from the other is refused at the member seat, beside the ITT x
+    ANCOVA refusal, and `family_report()` under the superseded hybrid pair
+    refuses too. MUTATION: drop the guard — both calls return rows."""
+    member = next(m for m in family.MEMBERS if m.id == "M16")
+    with pytest.raises(family.MixedUniverseRefused, match="FAMILY-MIXED-UNIVERSE"):
+        family.member_outcomes(member, units, corpus, "native", "shared")
+    with pytest.raises(family.MixedUniverseRefused):
+        family.family_report(units, corpus, "A", "C", weighting="native",
+                             offset_weighting="shared")
+    with pytest.raises(family.MixedUniverseRefused):
+        family.family_report(units, corpus, "A", "C", weighting="shared",
+                             offset_weighting="native")
+    # the twelve members that read no weighting are untouched by the guard
+    l1 = next(m for m in family.MEMBERS if m.id == "M1")
+    assert family.member_outcomes(l1, units, corpus, "native", "shared")
+
+
+def test_the_two_alternatives_are_complete_and_no_seat(report_ac):
+    """R2-3: the superseded hybrid and shared-for-both are published as Tier
+    D — every member row, the verdict and the drop-a-pole table over all
+    eighteen — with `member` False on every row and on the block, so a
+    reader can see what the ruling chose against and no decision can read
+    it. The twelve weighting-invariant members are the registered rows
+    themselves."""
+    alternatives = report_ac["alternatives"]
+    assert [(a["label"].split(" (")[0], a["status"]) for a in alternatives] == \
+        [("hybrid", "SUPERSEDED"), ("shared-for-both", "ALTERNATIVE")]
+    registered = _rows(report_ac)
+    for alt in alternatives:
+        assert alt["tier"] == "D" and alt["member"] is False
+        assert len(alt["members"]) == 18
+        assert all(row["member"] is False and row["tier"] == "D"
+                   for row in alt["members"])
+        assert set(alt["verdict"]) >= {"positive", "rejecting", "verdict"}
+        assert len(alt["dropAPole"]) == len(report_ac["dropAPole"])
+        assert alt["weightingInvariantMembers"] == \
+            report_ac["weightingInvariantMembers"] == \
+            ["M%d" % n for n in range(1, 13)]
+        for row in alt["members"]:
+            if row["level"] != "L2c":
+                for key in ("difference", "p", "sigma", "mde"):
+                    assert row[key] == registered[row["id"]][key], (alt["label"],
+                                                                     row["id"])
+    hybrid = alternatives[0]
+    assert (hybrid["outcomeWeighting"], hybrid["offsetWeighting"]) == \
+        ("native", "shared")
+    shared = alternatives[1]
+    assert (shared["outcomeWeighting"], shared["offsetWeighting"]) == \
+        ("shared", "shared")
+
+
+def test_the_hybrid_differs_from_the_registered_reading_by_the_residual_exactly(
+        units, corpus, report_ac):
+    """R2-2's arithmetic, asserted rather than argued. For an unadjusted L2c
+    member the hybrid subtracts the SHARED offset and the registered reading
+    the NATIVE one from the same k arm-A kill-record-carrying runs of the
+    same n_A, so the two differences differ by exactly
+    (off_native - off_shared) * k / n_A — the residual §5.2's criterion (iii)
+    says a member must not carry. Under a true null the native de-biasing
+    leaves zero and the hybrid leaves this."""
+    hybrid = dict((row["id"], row) for row in report_ac["alternatives"][0]["members"])
+    registered = _rows(report_ac)
+    checked = 0
+    for member in family.MEMBERS:
+        if member.level != "L2c" or member.adjusted:
+            continue
+        selected = family.population_units(units, member.population)
+        n_a = sum(1 for unit in selected if unit.arm == "A")
+        k = sum(1 for unit in selected
+                if unit.arm == "A" and unit.carries_kill_record)
+        off_native = family.offset(units, corpus, member.column,
+                                   member.population, "native")
+        off_shared = family.offset(units, corpus, member.column,
+                                   member.population, "shared")
+        residual = (off_native - off_shared) * k / n_a
+        assert abs((hybrid[member.id]["difference"]
+                    - registered[member.id]["difference"]) - residual) < 1e-9, \
+            member.id
+        if member.column == "included":
+            # all 33 included classes are shared: one universe already
+            assert residual == 0.0, member.id
+        else:
+            # the per-unit gap is the figure R2-2 quoted: +0.043552 (PP) /
+            # +0.042584 (ITT), 7.7x the raw native bias of -0.00567
+            quoted = 0.043552 if member.population == "PP" else 0.042584
+            assert abs((off_native - off_shared) - quoted) < 5e-6, member.id
+            assert residual > 0.04, member.id
+        checked += 1
+    assert checked == 4
+
+
+def test_the_offsets_are_published_as_labelled_dicts_with_the_registered_marked(
+        report_ac):
+    """R2-3: every offset entry names its column, population, weighting and
+    predicate and says whether it is the reading the estimand used, so the
+    reading in use is machine-identifiable. Twelve entries; exactly the
+    four native kill-record marginals are registered."""
+    offsets = report_ac["offsets"]
+    assert len(offsets) == 12
+    registered = sorted(key for key, block in offsets.items()
+                        if block["registered"])
+    assert registered == ["excluded/ITT/native", "excluded/PP/native",
+                          "included/ITT/native", "included/PP/native"]
+    for key, block in offsets.items():
+        assert set(block) == {"value", "column", "population", "weighting",
+                              "predicate", "registered", "tier"}
+        assert key.startswith("%s/%s/%s" % (block["column"], block["population"],
+                                            block["weighting"]))
+        assert block["predicate"] == ("evaluated" if key.endswith("/evaluated")
+                                      else "kill-record")
+        assert block["tier"] == ("registered" if block["registered"] else "D")
+    # the shared reading is 019's, still computable, still to the digit
+    assert round(offsets["included/ITT/shared"]["value"], 5) == -0.04846
+    assert round(offsets["included/ITT/shared/evaluated"]["value"], 5) \
+        == -0.04956
+    assert report_ac["corpus"]["sharedClasses"] == {"included": 33,
+                                                    "excluded": 29}
+
+
+def test_the_predicate_threads_through_the_subtraction_set_too(units, corpus):
+    """The round-2 addendum to R1-3: the subtraction set used to be hard-coded
+    to `carries_kill_record` while only the marginal took the predicate, so
+    §5.2's correction table could not be computed through `member_outcomes()`.
+    Under `evaluated` the two carrying-but-not-evaluated arm-A runs take NO
+    offset — their row is the raw outcome — while under `kill-record` they
+    take the kill-record marginal. MUTATION: restore the hard-coded
+    predicate — the two rows carry the evaluated marginal and the raw-equality
+    assertion fails (the marginal alone moving every arm-A kill-record row is
+    NOT what discriminates, which is why the first version of this test could
+    not see the mutation)."""
+    m13 = next(m for m in family.MEMBERS if m.id == "M13")
+    selected = family.population_units(units, "ITT")
+    kill = dict(zip((u.run_id for u in selected),
+                    (row[1] for row in family.member_outcomes(
+                        m13, units, corpus, predicate="kill-record"))))
+    evaluated = dict(zip((u.run_id for u in selected),
+                         (row[1] for row in family.member_outcomes(
+                             m13, units, corpus, predicate="evaluated"))))
+    raw = dict((u.run_id, family.raw_outcome(u, corpus, "L2c", m13.column,
+                                             "native")) for u in selected)
+    off_kill = family.offset(units, corpus, m13.column, "ITT", "native",
+                             "kill-record")
+    off_evaluated = family.offset(units, corpus, m13.column, "ITT", "native",
+                                  "evaluated")
+    assert off_kill != off_evaluated
+    carrying_not_evaluated = sorted(
+        u.run_id for u in selected
+        if u.arm == "A" and u.carries_kill_record and not u.evaluated)
+    assert carrying_not_evaluated == ["A/run-025", "A/run-046"]
+    for run in carrying_not_evaluated:
+        assert evaluated[run] == raw[run], run          # no offset taken
+        assert abs((kill[run] - raw[run]) + off_kill) < 1e-12, run
+    # every other arm-A kill-record row takes its predicate's marginal
+    for u in selected:
+        if u.arm == "A" and u.carries_kill_record and u.evaluated:
+            assert abs((evaluated[u.run_id] - raw[u.run_id]) + off_evaluated) \
+                < 1e-12, u.run_id
+    with pytest.raises(family.FamilyError, match="FAMILY-UNKNOWN-PREDICATE"):
+        family.member_outcomes(m13, units, corpus, predicate="scoreable")
